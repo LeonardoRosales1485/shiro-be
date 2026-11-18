@@ -27,3 +27,7 @@ databaseChangeLog:
   - include:
       file: changes/2026-10-09-insert-usuario-sysadmin-required-data.yaml
       relativeToChangelogFile: true
+  # Tiene que quedar ultimo: crea el usuario de la aplicacion y le aplica los permisos sobre todas las tablas
+  - include:
+      file: changes/2026-11-18-usuario-de-la-app.yaml
+      relativeToChangelogFile: true

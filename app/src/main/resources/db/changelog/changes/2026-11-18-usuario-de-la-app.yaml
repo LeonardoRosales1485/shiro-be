@@ -1,0 +1,67 @@
+# Usuario de base de datos de la aplicacion (spec, Spec 1; T0.3 del plan).
+# "Nada se borra" lo garantiza la base: Liquibase corre con el usuario duenio de las tablas (el de deploy.yml) y crea
+# un usuario aparte para la aplicacion, con SELECT, INSERT y UPDATE sobre las tablas shr_, sin DELETE ni TRUNCATE.
+# shr_historial es solo insercion. Sobre las tablas del Core conserva DELETE (core-protocolo-jwt borra refresh tokens).
+# El nombre y la contrasena llegan como parametros de Liquibase (spring.liquibase.parameters.*), nunca escritos aca.
+# Este archivo va ultimo en el master: el changeset runAlways reaplica los permisos a toda tabla nueva.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-usuario-de-la-app-1
+      author: shiro
+      comment: "Crea el usuario de la aplicacion, o le actualiza la contrasena si ya existe"
+      runAlways: true
+      runOnChange: true
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${shiro_usuario_app}') THEN
+                  EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${shiro_usuario_app}', '${shiro_contrasena_app}');
+                ELSE
+                  EXECUTE format('ALTER ROLE %I LOGIN PASSWORD %L', '${shiro_usuario_app}', '${shiro_contrasena_app}');
+                END IF;
+              END
+              $$;
+
+  - changeSet:
+      id: 2026-11-18-usuario-de-la-app-2
+      author: shiro
+      comment: "Funcion que aplica los permisos del usuario de la aplicacion sobre todas las tablas del esquema"
+      runOnChange: true
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              CREATE OR REPLACE FUNCTION shr_aplicar_permisos_app(usuario TEXT) RETURNS VOID
+              LANGUAGE plpgsql AS $f$
+              DECLARE
+                tabla RECORD;
+              BEGIN
+                EXECUTE format('GRANT USAGE ON SCHEMA public TO %I', usuario);
+                EXECUTE format('GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO %I', usuario);
+                FOR tabla IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+                  IF tabla.tablename IN ('databasechangelog', 'databasechangeloglock') THEN
+                    EXECUTE format('REVOKE ALL ON %I FROM %I', tabla.tablename, usuario);
+                  ELSIF tabla.tablename = 'shr_historial' THEN
+                    EXECUTE format('GRANT SELECT, INSERT ON %I TO %I', tabla.tablename, usuario);
+                    EXECUTE format('REVOKE UPDATE, DELETE, TRUNCATE ON %I FROM %I', tabla.tablename, usuario);
+                  ELSIF tabla.tablename LIKE 'shr\_%' THEN
+                    EXECUTE format('GRANT SELECT, INSERT, UPDATE ON %I TO %I', tabla.tablename, usuario);
+                    EXECUTE format('REVOKE DELETE, TRUNCATE ON %I FROM %I', tabla.tablename, usuario);
+                  ELSE
+                    EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %I TO %I', tabla.tablename, usuario);
+                  END IF;
+                END LOOP;
+              END
+              $f$;
+
+  - changeSet:
+      id: 2026-11-18-usuario-de-la-app-3
+      author: shiro
+      comment: "Aplica los permisos del usuario de la aplicacion en cada arranque (cubre las tablas nuevas)"
+      runAlways: true
+      changes:
+        - sql:
+            sql: SELECT shr_aplicar_permisos_app('${shiro_usuario_app}')

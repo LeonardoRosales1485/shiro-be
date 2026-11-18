@@ -126,6 +126,11 @@ class PermisosDeBaseDeDatosTest extends TestConBaseDeDatos {
         try (Connection duenio = dataSource.getConnection()) {
             url = duenio.getMetaData().getURL();
         }
+        // La URL del PostgreSQL embebido trae ?user=postgres, que pgjdbc prioriza sobre el usuario recibido
+        int inicioDeParametros = url.indexOf('?');
+        if (inicioDeParametros >= 0) {
+            url = url.substring(0, inicioDeParametros);
+        }
         return DriverManager.getConnection(url, usuarioDeLaApp, contrasenaDeLaApp);
     }
 }
