@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * CU-ROL-03: alta o edicion de un rol con los permisos que otorga (POST /rol/guardar). Migrado de bruno/Role
  * (03 Save or Create y Save - nombre duplicado); "Save - sin autenticacion" lo genera core-test.
- * El proyecto usa core-multiempresa (RolService extiende RolBaseMultiempresaService): el nombre de un rol no se
- * repite dentro de la misma empresa (ROL_YA_EXISTE).
+ * Shiro usa core-monoempresa (RolService extiende RolBaseService). Que el nombre de un grupo no se repita queda para
+ * T2.5: el Core 4.0.0 no lo valida en monoempresa.
  */
 class RolGuardarContratoTest extends PruebaDeContrato {
 
@@ -56,15 +56,6 @@ class RolGuardarContratoTest extends PruebaDeContrato {
         assertEquals(uuid, rol.get("uuid").asString());
         assertEquals("Rol renombrado", rol.get("nombre").asString());
         assertEquals(rolView, rol.get("permisos").get(0).get("uuid").asString());
-    }
-
-    @Test
-    void nombreRepetidoEnLaMismaEmpresa() {
-        autorizacion.crearRol("Rol repetido");
-
-        JsonNode error = guardar(EscenarioDeAutorizacion.rol("Rol repetido")).esperarError(400, "ROL_YA_EXISTE").json();
-
-        assertEquals("Ya existe un rol con ese nombre para su empresa", error.get("mensajeParaUsuario").asString());
     }
 
     @Test

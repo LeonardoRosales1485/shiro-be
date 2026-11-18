@@ -16,35 +16,21 @@ info:
     | `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |
     | `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |
     | `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |
-    | `CAPTCHA_INVALIDO` | 400 | Verificación de Captcha fallida | hCaptcha rechazó el token enviado, o no se pudo verificar con el servicio externo. Hay que resolver el captcha de nuevo |
-    | `CAPTCHA_NO_COMPLETADO` | 400 | Captcha no completado | La operación verifica un captcha y el request no trae el token de hCaptcha |
-    | `CAPTCHA_NO_DISPONIBLE` | 503 | Faltan configuraciones necesarias para el servicio de captcha | La operación verifica un captcha y el backend no tiene configurada la verificación de hCaptcha. Es un error de configuración del backend |
     | `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |
     | `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |
     | `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |
-    | `COMPANY_NO_ENCONTRADA` | 400 | Empresa no encontrada | El uuid de empresa (del header `X-Empresa-Uuid` o del request) no corresponde a una empresa activa |
-    | `COMPANY_REQUERIDA` | 400 | Empresa requerida | La operación necesita la empresa actual y el request no trae el header `X-Empresa-Uuid` |
     | `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |
-    | `CONFIGURACION_DE_SISTEMA_INCOMPLETA` | 500 | Configuración incompleta | En el registro público de usuario y empresa, falta en el sistema el rol ADMIN que se le asigna al usuario. Es un error de configuración del backend |
-    | `CONFIGURACION_INCOMPLETA` | 400 | Configuración incompleta | En el registro público en una empresa, esa empresa no tiene configurado un rol por defecto para los usuarios nuevos |
     | `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |
-    | `CRYPTER_NO_DISPONIBLE` | 503 | Error con el servicio de archivos encriptados | No se pudo guardar u obtener un archivo encriptado: el servicio externo de archivos no está configurado o no responde |
     | `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |
     | `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |
     | `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |
     | `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |
     | `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |
-    | `EMPRESA_DE_SISTEMA_NO_PERMITIDA` | 400 | No es posible registrarse en la empresa de sistema | En el registro público de un cliente o al vincularse a una empresa, la empresa indicada en el header `X-Empresa-Uuid` es la de sistema, cuyos roles valen en todas las empresas: nadie entra a ella por esas vías, ni siquiera un SYSADMIN. Hay que elegir otra empresa |
-    | `EMPRESA_NO_PERMITIDA` | 403 | Empresa no permitida | El usuario no pertenece a la empresa indicada en el header `X-Empresa-Uuid` |
-    | `ERROR_ELIMINANDO_ARCHIVO` | 503 | Error eliminando archivo en el servidor de imágenes | Falló el borrado del archivo en el servidor de archivos públicos (SM3). Se puede reintentar |
     | `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |
     | `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |
-    | `ERROR_SUBIENDO_ARCHIVO` | 503 | Error subiendo archivo al servidor de imagenes | Falló la subida del archivo al servidor de archivos públicos (SM3). Se puede reintentar |
     | `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |
-    | `FUNCIONALIDAD_NO_IMPLEMENTADA` | 501 | Funcionalidad no implementada | La operación necesita enviar un email y el backend está configurado con un medio de envío (notificaciones) que todavía no está implementado |
     | `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |
     | `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |
-    | `MAIL_NO_DISPONIBLE` | 503 | Faltan configuraciones necesarias para el servicio de mail | La operación necesita enviar un email y el backend no tiene configurado el servidor de correo |
     | `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |
     | `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |
     | `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |
@@ -55,14 +41,8 @@ info:
     | `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |
     | `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |
     | `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |
-    | `ROL_YA_EXISTE` | 400 | Ya existe un rol con ese nombre para su empresa | Al guardar un rol, ya existe otro con el mismo nombre en la misma empresa |
     | `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |
     | `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |
-    | `SM3_NO_DISPONIBLE` | 503 | Faltan configuraciones necesarias para el servicio SM3 | El backend no tiene configurado el servidor de archivos públicos (SM3). Es un error de configuración del backend |
-    | `SSO_AUTENTICACION_FALLIDA` | 401 | No se pudo autenticar con el sistema de usuarios | El servicio de SSO no reconoce el token del header `Authorization` (en Malvinas, solo un token ES256): hay que volver a iniciar sesión en el SSO |
-    | `SSO_CONTEXTO_NO_DISPONIBLE` | 400 | Contexto de petición no disponible | La autenticación por SSO se ejecutó fuera de un request HTTP, sin un token para resolver |
-    | `SSO_INTEGRACION_ERROR` | 503 | Error en la comunicación con el sistema de usuarios | Falló la comunicación con el servicio externo de SSO (no responde o responde con error). Se puede reintentar |
-    | `SSO_NO_DISPONIBLE` | 503 | Faltan configuraciones necesarias para el servicio SSO | El backend no tiene configurado el servicio externo de SSO. Es un error de configuración del backend |
     | `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |
     | `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |
     | `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |
@@ -73,7 +53,6 @@ servers:
 tags:
 - name: "AccessToken"
 - name: "Configuracion"
-- name: "Empresa"
 - name: "JwtLogin"
 - name: "Permiso"
 - name: "Rol"
@@ -404,512 +383,6 @@ paths:
               examples:
                 privada-sin-permiso:
                   summary: "Privada sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /empresa/borrar/{uuid}:
-    delete:
-      tags:
-      - "Empresa"
-      operationId: "EmpresaController.borrar"
-      summary: "Elimina (borrado lógico) una empresa"
-      description: |-
-        **Caso de uso:** CU-EMP-04
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-EMP-04"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters:
-      - name: "uuid"
-        in: "path"
-        required: true
-        description: "Uuid del registro"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EmpresaDTO"
-              examples:
-                eliminar:
-                  summary: "Eliminar (SYSADMIN)"
-                  value:
-                    codigo: "EMP-PRUEBA"
-                    cuit: "20123456786"
-                    descripcion: "Empresa creada por la prueba de contrato"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Empresa de prueba"
-                    ruta: "empresa-de-prueba"
-                    status: -1
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-        "400":
-          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                eliminar-uuid-inexistente:
-                  summary: "Eliminar uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                eliminar-dos-veces:
-                  summary: "Eliminar dos veces (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /empresa/contexto:
-    get:
-      tags:
-      - "Empresa"
-      operationId: "EmpresaController.obtenerContexto"
-      summary: "Informa el modo multi-empresa y la empresa resuelta para la petición"
-      description: |-
-        **Caso de uso:** CU-EMP-05
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-EMP-05"
-      security: []
-      parameters: []
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ContextoDeEmpresaDTO_EmpresaDTO_"
-              examples:
-                sin-sesion-informa-el-modo-y-la-empresa-por-defecto:
-                  summary: "Sin sesion informa el modo y la empresa por defecto"
-                  value:
-                    empresaActual: null
-                    encabezadoDeEmpresaRequerido: false
-                    multiempresaHabilitada: false
-                    uuidEmpresaDelRequest: null
-                    uuidEmpresaPorDefecto: "2"
-                    uuidEmpresaResuelta: "2"
-                con-sesion-incluye-la-empresa-activa:
-                  summary: "Con sesion incluye la empresa activa (SYSADMIN)"
-                  value:
-                    empresaActual:
-                      codigo: "blueopendata"
-                      cuit: null
-                      descripcion: "Empresa operativa por defecto"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      nombre: "BlueOpenData"
-                      ruta: "blueopendata"
-                      status: 0
-                      uuid: "2                                   "
-                    encabezadoDeEmpresaRequerido: false
-                    multiempresaHabilitada: false
-                    uuidEmpresaDelRequest: null
-                    uuidEmpresaPorDefecto: "2"
-                    uuidEmpresaResuelta: "2"
-  /empresa/guardar:
-    post:
-      tags:
-      - "Empresa"
-      operationId: "EmpresaController.guardar"
-      summary: "Crea o edita una empresa"
-      description: |-
-        **Caso de uso:** CU-EMP-03
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-EMP-03"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EmpresaDTO"
-            examples:
-              guardar-cuerpo-invalido:
-                summary: "Guardar cuerpo invalido (SYSADMIN)"
-                value:
-                  descripcion: "Sin nombre"
-              guardar-alta:
-                summary: "Guardar alta (SYSADMIN)"
-                value:
-                  codigo: "EMP-PRUEBA"
-                  cuit: "20123456786"
-                  descripcion: "Empresa creada por la prueba de contrato"
-                  nombre: "Empresa de prueba"
-                  ruta: "empresa-de-prueba"
-              alta-con-cuit-valido:
-                summary: "Alta con cuit valido (SYSADMIN)"
-                value:
-                  codigo: "EMP-CUIT"
-                  cuit: "20123456786"
-                  nombre: "Empresa con CUIT"
-                  ruta: "empresa-con-cuit"
-              guardar-y-obtener-responden-la-misma-forma:
-                summary: "Guardar y obtener responden la misma forma (SYSADMIN)"
-                value:
-                  cuit: "20123456786"
-                  descripcion: "Descripcion"
-                  nombre: "Empresa misma forma"
-              cuit-con-formato-invalido:
-                summary: "Cuit con formato invalido (SYSADMIN)"
-                value:
-                  cuit: "123"
-                  nombre: "Empresa con CUIT mal formado"
-              cuit-con-digito-verificador-invalido:
-                summary: "Cuit con digito verificador invalido (SYSADMIN)"
-                value:
-                  cuit: "20-12345678-0"
-                  nombre: "Empresa con CUIT invalido"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EmpresaDTO"
-              examples:
-                guardar-alta:
-                  summary: "Guardar alta (SYSADMIN)"
-                  value:
-                    codigo: "EMP-PRUEBA"
-                    cuit: "20123456786"
-                    descripcion: "Empresa creada por la prueba de contrato"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Empresa de prueba"
-                    ruta: "empresa-de-prueba"
-                    status: 0
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                alta-con-cuit-valido:
-                  summary: "Alta con cuit valido (SYSADMIN)"
-                  value:
-                    codigo: "EMP-CUIT"
-                    cuit: "20123456786"
-                    descripcion: null
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Empresa con CUIT"
-                    ruta: "empresa-con-cuit"
-                    status: 0
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                guardar-y-obtener-responden-la-misma-forma:
-                  summary: "Guardar y obtener responden la misma forma (SYSADMIN)"
-                  value:
-                    codigo: null
-                    cuit: "20123456786"
-                    descripcion: "Descripcion"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Empresa misma forma"
-                    ruta: null
-                    status: 0
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-        "400":
-          description: "Errores: `CUIT_INVALIDO`, `FORMULARIO_INVALIDO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                guardar-cuerpo-invalido:
-                  summary: "Guardar cuerpo invalido (SYSADMIN)"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El nombre de la empresa es obligatorio"
-                      nombre: "nombre"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                cuit-con-formato-invalido:
-                  summary: "Cuit con formato invalido (SYSADMIN)"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El CUIT debe tener 11 dígitos, con o sin guiones"
-                      nombre: "cuit"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                cuit-con-digito-verificador-invalido:
-                  summary: "Cuit con digito verificador invalido (SYSADMIN)"
-                  value:
-                    codigo: "CUIT_INVALIDO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "CUIT inválido"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /empresa/paginar:
-    post:
-      tags:
-      - "Empresa"
-      operationId: "EmpresaController.paginar"
-      summary: "Lista las empresas vigentes con filtros y orden"
-      description: |-
-        **Caso de uso:** CU-EMP-01
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-EMP-01"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PedidoDePaginado"
-            examples:
-              paginar:
-                summary: "Paginar (SYSADMIN)"
-                value:
-                  pagina: 1
-                  tamano: 5
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Pagina_EmpresaDTO_"
-              examples:
-                paginar:
-                  summary: "Paginar (SYSADMIN)"
-                  value:
-                    cantidadDeElementos: 2
-                    contenido:
-                    - codigo: "system"
-                      cuit: null
-                      descripcion: "Empresa interna para roles globales"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      nombre: "Sistema"
-                      ruta: "system"
-                      status: 0
-                      uuid: "1                                   "
-                    - codigo: "blueopendata"
-                      cuit: null
-                      descripcion: "Empresa operativa por defecto"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      nombre: "BlueOpenData"
-                      ruta: "blueopendata"
-                      status: 0
-                      uuid: "2                                   "
-                    numero: 0
-                    primera: true
-                    tamano: 5
-                    totalDeElementos: 2
-                    totalDePaginas: 1
-                    ultima: true
-                    vacia: false
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /empresa/uuid/{uuid}:
-    get:
-      tags:
-      - "Empresa"
-      operationId: "EmpresaController.obtenerPorUuid"
-      summary: "Obtiene una empresa"
-      description: |-
-        **Caso de uso:** CU-EMP-02
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-EMP-02"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters:
-      - name: "uuid"
-        in: "path"
-        required: true
-        description: "Uuid del registro"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EmpresaDTO"
-              examples:
-                obtener-por-uuid:
-                  summary: "Obtener por uuid (SYSADMIN)"
-                  value:
-                    codigo: "blueopendata"
-                    cuit: null
-                    descripcion: "Empresa operativa por defecto"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "BlueOpenData"
-                    ruta: "blueopendata"
-                    status: 0
-                    uuid: "2                                   "
-                guardar-y-obtener-responden-la-misma-forma:
-                  summary: "Guardar y obtener responden la misma forma (SYSADMIN)"
-                  value:
-                    codigo: null
-                    cuit: "20123456786"
-                    descripcion: "Descripcion"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Empresa misma forma"
-                    ruta: null
-                    status: 0
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-        "400":
-          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                obtener-uuid-inexistente:
-                  summary: "Obtener uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe el registro"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
                   value:
                     codigo: "SIN_PERMISO"
                     errores: []
@@ -1332,12 +805,6 @@ paths:
                   - uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                   porDefecto: 0
                   uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-              nombre-repetido-en-la-misma-empresa:
-                summary: "Nombre repetido en la misma empresa (SYSADMIN)"
-                value:
-                  nombre: "Rol repetido"
-                  permisos: []
-                  porDefecto: 0
               nombre-obligatorio:
                 summary: "Nombre obligatorio (SYSADMIN)"
                 value:
@@ -1404,7 +871,7 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
-          description: "Errores: `FORMULARIO_INVALIDO`, `ROL_YA_EXISTE`"
+          description: "Errores: `FORMULARIO_INVALIDO`"
           content:
             application/json:
               schema:
@@ -1419,15 +886,6 @@ paths:
                       nombre: "nombre"
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                nombre-repetido-en-la-misma-empresa:
-                  summary: "Nombre repetido en la misma empresa (SYSADMIN)"
-                  value:
-                    codigo: "ROL_YA_EXISTE"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Ya existe un rol con ese nombre para su empresa"
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 nombre-obligatorio:
@@ -1561,7 +1019,7 @@ paths:
                         uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       porDefecto: 0
                       status: 0
-                      uuid: "20000000-0000-4000-8000-000000000001"
+                      uuid: "90000000-0000-4000-8000-000000000101"
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "ADMIN"
                       permisos:
@@ -1577,13 +1035,13 @@ paths:
                         nombre: "user.view"
                         status: 0
                         uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
-                      porDefecto: 1
+                      porDefecto: 0
                       status: 0
-                      uuid: "20000000-0000-4000-8000-000000000002"
+                      uuid: "90000000-0000-4000-8000-000000000102"
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "CLIENTE"
                       permisos: []
-                      porDefecto: 1
+                      porDefecto: 0
                       status: 0
                       uuid: "90000000-0000-4000-8000-000000000009"
                     numero: 0
@@ -1601,7 +1059,7 @@ paths:
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "CLIENTE"
                       permisos: []
-                      porDefecto: 1
+                      porDefecto: 0
                       status: 0
                       uuid: "90000000-0000-4000-8000-000000000009"
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -1619,9 +1077,9 @@ paths:
                         nombre: "user.view"
                         status: 0
                         uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                      porDefecto: 1
+                      porDefecto: 0
                       status: 0
-                      uuid: "20000000-0000-4000-8000-000000000002"
+                      uuid: "90000000-0000-4000-8000-000000000102"
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "SYSADMIN"
                       permisos:
@@ -1639,7 +1097,7 @@ paths:
                         uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
                       porDefecto: 0
                       status: 0
-                      uuid: "20000000-0000-4000-8000-000000000001"
+                      uuid: "90000000-0000-4000-8000-000000000101"
                     numero: 0
                     primera: true
                     tamano: 10
@@ -1655,7 +1113,7 @@ paths:
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "CLIENTE"
                       permisos: []
-                      porDefecto: 1
+                      porDefecto: 0
                       status: 0
                       uuid: "90000000-0000-4000-8000-000000000009"
                     numero: 0
@@ -1766,7 +1224,7 @@ paths:
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "CLIENTE"
                     permisos: []
-                    porDefecto: 1
+                    porDefecto: 0
                     status: 0
                     uuid: "90000000-0000-4000-8000-000000000009"
                 obtiene-un-rol-con-sus-permisos:
@@ -1775,7 +1233,7 @@ paths:
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "CLIENTE"
                     permisos: []
-                    porDefecto: 1
+                    porDefecto: 0
                     status: 0
                     uuid: "90000000-0000-4000-8000-000000000009"
                 obtiene-los-permisos-que-otorga-el-rol:
@@ -1988,7 +1446,6 @@ paths:
                     email: "usuario.contrato.heredado@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.contrato.heredado"
-                    rolesPorEmpresa: []
                     status: -1
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -1999,7 +1456,6 @@ paths:
                     email: "usuario.eliminar.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.eliminar.contrato"
-                    rolesPorEmpresa: []
                     status: -1
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2309,7 +1765,6 @@ paths:
                     email: "usuario.contrato.heredado@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.contrato.heredado"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2320,7 +1775,6 @@ paths:
                     email: "usuario.misma.forma@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.misma.forma"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2331,7 +1785,6 @@ paths:
                     email: "usuario.edicion.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.edicion.contrato"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: "3815559999"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2342,7 +1795,6 @@ paths:
                     email: "usuario.contrasena.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.contrasena.contrato"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: null
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2353,7 +1805,6 @@ paths:
                     email: "usuario.prueba.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.prueba.contrato"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -2537,15 +1988,6 @@ paths:
                       valor: ""
                   pagina: 1
                   tamano: 5
-              lista-las-empresas-y-roles-de-cada-usuario:
-                summary: "Lista las empresas y roles de cada usuario (SYSADMIN)"
-                value:
-                  filtros:
-                  - - campo: "uuid"
-                      operacion: "="
-                      valor: "90000000-0000-4000-8000-000000000002"
-                  pagina: 1
-                  tamano: 10
               operacion-invalida:
                 summary: "Operacion invalida (SYSADMIN)"
                 value:
@@ -2599,31 +2041,6 @@ paths:
                       email: "sysadmin@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "sysadmin"
-                      rolesPorEmpresa:
-                      - empresaNombre: "Sistema"
-                        empresaUuid: "1                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "SYSADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.create"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.edit"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                          porDefecto: 0
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000001"
-                        status: 0
-                        uuid: "40000000-0000-4000-8000-000000000001"
                       status: 0
                       telefono: null
                       uuid: "30000000-0000-4000-8000-000000000001"
@@ -2631,31 +2048,6 @@ paths:
                       email: "demo@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "demo"
-                      rolesPorEmpresa:
-                      - empresaNombre: "BlueOpenData"
-                        empresaUuid: "2                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "ADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "company.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "user.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
-                          porDefecto: 1
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000002"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000005"
                       status: 0
                       telefono: "1122334455"
                       uuid: "90000000-0000-4000-8000-000000000002"
@@ -2663,31 +2055,6 @@ paths:
                       email: "sysadmin-pruebas@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "sysadmin-pruebas"
-                      rolesPorEmpresa:
-                      - empresaNombre: "Sistema"
-                        empresaUuid: "1                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "SYSADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.create"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.edit"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                          porDefecto: 0
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000001"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000013"
                       status: 0
                       telefono: "1122334501"
                       uuid: "90000000-0000-4000-8000-000000000012"
@@ -2695,50 +2062,6 @@ paths:
                     primera: true
                     tamano: 5
                     totalDeElementos: 4
-                    totalDePaginas: 1
-                    ultima: true
-                    vacia: false
-                lista-las-empresas-y-roles-de-cada-usuario:
-                  summary: "Lista las empresas y roles de cada usuario (SYSADMIN)"
-                  value:
-                    cantidadDeElementos: 1
-                    contenido:
-                    - contrasena: null
-                      email: "demo@example.local"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      nombreDeUsuario: "demo"
-                      rolesPorEmpresa:
-                      - empresaNombre: "BlueOpenData"
-                        empresaUuid: "2                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "ADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "company.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "user.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                          porDefecto: 1
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000002"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000005"
-                      status: 0
-                      telefono: "1122334455"
-                      uuid: "90000000-0000-4000-8000-000000000002"
-                    numero: 0
-                    primera: true
-                    tamano: 10
-                    totalDeElementos: 1
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -2751,19 +2074,6 @@ paths:
                       email: "cliente@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "cliente"
-                      rolesPorEmpresa:
-                      - empresaNombre: "BlueOpenData"
-                        empresaUuid: "2                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "CLIENTE"
-                          permisos: []
-                          porDefecto: 1
-                          status: 0
-                          uuid: "90000000-0000-4000-8000-000000000009"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000016"
                       status: 0
                       telefono: "1122334502"
                       uuid: "90000000-0000-4000-8000-000000000015"
@@ -2771,31 +2081,6 @@ paths:
                       email: "sysadmin-pruebas@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "sysadmin-pruebas"
-                      rolesPorEmpresa:
-                      - empresaNombre: "Sistema"
-                        empresaUuid: "1                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "SYSADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.create"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.edit"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                          porDefecto: 0
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000001"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000013"
                       status: 0
                       telefono: "1122334501"
                       uuid: "90000000-0000-4000-8000-000000000012"
@@ -2803,31 +2088,6 @@ paths:
                       email: "demo@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombreDeUsuario: "demo"
-                      rolesPorEmpresa:
-                      - empresaNombre: "BlueOpenData"
-                        empresaUuid: "2                                   "
-                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        roles:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "ADMIN"
-                          permisos:
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "permission.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "company.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
-                          - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                            nombre: "user.view"
-                            status: 0
-                            uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
-                          porDefecto: 1
-                          status: 0
-                          uuid: "20000000-0000-4000-8000-000000000002"
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000005"
                       status: 0
                       telefono: "1122334455"
                       uuid: "90000000-0000-4000-8000-000000000002"
@@ -2893,781 +2153,6 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /usuario/publico/cambiar-contrasena:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.cambiarContrasena"
-      summary: "Cambia la contraseña con el código de recuperación recibido por email"
-      description: |-
-        **Caso de uso:** CU-USR-09
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-09"
-      security: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CambiarContrasenaDTO"
-            examples:
-              codigo-invalido:
-                summary: "Codigo invalido"
-                value:
-                  codigo: "CODIGOQUENOEXISTE"
-                  contrasena: "nuevaPassword123"
-                  email: "usuario.cambio.contrato@example.com"
-              email-sin-cuenta:
-                summary: "Email sin cuenta"
-                value:
-                  codigo: "CODIGODEPRUEBA0123456789ABCDEFGH"
-                  contrasena: "nuevaPassword123"
-                  email: "nadie.registrado@example.com"
-              sin-contrasena:
-                summary: "Sin contrasena"
-                value:
-                  codigo: "CODIGODEPRUEBA0123456789ABCDEFGH"
-                  email: "nadie.registrado@example.com"
-              codigo-ya-utilizado:
-                summary: "Codigo ya utilizado"
-                value:
-                  codigo: "CODIGODEPRUEBA0123456789ABCDEFGH"
-                  contrasena: "nuevaPassword123"
-                  email: "usuario.cambio.contrato@example.com"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RespuestaApiDTO"
-              examples:
-                cambia-la-contrasena:
-                  summary: "Cambia la contrasena"
-                  value:
-                    datos: null
-                    mensaje: "Contraseña cambiada correctamente"
-                    status: 200
-        "400":
-          description: "Errores: `CODIGO_INVALIDO`, `CODIGO_YA_UTILIZADO`, `FORMULARIO_INVALIDO`, `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                codigo-invalido:
-                  summary: "Codigo invalido"
-                  value:
-                    codigo: "CODIGO_INVALIDO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Código inválido"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                email-sin-cuenta:
-                  summary: "Email sin cuenta"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe el usuario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                sin-contrasena:
-                  summary: "Sin contrasena"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "La contrasena es obligatoria"
-                      nombre: "contrasena"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                codigo-ya-utilizado:
-                  summary: "Codigo ya utilizado"
-                  value:
-                    codigo: "CODIGO_YA_UTILIZADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "El código ya fue utilizado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-  /usuario/publico/recuperar-contrasena:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.recuperarContrasena"
-      summary: "Envía por email un código para recuperar la contraseña"
-      description: |-
-        **Caso de uso:** CU-USR-08
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-08"
-      security: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UsuarioRecuperarContrasenaRequestDTO"
-            examples:
-              envia-el-codigo-por-email:
-                summary: "Envia el codigo por email"
-                value:
-                  email: "usuario.recupero.contrato@example.com"
-              email-sin-cuenta-no-revela-que-no-existe:
-                summary: "Email sin cuenta no revela que no existe"
-                value:
-                  email: "nadie.registrado@example.com"
-              sin-email:
-                summary: "Sin email"
-                value: {}
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Map_String.String_"
-              examples:
-                envia-el-codigo-por-email:
-                  summary: "Envia el codigo por email"
-                  value:
-                    mensaje: "Mail enviado correctamente"
-                email-sin-cuenta-no-revela-que-no-existe:
-                  summary: "Email sin cuenta no revela que no existe"
-                  value:
-                    mensaje: "Mail enviado correctamente"
-        "400":
-          description: "Errores: `FORMULARIO_INVALIDO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-email:
-                  summary: "Sin email"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El email es obligatorio"
-                      nombre: "email"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "429":
-          description: "Errores: `DEMASIADOS_INTENTOS`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                antes-de-cinco-minutos:
-                  summary: "Antes de cinco minutos"
-                  value:
-                    codigo: "DEMASIADOS_INTENTOS"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Ya te enviamos un mail. Por favor, espera 5 minutos para solicitar otro."
-                    status: "429 TOO_MANY_REQUESTS"
-                    traceId: "0000000000000000"
-  /usuario/publico/reenviar-codigo:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.reenviarCodigo"
-      summary: "Reenvía por email un nuevo código de verificación"
-      description: |-
-        **Caso de uso:** CU-USR-07
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-07"
-      security: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UsuarioDTO"
-            examples:
-              usuario-inexistente:
-                summary: "Usuario inexistente"
-                value:
-                  email: "nadie@example.com"
-                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-              antes-de-tres-minutos:
-                summary: "Antes de tres minutos"
-                value:
-                  email: "demo@example.local"
-                  uuid: "90000000-0000-4000-8000-000000000002"
-              sin-email:
-                summary: "Sin email"
-                value:
-                  uuid: "90000000-0000-4000-8000-000000000002"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Errores: `DATOS_INCOMPLETOS`, `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                usuario-inexistente:
-                  summary: "Usuario inexistente"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no encontrado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                sin-email:
-                  summary: "Sin email"
-                  value:
-                    codigo: "DATOS_INCOMPLETOS"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Datos incompletos"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "429":
-          description: "Errores: `DEMASIADOS_INTENTOS`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                antes-de-tres-minutos:
-                  summary: "Antes de tres minutos"
-                  value:
-                    codigo: "DEMASIADOS_INTENTOS"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Por favor espere unos minutos antes de reenviar el código"
-                    status: "429 TOO_MANY_REQUESTS"
-                    traceId: "0000000000000000"
-  /usuario/publico/registro:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.registroPublico"
-      summary: "Registra un usuario con su empresa; queda pendiente de verificación por email"
-      description: |-
-        **Caso de uso:** CU-USR-12
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-12"
-      security: []
-      parameters:
-      - name: "X-Captcha-Token"
-        in: "header"
-        required: false
-        description: "Token de hCaptcha. Obligatorio si el proyecto valida captcha"
-        schema:
-          type: "string"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegistroPublicoRequest_UsuarioDTO.EmpresaDTO_"
-            examples:
-              cuit-invalido:
-                summary: "Cuit invalido"
-                value:
-                  empresa:
-                    codigo: "EMP-18"
-                    cuit: "20111111111"
-                    descripcion: "Empresa creada desde registro publico"
-                    nombre: "Empresa de caso.cuit.invalido"
-                    ruta: "empresa-caso-cuit-invalido"
-                  usuario:
-                    contrasena: "123456"
-                    email: "caso.cuit.invalido@example.com"
-                    nombreDeUsuario: "caso.cuit.invalido"
-                    telefono: "3815550000"
-              sin-empresa:
-                summary: "Sin empresa"
-                value:
-                  usuario:
-                    contrasena: "123456"
-                    email: "caso.sin.empresa@example.com"
-                    nombreDeUsuario: "caso.sin.empresa"
-                    telefono: "3815550000"
-              registra-un-usuario-pendiente-de-verificacion:
-                summary: "Registra un usuario pendiente de verificacion"
-                value:
-                  empresa:
-                    codigo: "EMP-15"
-                    cuit: "20111111112"
-                    descripcion: "Empresa creada desde registro publico"
-                    nombre: "Empresa de cliente.publico"
-                    ruta: "empresa-cliente-publico"
-                  usuario:
-                    contrasena: "123456"
-                    email: "cliente.publico@example.com"
-                    nombreDeUsuario: "cliente.publico"
-                    telefono: "3815550000"
-              email-duplicado:
-                summary: "Email duplicado"
-                value:
-                  empresa:
-                    codigo: "EMP-22"
-                    cuit: null
-                    descripcion: "Empresa creada desde registro publico"
-                    nombre: "Empresa de caso.email.duplicado.2"
-                    ruta: "empresa-caso-email-duplicado-2"
-                  usuario:
-                    contrasena: "123456"
-                    email: "caso.email.duplicado@example.com"
-                    nombreDeUsuario: "caso.email.duplicado.2"
-                    telefono: "3815550000"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsuarioDTO"
-              examples:
-                registra-un-usuario-pendiente-de-verificacion:
-                  summary: "Registra un usuario pendiente de verificacion"
-                  value:
-                    contrasena: null
-                    email: "cliente.publico@example.com"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "cliente.publico"
-                    rolesPorEmpresa:
-                    - empresaNombre: "Empresa de cliente.publico"
-                      empresaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
-                    status: -2
-                    telefono: "3815550000"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000006"
-        "400":
-          description: "Errores: `CUIT_INVALIDO`, `EMAIL_YA_REGISTRADO`, `FORMULARIO_INVALIDO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                cuit-invalido:
-                  summary: "Cuit invalido"
-                  value:
-                    codigo: "CUIT_INVALIDO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "CUIT inválido"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                sin-empresa:
-                  summary: "Sin empresa"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "La empresa es obligatoria"
-                      nombre: "empresa"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                email-duplicado:
-                  summary: "Email duplicado"
-                  value:
-                    codigo: "EMAIL_YA_REGISTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Email ya registrado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-  /usuario/publico/registro-cliente:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.registroPublicoDeCliente"
-      summary: "Registra un cliente en la empresa del header con su rol por defecto"
-      description: |-
-        **Caso de uso:** CU-USR-14
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-14"
-      security: []
-      parameters:
-      - name: "X-Empresa-Uuid"
-        in: "header"
-        required: false
-        description: "Uuid de la empresa en la que se registra el cliente"
-        schema:
-          type: "string"
-      - name: "X-Captcha-Token"
-        in: "header"
-        required: false
-        description: "Token de hCaptcha. Obligatorio si el proyecto valida captcha"
-        schema:
-          type: "string"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UsuarioDTO"
-            examples:
-              registra-un-cliente-en-la-empresa:
-                summary: "Registra un cliente en la empresa"
-                value:
-                  contrasena: "123456"
-                  email: "cliente.registro@example.com"
-                  nombreDeUsuario: "cliente.registro"
-                  telefono: "3815550000"
-              email-invalido:
-                summary: "Email invalido"
-                value:
-                  email: "no-es-un-email"
-                  nombreDeUsuario: "cliente.email.invalido"
-              empresa-de-sistema:
-                summary: "Empresa de sistema"
-                value:
-                  contrasena: "123456"
-                  email: "cliente.sistema@example.com"
-                  nombreDeUsuario: "cliente.sistema"
-                  telefono: "3815550000"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsuarioDTO"
-              examples:
-                registra-un-cliente-en-la-empresa:
-                  summary: "Registra un cliente en la empresa"
-                  value:
-                    contrasena: null
-                    email: "cliente.registro@example.com"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "cliente.registro"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "CLIENTE"
-                        permisos: []
-                        porDefecto: 1
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000009"
-                      status: 0
-                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    status: -2
-                    telefono: "3815550000"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-        "400":
-          description: "Errores: `EMPRESA_DE_SISTEMA_NO_PERMITIDA`, `FORMULARIO_INVALIDO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                email-invalido:
-                  summary: "Email invalido"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El email no tiene un formato valido"
-                      nombre: "email"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                empresa-de-sistema:
-                  summary: "Empresa de sistema"
-                  value:
-                    codigo: "EMPRESA_DE_SISTEMA_NO_PERMITIDA"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No es posible registrarse en la empresa de sistema"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-  /usuario/publico/verificar:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.verificarCodigo"
-      summary: "Verifica el código de confirmación de un usuario pendiente y lo activa"
-      description: |-
-        **Caso de uso:** CU-USR-06
-
-        **Pública:** no requiere autenticación.
-      x-caso-de-uso: "CU-USR-06"
-      security: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UsuarioVerificarCodigoRequestDTO"
-            examples:
-              codigo-invalido:
-                summary: "Codigo invalido"
-                value:
-                  codigo: "000000"
-                  uuid: "90000000-0000-4000-8000-000000000018"
-              usuario-ya-activo:
-                summary: "Usuario ya activo"
-                value:
-                  codigo: "000000"
-                  uuid: "90000000-0000-4000-8000-000000000002"
-              activa-un-usuario-pendiente:
-                summary: "Activa un usuario pendiente"
-                value:
-                  codigo: "ABC123"
-                  uuid: "90000000-0000-4000-8000-000000000018"
-              usuario-inexistente:
-                summary: "Usuario inexistente"
-                value:
-                  codigo: "000000"
-                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-              codigo-vencido:
-                summary: "Codigo vencido"
-                value:
-                  codigo: "ABC123"
-                  uuid: "90000000-0000-4000-8000-000000000019"
-              sin-codigo:
-                summary: "Sin codigo"
-                value:
-                  uuid: "90000000-0000-4000-8000-000000000002"
-              sin-uuid:
-                summary: "Sin uuid"
-                value:
-                  codigo: "000000"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Errores: `CODIGO_INVALIDO`, `CODIGO_VENCIDO`, `FORMULARIO_INVALIDO`, `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                codigo-invalido:
-                  summary: "Codigo invalido"
-                  value:
-                    codigo: "CODIGO_INVALIDO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Código inválido"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                usuario-inexistente:
-                  summary: "Usuario inexistente"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no encontrado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                codigo-vencido:
-                  summary: "Codigo vencido"
-                  value:
-                    codigo: "CODIGO_VENCIDO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "El código ha expirado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                sin-codigo:
-                  summary: "Sin codigo"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El codigo es obligatorio"
-                      nombre: "codigo"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                sin-uuid:
-                  summary: "Sin uuid"
-                  value:
-                    codigo: "FORMULARIO_INVALIDO"
-                    errores:
-                    - mensaje: "El uuid del usuario es obligatorio"
-                      nombre: "uuid"
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Error en el formulario"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-  /usuario/publico/vincular/{usuarioUuid}:
-    post:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.vincular"
-      summary: "Vincula al usuario de la sesión a la empresa del header con su rol por defecto (requiere sesión)"
-      description: |-
-        **Caso de uso:** CU-USR-13
-
-        **Requiere sesión:** sin rol ni permiso puntual.
-      x-caso-de-uso: "CU-USR-13"
-      security:
-      - bearer: []
-      parameters:
-      - name: "X-Empresa-Uuid"
-        in: "header"
-        required: false
-        description: "Uuid de la empresa a la que se vincula el usuario"
-        schema:
-          type: "string"
-      - name: "usuarioUuid"
-        in: "path"
-        required: true
-        description: "Uuid del usuario logeado"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsuarioDTO"
-              examples:
-                vincula-al-usuario-de-la-sesion:
-                  summary: "Vincula al usuario de la sesion (SYSADMIN)"
-                  value:
-                    contrasena: null
-                    email: "sysadmin-pruebas@example.local"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "sysadmin-pruebas"
-                    rolesPorEmpresa:
-                    - empresaNombre: "Sistema"
-                      empresaUuid: "1                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "SYSADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.create"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.edit"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 0
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000001"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000013"
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "CLIENTE"
-                        permisos: []
-                        porDefecto: 1
-                        status: 0
-                        uuid: "90000000-0000-4000-8000-000000000009"
-                      status: 0
-                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
-                    status: 0
-                    telefono: "1122334501"
-                    uuid: "90000000-0000-4000-8000-000000000012"
-        "400":
-          description: "Errores: `EMPRESA_DE_SISTEMA_NO_PERMITIDA`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                empresa-de-sistema:
-                  summary: "Empresa de sistema (SYSADMIN)"
-                  value:
-                    codigo: "EMPRESA_DE_SISTEMA_NO_PERMITIDA"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No es posible registrarse en la empresa de sistema"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-sesion:
-                  summary: "Sin sesion"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                otro-usuario:
-                  summary: "Otro usuario (SYSADMIN)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No permitido"
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /usuario/refresh-token:
@@ -3792,31 +2277,6 @@ paths:
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "demo"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000005"
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
@@ -3827,31 +2287,6 @@ paths:
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "demo"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000005"
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
@@ -3975,31 +2410,6 @@ paths:
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "demo"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000005"
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
@@ -4010,45 +2420,9 @@ paths:
                     email: "usuario.misma.forma@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "usuario.misma.forma"
-                    rolesPorEmpresa: []
                     status: 0
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                obtiene-las-empresas-y-roles-del-usuario:
-                  summary: "Obtiene las empresas y roles del usuario (SYSADMIN)"
-                  value:
-                    contrasena: null
-                    email: "demo@example.local"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "demo"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000005"
-                    status: 0
-                    telefono: "1122334455"
-                    uuid: "90000000-0000-4000-8000-000000000002"
                 obtiene-el-usuario-demo:
                   summary: "Obtiene el usuario demo (SYSADMIN)"
                   value:
@@ -4056,31 +2430,6 @@ paths:
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombreDeUsuario: "demo"
-                    rolesPorEmpresa:
-                    - empresaNombre: "BlueOpenData"
-                      empresaUuid: "2                                   "
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      roles:
-                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                        nombre: "ADMIN"
-                        permisos:
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "permission.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "company.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                        - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                          nombre: "user.view"
-                          status: 0
-                          uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                        porDefecto: 1
-                        status: 0
-                        uuid: "20000000-0000-4000-8000-000000000002"
-                      status: 0
-                      uuid: "90000000-0000-4000-8000-000000000005"
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
@@ -4181,26 +2530,6 @@ components:
       required:
       - "nombre"
       additionalProperties: false
-    CambiarContrasenaDTO:
-      type: "object"
-      properties:
-        codigo:
-          type: "string"
-          description: "Código de recuperación recibido por email (POST /usuario/publico/recuperar-contrasena). Vale 15 minutos y una sola vez"
-          minLength: 1
-        contrasena:
-          type: "string"
-          description: "Nueva contraseña en texto plano"
-          minLength: 1
-        email:
-          type: "string"
-          description: "Email del usuario activo que recupera la contraseña"
-          minLength: 1
-      required:
-      - "codigo"
-      - "contrasena"
-      - "email"
-      additionalProperties: false
     ConfiguracionDTO:
       type: "object"
       properties:
@@ -4266,84 +2595,6 @@ components:
       - "nombre"
       - "valor"
       additionalProperties: false
-    ContextoDeEmpresaDTO_EmpresaDTO_:
-      type: "object"
-      properties:
-        empresaActual:
-          $ref: "#/components/schemas/EmpresaDTO-nullable"
-          description: "Empresa activa de la sesión. null sin usuario autenticado o sin contexto de empresa"
-        encabezadoDeEmpresaRequerido:
-          type: "boolean"
-          description: "true si el frontend debe enviar X-Empresa-Uuid en cada request autenticado"
-        multiempresaHabilitada:
-          type: "boolean"
-          description: "true: multi-empresa (SaaS); false: mono-empresa (on-premise)"
-        uuidEmpresaDelRequest:
-          type:
-          - "string"
-          - "null"
-          description: "Valor crudo del header X-Empresa-Uuid de la request (null si no vino)"
-        uuidEmpresaPorDefecto:
-          type:
-          - "string"
-          - "null"
-          description: "Uuid de la empresa por defecto cuando multiempresaHabilitada es false"
-        uuidEmpresaResuelta:
-          type:
-          - "string"
-          - "null"
-          description: "Uuid de empresa resuelto para la request (con el default si multi-empresa está apagado)"
-      additionalProperties: false
-    EmpresaDTO:
-      type: "object"
-      properties:
-        codigo:
-          type:
-          - "string"
-          - "null"
-          description: "Código corto de la empresa"
-        cuit:
-          type:
-          - "string"
-          - "null"
-          description: "CUIT de la empresa (opcional). Al guardar se valida el dígito verificador"
-          pattern: "^\\d{2}-?\\d{8}-?\\d$"
-        descripcion:
-          type:
-          - "string"
-          - "null"
-          description: "Descripción libre de la empresa"
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        nombre:
-          type: "string"
-          description: "Nombre de la empresa"
-          minLength: 1
-        ruta:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador de la empresa para URLs (slug)"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      required:
-      - "nombre"
-      additionalProperties: false
-    EmpresaDTO-nullable:
-      anyOf:
-      - type: "null"
-      - $ref: "#/components/schemas/EmpresaDTO"
     ErrorResponseDTO:
       type: "object"
       properties:
@@ -4428,10 +2679,6 @@ components:
       anyOf:
       - type: "null"
       - $ref: "#/components/schemas/Map_String.Object_"
-    Map_String.String_:
-      type: "object"
-      additionalProperties:
-        type: "string"
     OrdenDePaginado:
       type: "object"
       properties:
@@ -4445,40 +2692,6 @@ components:
           - "string"
           - "null"
           description: "asc o desc"
-      additionalProperties: false
-    Pagina_EmpresaDTO_:
-      type: "object"
-      description: "Página de resultados"
-      properties:
-        contenido:
-          type: "array"
-          description: "Registros de la página"
-          items:
-            $ref: "#/components/schemas/EmpresaDTO"
-        totalDeElementos:
-          type: "integer"
-          description: "Total de registros que cumplen los filtros"
-        totalDePaginas:
-          type: "integer"
-          description: "Total de páginas"
-        tamano:
-          type: "integer"
-          description: "Tamaño de la página"
-        numero:
-          type: "integer"
-          description: "Número de página (desde 0)"
-        cantidadDeElementos:
-          type: "integer"
-          description: "Registros en esta página"
-        primera:
-          type: "boolean"
-          description: "Es la primera página"
-        ultima:
-          type: "boolean"
-          description: "Es la última página"
-        vacia:
-          type: "boolean"
-          description: "La página no tiene registros"
       additionalProperties: false
     Pagina_PermisoDTO_:
       type: "object"
@@ -4656,33 +2869,6 @@ components:
           - "null"
           description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
-    RegistroPublicoRequest_UsuarioDTO.EmpresaDTO_:
-      type: "object"
-      properties:
-        empresa:
-          $ref: "#/components/schemas/EmpresaDTO"
-          description: "Empresa a crear con el usuario"
-        usuario:
-          $ref: "#/components/schemas/UsuarioDTO"
-          description: "Usuario a registrar"
-      required:
-      - "empresa"
-      - "usuario"
-      additionalProperties: false
-    RespuestaApiDTO:
-      type: "object"
-      properties:
-        datos:
-          description: "Datos adicionales de la operación (null si no hay)"
-        mensaje:
-          type:
-          - "string"
-          - "null"
-          description: "Mensaje para el usuario final"
-        status:
-          type: "integer"
-          description: "Status HTTP de la operación"
-      additionalProperties: false
     RolDTO:
       type: "object"
       properties:
@@ -4759,14 +2945,6 @@ components:
           type: "string"
           description: "Nombre de usuario con el que inicia sesión con usuario y contraseña: según el proyecto, un nombre elegido o un identificador propio de la organización (por ejemplo, un legajo). Único entre todos los usuarios"
           minLength: 1
-        rolesPorEmpresa:
-          description: "Empresas vigentes del usuario y los roles que tiene en cada una, por id ascendente"
-          type:
-          - "array"
-          - "null"
-          items:
-            $ref: "#/components/schemas/UsuarioEmpresaDTO"
-            description: "Empresas vigentes del usuario y los roles que tiene en cada una, por id ascendente"
         status:
           type: "integer"
           description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
@@ -4783,94 +2961,6 @@ components:
       required:
       - "email"
       - "nombreDeUsuario"
-      additionalProperties: false
-    UsuarioEmpresaDTO:
-      type: "object"
-      properties:
-        empresaNombre:
-          type:
-          - "string"
-          - "null"
-          description: "Nombre de la empresa (solo lectura)"
-        empresaUuid:
-          type:
-          - "string"
-          - "null"
-          description: "Uuid de la empresa"
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        roles:
-          description: "Roles del usuario en esa empresa, por id ascendente"
-          type:
-          - "array"
-          - "null"
-          items:
-            $ref: "#/components/schemas/RolDTO"
-            description: "Roles del usuario en esa empresa, por id ascendente"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      additionalProperties: false
-    UsuarioRecuperarContrasenaRequestDTO:
-      type: "object"
-      properties:
-        email:
-          type: "string"
-          description: "Email del usuario que pide recuperar la contraseña. Si no tiene cuenta activa, la respuesta es la misma pero no se envía ningún mail"
-          minLength: 1
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      required:
-      - "email"
-      additionalProperties: false
-    UsuarioVerificarCodigoRequestDTO:
-      type: "object"
-      properties:
-        codigo:
-          type: "string"
-          description: "Código de verificación recibido por email al registrarse"
-          minLength: 1
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        uuid:
-          type: "string"
-          description: "Identificador público del registro. El id interno nunca se expone"
-          minLength: 1
-      required:
-      - "codigo"
-      - "uuid"
-      description: "Verificación de un usuario pendiente: uuid es el uuid del usuario y codigo el que recibió por email"
       additionalProperties: false
     UsuarioYContrasenaDTO:
       type: "object"
@@ -4908,21 +2998,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No se puede aplicar ese cambio de estado"
   cuando: "Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1"
   origen: "CodigoDeErrorKernel"
-- codigo: "CAPTCHA_INVALIDO"
-  status: 400
-  mensajePorDefecto: "Verificación de Captcha fallida"
-  cuando: "hCaptcha rechazó el token enviado, o no se pudo verificar con el servicio externo. Hay que resolver el captcha de nuevo"
-  origen: "CodigoDeErrorCaptcha"
-- codigo: "CAPTCHA_NO_COMPLETADO"
-  status: 400
-  mensajePorDefecto: "Captcha no completado"
-  cuando: "La operación verifica un captcha y el request no trae el token de hCaptcha"
-  origen: "CodigoDeErrorCaptcha"
-- codigo: "CAPTCHA_NO_DISPONIBLE"
-  status: 503
-  mensajePorDefecto: "Faltan configuraciones necesarias para el servicio de captcha"
-  cuando: "La operación verifica un captcha y el backend no tiene configurada la verificación de hCaptcha. Es un error de configuración del backend"
-  origen: "CodigoDeErrorCaptcha"
 - codigo: "CODIGO_INVALIDO"
   status: 400
   mensajePorDefecto: "Código inválido"
@@ -4938,41 +3013,16 @@ x-catalogo-de-errores:
   mensajePorDefecto: "El código ya fue utilizado"
   cuando: "El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo"
   origen: "CodigoDeErrorIdentity"
-- codigo: "COMPANY_NO_ENCONTRADA"
-  status: 400
-  mensajePorDefecto: "Empresa no encontrada"
-  cuando: "El uuid de empresa (del header `X-Empresa-Uuid` o del request) no corresponde a una empresa activa"
-  origen: "CodigoDeErrorMultiempresa"
-- codigo: "COMPANY_REQUERIDA"
-  status: 400
-  mensajePorDefecto: "Empresa requerida"
-  cuando: "La operación necesita la empresa actual y el request no trae el header `X-Empresa-Uuid`"
-  origen: "CodigoDeErrorMultiempresa"
 - codigo: "CONFIGURACIONES_PRIVADAS"
   status: 403
   mensajePorDefecto: "No tenes permiso para ver estas variables"
   cuando: "Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas"
   origen: "CodigoDeErrorDelProyecto"
-- codigo: "CONFIGURACION_DE_SISTEMA_INCOMPLETA"
-  status: 500
-  mensajePorDefecto: "Configuración incompleta"
-  cuando: "En el registro público de usuario y empresa, falta en el sistema el rol ADMIN que se le asigna al usuario. Es un error de configuración del backend"
-  origen: "CodigoDeErrorMultiempresa"
-- codigo: "CONFIGURACION_INCOMPLETA"
-  status: 400
-  mensajePorDefecto: "Configuración incompleta"
-  cuando: "En el registro público en una empresa, esa empresa no tiene configurado un rol por defecto para los usuarios nuevos"
-  origen: "CodigoDeErrorMultiempresa"
 - codigo: "CREDENCIALES_INVALIDAS"
   status: 401
   mensajePorDefecto: "Usuario o contraseña incorrectos"
   cuando: "Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide"
   origen: "CodigoDeErrorIdentity"
-- codigo: "CRYPTER_NO_DISPONIBLE"
-  status: 503
-  mensajePorDefecto: "Error con el servicio de archivos encriptados"
-  cuando: "No se pudo guardar u obtener un archivo encriptado: el servicio externo de archivos no está configurado o no responde"
-  origen: "CodigoDeErrorCrypter"
 - codigo: "CUERPO_INVALIDO"
   status: 400
   mensajePorDefecto: "Error con los datos enviados"
@@ -4998,21 +3048,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "Email ya registrado"
   cuando: "Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación"
   origen: "CodigoDeErrorDelProyecto"
-- codigo: "EMPRESA_DE_SISTEMA_NO_PERMITIDA"
-  status: 400
-  mensajePorDefecto: "No es posible registrarse en la empresa de sistema"
-  cuando: "En el registro público de un cliente o al vincularse a una empresa, la empresa indicada en el header `X-Empresa-Uuid` es la de sistema, cuyos roles valen en todas las empresas: nadie entra a ella por esas vías, ni siquiera un SYSADMIN. Hay que elegir otra empresa"
-  origen: "CodigoDeErrorMultiempresa"
-- codigo: "EMPRESA_NO_PERMITIDA"
-  status: 403
-  mensajePorDefecto: "Empresa no permitida"
-  cuando: "El usuario no pertenece a la empresa indicada en el header `X-Empresa-Uuid`"
-  origen: "CodigoDeErrorMultiempresa"
-- codigo: "ERROR_ELIMINANDO_ARCHIVO"
-  status: 503
-  mensajePorDefecto: "Error eliminando archivo en el servidor de imágenes"
-  cuando: "Falló el borrado del archivo en el servidor de archivos públicos (SM3). Se puede reintentar"
-  origen: "CodigoDeErrorSm3"
 - codigo: "ERROR_GENERANDO_EMAIL"
   status: 500
   mensajePorDefecto: "Error al generar el email"
@@ -5023,21 +3058,11 @@ x-catalogo-de-errores:
   mensajePorDefecto: "Error interno del servidor"
   cuando: "Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs"
   origen: "CodigoDeErrorKernel"
-- codigo: "ERROR_SUBIENDO_ARCHIVO"
-  status: 503
-  mensajePorDefecto: "Error subiendo archivo al servidor de imagenes"
-  cuando: "Falló la subida del archivo al servidor de archivos públicos (SM3). Se puede reintentar"
-  origen: "CodigoDeErrorSm3"
 - codigo: "FORMULARIO_INVALIDO"
   status: 400
   mensajePorDefecto: "Error en el formulario"
   cuando: "El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje"
   origen: "CodigoDeErrorKernel"
-- codigo: "FUNCIONALIDAD_NO_IMPLEMENTADA"
-  status: 501
-  mensajePorDefecto: "Funcionalidad no implementada"
-  cuando: "La operación necesita enviar un email y el backend está configurado con un medio de envío (notificaciones) que todavía no está implementado"
-  origen: "CodigoDeErrorMail"
 - codigo: "HOOK_NO_IMPLEMENTADO"
   status: 500
   mensajePorDefecto: "No implementado"
@@ -5048,11 +3073,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No está disponible este metodo de login"
   cuando: "Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT"
   origen: "CodigoDeErrorJwt"
-- codigo: "MAIL_NO_DISPONIBLE"
-  status: 503
-  mensajePorDefecto: "Faltan configuraciones necesarias para el servicio de mail"
-  cuando: "La operación necesita enviar un email y el backend no tiene configurado el servidor de correo"
-  origen: "CodigoDeErrorMail"
 - codigo: "MEDIA_TYPE_NO_SOPORTADO"
   status: 415
   mensajePorDefecto: "Tipo de contenido no soportado"
@@ -5103,11 +3123,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No existe el registro relacionado indicado"
   cuando: "Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo"
   origen: "CodigoDeErrorCrud"
-- codigo: "ROL_YA_EXISTE"
-  status: 400
-  mensajePorDefecto: "Ya existe un rol con ese nombre para su empresa"
-  cuando: "Al guardar un rol, ya existe otro con el mismo nombre en la misma empresa"
-  origen: "CodigoDeErrorMultiempresa"
 - codigo: "SERVICIO_DE_MAIL_NO_DISPONIBLE"
   status: 500
   mensajePorDefecto: "No se pueden enviar emails"
@@ -5118,31 +3133,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No tenes permiso para realizar esta accion"
   cuando: "El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular"
   origen: "CodigoDeErrorKernel"
-- codigo: "SM3_NO_DISPONIBLE"
-  status: 503
-  mensajePorDefecto: "Faltan configuraciones necesarias para el servicio SM3"
-  cuando: "El backend no tiene configurado el servidor de archivos públicos (SM3). Es un error de configuración del backend"
-  origen: "CodigoDeErrorSm3"
-- codigo: "SSO_AUTENTICACION_FALLIDA"
-  status: 401
-  mensajePorDefecto: "No se pudo autenticar con el sistema de usuarios"
-  cuando: "El servicio de SSO no reconoce el token del header `Authorization` (en Malvinas, solo un token ES256): hay que volver a iniciar sesión en el SSO"
-  origen: "CodigoDeErrorSso"
-- codigo: "SSO_CONTEXTO_NO_DISPONIBLE"
-  status: 400
-  mensajePorDefecto: "Contexto de petición no disponible"
-  cuando: "La autenticación por SSO se ejecutó fuera de un request HTTP, sin un token para resolver"
-  origen: "CodigoDeErrorSso"
-- codigo: "SSO_INTEGRACION_ERROR"
-  status: 503
-  mensajePorDefecto: "Error en la comunicación con el sistema de usuarios"
-  cuando: "Falló la comunicación con el servicio externo de SSO (no responde o responde con error). Se puede reintentar"
-  origen: "CodigoDeErrorSso"
-- codigo: "SSO_NO_DISPONIBLE"
-  status: 503
-  mensajePorDefecto: "Faltan configuraciones necesarias para el servicio SSO"
-  cuando: "El backend no tiene configurado el servicio externo de SSO. Es un error de configuración del backend"
-  origen: "CodigoDeErrorSso"
 - codigo: "TOKEN_INVALIDO"
   status: 401
   mensajePorDefecto: "Token de acceso inválido"

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-USR-01: obtener un usuario por uuid (GET /usuario/uuid/{uuid}). Migrado de bruno/User (01 Get by UUID y
- * Get - uuid inexistente). El proyecto usa core-multiempresa: el DTO trae rolesPorEmpresa.
+ * Get - uuid inexistente). Con core-monoempresa el DTO no trae los roles.
  */
 class UsuarioObtenerContratoTest extends PruebaDeContrato {
 
@@ -25,14 +25,6 @@ class UsuarioObtenerContratoTest extends PruebaDeContrato {
         assertEquals(UsuariosDeSeed.DEMO_TELEFONO, usuario.get("telefono").asString());
         assertFalse(usuario.hasNonNull("contrasena"));
         assertFalse(usuario.has("id"));
-    }
-
-    @Test
-    void obtieneLasEmpresasYRolesDelUsuario() {
-        JsonNode usuario = como("SYSADMIN").get("/usuario/uuid/{uuid}", UsuariosDeSeed.DEMO)
-                .ejecutar().esperar(200).json();
-
-        UsuariosDeSeed.verificarEmpresasYRolesDelDemo(usuario);
     }
 
     @Test

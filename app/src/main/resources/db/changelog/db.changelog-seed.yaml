@@ -9,7 +9,7 @@ databaseChangeLog:
       file: seeds/2026-10-09-insert-usuarios-seed.yaml
       relativeToChangelogFile: true
   - include:
-      file: seeds/2026-10-09-insert-empresas-seed.yaml
+      file: seeds/2026-11-18-insert-roles-de-usuarios-seed.yaml
       relativeToChangelogFile: true
   - include:
       file: seeds/2026-10-09-insert-tokens-seed.yaml

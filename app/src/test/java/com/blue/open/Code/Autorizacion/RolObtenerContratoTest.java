@@ -23,7 +23,8 @@ class RolObtenerContratoTest extends PruebaDeContrato {
 
         assertEquals(RolesDeSeed.CLIENTE, rol.get("uuid").asString());
         assertEquals("CLIENTE", rol.get("nombre").asString());
-        assertEquals(1, rol.get("porDefecto").asInt());
+        // Shiro no tiene rol por defecto: un usuario nuevo entra sin roles (spec, Spec 2)
+        assertEquals(0, rol.get("porDefecto").asInt());
         assertEquals(0, rol.get("permisos").size());
         assertFalse(rol.has("id"));
     }

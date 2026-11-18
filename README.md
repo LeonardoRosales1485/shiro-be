@@ -1,13 +1,13 @@
-# API de aplicación
+# Shiro (backend)
 
-> Descripción de una línea de qué hace este backend.
+> Backend de Shiro, gestor de trabajo de Blue Open Data: API REST y servidor MCP sobre la misma capa de servicios.
 
 ## Stack
 
 - Java
 - Spring Boot
 - Maven
-- MariaDB
+- PostgreSQL 18
 - Liquibase
 - Docker
 

@@ -7,8 +7,7 @@ package com.blue.open.Code.Autorizacion;
  */
 final class RolesDeSeed {
 
-    // Rol CLIENTE de la empresa BlueOpenData (2026-10-09-insert-empresas-seed.yaml): rol por defecto, sin
-    // permisos
+    // Rol CLIENTE global (2026-11-18-insert-roles-de-usuarios-seed.yaml): sin permisos y no es rol por defecto
     static final String CLIENTE = "90000000-0000-4000-8000-000000000009";
 
     private RolesDeSeed() {

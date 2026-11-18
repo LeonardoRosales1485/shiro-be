@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-USR-03: alta o edicion de un usuario (POST /usuario/guardar). Migrado de bruno/User (03 Save or Create). El caso
- * "Save - sin autenticacion" lo genera core-test. El alta sin rolesPorEmpresa crea el usuario sin empresas.
+ * "Save - sin autenticacion" lo genera core-test. El alta crea el usuario sin roles.
  */
 class UsuarioGuardarContratoTest extends PruebaDeContrato {
 

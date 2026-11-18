@@ -1,0 +1,190 @@
+# Seeds de roles y de la relacion usuario-rol de core-monoempresa (auth_usuarios_roles).
+# Reemplazan al seed de empresas de la plantilla (2026-10-09-insert-empresas-seed.yaml), que Shiro no usa: en
+# monoempresa los roles son globales (id_empresa nulo) y el usuario se vincula directo con el rol.
+# Usuarios: los de 2026-10-09-insert-usuarios-seed.yaml (demo = ADMIN, sysadmin-pruebas = SYSADMIN, cliente = CLIENTE).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-1
+      author: shiro
+      comment: "Crea el rol base SYSADMIN global si todavia no existe (lo crea tambien InicializadorDeBaseService al arrancar)"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_roles WHERE nombre = 'SYSADMIN' AND id_empresa IS NULL
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: SYSADMIN
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000101
+              - column:
+                  name: por_defecto
+                  valueNumeric: 0
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000101'
+
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-2
+      author: shiro
+      comment: "Crea el rol base ADMIN global si todavia no existe (lo crea tambien InicializadorDeBaseService al arrancar)"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_roles WHERE nombre = 'ADMIN' AND id_empresa IS NULL
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: ADMIN
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000102
+              - column:
+                  name: por_defecto
+                  valueNumeric: 0
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000102'
+
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-3
+      author: shiro
+      comment: "Crea el rol CLIENTE, sin permisos: es el actor sin permiso de las pruebas de contrato"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_roles WHERE nombre = 'CLIENTE' AND id_empresa IS NULL
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: CLIENTE
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000009
+              - column:
+                  name: por_defecto
+                  valueNumeric: 0
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000009'
+
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-4
+      author: shiro
+      comment: "Asigna el rol ADMIN al usuario demo"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios_roles WHERE uuid = '90000000-0000-4000-8000-000000000111'
+      changes:
+        - insert:
+            tableName: auth_usuarios_roles
+            columns:
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000111
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')
+              - column:
+                  name: id_rol
+                  valueComputed: (SELECT id FROM auth_roles WHERE nombre = 'ADMIN' AND id_empresa IS NULL)
+      rollback:
+        - delete:
+            tableName: auth_usuarios_roles
+            where: uuid = '90000000-0000-4000-8000-000000000111'
+
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-5
+      author: shiro
+      comment: "Asigna el rol SYSADMIN al usuario sysadmin-pruebas"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios_roles WHERE uuid = '90000000-0000-4000-8000-000000000112'
+      changes:
+        - insert:
+            tableName: auth_usuarios_roles
+            columns:
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000112
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'sysadmin-pruebas')
+              - column:
+                  name: id_rol
+                  valueComputed: (SELECT id FROM auth_roles WHERE nombre = 'SYSADMIN' AND id_empresa IS NULL)
+      rollback:
+        - delete:
+            tableName: auth_usuarios_roles
+            where: uuid = '90000000-0000-4000-8000-000000000112'
+
+  - changeSet:
+      id: 2026-11-18-insert-roles-de-usuarios-seed-6
+      author: shiro
+      comment: "Asigna el rol CLIENTE al usuario cliente"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios_roles WHERE uuid = '90000000-0000-4000-8000-000000000113'
+      changes:
+        - insert:
+            tableName: auth_usuarios_roles
+            columns:
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000113
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'cliente')
+              - column:
+                  name: id_rol
+                  valueComputed: (SELECT id FROM auth_roles WHERE nombre = 'CLIENTE' AND id_empresa IS NULL)
+      rollback:
+        - delete:
+            tableName: auth_usuarios_roles
+            where: uuid = '90000000-0000-4000-8000-000000000113'

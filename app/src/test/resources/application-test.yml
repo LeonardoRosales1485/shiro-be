@@ -67,9 +67,6 @@ core:
       ruta: usuario
     apikey:
       ruta: usuario
-  multiempresa:
-    habilitada: false
-    default-name: BlueOpenData
   identity:
     usuario-inicial:
       nombre-de-usuario: sysadmin

@@ -12,14 +12,13 @@ import java.util.Optional;
 /**
  * Actores de las pruebas de contrato: un usuario por rol con su token de acceso (protocolo tokens), creados por los
  * seeds de Liquibase (2026-10-09-insert-usuarios-seed.yaml).
- * Para el caso automatico "sin permiso" usa CLIENTE, el rol por defecto de la empresa BlueOpenData, que no otorga
- * ningun permiso.
+ * Para el caso automatico "sin permiso" usa CLIENTE, un rol global que no otorga ningun permiso.
  * Dependencias externas: ninguna.
  */
 @Component
 public class ActoresDelProyecto implements ActoresDePrueba {
 
-    // Rol CLIENTE (2026-10-09-insert-empresas-seed.yaml): sin permisos
+    // Rol CLIENTE (2026-11-18-insert-roles-de-usuarios-seed.yaml): sin permisos
     public static final String CLIENTE = "CLIENTE";
 
     // Rol -> token de acceso del seed

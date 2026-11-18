@@ -1,14 +1,14 @@
 package com.blue.open.Code.Usuario;
 
-import com.blue.open.Core.Multiempresa.DTO.UsuarioBaseMultiempresaDTO;
+import com.blue.open.Core.Identity.DTO.UsuarioBaseDTO;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * DTO de usuario del proyecto. Extiende el DTO multi-empresa porque este proyecto usa
- * core-multiempresa: incluye las empresas del usuario y sus roles en cada una.
+ * DTO de usuario de Shiro. Extiende el DTO base de core-identity: con core-monoempresa los roles del usuario no
+ * viajan en este DTO (la asignacion de grupos se resuelve en F2, T2.5).
  */
 @Getter
 @Setter
-public class UsuarioDTO extends UsuarioBaseMultiempresaDTO {
+public class UsuarioDTO extends UsuarioBaseDTO {
 }

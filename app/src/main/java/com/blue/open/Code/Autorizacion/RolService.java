@@ -5,7 +5,7 @@ import com.blue.open.Core.Identity.DTO.RolDTO;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Entidad.Permiso;
 import com.blue.open.Core.Identity.Entidad.Rol;
-import com.blue.open.Core.Multiempresa.Service.RolBaseMultiempresaService;
+import com.blue.open.Core.Identity.Service.RolBaseService;
 
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,12 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Service de roles del proyecto sobre RolBaseMultiempresaService.
+ * Service de roles del proyecto sobre RolBaseService.
  * Dependencias externas: la base de datos.
  * Recibe: RolDTO o uuid segun el endpoint. Responde: RolDTO.
  */
 @Service
-public class RolService extends RolBaseMultiempresaService<RolDTO> {
+public class RolService extends RolBaseService<RolDTO> {
 
     // Proyeccion del rol vigente por uuid. Un rol eliminado responde como inexistente
     @Override

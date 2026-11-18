@@ -1,11 +1,5 @@
 package com.blue.open.Code.Usuario;
 
-import tools.jackson.databind.JsonNode;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * Datos de los usuarios de los seeds de Liquibase que usan las pruebas de contrato de /usuario. El usuario demo
  * (2026-10-09-insert-usuarios-seed.yaml) es el actor del rol ADMIN en ActoresDelProyecto.
@@ -23,10 +17,6 @@ public final class UsuariosDeSeed {
     public static final String DEMO_EMAIL = "demo@example.local";
 
     public static final String DEMO_TELEFONO = "1122334455";
-    // Relacion empresa-roles del usuario demo (auth_usuarios_empresas): empresa BlueOpenData con el rol ADMIN
-    public static final String DEMO_RELACION = "90000000-0000-4000-8000-000000000005";
-    public static final String DEMO_EMPRESA = "2";
-    public static final String DEMO_EMPRESA_NOMBRE = "BlueOpenData";
 
     // Token de acceso del usuario demo (auth_access_tokens)
     public static final String TOKEN_DEMO = "90000000-0000-4000-8000-000000000007";
@@ -54,21 +44,5 @@ public final class UsuariosDeSeed {
     public static final String INEXISTENTE = "ffffffff-ffff-4fff-bfff-ffffffffffff";
 
     private UsuariosDeSeed() {
-    }
-
-    // Verifica que el usuario demo responda su empresa con el rol ADMIN y los permisos del rol (por @Coleccion)
-    static void verificarEmpresasYRolesDelDemo(JsonNode usuario) {
-        JsonNode relaciones = usuario.get("rolesPorEmpresa");
-        assertEquals(1, relaciones.size(), relaciones::toString);
-        JsonNode relacion = relaciones.get(0);
-        assertEquals(DEMO_RELACION, relacion.get("uuid").asString());
-        // uuid es CHAR(36): el "2" de los seeds vuelve completado con espacios
-        assertEquals(DEMO_EMPRESA, relacion.get("empresaUuid").asString().trim());
-        assertEquals(DEMO_EMPRESA_NOMBRE, relacion.get("empresaNombre").asString());
-        assertEquals(1, relacion.get("roles").size(), relacion::toString);
-        JsonNode rol = relacion.get("roles").get(0);
-        assertEquals(ROL_DEMO, rol.get("nombre").asString());
-        assertFalse(rol.get("permisos").isEmpty(), "El rol ADMIN responde sus permisos");
-        assertTrue(rol.get("permisos").get(0).hasNonNull("nombre"));
     }
 }

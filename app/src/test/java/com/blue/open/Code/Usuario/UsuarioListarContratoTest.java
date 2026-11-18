@@ -42,17 +42,6 @@ class UsuarioListarContratoTest extends PruebaDeContrato {
     }
 
     @Test
-    void listaLasEmpresasYRolesDeCadaUsuario() {
-        Map<String, Object> cuerpo = Map.of("pagina", 1, "tamano", 10, "filtros", List.of(List.of(
-                Map.of("campo", "uuid", "operacion", "=", "valor", UsuariosDeSeed.DEMO))));
-
-        JsonNode pagina = paginar(cuerpo).esperar(200).json();
-
-        assertEquals(1, pagina.get("totalDeElementos").asInt());
-        UsuariosDeSeed.verificarEmpresasYRolesDelDemo(pagina.get("contenido").get(0));
-    }
-
-    @Test
     void campoNoPermitido() {
         Map<String, Object> cuerpo = Map.of("pagina", 1, "tamano", 10, "filtros", List.of(List.of(
                 Map.of("campo", "contrasena", "operacion", "like", "valor", "$2a$%"))), "ordenes", List.of());

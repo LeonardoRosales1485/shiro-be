@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Builder de usuarios y tokens de acceso para las pruebas de contrato: crea usuarios, pide la recuperacion de
- * contrasena y crea tokens por los endpoints reales (pasos de preparacion, dentro de la transaccion del test: se
+ * Builder de usuarios y tokens de acceso para las pruebas de contrato: crea usuarios y crea tokens por los endpoints reales (pasos de preparacion, dentro de la transaccion del test: se
  * revierten al terminar). Equivalente de los scripts pre-request de bruno/User. Se construye con el cliente de la
  * prueba: new EscenarioDeUsuario(this::como).
  */
@@ -53,14 +52,6 @@ public final class EscenarioDeUsuario {
     public void eliminar(String uuid) {
         como.apply(SYSADMIN).delete("/usuario/borrar/{uuid}", uuid)
                 .preparacion().ejecutar().esperar(200);
-    }
-
-    // Pide el codigo de recuperacion de contrasena del email recibido (POST /usuario/publico/recuperar-contrasena; el
-    // endpoint es publico, el token del actor no cambia nada). Responde el codigo, fijo por UsuarioServiceDePrueba
-    public String codigoDeRecuperacion(String email) {
-        como.apply(SYSADMIN).post("/usuario/publico/recuperar-contrasena").json(Map.of("email", email))
-                .preparacion().ejecutar().esperar(200);
-        return UsuarioServiceDePrueba.codigo(32);
     }
 
     // Crea un token de acceso con el nombre recibido para el usuario del rol (POST /usuario/crear-token) y responde
