@@ -30,5 +30,7 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 22 | 2026-11-18 | 17:50 | 17:52 | 2 min | Soporte | Adendas 1 y 2 del DAF | Plan y spec actualizados |
 | 23 | 2026-11-18 | 17:57 | 17:57 | 0 min | Build | Analizar el traspaso antes de F0 | Spec y plan leídos (45 tareas); bloqueos de F0 listados; registro creado |
 | 24 | 2026-11-18 | 18:16 | 18:19 | 3 min | Build | Respuestas a diferencias; Core, sm-template y umbrales | Core y sm-template leídos; JDK 25 instalado; adenda de implementación 1 en el plan; títulos y repositorios corregidos |
+| 25 | 2026-11-18 | 18:20 | 18:21 | 1 min | Build | Bitácora del programador; respuestas v2, git y protección de ramas | Bitácora creada en Claude Docs |
+| 26 | 2026-11-18 | 18:37 | 18:53 | 16 min | Build | Procede con F0 | T0.1 (c4f0a22) y T0.2 (cda618f) en verde; T0.3 espera decisión sobre el usuario de base |
 
-**Total acumulado medido:** 27 min
+**Total acumulado medido:** 44 min
