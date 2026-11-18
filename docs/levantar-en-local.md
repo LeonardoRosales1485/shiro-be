@@ -40,8 +40,16 @@ Desde la carpeta `shiro-be`:
 python deploy/deploy.py --local
 ```
 
-En Windows también sirve `deploy\local.bat`. La primera vez tarda varios minutos: construye la imagen (Maven dentro
-de Docker) y crea la base. El deployer lee el bloque `local` de `deploy.yml`.
+En Windows también sirve `deploy\local.bat`, pero corrélo desde una terminal: con doble clic la ventana se cierra
+al terminar y no se ve el resultado. La primera vez tarda varios minutos: construye la imagen (Maven dentro de
+Docker) y crea la base. El deployer lee el bloque `local` de `deploy.yml`.
+
+En PowerShell, si redirigís la salida del deployer (por ejemplo a un archivo), definí antes `PYTHONUTF8=1`. Si no,
+Python usa cp1252 y el deployer se cae con `UnicodeEncodeError` al imprimir los símbolos de progreso:
+
+```powershell
+$env:PYTHONUTF8=1
+```
 
 Para cargar además los datos de ejemplo (usuarios `demo`, `sysadmin-pruebas` y `cliente`, todos con clave `123`):
 
@@ -130,6 +138,11 @@ docker stop shiro-be shiro-be-postgres
 ```
 
 ## Problemas comunes
+
+- **`UnicodeEncodeError` en Windows al correr el deployer:** definí `$env:PYTHONUTF8=1` en la misma terminal (ver
+  la sección 3).
+- **Finales de línea:** el repositorio trae `.gitattributes` (LF en todo, CRLF en `.bat` y `.cmd`). Si clonaste antes
+  de ese cambio, `git add --renormalize .` deja la copia de trabajo igual que el repositorio.
 
 - **Puerto ocupado (5090, 7090 o 7091):** cambiá el puerto en `deploy.yml` (backend y base) o en `vite.config.ts`
   (front) y avisá, porque los definitivos los asigna el líder técnico.
