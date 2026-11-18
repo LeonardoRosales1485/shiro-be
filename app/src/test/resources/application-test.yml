@@ -32,6 +32,10 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-seed.yaml
     contexts: seed
+    # Usuario de la aplicacion sin DELETE sobre shr_ (T0.3). Valores solo de prueba
+    parameters:
+      shiro_usuario_app: shiro_app
+      shiro_contrasena_app: prueba-app
   datasource:
     driver-class-name: org.postgresql.Driver
   jpa:
