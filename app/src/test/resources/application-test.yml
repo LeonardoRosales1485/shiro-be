@@ -17,6 +17,14 @@ management:
       enabled: false
 
 spring:
+  # Servidor MCP como en servidor: Streamable HTTP sin estado en /api/mcp (spec, Spec 4)
+  ai:
+    mcp:
+      server:
+        name: shiro
+        protocol: STATELESS
+        streamable-http:
+          mcp-endpoint: /mcp
   # Liquibase corre el master real con los seeds (contexto seed) sobre un PostgreSQL 18 embebido
   # (TestConBaseDeDatos): la base queda identica a la que arma Liquibase en local. La url, el usuario y la
   # clave del datasource los registra TestConBaseDeDatos al levantar el PostgreSQL embebido.
