@@ -1,0 +1,341 @@
+# Reemplaza a los seeds que nombraban las tablas companies, auth_users_companies y auth_user_company_roles o sus
+# columnas en ingles (user_id, company_id, user_company_role_id, role_id), que core-multiempresa renombra a empresas,
+# auth_usuarios_empresas y auth_usuarios_empresas_roles (glosario, ticket 07): en una base nueva ya no podian correr.
+# Corre al final de los seeds, en el mismo orden relativo que los originales: roles de las empresas, empresas de los
+# usuarios de ejemplo y sus roles. En las bases donde los originales ya corrieron, las filas existen y estos quedan
+# MARK_RAN.
+#
+# Los roles base SYSADMIN y ADMIN los crea al arrancar InicializadorDeBaseService, pero cuando el master y los seeds
+# corren juntos (pruebas de contrato, core-test) Liquibase va antes y los seeds que asignan esos roles no los
+# encontrarian. InicializadorDeBaseService reutiliza el rol existente (lo busca por nombre y empresa) y le sincroniza
+# los permisos.
+#
+# Reemplazos (original -> nuevo). 2026-10-09-insert-roles-seed.yaml quedo sin changesets y se borro:
+# - 2026-10-09-insert-roles-seed-1 -> 2026-10-09-insert-empresas-seed-1
+# - 2026-10-09-insert-roles-seed-2 -> 2026-10-09-insert-empresas-seed-2
+# - 2026-10-09-insert-roles-seed-3 -> 2026-10-09-insert-empresas-seed-3
+# - 2026-10-09-insert-usuarios-seed-2 -> 2026-10-09-insert-empresas-seed-4
+# - 2026-10-09-insert-usuarios-seed-7 -> 2026-10-09-insert-empresas-seed-5
+# - 2026-10-09-insert-usuarios-seed-10 -> 2026-10-09-insert-empresas-seed-6
+# - 2026-10-09-insert-usuarios-seed-14 -> 2026-10-09-insert-empresas-seed-7
+# - 2026-10-09-insert-usuarios-seed-15 -> 2026-10-09-insert-empresas-seed-8
+# - 2026-10-09-insert-usuarios-seed-16 -> 2026-10-09-insert-empresas-seed-9
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-1
+      author: TaielMG
+      comment: Crea el rol SYSADMIN de la empresa de sistema si todavia no existe
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_roles r JOIN empresas e ON e.id = r.id_empresa
+            WHERE r.nombre = 'SYSADMIN' AND e.uuid = '1'
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: SYSADMIN
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000010
+              - column:
+                  name: por_defecto
+                  valueNumeric: 0
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '1')
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000010'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-2
+      author: TaielMG
+      comment: Crea el rol ADMIN de la empresa de sistema si todavia no existe
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_roles r JOIN empresas e ON e.id = r.id_empresa
+            WHERE r.nombre = 'ADMIN' AND e.uuid = '1'
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: ADMIN
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000011
+              - column:
+                  name: por_defecto
+                  valueNumeric: 0
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '1')
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000011'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-3
+      author: TaielMG
+      comment: >-
+        Crea el rol por defecto CLIENTE (sin permisos) de la empresa BlueOpenData. Lo usan
+        publico/vincular y publico/registro-cliente, que asignan el rol por defecto de la empresa y
+        desde Core 2.0.1 no permiten entrar a la empresa de sistema.
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_roles WHERE uuid = '90000000-0000-4000-8000-000000000009'
+      changes:
+        - insert:
+            tableName: auth_roles
+            columns:
+              - column:
+                  name: nombre
+                  value: CLIENTE
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000009
+              - column:
+                  name: por_defecto
+                  valueNumeric: 1
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '2')
+      rollback:
+        - delete:
+            tableName: auth_roles
+            where: uuid = '90000000-0000-4000-8000-000000000009'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-4
+      author: TaielMG
+      comment: Asocia el usuario demo a la empresa BlueOpenData
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_usuarios_empresas ue
+            JOIN auth_usuarios u ON u.id = ue.id_usuario
+            JOIN empresas e ON e.id = ue.id_empresa
+            WHERE u.nombre_de_usuario = 'demo' AND e.uuid = '2'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas
+            columns:
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000005
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '2')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas
+            where: uuid = '90000000-0000-4000-8000-000000000005'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-5
+      author: TaielMG
+      comment: Asocia el usuario sysadmin-pruebas a la empresa Sistema
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000013'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas
+            columns:
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000013
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'sysadmin-pruebas')
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '1')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas
+            where: uuid = '90000000-0000-4000-8000-000000000013'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-6
+      author: TaielMG
+      comment: Asocia el usuario cliente a la empresa BlueOpenData
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000016'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas
+            columns:
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000016
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'cliente')
+              - column:
+                  name: id_empresa
+                  valueComputed: (SELECT id FROM empresas WHERE uuid = '2')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas
+            where: uuid = '90000000-0000-4000-8000-000000000016'
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-7
+      author: TaielMG
+      comment: Asigna el rol base ADMIN al usuario demo
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_usuarios_empresas_roles uer
+            JOIN auth_usuarios_empresas ue ON ue.id = uer.id_usuario_empresa
+            JOIN auth_usuarios u ON u.id = ue.id_usuario
+            JOIN auth_roles r ON r.id = uer.id_rol
+            JOIN empresas re ON re.id = r.id_empresa
+            WHERE u.nombre_de_usuario = 'demo' AND r.nombre = 'ADMIN' AND re.uuid = '1'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas_roles
+            columns:
+              - column:
+                  name: id_usuario_empresa
+                  valueComputed: >-
+                    (SELECT ue.id FROM auth_usuarios_empresas ue
+                     JOIN auth_usuarios u ON u.id = ue.id_usuario
+                     WHERE u.nombre_de_usuario = 'demo')
+              - column:
+                  name: id_rol
+                  valueComputed: >-
+                    (SELECT r.id FROM auth_roles r
+                     JOIN empresas e ON e.id = r.id_empresa
+                     WHERE r.nombre = 'ADMIN' AND e.uuid = '1')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas_roles
+            where: >-
+              id_usuario_empresa IN (
+                SELECT ue.id FROM auth_usuarios_empresas ue
+                JOIN auth_usuarios u ON u.id = ue.id_usuario
+                WHERE u.nombre_de_usuario = 'demo'
+              )
+              AND id_rol IN (
+                SELECT r.id FROM auth_roles r
+                JOIN empresas e ON e.id = r.id_empresa
+                WHERE r.nombre = 'ADMIN' AND e.uuid = '1'
+              )
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-8
+      author: TaielMG
+      comment: Asigna el rol SYSADMIN al usuario sysadmin-pruebas
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_usuarios_empresas_roles uer
+            JOIN auth_usuarios_empresas ue ON ue.id = uer.id_usuario_empresa
+            JOIN auth_roles r ON r.id = uer.id_rol
+            WHERE ue.uuid = '90000000-0000-4000-8000-000000000013' AND r.nombre = 'SYSADMIN'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas_roles
+            columns:
+              - column:
+                  name: id_usuario_empresa
+                  valueComputed: (SELECT id FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000013')
+              - column:
+                  name: id_rol
+                  valueComputed: >-
+                    (SELECT r.id FROM auth_roles r
+                     JOIN empresas e ON e.id = r.id_empresa
+                     WHERE r.nombre = 'SYSADMIN' AND e.uuid = '1')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas_roles
+            where: >-
+              id_usuario_empresa IN (SELECT id FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000013')
+
+  - changeSet:
+      id: 2026-10-09-insert-empresas-seed-9
+      author: TaielMG
+      comment: Asigna el rol CLIENTE al usuario cliente
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: >-
+            SELECT COUNT(*) FROM auth_usuarios_empresas_roles uer
+            JOIN auth_usuarios_empresas ue ON ue.id = uer.id_usuario_empresa
+            JOIN auth_roles r ON r.id = uer.id_rol
+            WHERE ue.uuid = '90000000-0000-4000-8000-000000000016' AND r.nombre = 'CLIENTE'
+      changes:
+        - insert:
+            tableName: auth_usuarios_empresas_roles
+            columns:
+              - column:
+                  name: id_usuario_empresa
+                  valueComputed: (SELECT id FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000016')
+              - column:
+                  name: id_rol
+                  valueComputed: >-
+                    (SELECT r.id FROM auth_roles r
+                     JOIN empresas e ON e.id = r.id_empresa
+                     WHERE r.nombre = 'CLIENTE' AND e.uuid = '2')
+      rollback:
+        - delete:
+            tableName: auth_usuarios_empresas_roles
+            where: >-
+              id_usuario_empresa IN (SELECT id FROM auth_usuarios_empresas WHERE uuid = '90000000-0000-4000-8000-000000000016')

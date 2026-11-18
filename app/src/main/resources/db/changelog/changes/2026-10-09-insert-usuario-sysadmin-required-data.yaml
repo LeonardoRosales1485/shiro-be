@@ -1,0 +1,45 @@
+# Reemplaza a 2026-07-06-insert-required-data-5 y -6 y a 2026-10-09-insert-roles-base-required-data-3, que nombraban
+# la tabla auth_users y sus columnas en ingles (username, name, password). core-identity las renombra a auth_usuarios,
+# nombre_de_usuario, nombre y contrasena (glosario, ticket 06) antes de que corra el schema del proyecto, asi que en una
+# base nueva esos changesets ya no podian correr. Corre despues de los roles base, en el mismo orden relativo que los
+# originales: usuario sysadmin, su empresa y su rol SYSADMIN.
+# En las bases donde los originales ya corrieron, las filas existen y estos quedan MARK_RAN.
+# -2 y -3 (empresa del usuario sysadmin y su rol SYSADMIN) se reemplazaron por
+# 2026-10-09-insert-empresas-required-data.yaml: nombraban las tablas auth_users_companies, auth_user_company_roles y
+# companies, que el ticket 07 renombra.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-insert-usuario-sysadmin-required-data-1
+      author: TaielMG
+      comment: Crea usuario sysadmin inicial
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'sysadmin' AND status = 0
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: sysadmin
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 30000000-0000-4000-8000-000000000001
+              - column:
+                  name: nombre
+                  value: SysAdmin
+              - column:
+                  name: email
+                  value: sysadmin@example.local
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '30000000-0000-4000-8000-000000000001'

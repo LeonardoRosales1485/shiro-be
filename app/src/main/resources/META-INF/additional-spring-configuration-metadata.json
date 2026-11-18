@@ -1,0 +1,254 @@
+{
+  "properties": [
+    {
+      "name": "server.port",
+      "type": "java.lang.Integer",
+      "description": "Puerto HTTP donde escucha la aplicacion. En server normalmente se inyecta desde deploy.yml."
+    },
+    {
+      "name": "server.servlet.context-path",
+      "type": "java.lang.String",
+      "description": "Prefijo base para todos los endpoints HTTP de la aplicacion, por ejemplo /api."
+    },
+    {
+      "name": "spring.datasource.url",
+      "type": "java.lang.String",
+      "description": "URL JDBC de la base de datos usada por la aplicacion."
+    },
+    {
+      "name": "spring.datasource.driver-class-name",
+      "type": "java.lang.String",
+      "description": "Clase del driver JDBC que usa Spring para conectarse a la base de datos."
+    },
+    {
+      "name": "spring.datasource.username",
+      "type": "java.lang.String",
+      "description": "Usuario de la base de datos."
+    },
+    {
+      "name": "spring.datasource.password",
+      "type": "java.lang.String",
+      "description": "Password de la base de datos."
+    },
+    {
+      "name": "spring.datasource.hikari.leak-detection-threshold",
+      "type": "java.lang.Long",
+      "description": "Tiempo en milisegundos para que Hikari reporte una conexion posiblemente retenida demasiado tiempo."
+    },
+    {
+      "name": "spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults",
+      "type": "java.lang.Boolean",
+      "description": "Controla si Hibernate consulta metadata JDBC durante el arranque."
+    },
+    {
+      "name": "spring.jpa.hibernate.ddl-auto",
+      "type": "java.lang.String",
+      "description": "Estrategia de Hibernate para validar o modificar el esquema de base de datos."
+    },
+    {
+      "name": "spring.jpa.open-in-view",
+      "type": "java.lang.Boolean",
+      "description": "Define si la sesion de JPA queda abierta durante la renderizacion de la vista o respuesta web."
+    },
+    {
+      "name": "spring.jpa.properties.hibernate.dialect",
+      "type": "java.lang.String",
+      "description": "Dialecto SQL que Hibernate usa para generar consultas compatibles con el motor de base de datos."
+    },
+    {
+      "name": "spring.liquibase.change-log",
+      "type": "java.lang.String",
+      "description": "Ubicacion del changelog principal de Liquibase."
+    },
+    {
+      "name": "logging.level.liquibase.database",
+      "type": "java.lang.String",
+      "description": "Nivel de log para la categoria liquibase.database."
+    },
+    {
+      "name": "logging.level.org.hibernate.orm.deprecation",
+      "type": "java.lang.String",
+      "description": "Nivel de log para advertencias de deprecacion emitidas por Hibernate ORM."
+    },
+    {
+      "name": "front.url",
+      "type": "java.lang.String",
+      "description": "URL principal del frontend usada como base para enlaces y origen permitido."
+    },
+    {
+      "name": "front.url.mail",
+      "type": "java.lang.String",
+      "description": "URL del frontend para correos de registro y recuperacion. Si esta vacia, el codigo usa front.url."
+    },
+    {
+      "name": "front.url.websocket",
+      "type": "java.lang.String",
+      "description": "Lista separada por comas de origenes permitidos para WebSocket. Si esta vacia, el codigo usa front.url."
+    },
+    {
+      "name": "crypter.url",
+      "type": "java.lang.String",
+      "description": "URL base del servicio Crypter. Opcional al arrancar, requerida cuando se usan operaciones de archivos Crypter."
+    },
+    {
+      "name": "crypter.tipo.documento",
+      "type": "java.lang.String",
+      "description": "Tipo de documento enviado al servicio Crypter al guardar archivos."
+    },
+    {
+      "name": "crypter.usuario",
+      "type": "java.lang.String",
+      "description": "Usuario Basic Auth para consumir el servicio Crypter."
+    },
+    {
+      "name": "crypter.contrasena",
+      "type": "java.lang.String",
+      "description": "Password Basic Auth para consumir el servicio Crypter."
+    },
+    {
+      "name": "sm3.url",
+      "type": "java.lang.String",
+      "description": "URL base del servicio SM3. Opcional al arrancar, requerida cuando se suben o eliminan archivos por SM3."
+    },
+    {
+      "name": "sm3.proyecto",
+      "type": "java.lang.String",
+      "description": "Identificador de proyecto enviado al servicio SM3 en operaciones de archivo."
+    },
+    {
+      "name": "sm3.usuario",
+      "type": "java.lang.String",
+      "description": "Usuario Basic Auth para consumir el servicio SM3."
+    },
+    {
+      "name": "sm3.contrasena",
+      "type": "java.lang.String",
+      "description": "Password Basic Auth para consumir el servicio SM3."
+    },
+    {
+      "name": "jwt.secreto",
+      "type": "java.lang.String",
+      "description": "Clave secreta usada para firmar y validar tokens JWT HS256."
+    },
+    {
+      "name": "auth.protocolos",
+      "type": "java.lang.String",
+      "description": "Lista separada por comas de protocolos de autenticacion habilitados: basic, sso, malvinas, tokens y jwt."
+    },
+    {
+      "name": "auth.sso.clientId",
+      "type": "java.lang.String",
+      "description": "Client ID usado por la integracion SSO."
+    },
+    {
+      "name": "auth.sso.url",
+      "type": "java.lang.String",
+      "description": "URL base del servicio SSO."
+    },
+    {
+      "name": "auth.malvinas.url",
+      "type": "java.lang.String",
+      "description": "URL JWKS usada para validar tokens del proveedor Malvinas."
+    },
+    {
+      "name": "spring.jackson.time-zone",
+      "type": "java.lang.String",
+      "description": "Zona horaria usada por Jackson al serializar y deserializar fechas."
+    },
+    {
+      "name": "spring.jackson.locale",
+      "type": "java.lang.String",
+      "description": "Locale usado por Jackson para formatos regionales."
+    },
+    {
+      "name": "spring.servlet.multipart.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Habilita el soporte de requests multipart para carga de archivos."
+    },
+    {
+      "name": "spring.servlet.multipart.file-size-threshold",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Tamano a partir del cual los archivos multipart pueden escribirse en disco durante el procesamiento."
+    },
+    {
+      "name": "spring.servlet.multipart.max-file-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Tamano maximo permitido para un archivo individual en requests multipart."
+    },
+    {
+      "name": "spring.servlet.multipart.max-request-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Tamano maximo permitido para el request multipart completo."
+    },
+    {
+      "name": "mail.opcion",
+      "type": "java.lang.String",
+      "description": "Modo de envio de mail. smtp usa EnviadorDeMailSmtp (core-mail); notify existe como opcion futura no implementada."
+    },
+    {
+      "name": "spring.mail.host",
+      "type": "java.lang.String",
+      "description": "Host SMTP usado para enviar correos."
+    },
+    {
+      "name": "spring.mail.port",
+      "type": "java.lang.Integer",
+      "description": "Puerto SMTP usado para enviar correos."
+    },
+    {
+      "name": "spring.mail.username",
+      "type": "java.lang.String",
+      "description": "Usuario o cuenta remitente para autenticacion SMTP."
+    },
+    {
+      "name": "spring.mail.password",
+      "type": "java.lang.String",
+      "description": "Password o app password para autenticacion SMTP."
+    },
+    {
+      "name": "spring.mail.protocol",
+      "type": "java.lang.String",
+      "description": "Protocolo de transporte de correo, normalmente smtp."
+    },
+    {
+      "name": "spring.mail.properties.mail.smtp.auth",
+      "type": "java.lang.Boolean",
+      "description": "Indica si el servidor SMTP requiere autenticacion."
+    },
+    {
+      "name": "spring.mail.properties.mail.smtp.starttls.enable",
+      "type": "java.lang.Boolean",
+      "description": "Habilita STARTTLS para la conexion SMTP."
+    },
+    {
+      "name": "spring.mail.properties.mail.debug",
+      "type": "java.lang.Boolean",
+      "description": "Habilita logs debug de JavaMail."
+    },
+    {
+      "name": "captcha.secreto",
+      "type": "java.lang.String",
+      "description": "Clave secreta de HCaptcha usada para validar tokens. Requerida cuando captcha.habilitado es true."
+    },
+    {
+      "name": "captcha.habilitado",
+      "type": "java.lang.Boolean",
+      "description": "Activa o desactiva la validacion HCaptcha en endpoints publicos que llaman CaptchaService."
+    },
+    {
+      "name": "management.endpoints.web.exposure.include",
+      "type": "java.lang.String",
+      "description": "Lista separada por comas de endpoints Actuator expuestos por HTTP."
+    },
+    {
+      "name": "management.endpoint.health.show-details",
+      "type": "java.lang.String",
+      "description": "Controla cuando se muestran detalles en el endpoint de health de Actuator."
+    },
+    {
+      "name": "core.multiempresa.habilitada",
+      "type": "java.lang.Boolean",
+      "description": "Activa el modo multiempresa. Si esta desactivado, algunos flujos usan la empresa por defecto."
+    }
+  ]
+}

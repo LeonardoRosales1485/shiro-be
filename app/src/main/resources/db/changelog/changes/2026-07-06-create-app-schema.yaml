@@ -1,0 +1,90 @@
+# Schema propio del proyecto (no del Core).
+# app-companies-cuit (columna cuit de companies) se reemplazo por 2026-10-09-agregar-cuit-empresas.yaml: nombraba la
+# tabla companies, que el ticket 07 renombra a empresas.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-07-06-create-initial-schema-4
+      author: TaielMG
+      comment: Crea tabla configurations
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          - tableExists:
+              tableName: configurations
+      changes:
+        - createTable:
+            tableName: configurations
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: TINYINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: CHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: global
+                  type: BIT(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_user_created
+                  type: BIGINT
+              - column:
+                  name: id_user_updated
+                  type: BIGINT
+              - column:
+                  name: id_user_deleted
+                  type: BIGINT
+              - column:
+                  name: date_created
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_updated
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_deleted
+                  type: TIMESTAMP
+        - addUniqueConstraint:
+            tableName: configurations
+            columnNames: uuid
+            constraintName: uk_configurations_uuid
+      rollback:
+        - dropTable:
+            tableName: configurations
+
+  - changeSet:
+      id: 2026-09-19-configurations-global-boolean-postgresql
+      author: TaielMG
+      comment: En PostgreSQL BIT(1) queda como bit y la entidad espera boolean; se convierte a boolean
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: ALTER TABLE configurations ALTER COLUMN global TYPE boolean USING global = B'1'

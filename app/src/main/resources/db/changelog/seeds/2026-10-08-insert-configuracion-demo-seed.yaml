@@ -1,0 +1,37 @@
+# Reemplaza a 2026-07-06-insert-demo-seed-2, que insertaba en configurations (tabla renombrada a configuraciones por
+# 2026-10-08-renombrar-tabla-configuraciones). En las bases donde ese seed ya corrio, la fila existe y este queda
+# MARK_RAN.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-08-insert-configuracion-demo-seed
+      author: TaielMG
+      comment: Crea configuracion privada de ejemplo demo.banner
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM configuraciones WHERE uuid = '90000000-0000-4000-8000-000000000003'
+      changes:
+        - insert:
+            tableName: configuraciones
+            columns:
+              - column:
+                  name: nombre
+                  value: demo.banner
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000003
+              - column:
+                  name: global
+                  valueBoolean: false
+              - column:
+                  name: valor
+                  value: Ambiente demo con datos de ejemplo
+      rollback:
+        - delete:
+            tableName: configuraciones
+            where: uuid = '90000000-0000-4000-8000-000000000003'

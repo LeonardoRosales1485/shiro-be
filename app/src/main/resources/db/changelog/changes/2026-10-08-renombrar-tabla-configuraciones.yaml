@@ -1,0 +1,63 @@
+# Pasa a espanol la tabla de configuraciones (regla de idioma): configurations -> configuraciones,
+# name -> nombre, value -> valor. La entidad Configuracion ya usa los nombres nuevos.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-08-renombrar-tabla-configuraciones-1
+      author: TaielMG
+      comment: Renombra la tabla configurations a configuraciones
+      preConditions:
+        onFail: MARK_RAN
+        tableExists:
+          tableName: configurations
+      changes:
+        - renameTable:
+            oldTableName: configurations
+            newTableName: configuraciones
+      rollback:
+        - renameTable:
+            oldTableName: configuraciones
+            newTableName: configurations
+
+  - changeSet:
+      id: 2026-10-08-renombrar-tabla-configuraciones-2
+      author: TaielMG
+      comment: Renombra la columna name de configuraciones a nombre
+      preConditions:
+        onFail: MARK_RAN
+        columnExists:
+          tableName: configuraciones
+          columnName: name
+      changes:
+        - renameColumn:
+            tableName: configuraciones
+            oldColumnName: name
+            newColumnName: nombre
+            columnDataType: VARCHAR(255)
+      rollback:
+        - renameColumn:
+            tableName: configuraciones
+            oldColumnName: nombre
+            newColumnName: name
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 2026-10-08-renombrar-tabla-configuraciones-3
+      author: TaielMG
+      comment: Renombra la columna value de configuraciones a valor
+      preConditions:
+        onFail: MARK_RAN
+        columnExists:
+          tableName: configuraciones
+          columnName: value
+      changes:
+        - renameColumn:
+            tableName: configuraciones
+            oldColumnName: value
+            newColumnName: valor
+            columnDataType: TEXT
+      rollback:
+        - renameColumn:
+            tableName: configuraciones
+            oldColumnName: valor
+            newColumnName: value
+            columnDataType: TEXT

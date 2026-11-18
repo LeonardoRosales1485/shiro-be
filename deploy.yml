@@ -1,0 +1,16 @@
+version: 1.1
+
+# Antes de modificar leer la documnetacion `deploy\deploy.md`
+
+local:
+  template-be:
+    port: 7099
+    stack: spring_postgres
+    env:
+      RESTART_POLICY: "no"
+    postgres_user: template
+    postgres_db: template
+    postgres_pass: template
+    postgres_external_port: 5099
+    composer_file: spring-3.9-java-25-postgres-18-4/docker-compose.yml
+    application_properties: app/src/main/resources/application.server.properties

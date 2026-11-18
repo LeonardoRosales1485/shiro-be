@@ -1,0 +1,156 @@
+# Reemplaza a los seeds de tokens que nombraban la tabla auth_user_access_tokens y las columnas name, code, active,
+# user_id y expiry_date, que core-protocolo-apikey y core-protocolo-jwt renombran a auth_access_tokens, nombre,
+# codigo, activo, id_usuario y fecha_de_vencimiento (glosario, ticket 08): en una base nueva ya no podian correr.
+# Corre despues de 2026-10-09-insert-usuarios-seed.yaml, que crea los usuarios duenios de los tokens. En las bases
+# donde los originales ya corrieron, las filas existen (en la tabla renombrada) y estos quedan MARK_RAN.
+#
+# Reemplazos (original -> nuevo):
+# - 2026-10-09-insert-usuarios-seed-4 -> 2026-10-09-insert-tokens-seed-1
+# - 2026-10-09-insert-usuarios-seed-5 -> 2026-10-09-insert-tokens-seed-2
+# - 2026-10-09-insert-usuarios-seed-8 -> 2026-10-09-insert-tokens-seed-3
+# - 2026-10-09-insert-usuarios-seed-11 -> 2026-10-09-insert-tokens-seed-4
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-insert-tokens-seed-1
+      author: TaielMG
+      comment: Crea token de acceso de ejemplo para el usuario demo
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_access_tokens WHERE uuid = '90000000-0000-4000-8000-000000000007'
+      changes:
+        - insert:
+            tableName: auth_access_tokens
+            columns:
+              - column:
+                  name: nombre
+                  value: Token demo
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000007
+              - column:
+                  name: codigo
+                  value: demo-access-token
+              - column:
+                  name: activo
+                  valueNumeric: 1
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')
+      rollback:
+        - delete:
+            tableName: auth_access_tokens
+            where: uuid = '90000000-0000-4000-8000-000000000007'
+
+  - changeSet:
+      id: 2026-10-09-insert-tokens-seed-2
+      author: TaielMG
+      comment: Crea refresh token de ejemplo para el usuario demo
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_jwt_refresh_tokens WHERE uuid = '90000000-0000-4000-8000-000000000008'
+      changes:
+        - insert:
+            tableName: auth_jwt_refresh_tokens
+            columns:
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000008
+              - column:
+                  name: fecha_de_vencimiento
+                  valueDate: '2099-12-31T23:59:59'
+              - column:
+                  name: token
+                  value: demo-refresh-token
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')
+      rollback:
+        - delete:
+            tableName: auth_jwt_refresh_tokens
+            where: uuid = '90000000-0000-4000-8000-000000000008'
+
+  - changeSet:
+      id: 2026-10-09-insert-tokens-seed-3
+      author: TaielMG
+      comment: Crea el token de acceso sysadmin-access-token (protocolo tokens) del usuario sysadmin-pruebas
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_access_tokens WHERE uuid = '90000000-0000-4000-8000-000000000014'
+      changes:
+        - insert:
+            tableName: auth_access_tokens
+            columns:
+              - column:
+                  name: nombre
+                  value: Token sysadmin-pruebas
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000014
+              - column:
+                  name: codigo
+                  value: sysadmin-access-token
+              - column:
+                  name: activo
+                  valueNumeric: 1
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'sysadmin-pruebas')
+      rollback:
+        - delete:
+            tableName: auth_access_tokens
+            where: uuid = '90000000-0000-4000-8000-000000000014'
+
+  - changeSet:
+      id: 2026-10-09-insert-tokens-seed-4
+      author: TaielMG
+      comment: Crea el token de acceso cliente-access-token (protocolo tokens) del usuario cliente
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_access_tokens WHERE uuid = '90000000-0000-4000-8000-000000000017'
+      changes:
+        - insert:
+            tableName: auth_access_tokens
+            columns:
+              - column:
+                  name: nombre
+                  value: Token cliente
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000017
+              - column:
+                  name: codigo
+                  value: cliente-access-token
+              - column:
+                  name: activo
+                  valueNumeric: 1
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'cliente')
+      rollback:
+        - delete:
+            tableName: auth_access_tokens
+            where: uuid = '90000000-0000-4000-8000-000000000017'

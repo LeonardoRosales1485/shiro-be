@@ -1,0 +1,36 @@
+# Master del proyecto. Incluye, en orden, el schema de cada modulo del Core que este proyecto usa
+# y despues el schema propio.
+#
+# Para dejar de usar un modulo del Core se borra su dependencia en app/pom.xml y su include de aca.
+# Alternativa a core-multiempresa: core-monoempresa (db/changelog/core-monoempresa.yaml), que crea
+# auth_usuarios_roles en vez de empresas + auth_usuarios_empresas. Nunca se incluyen los dos.
+databaseChangeLog:
+  - include:
+      file: db/changelog/core-identity.yaml
+  - include:
+      file: db/changelog/core-multiempresa.yaml
+  - include:
+      file: db/changelog/core-protocolo-jwt.yaml
+  - include:
+      file: db/changelog/core-protocolo-apikey.yaml
+  - include:
+      file: changes/2026-07-06-create-app-schema.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-09-agregar-cuit-empresas.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-08-renombrar-tabla-configuraciones.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-09-renombrar-auditoria-configuraciones.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-09-restaurar-not-null-configuraciones.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-09-insert-usuario-sysadmin-required-data.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/2026-10-09-insert-empresas-required-data.yaml
+      relativeToChangelogFile: true

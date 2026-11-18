@@ -1,0 +1,76 @@
+# Profile "test": lo activa TestConBaseDeDatos (core-test) en las pruebas de contrato y en los tests con base.
+# Obligatorio para core-test: spring.liquibase (master + seeds), spring.datasource.driver-class-name y
+# spring.jpa (dialecto PostgreSQL, ddl-auto=validate, open-in-view=false); la url, el usuario y la clave del
+# datasource los registra TestConBaseDeDatos. auth.protocolos debe incluir "tokens" (los actores de
+# ActoresDePrueba se autentican con los tokens de acceso de los seeds). El resto son las properties que la
+# aplicacion exige para arrancar.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  health:
+    mail:
+      enabled: false
+
+spring:
+  # Liquibase corre el master real con los seeds (contexto seed) sobre un PostgreSQL 18 embebido
+  # (TestConBaseDeDatos): la base queda identica a la que arma Liquibase en local. La url, el usuario y la
+  # clave del datasource los registra TestConBaseDeDatos al levantar el PostgreSQL embebido.
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-seed.yaml
+    contexts: seed
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: America/Argentina/Buenos_Aires
+    show-sql: false
+  jackson:
+    time-zone: America/Argentina/Buenos_Aires
+    locale: es_AR
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+
+front:
+  url: http://localhost:4200
+
+captcha:
+  secreto: test-captcha-secret
+  habilitado: false
+
+auth:
+  protocolos: basic,jwt,tokens
+jwt:
+  secreto: testSecretKeyTestSecretKeyTestSecretKeyTestSecretKey
+
+server:
+  servlet:
+    context-path: /api
+
+core:
+  protocolo:
+    jwt:
+      ruta: usuario
+    apikey:
+      ruta: usuario
+  multiempresa:
+    habilitada: false
+    default-name: BlueOpenData
+  identity:
+    usuario-inicial:
+      nombre-de-usuario: sysadmin
+      contrasena: 123

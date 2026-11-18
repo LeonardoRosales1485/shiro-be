@@ -1,0 +1,306 @@
+# Reemplaza a los seeds que nombraban la tabla auth_users, sus columnas en ingles (username, name, phone, password,
+# verification_code, ...) o la tabla security_code, que core-identity renombra a auth_usuarios, nombre_de_usuario,
+# nombre, telefono, contrasena, codigo_de_verificacion, ... y codigos_de_seguridad (glosario, ticket 06): en una base
+# nueva ya no podian correr. Corre al final de los seeds, en el mismo orden relativo que los originales.
+# 2026-10-09-insert-roles-seed-5 y -6 no nombran esas tablas, pero asignan roles a relaciones que crean los
+# changesets reemplazados y tienen que correr despues. En las bases donde los originales ya corrieron, las filas
+# existen y estos quedan MARK_RAN.
+#
+# Usuarios de ejemplo (clave de todos: 123):
+# - demo: actor del rol ADMIN de las pruebas de contrato, con su empresa BlueOpenData, un codigo de seguridad, un
+#   token de acceso y un refresh token JWT de ejemplo.
+# - sysadmin-pruebas (rol SYSADMIN de la empresa de sistema) y cliente (rol CLIENTE, sin permisos, de BlueOpenData):
+#   actores de las pruebas de contrato (ActoresDelProyecto en app/src/test), cada uno con su token de acceso
+#   (protocolo tokens). cliente es el actor del caso automatico "sin permiso".
+# - pendiente-verificacion y pendiente-vencido (status -2): para probar POST /usuario/publico/verificar con un codigo
+#   conocido (ABC123), vigente y vencido (el registro publico genera un codigo nuevo en cada alta).
+#
+# Reemplazos (original -> nuevo):
+# - 2026-07-06-insert-demo-seed-1 -> 2026-10-09-insert-usuarios-seed-1
+# - 2026-07-06-insert-demo-seed-3 -> 2026-10-09-insert-usuarios-seed-2
+# - 2026-07-06-insert-demo-seed-5 -> 2026-10-09-insert-usuarios-seed-3
+# - 2026-07-06-insert-demo-seed-6 -> 2026-10-09-insert-usuarios-seed-4 -> 2026-10-09-insert-tokens-seed-1 (ticket 08)
+# - 2026-07-06-insert-demo-seed-7 -> 2026-10-09-insert-usuarios-seed-5 -> 2026-10-09-insert-tokens-seed-2 (ticket 08)
+# - 2026-10-08-insert-actores-de-prueba-seed-1 -> 2026-10-09-insert-usuarios-seed-6
+# - 2026-10-08-insert-actores-de-prueba-seed-2 -> 2026-10-09-insert-usuarios-seed-7
+# - 2026-10-08-insert-actores-de-prueba-seed-4 -> 2026-10-09-insert-usuarios-seed-8 -> 2026-10-09-insert-tokens-seed-3 (ticket 08)
+# - 2026-10-08-insert-actores-de-prueba-seed-5 -> 2026-10-09-insert-usuarios-seed-9
+# - 2026-10-08-insert-actores-de-prueba-seed-6 -> 2026-10-09-insert-usuarios-seed-10
+# - 2026-10-08-insert-actores-de-prueba-seed-8 -> 2026-10-09-insert-usuarios-seed-11 -> 2026-10-09-insert-tokens-seed-4 (ticket 08)
+# - 2026-10-08-insert-usuarios-pendientes-seed-1 -> 2026-10-09-insert-usuarios-seed-12
+# - 2026-10-08-insert-usuarios-pendientes-seed-2 -> 2026-10-09-insert-usuarios-seed-13
+# - 2026-10-09-insert-roles-seed-4 -> 2026-10-09-insert-usuarios-seed-14
+# - 2026-10-09-insert-roles-seed-5 -> 2026-10-09-insert-usuarios-seed-15
+# - 2026-10-09-insert-roles-seed-6 -> 2026-10-09-insert-usuarios-seed-16
+#
+# Los tokens de acceso y el refresh token de ejemplo (-4, -5, -8 y -11) se sacaron de este archivo: nombraban la
+# tabla auth_user_access_tokens y las columnas name, code, active, user_id y expiry_date, que los protocolos
+# renombran (glosario, ticket 08). Los reemplaza 2026-10-09-insert-tokens-seed.yaml.
+#
+# -2, -7, -10, -14, -15 y -16 (empresas de demo, sysadmin-pruebas y cliente y sus roles) se reemplazaron por
+# 2026-10-09-insert-empresas-seed.yaml: nombraban las tablas auth_users_companies, auth_user_company_roles y
+# companies, que el ticket 07 renombra.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-1
+      author: TaielMG
+      comment: Crea usuario demo (usuario/clave 123)
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'demo'
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: demo
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000002
+              - column:
+                  name: nombre
+                  value: Usuario Demo
+              - column:
+                  name: email
+                  value: demo@example.local
+              - column:
+                  name: telefono
+                  value: '1122334455'
+              - column:
+                  name: nombre_de_departamento
+                  value: Demostraciones
+              - column:
+                  name: nombre_de_grupo
+                  value: demo
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '90000000-0000-4000-8000-000000000002'
+
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-3
+      author: TaielMG
+      comment: Crea codigo de seguridad de ejemplo para el usuario demo
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM codigos_de_seguridad WHERE uuid = '90000000-0000-4000-8000-000000000006'
+      changes:
+        - insert:
+            tableName: codigos_de_seguridad
+            columns:
+              - column:
+                  name: codigo
+                  value: '123456'
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000006
+              - column:
+                  name: proposito
+                  value: DEMO_VERIFICATION
+              - column:
+                  name: usado
+                  valueBoolean: false
+              - column:
+                  name: fecha_de_emision
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: id_usuario
+                  valueComputed: (SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')
+      rollback:
+        - delete:
+            tableName: codigos_de_seguridad
+            where: uuid = '90000000-0000-4000-8000-000000000006'
+
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-6
+      author: TaielMG
+      comment: Crea el usuario sysadmin-pruebas (clave 123)
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'sysadmin-pruebas'
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: sysadmin-pruebas
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000012
+              - column:
+                  name: nombre
+                  value: Sysadmin Pruebas
+              - column:
+                  name: email
+                  value: sysadmin-pruebas@example.local
+              - column:
+                  name: telefono
+                  value: '1122334501'
+              - column:
+                  name: nombre_de_departamento
+                  value: Pruebas
+              - column:
+                  name: nombre_de_grupo
+                  value: demo
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '90000000-0000-4000-8000-000000000012'
+
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-9
+      author: TaielMG
+      comment: Crea el usuario cliente (clave 123)
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'cliente'
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: cliente
+              - column:
+                  name: status
+                  valueNumeric: 0
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000015
+              - column:
+                  name: nombre
+                  value: Cliente Pruebas
+              - column:
+                  name: email
+                  value: cliente@example.local
+              - column:
+                  name: telefono
+                  value: '1122334502'
+              - column:
+                  name: nombre_de_departamento
+                  value: Pruebas
+              - column:
+                  name: nombre_de_grupo
+                  value: demo
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '90000000-0000-4000-8000-000000000015'
+
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-12
+      author: TaielMG
+      comment: Crea el usuario pendiente-verificacion (status -2) con el codigo ABC123 vigente hasta 2099
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'pendiente-verificacion'
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: pendiente-verificacion
+              - column:
+                  name: status
+                  valueNumeric: -2
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000018
+              - column:
+                  name: nombre
+                  value: Usuario pendiente de verificacion
+              - column:
+                  name: email
+                  value: pendiente-verificacion@example.local
+              - column:
+                  name: codigo_de_verificacion
+                  value: ABC123
+              - column:
+                  name: vencimiento_del_codigo_de_verificacion
+                  valueDate: 2099-12-31T23:59:59
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '90000000-0000-4000-8000-000000000018'
+
+  - changeSet:
+      id: 2026-10-09-insert-usuarios-seed-13
+      author: TaielMG
+      comment: Crea el usuario pendiente-vencido (status -2) con el codigo ABC123 vencido en 2020
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM auth_usuarios WHERE nombre_de_usuario = 'pendiente-vencido'
+      changes:
+        - insert:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: nombre_de_usuario
+                  value: pendiente-vencido
+              - column:
+                  name: status
+                  valueNumeric: -2
+              - column:
+                  name: uuid
+                  value: 90000000-0000-4000-8000-000000000019
+              - column:
+                  name: nombre
+                  value: Usuario con el codigo de verificacion vencido
+              - column:
+                  name: email
+                  value: pendiente-vencido@example.local
+              - column:
+                  name: codigo_de_verificacion
+                  value: ABC123
+              - column:
+                  name: vencimiento_del_codigo_de_verificacion
+                  valueDate: 2020-01-01T00:00:00
+              - column:
+                  name: contrasena
+                  value: $2b$10$nNpiAqrVV8ISDrlK3S7gC.quo3MKQWltsUvdVQMZKT0luOLIKcPYq
+      rollback:
+        - delete:
+            tableName: auth_usuarios
+            where: uuid = '90000000-0000-4000-8000-000000000019'

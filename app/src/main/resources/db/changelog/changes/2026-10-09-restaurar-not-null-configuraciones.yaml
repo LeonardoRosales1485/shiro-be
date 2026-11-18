@@ -1,0 +1,47 @@
+# Repara en MySQL/MariaDB las columnas que 2026-10-08-renombrar-tabla-configuraciones renombro con renameColumn.
+# En esos motores Liquibase traduce renameColumn a "ALTER TABLE ... CHANGE viejo nuevo <tipo>", que redefine la
+# columna y le borra el NOT NULL. Se restaura la definicion original de 2026-07-06-create-initial-schema-4
+# (name VARCHAR(255) NOT NULL, value TEXT NOT NULL, ninguna con default). En PostgreSQL renameColumn es un
+# RENAME COLUMN y no pierde nada, por eso estos changesets no corren ahi.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-restaurar-not-null-configuraciones-1
+      author: TaielMG
+      comment: Restaura el NOT NULL de configuraciones.nombre que borro el renameColumn en MySQL/MariaDB
+      dbms: mysql,mariadb
+      preConditions:
+        onFail: MARK_RAN
+        columnExists:
+          tableName: configuraciones
+          columnName: nombre
+      changes:
+        - addNotNullConstraint:
+            tableName: configuraciones
+            columnName: nombre
+            columnDataType: VARCHAR(255)
+      rollback:
+        - dropNotNullConstraint:
+            tableName: configuraciones
+            columnName: nombre
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 2026-10-09-restaurar-not-null-configuraciones-2
+      author: TaielMG
+      comment: Restaura el NOT NULL de configuraciones.valor que borro el renameColumn en MySQL/MariaDB
+      dbms: mysql,mariadb
+      preConditions:
+        onFail: MARK_RAN
+        columnExists:
+          tableName: configuraciones
+          columnName: valor
+      changes:
+        - addNotNullConstraint:
+            tableName: configuraciones
+            columnName: valor
+            columnDataType: TEXT
+      rollback:
+        - dropNotNullConstraint:
+            tableName: configuraciones
+            columnName: valor
+            columnDataType: TEXT

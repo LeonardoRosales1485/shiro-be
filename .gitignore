@@ -1,0 +1,6 @@
+src/main/resources/application.properties
+app/src/main/resources/application.properties
+/.env
+.env
+target
+.scratch

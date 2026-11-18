@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "redhat.java",
+    "vscjava.vscode-java-debug",
+    "esbenp.prettier-vscode",
+    "aaron-bond.better-comments",
+    "vscjava.vscode-lombok"
+  ]
+}

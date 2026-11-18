@@ -1,0 +1,40 @@
+.git/
+.idea/
+.vscode/
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.angular/cache/
+.next/
+.nuxt/
+.turbo/
+coverage/
+target/
+**/target/
+.m2/
+.gradle/
+.mvn/
+mvnw
+mvnw.cmd
+deploy/runtime.env
+deploy/local-logs/
+
+# Dev / agentes / documentacion: no entran en ninguna capa del build
+.scratch/
+.claude/
+# docs/api (Contrato de endpoint) si entra: las plantillas Java 25 lo copian al jar para servirlo en /api/docs
+docs/*
+!docs/api
+*.md
+
+# Deploy: el Dockerfile lo lee BuildKit por fuera del contexto
+deploy/
+deploy.yml
+
+# Logs y temporales
+logs/
+**/logs/
+*.log
+**/__pycache__/
+.env

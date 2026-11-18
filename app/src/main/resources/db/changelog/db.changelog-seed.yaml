@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - include:
+      file: db.changelog-master.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-10-08-insert-configuracion-demo-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-10-09-insert-usuarios-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-10-09-insert-empresas-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-10-09-insert-tokens-seed.yaml
+      relativeToChangelogFile: true

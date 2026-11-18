@@ -1,0 +1,26 @@
+# Reemplaza a app-companies-cuit (2026-07-06-create-app-schema.yaml), que agregaba la columna cuit a companies.
+# core-multiempresa renombra companies a empresas (glosario, ticket 07) antes de que corra el schema del proyecto, asi
+# que en una base nueva ese changeset ya no podia correr. La columna conserva su nombre: cuit queda en empresas.
+# En las bases donde el original ya corrio, la columna existe (sigue a la tabla renombrada) y este queda MARK_RAN.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-10-09-agregar-cuit-empresas
+      author: TaielMG
+      comment: Columna cuit de empresas. Es del proyecto, no del Core - core-multiempresa crea la tabla sin ella.
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          - columnExists:
+              tableName: empresas
+              columnName: cuit
+      changes:
+        - addColumn:
+            tableName: empresas
+            columns:
+              - column:
+                  name: cuit
+                  type: VARCHAR(255)
+      rollback:
+        - dropColumn:
+            tableName: empresas
+            columnName: cuit
