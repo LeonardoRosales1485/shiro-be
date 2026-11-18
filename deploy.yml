@@ -1,16 +1,25 @@
 version: 1.1
 
 # Antes de modificar leer la documnetacion `deploy\deploy.md`
+# Puertos provisorios (7090 backend, 5090 Postgres) hasta que el lider tecnico asigne los de Shiro.
+# Los valores de env son solo para desarrollo local: en st7 y st8 se cargan valores propios.
 
 local:
-  template-be:
-    port: 7099
+  shiro-be:
+    port: 7090
     stack: spring_postgres
     env:
       RESTART_POLICY: "no"
-    postgres_user: template
-    postgres_db: template
-    postgres_pass: template
-    postgres_external_port: 5099
+      # Clave de los JWT (solo local)
+      JWT_SECRETO: "shiroLocalClaveDeDesarrolloLargaParaHS256NoUsarEnServidores"
+      # Contrasena del usuario inicial sysadmin (solo local)
+      USUARIO_INICIAL_CONTRASENA: "123"
+      # Usuario de la aplicacion sin DELETE sobre shr_ (T0.3); lo crea Liquibase (solo local)
+      SHIRO_DB_USUARIO_APP: "shiro_app"
+      SHIRO_DB_CONTRASENA_APP: "shiro_app_local"
+    postgres_user: shiro
+    postgres_db: shiro
+    postgres_pass: shiro
+    postgres_external_port: 5090
     composer_file: spring-3.9-java-25-postgres-18-4/docker-compose.yml
     application_properties: app/src/main/resources/application.server.properties
