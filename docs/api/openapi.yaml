@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.1"
+  version: "1.0.3"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 

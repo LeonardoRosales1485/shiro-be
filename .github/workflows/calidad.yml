@@ -1,0 +1,76 @@
+# Integracion continua de shiro-be (T0.6 del plan, umbrales de "Criterios de calidad" y adenda de implementacion 1).
+# Cada job es un check que se exige en la proteccion de la rama develop: si falla, el PR no se integra.
+name: Calidad
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [develop, staging, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calidad-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: Pruebas, cobertura y duplicados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      # Suite completa (unitarias, contratos, reglas de la plantilla), JaCoCo con 80% de lineas y PMD CPD (50 tokens)
+      - name: mvnw verify
+        run: ./mvnw -B verify
+      - name: Reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-backend
+          path: app/target/site/jacoco/
+          if-no-files-found: ignore
+
+  dependencias:
+    name: Dependencias vulnerables (OSV-Scanner)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      # OSV no resuelve core-parent (no esta en Maven Central): se escanea el SBOM con las dependencias resueltas
+      - name: SBOM CycloneDX
+        run: ./mvnw -B -q -pl app org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeBom -DoutputFormat=json -DoutputName=bom -DincludeTestScope=false
+      # Falla con cualquier vulnerabilidad conocida; las bajas o medias sin arreglo se ignoran en osv-scanner.toml
+      - name: OSV-Scanner
+        run: docker run --rm -v "$PWD:/repo" -w /repo ghcr.io/google/osv-scanner:v2.7.1 scan source -L app/target/bom.json
+
+  analisis-estatico:
+    name: Analisis estatico (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:1.186.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep
+        run: semgrep scan --config p/java --config p/owasp-top-ten --severity ERROR --error --metrics off
+
+  secretos:
+    name: Secretos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Historial completo con la configuracion de .gitleaks.toml
+      - name: gitleaks
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 git /repo --config /repo/.gitleaks.toml --redact --no-banner

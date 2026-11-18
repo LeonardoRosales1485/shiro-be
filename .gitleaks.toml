@@ -1,0 +1,15 @@
+# Configuracion de gitleaks (adenda de implementacion 1: ningun secreto en el repositorio).
+# Parte de las reglas por defecto y solo agrega excepciones con motivo.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "JWT de ejemplo firmados con la clave de prueba: los genera la suite en el contrato de la API y el doble de AuthJwtService"
+paths = [
+  '''^docs/api/''',
+  '''^app/src/test/java/com/blue/open/Code/Usuario/AuthJwtServiceDePrueba\.java$''',
+]
+
+[[allowlists]]
+description = "Commit 1782e35: copia sin cambios de sm-template/backend-v2, con secretos que trae la plantilla (ya publicos en sm-template). Se quitaron en c4f0a22; rotarlos le corresponde a quien mantiene la plantilla"
+commits = ["1782e353f52510d9af22bf86916cc8be1a51b9ad"]

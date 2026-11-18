@@ -16,7 +16,7 @@
          fuente: Maven la escribe en app-version.properties y de ahi la leen /info y el header API-Version -->
     <groupId>com.sm</groupId>
     <artifactId>open-data-proyect</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>open-data-proyect</name>
     <description>BackEnd de Open Data</description>
 
@@ -35,6 +35,15 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <!-- Parches de seguridad sobre las versiones que fija Spring Boot 4.1.1 (via core-parent). OSV-Scanner reporto
+         vulnerabilidades criticas y altas en Tomcat 11.0.24 y Jackson 2.21.5 / 3.1.5 (adenda de implementacion 1:
+         ninguna alta ni critica). Se quitan cuando core-parent suba a un Boot que ya las traiga -->
+    <properties>
+        <tomcat.version>11.0.29</tomcat.version>
+        <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
+        <jackson-bom.version>3.1.8</jackson-bom.version>
+    </properties>
 
     <!-- Spring AI: servidor MCP (Streamable HTTP sin estado en /mcp, spec Spec 4). La version la fija su BOM -->
     <dependencyManagement>
@@ -243,6 +252,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <!-- @{argLine} suma el agente de JaCoCo a las opciones add-opens que fija core-parent -->
+                    <argLine>
+                        @{argLine}
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
                     <systemPropertyVariables>
                         <contratos.directorio>${project.build.directory}/contratos</contratos.directorio>
                         <contratos.destino>${project.basedir}/../docs/api</contratos.destino>
@@ -253,6 +268,75 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+            <!-- Criterios de calidad del plan (adenda de implementacion 1): cobertura de lineas del backend de 80% o mas,
+                 medida sobre la suite completa (unitarias y pruebas de contrato). verify falla si no se cumple.
+                 Application y las clases de configuracion de arranque no cuentan -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.16</version>
+                <executions>
+                    <execution>
+                        <id>agente</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>reporte</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>umbral</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/blue/open/Application.class</exclude>
+                            </excludes>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Codigo duplicado (PMD CPD, adenda de implementacion 1): ningun bloque de mas de 50 tokens repetido en el
+                 codigo de main, ignorando anotaciones (@Contrato y @Descripcion se repiten por regla). verify falla -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.28.0</version>
+                <configuration>
+                    <minimumTokens>50</minimumTokens>
+                    <ignoreAnnotations>true</ignoreAnnotations>
+                    <includeTests>false</includeTests>
+                    <printFailingErrors>true</printFailingErrors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>duplicados</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>cpd-check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
