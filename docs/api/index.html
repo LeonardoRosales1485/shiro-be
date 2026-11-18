@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.5</title>
+    <title>API de Open Data 1.0.6</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,8 +1868,8 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.5",
-    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
+    "version" : "1.0.6",
+    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
   },
   "servers" : [ {
     "url" : "/api"
@@ -1882,6 +1882,8 @@
     "name" : "JwtLogin"
   }, {
     "name" : "Permiso"
+  }, {
+    "name" : "Proyecto"
   }, {
     "name" : "Rol"
   }, {
@@ -2649,6 +2651,715 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "No tienes permiso",
                       "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proyecto/guardar" : {
+      "post" : {
+        "tags" : [ "Proyecto" ],
+        "operationId" : "ProyectoController.guardar",
+        "summary" : "Crea un proyecto con sus cuatro tableros, o edita su nombre y descripción",
+        "description" : "**Caso de uso:** CU-PRY-03\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-PRY-03",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProyectoDTO"
+              },
+              "examples" : {
+                "guardar-cuerpo-invalido" : {
+                  "summary" : "Guardar cuerpo invalido (SYSADMIN)",
+                  "value" : {
+                    "descripcion" : "Sin nombre ni prefijo"
+                  }
+                },
+                "guardar-alta" : {
+                  "summary" : "Guardar alta (SYSADMIN)",
+                  "value" : {
+                    "descripcion" : "Trámites en línea",
+                    "nombre" : "Portal de Trámites",
+                    "prefijo" : "PTR"
+                  }
+                },
+                "al-crear-se-generan-los-cuatro-tableros" : {
+                  "summary" : "Al crear se generan los cuatro tableros (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Portal de Trámites",
+                    "prefijo" : "PTR"
+                  }
+                },
+                "el-prefijo-de-un-proyecto-archivado-queda-reservado" : {
+                  "summary" : "El prefijo de un proyecto archivado queda reservado (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Nuevo",
+                    "prefijo" : "ARC"
+                  }
+                },
+                "editar-cambia-el-nombre-y-conserva-prefijo-y-tableros" : {
+                  "summary" : "Editar cambia el nombre y conserva prefijo y tableros (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Shiro (gestor de trabajo)",
+                    "prefijo" : "SHI",
+                    "uuid" : "b1000000-0000-4000-8000-000000000001"
+                  }
+                },
+                "prefijo-repetido-rechazado" : {
+                  "summary" : "Prefijo repetido rechazado (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Otro Shiro",
+                    "prefijo" : "shi"
+                  }
+                },
+                "un-administrador-tambien-crea-proyectos" : {
+                  "summary" : "Un administrador tambien crea proyectos (ADMIN)",
+                  "value" : {
+                    "nombre" : "Mesa de Ayuda",
+                    "prefijo" : "MDA"
+                  }
+                },
+                "prefijo-con-formato-invalido-rechazado" : {
+                  "summary" : "Prefijo con formato invalido rechazado (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Proyecto",
+                    "prefijo" : "P"
+                  }
+                },
+                "prefijo-con-formato-invalido-rechazado-2" : {
+                  "summary" : "Prefijo con formato invalido rechazado (2) (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Proyecto",
+                    "prefijo" : "PROYEC1"
+                  }
+                },
+                "prefijo-con-formato-invalido-rechazado-3" : {
+                  "summary" : "Prefijo con formato invalido rechazado (3) (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Proyecto",
+                    "prefijo" : "P2"
+                  }
+                },
+                "prefijo-con-formato-invalido-rechazado-4" : {
+                  "summary" : "Prefijo con formato invalido rechazado (4) (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Proyecto",
+                    "prefijo" : "ABCDEFG"
+                  }
+                },
+                "prefijo-con-formato-invalido-rechazado-5" : {
+                  "summary" : "Prefijo con formato invalido rechazado (5) (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Proyecto",
+                    "prefijo" : "SH-I"
+                  }
+                },
+                "el-prefijo-se-guarda-en-mayusculas" : {
+                  "summary" : "El prefijo se guarda en mayusculas (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Recursos Humanos",
+                    "prefijo" : "rrhh"
+                  }
+                },
+                "el-prefijo-no-se-cambia" : {
+                  "summary" : "El prefijo no se cambia (SYSADMIN)",
+                  "value" : {
+                    "nombre" : "Shiro",
+                    "prefijo" : "SHR",
+                    "uuid" : "b1000000-0000-4000-8000-000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProyectoDTO"
+                },
+                "examples" : {
+                  "guardar-alta" : {
+                    "summary" : "Guardar alta (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : "Trámites en línea",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Portal de Trámites",
+                      "prefijo" : "PTR",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  },
+                  "al-crear-se-generan-los-cuatro-tableros" : {
+                    "summary" : "Al crear se generan los cuatro tableros (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Portal de Trámites",
+                      "prefijo" : "PTR",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  },
+                  "editar-cambia-el-nombre-y-conserva-prefijo-y-tableros" : {
+                    "summary" : "Editar cambia el nombre y conserva prefijo y tableros (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Shiro (gestor de trabajo)",
+                      "prefijo" : "SHI",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "b2000000-0000-4000-8000-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "b2000000-0000-4000-8000-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "b2000000-0000-4000-8000-000000000003"
+                      } ],
+                      "uuid" : "b1000000-0000-4000-8000-000000000001"
+                    }
+                  },
+                  "un-administrador-tambien-crea-proyectos" : {
+                    "summary" : "Un administrador tambien crea proyectos (ADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Mesa de Ayuda",
+                      "prefijo" : "MDA",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  },
+                  "el-prefijo-se-guarda-en-mayusculas" : {
+                    "summary" : "El prefijo se guarda en mayusculas (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Recursos Humanos",
+                      "prefijo" : "RRHH",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `FORMULARIO_INVALIDO`, `PREFIJO_DE_PROYECTO_EN_USO`, `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "guardar-cuerpo-invalido" : {
+                    "summary" : "Guardar cuerpo invalido (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El nombre del proyecto es obligatorio",
+                        "nombre" : "nombre"
+                      }, {
+                        "mensaje" : "El prefijo es obligatorio",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "el-prefijo-de-un-proyecto-archivado-queda-reservado" : {
+                    "summary" : "El prefijo de un proyecto archivado queda reservado (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "PREFIJO_DE_PROYECTO_EN_USO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El prefijo ARC ya lo usa otro proyecto. Elegí otro.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-repetido-rechazado" : {
+                    "summary" : "Prefijo repetido rechazado (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "PREFIJO_DE_PROYECTO_EN_USO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El prefijo SHI ya lo usa otro proyecto. Elegí otro.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-con-formato-invalido-rechazado" : {
+                    "summary" : "Prefijo con formato invalido rechazado (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El prefijo tiene de 2 a 6 letras, sin números ni símbolos",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-con-formato-invalido-rechazado-2" : {
+                    "summary" : "Prefijo con formato invalido rechazado (2) (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El prefijo tiene de 2 a 6 letras, sin números ni símbolos",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-con-formato-invalido-rechazado-3" : {
+                    "summary" : "Prefijo con formato invalido rechazado (3) (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El prefijo tiene de 2 a 6 letras, sin números ni símbolos",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-con-formato-invalido-rechazado-4" : {
+                    "summary" : "Prefijo con formato invalido rechazado (4) (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El prefijo tiene de 2 a 6 letras, sin números ni símbolos",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "prefijo-con-formato-invalido-rechazado-5" : {
+                    "summary" : "Prefijo con formato invalido rechazado (5) (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "El prefijo tiene de 2 a 6 letras, sin números ni símbolos",
+                        "nombre" : "prefijo"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "el-prefijo-no-se-cambia" : {
+                    "summary" : "El prefijo no se cambia (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "PREFIJO_DE_PROYECTO_NO_SE_CAMBIA",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El prefijo no se cambia: lo usan las claves de las tareas existentes.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proyecto/paginar" : {
+      "post" : {
+        "tags" : [ "Proyecto" ],
+        "operationId" : "ProyectoController.paginar",
+        "summary" : "Lista los proyectos con filtros y orden",
+        "description" : "**Caso de uso:** CU-PRY-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
+        "x-caso-de-uso" : "CU-PRY-02",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PedidoDePaginado"
+              },
+              "examples" : {
+                "paginar" : {
+                  "summary" : "Paginar (SYSADMIN)",
+                  "value" : {
+                    "pagina" : 1,
+                    "tamano" : 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pagina_ProyectoDTO_"
+                },
+                "examples" : {
+                  "paginar" : {
+                    "summary" : "Paginar (SYSADMIN)",
+                    "value" : {
+                      "cantidadDeElementos" : 1,
+                      "contenido" : [ {
+                        "descripcion" : "Gestor de trabajo de Blue Open Data",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "nombre" : "Shiro",
+                        "prefijo" : "SHI",
+                        "status" : 0,
+                        "tableros" : [ {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "PRINCIPAL",
+                          "tipoTableroNombre" : "Principal",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                          "uuid" : "b2000000-0000-4000-8000-000000000001"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "QA",
+                          "tipoTableroNombre" : "QA",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                          "uuid" : "b2000000-0000-4000-8000-000000000002"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "ANALISIS",
+                          "tipoTableroNombre" : "Análisis",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                          "uuid" : "b2000000-0000-4000-8000-000000000003"
+                        } ],
+                        "uuid" : "b1000000-0000-4000-8000-000000000001"
+                      } ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 5,
+                      "totalDeElementos" : 1,
+                      "totalDePaginas" : 1,
+                      "ultima" : true,
+                      "vacia" : false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proyecto/uuid/{uuid}" : {
+      "get" : {
+        "tags" : [ "Proyecto" ],
+        "operationId" : "ProyectoController.obtenerPorUuid",
+        "summary" : "Obtiene un proyecto con sus tableros",
+        "description" : "**Caso de uso:** CU-PRY-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
+        "x-caso-de-uso" : "CU-PRY-01",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid del proyecto",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProyectoDTO"
+                },
+                "examples" : {
+                  "obtener-por-uuid" : {
+                    "summary" : "Obtener por uuid (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : "Gestor de trabajo de Blue Open Data",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Shiro",
+                      "prefijo" : "SHI",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "b2000000-0000-4000-8000-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "b2000000-0000-4000-8000-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "b2000000-0000-4000-8000-000000000003"
+                      } ],
+                      "uuid" : "b1000000-0000-4000-8000-000000000001"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `REGISTRO_NO_ENCONTRADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "obtener-uuid-inexistente" : {
+                    "summary" : "Obtener uuid inexistente (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -5811,6 +6522,52 @@
         },
         "additionalProperties" : false
       },
+      "Pagina_ProyectoDTO_" : {
+        "type" : "object",
+        "description" : "Página de resultados",
+        "properties" : {
+          "contenido" : {
+            "type" : "array",
+            "description" : "Registros de la página",
+            "items" : {
+              "$ref" : "#/components/schemas/ProyectoDTO"
+            }
+          },
+          "totalDeElementos" : {
+            "type" : "integer",
+            "description" : "Total de registros que cumplen los filtros"
+          },
+          "totalDePaginas" : {
+            "type" : "integer",
+            "description" : "Total de páginas"
+          },
+          "tamano" : {
+            "type" : "integer",
+            "description" : "Tamaño de la página"
+          },
+          "numero" : {
+            "type" : "integer",
+            "description" : "Número de página (desde 0)"
+          },
+          "cantidadDeElementos" : {
+            "type" : "integer",
+            "description" : "Registros en esta página"
+          },
+          "primera" : {
+            "type" : "boolean",
+            "description" : "Es la primera página"
+          },
+          "ultima" : {
+            "type" : "boolean",
+            "description" : "Es la última página"
+          },
+          "vacia" : {
+            "type" : "boolean",
+            "description" : "La página no tiene registros"
+          }
+        },
+        "additionalProperties" : false
+      },
       "Pagina_RolDTO_" : {
         "type" : "object",
         "description" : "Página de resultados",
@@ -5982,6 +6739,52 @@
         },
         "additionalProperties" : false
       },
+      "ProyectoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "descripcion" : {
+            "type" : [ "string", "null" ],
+            "description" : "Descripción libre del proyecto. Opcional",
+            "maxLength" : 2000
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "nombre" : {
+            "type" : "string",
+            "description" : "Nombre visible del proyecto",
+            "minLength" : 1,
+            "maxLength" : 120
+          },
+          "prefijo" : {
+            "type" : "string",
+            "description" : "Prefijo de las claves de tarea (por ejemplo SHI en SHI-123). Se guarda en mayúsculas, no se repite entre proyectos, tampoco archivados, y no se cambia después de crear el proyecto",
+            "minLength" : 1,
+            "pattern" : "^[A-Za-z]{2,6}$"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tableros" : {
+            "description" : "Tableros del proyecto, uno por tipo, en orden de pestaña. Solo lectura: se crean con el proyecto",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/TableroDTO",
+              "description" : "Tableros del proyecto, uno por tipo, en orden de pestaña. Solo lectura: se crean con el proyecto"
+            }
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "nombre", "prefijo" ],
+        "additionalProperties" : false
+      },
       "RolDTO" : {
         "type" : "object",
         "properties" : {
@@ -6030,6 +6833,38 @@
           "nombre" : {
             "type" : [ "string", "null" ],
             "description" : "Campo (o dato) que no pasó la validación"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "TableroDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tipoTableroCodigo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Código del tipo de tablero: PRINCIPAL, QA, ANALISIS o DISENO"
+          },
+          "tipoTableroNombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre visible del tablero"
+          },
+          "tipoTableroUuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Uuid del tipo de tablero"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
           }
         },
         "additionalProperties" : false
@@ -6310,6 +7145,18 @@
     "mensajePorDefecto" : "La consulta de paginado no es valida",
     "cuando" : "La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo",
     "origen" : "CodigoDeErrorKernel"
+  }, {
+    "codigo" : "PREFIJO_DE_PROYECTO_EN_USO",
+    "status" : 400,
+    "mensajePorDefecto" : "El prefijo ya lo usa otro proyecto. Elegí otro.",
+    "cuando" : "Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "PREFIJO_DE_PROYECTO_NO_SE_CAMBIA",
+    "status" : 400,
+    "mensajePorDefecto" : "El prefijo no se cambia: lo usan las claves de las tareas existentes.",
+    "cuando" : "Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto",
+    "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "REFRESH_TOKEN_FALTANTE",
     "status" : 400,

@@ -12,6 +12,14 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - Ingreso: `jwt` (sesión web), `basic` (cuentas locales) y `tokens` (MCP). El ingreso con Google se agrega en F2.
 - Shiro no tiene registro público ni recuperación de contraseña por email.
 
+## Proyectos (`Proyecto`)
+
+- Crean y editan proyectos el super admin (`SYSADMIN`) y el grupo Administradores (`ADMIN`). Leer requiere sesión; el filtro por permisos de proyecto llega en F2.
+- `nombre` obligatorio (hasta 120 caracteres); `descripcion` opcional (hasta 2000).
+- `prefijo`: de 2 a 6 letras, se guarda en mayúsculas. No se repite entre proyectos, tampoco con uno archivado (queda reservado), y no se cambia después de crear el proyecto (adenda 3 del DAF).
+- Al crear un proyecto se generan sus cuatro tableros: Principal, QA, Análisis y Diseño.
+- Nada se borra: no hay `/borrar`; archivar y restaurar llegan en T1.8.
+
 ## Tableros, estados y tipos de tarea
 
 Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectura por API (`GET /tipo-tablero/listar` y `GET /tipo-tarea/listar`).

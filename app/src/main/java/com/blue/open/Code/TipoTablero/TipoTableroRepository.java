@@ -14,4 +14,7 @@ public interface TipoTableroRepository extends EntidadRepositoryBorradoLogico<Ti
     @Query("SELECT new com.blue.open.Code.TipoTablero.TipoTableroDTO(t.uuid, t.status, t.fechaDeCreacion, t.codigo, "
             + "t.nombre, t.orden) FROM TipoTablero t WHERE t.status = 0 ORDER BY t.orden")
     List<TipoTableroDTO> listarVigentes();
+
+    // Tipos de tablero con el status recibido, en orden de pestana (alta de proyecto: un tablero por cada uno)
+    List<TipoTablero> findByStatusOrderByOrden(Integer status);
 }

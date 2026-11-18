@@ -16,6 +16,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     EMAIL_YA_REGISTRADO(HttpStatus.BAD_REQUEST, "Email ya registrado"),
     @Descripcion("Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas")
     CONFIGURACIONES_PRIVADAS(HttpStatus.FORBIDDEN, "No tenes permiso para ver estas variables"),
+    @Descripcion("Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro")
+    PREFIJO_DE_PROYECTO_EN_USO(HttpStatus.BAD_REQUEST, "El prefijo ya lo usa otro proyecto. Elegí otro."),
+    @Descripcion("Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto")
+    PREFIJO_DE_PROYECTO_NO_SE_CAMBIA(HttpStatus.BAD_REQUEST, "El prefijo no se cambia: lo usan las claves de las tareas existentes."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 
