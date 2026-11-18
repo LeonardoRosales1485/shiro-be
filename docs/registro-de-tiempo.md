@@ -39,5 +39,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 31 | 2026-11-18 | 20:14 | 20:23 | 9 min | Build | Force push de develop; adenda 3 del DAF; OK a la tabla de F1 | develop en c13a6be (CI verde); adenda 3 en DAF y spec; T1.1 cerrada (ce482a4, versión 1.0.6); tareas de F1 en la lista |
 | 32 | 2026-11-18 | 20:24 | 20:24 | 0 min | Soporte | Consulta: nivel de esfuerzo del modelo para F1 | Recomendación dada; T1.2 interrumpido antes de empezar |
 | 33 | 2026-11-18 | 20:26 | 20:26 | 0 min | Soporte | Agregar a la skill la recomendación de nivel de esfuerzo | Regla agregada a la copia local de la skill y SKILL.md listo para cargar en claude.ai |
+| 34 | 2026-11-18 | 20:28 | 20:39 | 11 min | Build | Procede con T1.2 | T1.2 cerrada: proyectos con cuatro tableros y prefijo único (4341c68, versión 1.0.7) |
 
-**Total acumulado medido:** 97 min
+**Total acumulado medido:** 108 min
