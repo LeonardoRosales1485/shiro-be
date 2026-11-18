@@ -35,5 +35,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 27 | 2026-11-18 | 18:57 | 19:08 | 11 min | Build | T0.3 opción A; push de fe y be; guía local | T0.3 (cac9d1c), deploy.yml local, front T0.4 (shiro-fe 0b0cf0d), docs/levantar-en-local.md |
 | 28 | 2026-11-18 | 19:31 | 19:32 | 1 min | Verificación | Resultado de la prueba local en Windows y observaciones | .gitattributes, guía para Windows, spec corregida; commits locales sin push (falta confirmación) |
 | 29 | 2026-11-18 | 19:34 | 19:58 | 24 min | Build | Push autorizado; T0.6 integración continua | Workflow Calidad en be (7d47e14) y fe (7d7f0f8), GitHub Actions en verde; parches de Tomcat y Jackson; F0 completa |
+| 30 | 2026-11-18 | 20:02 | 20:11 | 9 min | Plan | F0 aprobada; reescribir historial; develop; leer DAF y prototipo | Historial de shiro-be reescrito (8f6dd1a, versión 1.0.5); develop pendiente; DAF y 64 vistas leídos, diferencias listadas |
 
-**Total acumulado medido:** 79 min
+**Total acumulado medido:** 88 min
