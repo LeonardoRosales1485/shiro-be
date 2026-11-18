@@ -38,5 +38,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 30 | 2026-11-18 | 20:02 | 20:11 | 9 min | Plan | F0 aprobada; reescribir historial; develop; leer DAF y prototipo | Historial de shiro-be reescrito (8f6dd1a, versión 1.0.5); develop pendiente; DAF y 64 vistas leídos, diferencias listadas |
 | 31 | 2026-11-18 | 20:14 | 20:23 | 9 min | Build | Force push de develop; adenda 3 del DAF; OK a la tabla de F1 | develop en c13a6be (CI verde); adenda 3 en DAF y spec; T1.1 cerrada (ce482a4, versión 1.0.6); tareas de F1 en la lista |
 | 32 | 2026-11-18 | 20:24 | 20:24 | 0 min | Soporte | Consulta: nivel de esfuerzo del modelo para F1 | Recomendación dada; T1.2 interrumpido antes de empezar |
+| 33 | 2026-11-18 | 20:26 | 20:26 | 0 min | Soporte | Agregar a la skill la recomendación de nivel de esfuerzo | Regla agregada a la copia local de la skill y SKILL.md listo para cargar en claude.ai |
 
 **Total acumulado medido:** 97 min
