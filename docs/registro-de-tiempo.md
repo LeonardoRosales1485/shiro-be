@@ -33,5 +33,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 25 | 2026-11-18 | 18:20 | — | sin medir | Build | Bitácora del programador; respuestas v2, git y protección de ramas | Interrumpido. Bitácora creada; plantilla leída |
 | 26 | 2026-11-18 | 18:37 | 18:53 | 16 min | Build | Procede con F0 | T0.1 (c4f0a22) y T0.2 (cda618f) en verde; T0.3 espera decisión sobre el usuario de base |
 | 27 | 2026-11-18 | 18:57 | 19:08 | 11 min | Build | T0.3 opción A; push de fe y be; guía local | T0.3 (cac9d1c), deploy.yml local, front T0.4 (shiro-fe 0b0cf0d), docs/levantar-en-local.md |
+| 28 | 2026-11-18 | 19:31 | 19:32 | 1 min | Verificación | Resultado de la prueba local en Windows y observaciones | .gitattributes, guía para Windows, spec corregida; commits locales sin push (falta confirmación) |
 
-**Total acumulado medido:** 54 min
+**Total acumulado medido:** 55 min
