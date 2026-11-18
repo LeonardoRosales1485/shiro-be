@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.3</title>
+    <title>API de Open Data 1.0.5</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,7 +1868,7 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.3",
+    "version" : "1.0.5",
     "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
   },
   "servers" : [ {
@@ -1884,6 +1884,10 @@
     "name" : "Permiso"
   }, {
     "name" : "Rol"
+  }, {
+    "name" : "TipoTablero"
+  }, {
+    "name" : "TipoTarea"
   }, {
     "name" : "Usuario"
   } ],
@@ -3518,6 +3522,437 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "No tienes permiso",
                       "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tipo-tablero/listar" : {
+      "get" : {
+        "tags" : [ "TipoTablero" ],
+        "operationId" : "TipoTableroController.listar",
+        "summary" : "Lista los tipos de tablero con sus estados en orden de columna",
+        "description" : "**Caso de uso:** CU-TTB-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
+        "x-caso-de-uso" : "CU-TTB-01",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TipoTableroDTO"
+                  }
+                },
+                "examples" : {
+                  "el-primer-estado-es-el-inicial-y-los-terminados-son-hecho-y-aprobado" : {
+                    "summary" : "El primer estado es el inicial y los terminados son hecho y aprobado (ADMIN)",
+                    "value" : [ {
+                      "codigo" : "PRINCIPAL",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por hacer",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000011"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "En curso",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000012"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000013"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Principal",
+                      "orden" : 1,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000001"
+                    }, {
+                      "codigo" : "QA",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por probar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000021"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Probando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000022"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000023"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "QA",
+                      "orden" : 2,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000002"
+                    }, {
+                      "codigo" : "ANALISIS",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por analizar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000031"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Analizando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000032"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000033"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Análisis",
+                      "orden" : 3,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000003"
+                    } ]
+                  },
+                  "lista-los-cuatro-tableros-en-orden" : {
+                    "summary" : "Lista los cuatro tableros en orden (ADMIN)",
+                    "value" : [ {
+                      "codigo" : "PRINCIPAL",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por hacer",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000011"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "En curso",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000012"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000013"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Principal",
+                      "orden" : 1,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000001"
+                    }, {
+                      "codigo" : "QA",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por probar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000021"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Probando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000022"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000023"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "QA",
+                      "orden" : 2,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000002"
+                    }, {
+                      "codigo" : "ANALISIS",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por analizar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000031"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Analizando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000032"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000033"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Análisis",
+                      "orden" : 3,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000003"
+                    } ]
+                  },
+                  "cada-tablero-tiene-los-estados-del-daf-en-orden" : {
+                    "summary" : "Cada tablero tiene los estados del daf en orden (ADMIN)",
+                    "value" : [ {
+                      "codigo" : "PRINCIPAL",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por hacer",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000011"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "En curso",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000012"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000013"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Principal",
+                      "orden" : 1,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000001"
+                    }, {
+                      "codigo" : "QA",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por probar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000021"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Probando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000022"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000023"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "QA",
+                      "orden" : 2,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000002"
+                    }, {
+                      "codigo" : "ANALISIS",
+                      "estados" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : true,
+                        "nombre" : "Por analizar",
+                        "orden" : 1,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000031"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Analizando",
+                        "orden" : 2,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000032"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "inicial" : false,
+                        "nombre" : "Bloqueado",
+                        "orden" : 3,
+                        "status" : 0,
+                        "terminado" : false,
+                        "uuid" : "a2000000-0000-4000-8000-000000000033"
+                      } ],
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Análisis",
+                      "orden" : 3,
+                      "status" : 0,
+                      "uuid" : "a1000000-0000-4000-8000-000000000003"
+                    } ]
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tipo-tarea/listar" : {
+      "get" : {
+        "tags" : [ "TipoTarea" ],
+        "operationId" : "TipoTareaController.listar",
+        "summary" : "Lista los tipos de tarea con su nivel en la jerarquía",
+        "description" : "**Caso de uso:** CU-TTA-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
+        "x-caso-de-uso" : "CU-TTA-01",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TipoTareaDTO"
+                  }
+                },
+                "examples" : {
+                  "lista-los-cinco-tipos-con-su-nivel" : {
+                    "summary" : "Lista los cinco tipos con su nivel (ADMIN)",
+                    "value" : [ {
+                      "codigo" : "EPICA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nivel" : 1,
+                      "nombre" : "Épica",
+                      "status" : 0,
+                      "uuid" : "a3000000-0000-4000-8000-000000000001"
+                    }, {
+                      "codigo" : "HISTORIA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nivel" : 2,
+                      "nombre" : "Historia",
+                      "status" : 0,
+                      "uuid" : "a3000000-0000-4000-8000-000000000002"
+                    }, {
+                      "codigo" : "TAREA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nivel" : 2,
+                      "nombre" : "Tarea",
+                      "status" : 0,
+                      "uuid" : "a3000000-0000-4000-8000-000000000003"
+                    } ]
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -5238,6 +5673,42 @@
         },
         "additionalProperties" : false
       },
+      "EstadoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "inicial" : {
+            "type" : "boolean",
+            "description" : "true en el estado en el que nace una tarea del tablero"
+          },
+          "nombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre visible del estado (columna del tablero)"
+          },
+          "orden" : {
+            "type" : [ "integer", "null" ],
+            "description" : "Posición de la columna en el tablero; 1 es la primera"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "terminado" : {
+            "type" : "boolean",
+            "description" : "true si una tarea en este estado cuenta como terminada para el changelog y el cierre de sprint"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
       "FiltroDePaginado" : {
         "type" : "object",
         "properties" : {
@@ -5559,6 +6030,78 @@
           "nombre" : {
             "type" : [ "string", "null" ],
             "description" : "Campo (o dato) que no pasó la validación"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "TipoTableroDTO" : {
+        "type" : "object",
+        "properties" : {
+          "codigo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Código estable del tablero: PRINCIPAL, QA, ANALISIS o DISENO"
+          },
+          "estados" : {
+            "description" : "Estados del tablero en orden de columna",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/EstadoDTO",
+              "description" : "Estados del tablero en orden de columna"
+            }
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "nombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre visible del tablero"
+          },
+          "orden" : {
+            "type" : [ "integer", "null" ],
+            "description" : "Posición del tablero en las pestañas del proyecto; 1 es el principal"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "TipoTareaDTO" : {
+        "type" : "object",
+        "properties" : {
+          "codigo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Código estable del tipo: EPICA, HISTORIA, TAREA, BUG o SUBTAREA"
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "nivel" : {
+            "type" : [ "integer", "null" ],
+            "description" : "Nivel en la jerarquía: 1 Épica; 2 Historia, Tarea y Bug; 3 Subtarea. El padre tiene nivel menor"
+          },
+          "nombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre visible del tipo"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
           }
         },
         "additionalProperties" : false

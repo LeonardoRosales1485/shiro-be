@@ -12,6 +12,21 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - Ingreso: `jwt` (sesión web), `basic` (cuentas locales) y `tokens` (MCP). El ingreso con Google se agrega en F2.
 - Shiro no tiene registro público ni recuperación de contraseña por email.
 
+## Tableros, estados y tipos de tarea
+
+Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectura por API (`GET /tipo-tablero/listar` y `GET /tipo-tarea/listar`).
+
+| Tablero | Estados, en orden de columna | Terminado |
+|---|---|---|
+| Principal | Por hacer, En curso, Bloqueado, En revisión, Hecho | Hecho |
+| QA | Por probar, Probando, Bloqueado, Aprobado, Rechazado | Aprobado |
+| Análisis | Por analizar, Analizando, Bloqueado, En validación, Aprobado | Aprobado |
+| Diseño | Por diseñar, Diseñando, Bloqueado, En revisión, Aprobado | Aprobado |
+
+- El primer estado de cada tablero es el inicial: ahí nace una tarea.
+- Una tarea en un estado terminado cuenta para el changelog y como terminada al cerrar un sprint (adenda 3 del DAF).
+- Tipos de tarea y nivel en la jerarquía: Épica 1; Historia, Tarea y Bug 2; Subtarea 3. El padre de una tarea tiene nivel menor.
+
 ## Roles y permisos
 
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.

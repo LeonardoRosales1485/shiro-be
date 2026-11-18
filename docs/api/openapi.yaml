@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.3"
+  version: "1.0.5"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -56,6 +56,8 @@ tags:
 - name: "JwtLogin"
 - name: "Permiso"
 - name: "Rol"
+- name: "TipoTablero"
+- name: "TipoTarea"
 - name: "Usuario"
 paths:
   /configuracion/guardar:
@@ -1314,6 +1316,368 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /tipo-tablero/listar:
+    get:
+      tags:
+      - "TipoTablero"
+      operationId: "TipoTableroController.listar"
+      summary: "Lista los tipos de tablero con sus estados en orden de columna"
+      description: |-
+        **Caso de uso:** CU-TTB-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TTB-01"
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TipoTableroDTO"
+              examples:
+                el-primer-estado-es-el-inicial-y-los-terminados-son-hecho-y-aprobado:
+                  summary: "El primer estado es el inicial y los terminados son hecho y aprobado (ADMIN)"
+                  value:
+                  - codigo: "PRINCIPAL"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por hacer"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000011"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "En curso"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000012"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000013"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Principal"
+                    orden: 1
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000001"
+                  - codigo: "QA"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por probar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000021"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Probando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000022"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000023"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "QA"
+                    orden: 2
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000002"
+                  - codigo: "ANALISIS"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por analizar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000031"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Analizando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000032"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000033"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Análisis"
+                    orden: 3
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000003"
+                lista-los-cuatro-tableros-en-orden:
+                  summary: "Lista los cuatro tableros en orden (ADMIN)"
+                  value:
+                  - codigo: "PRINCIPAL"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por hacer"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000011"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "En curso"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000012"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000013"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Principal"
+                    orden: 1
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000001"
+                  - codigo: "QA"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por probar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000021"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Probando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000022"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000023"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "QA"
+                    orden: 2
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000002"
+                  - codigo: "ANALISIS"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por analizar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000031"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Analizando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000032"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000033"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Análisis"
+                    orden: 3
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000003"
+                cada-tablero-tiene-los-estados-del-daf-en-orden:
+                  summary: "Cada tablero tiene los estados del daf en orden (ADMIN)"
+                  value:
+                  - codigo: "PRINCIPAL"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por hacer"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000011"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "En curso"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000012"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000013"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Principal"
+                    orden: 1
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000001"
+                  - codigo: "QA"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por probar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000021"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Probando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000022"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000023"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "QA"
+                    orden: 2
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000002"
+                  - codigo: "ANALISIS"
+                    estados:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: true
+                      nombre: "Por analizar"
+                      orden: 1
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000031"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Analizando"
+                      orden: 2
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000032"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      inicial: false
+                      nombre: "Bloqueado"
+                      orden: 3
+                      status: 0
+                      terminado: false
+                      uuid: "a2000000-0000-4000-8000-000000000033"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Análisis"
+                    orden: 3
+                    status: 0
+                    uuid: "a1000000-0000-4000-8000-000000000003"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /tipo-tarea/listar:
+    get:
+      tags:
+      - "TipoTarea"
+      operationId: "TipoTareaController.listar"
+      summary: "Lista los tipos de tarea con su nivel en la jerarquía"
+      description: |-
+        **Caso de uso:** CU-TTA-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TTA-01"
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TipoTareaDTO"
+              examples:
+                lista-los-cinco-tipos-con-su-nivel:
+                  summary: "Lista los cinco tipos con su nivel (ADMIN)"
+                  value:
+                  - codigo: "EPICA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nivel: 1
+                    nombre: "Épica"
+                    status: 0
+                    uuid: "a3000000-0000-4000-8000-000000000001"
+                  - codigo: "HISTORIA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nivel: 2
+                    nombre: "Historia"
+                    status: 0
+                    uuid: "a3000000-0000-4000-8000-000000000002"
+                  - codigo: "TAREA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nivel: 2
+                    nombre: "Tarea"
+                    status: 0
+                    uuid: "a3000000-0000-4000-8000-000000000003"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
   /usuario/borrar-token/{uuid}:
     delete:
@@ -2640,6 +3004,41 @@ components:
           - "null"
           description: "Identificador de la traza en el log del servidor, para soporte"
       additionalProperties: false
+    EstadoDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        inicial:
+          type: "boolean"
+          description: "true en el estado en el que nace una tarea del tablero"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible del estado (columna del tablero)"
+        orden:
+          type:
+          - "integer"
+          - "null"
+          description: "Posición de la columna en el tablero; 1 es la primera"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        terminado:
+          type: "boolean"
+          description: "true si una tarea en este estado cuenta como terminada para el changelog y el cierre de sprint"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     FiltroDePaginado:
       type: "object"
       properties:
@@ -2920,6 +3319,82 @@ components:
           - "string"
           - "null"
           description: "Campo (o dato) que no pasó la validación"
+      additionalProperties: false
+    TipoTableroDTO:
+      type: "object"
+      properties:
+        codigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código estable del tablero: PRINCIPAL, QA, ANALISIS o DISENO"
+        estados:
+          description: "Estados del tablero en orden de columna"
+          type:
+          - "array"
+          - "null"
+          items:
+            $ref: "#/components/schemas/EstadoDTO"
+            description: "Estados del tablero en orden de columna"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible del tablero"
+        orden:
+          type:
+          - "integer"
+          - "null"
+          description: "Posición del tablero en las pestañas del proyecto; 1 es el principal"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
+    TipoTareaDTO:
+      type: "object"
+      properties:
+        codigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código estable del tipo: EPICA, HISTORIA, TAREA, BUG o SUBTAREA"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nivel:
+          type:
+          - "integer"
+          - "null"
+          description: "Nivel en la jerarquía: 1 Épica; 2 Historia, Tarea y Bug; 3 Subtarea. El padre tiene nivel menor"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible del tipo"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
     UsuarioDTO:
       type: "object"
