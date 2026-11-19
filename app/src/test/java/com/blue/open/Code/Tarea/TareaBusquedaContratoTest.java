@@ -39,7 +39,7 @@ class TareaBusquedaContratoTest extends PruebaDeContrato {
         String clave = escenario.guardar(cuerpo).get("clave").asString();
 
         assertTrue(claves(buscar(como(ADMIN), "tablero", null)).contains(clave));
-        assertTrue(claves(buscar(como(ADMIN), "sprint jira", null)).contains(clave));
+        assertTrue(claves(buscar(como(ADMIN), "importación jira", null)).contains(clave));
         assertFalse(claves(buscar(como(ADMIN), "palabrainexistente", null)).contains(clave));
     }
 

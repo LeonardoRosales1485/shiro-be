@@ -17,6 +17,7 @@ import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
 import com.blue.open.Core.Kernel.DTO.FiltroDePaginado;
 import com.blue.open.Core.Kernel.DTO.OrdenDePaginado;
 import com.blue.open.Core.Kernel.DTO.Pagina;
+import com.blue.open.Core.Kernel.DTO.ParametroDePaginado;
 import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.mcp.annotation.McpTool;
@@ -57,9 +58,9 @@ public class HerramientasMcpDeTarea {
     private final ReferenciasDeMcp referencias;
 
     // Busca tareas vigentes por texto (titulo o clave) y filtros. Responde una pagina de 50 y un resumen
-    @McpTool(name = "buscar_tareas", description = "Busca tareas por texto (en el título o la clave) y filtros opcionales. 50 por página.")
+    @McpTool(name = "buscar_tareas", description = "Busca tareas por texto en español (clave, título y descripción) o por clave, con filtros opcionales. 50 por página.")
     public RespuestaDeHerramienta buscarTareas(
-            @McpToolParam(description = "Texto a buscar en el título, o una clave como SHI-12", required = false) String texto,
+            @McpToolParam(description = "Texto a buscar (clave, título o descripción), o una clave como SHI-12", required = false) String texto,
             @McpToolParam(description = "Prefijo del proyecto, por ejemplo SHI", required = false) String proyecto,
             @McpToolParam(description = "Tablero: PRINCIPAL, QA, ANALISIS o DISENO", required = false) String tablero,
             @McpToolParam(description = "Tipo: EPICA, HISTORIA, TAREA, BUG o SUBTAREA", required = false) String tipo,
@@ -71,8 +72,7 @@ public class HerramientasMcpDeTarea {
         pedido.setTamano(TAMANO);
         pedido.getOrdenes().add(new OrdenDePaginado("clave", "asc"));
         if (texto != null && !texto.isBlank())
-            pedido.agregarFiltro(List.of(new FiltroDePaginado("titulo", "like", "%" + texto.trim() + "%"),
-                    new FiltroDePaginado("clave", "=", texto.trim().toUpperCase(Locale.ROOT))));
+            pedido.agregarParametro(new ParametroDePaginado("texto", texto.trim()));
         filtrar(pedido, "proyecto.prefijo", proyecto == null ? null : proyecto.toUpperCase(Locale.ROOT));
         filtrar(pedido, "tableroCodigo", tablero == null ? null : tablero.toUpperCase(Locale.ROOT));
         filtrar(pedido, "tipoCodigo", tipo == null ? null : tipo.toUpperCase(Locale.ROOT));

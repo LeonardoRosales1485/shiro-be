@@ -61,6 +61,12 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Tareas del sprint con el status recibido
     List<Tarea> findBySprintAndStatus(Sprint sprint, Integer status);
 
+    // Ids de tareas cuyo texto (clave, titulo y descripcion, columna busqueda en español) coincide con el texto, o
+    // cuya clave es el texto. SQL nativo: JPQL no expresa el operador @@ de tsvector ni plainto_tsquery. Hasta 1000
+    @Query(value = "SELECT t.id FROM shr_tarea t WHERE t.busqueda @@ plainto_tsquery('spanish', :texto) "
+            + "OR upper(t.clave) = upper(:texto) LIMIT 1000", nativeQuery = true)
+    List<Long> idsPorTexto(@Param("texto") String texto);
+
     // Tarea por uuid en cualquier status (vigente o archivada)
     Optional<Tarea> findFirstByUuid(String uuid);
 

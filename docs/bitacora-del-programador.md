@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F5 en curso.** T5.1 a T5.3 cerradas (versión 1.0.27). Sigue T5.4 (búsqueda y archivados). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F5 en curso.** T5.1 a T5.4 cerradas (versión 1.0.28). Sigue T5.5 (herramientas MCP de planificación). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Cierre de F2
 
@@ -51,6 +51,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T5.4 | Columna busqueda (tsvector en español generado de clave, título y descripción) con índice GIN. POST /tarea/paginar con el parámetro texto filtra por esa búsqueda o por clave (consulta nativa con comentario) y respeta permisos; buscar_tareas de MCP usa lo mismo. POST /archivo/paginar busca tareas, proyectos, sprints, versiones y usuarios archivados según ARCHIVAR sobre su recurso (usuarios solo administradores), con filtro por tipo y texto. Decisiones 27 y 28 | 9b4d872 (rojo) y verde en el commit siguiente. ./mvnw verify: 433 pruebas, 0 fallas, 29 omitidas. Versión 1.0.28 |
 | 18/11/2026 | T5.3 | shr_version y shr_tarea_version. ABM /version y casos de uso asignar, quitar, publicar (fecha elegida; changelog guardado; la versión publicada no cambia), changelog en Markdown (ChangelogDeVersion: tareas terminadas agrupadas por tipo), archivar y restaurar. La tarea muestra sus versiones; clonar con VERSIONES las copia a las sin publicar. Seed versión 1.0. Decisiones 25 y 26 | 95c517e (rojo) y verde en el commit siguiente. ./mvnw verify: 428 pruebas, 0 fallas, 29 omitidas. Versión 1.0.27 |
 | 18/11/2026 | T5.2 | shr_sprint con índice único parcial (un ACTIVO por proyecto) e id_sprint en shr_tarea. ABM /sprint y casos de uso asignar, quitar, iniciar, cerrar (destino BACKLOG o SPRINT; lo terminado queda en el sprint) y archivar (activo rechazado; planificado devuelve sus tareas). TareasDeSprint reúne los pasos compartidos. El backlog excluye las tareas con sprint y /tarea/guardar conserva el sprint. Seed Sprint 1. Decisiones 23 y 24 | 0e592c0 (rojo) y verde en el commit siguiente. ./mvnw verify: 414 pruebas, 0 fallas, 26 omitidas. Versión 1.0.26 |
 | 18/11/2026 | T5.1 | F5 se adelanta a F4 (el importador necesita sprints y versiones; F4 además espera credenciales de Jira). orden_backlog en shr_tarea; GET /backlog/proyecto/{uuid} y POST /backlog/ordenar (BacklogController en Tarea/); historias, tareas y bugs, orden único, nuevas al final; VER para leer y EDITAR en el proyecto para ordenar; fila ORDENAR_BACKLOG en el historial. Decisiones 21 y 22 | 5c4ba3d (rojo) y verde en el commit siguiente. ./mvnw verify: 399 pruebas, 0 fallas, 23 omitidas. Versión 1.0.25 |

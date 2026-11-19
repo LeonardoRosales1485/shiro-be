@@ -1,0 +1,18 @@
+# Busqueda de texto en español (T5.4): columna generada con la clave, el titulo y la descripcion de la tarea, con
+# indice GIN. No se mapea en JPA: la usa TareaRepository.idsPorTexto.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-busqueda-1
+      author: shiro
+      comment: "Agrega busqueda (tsvector en español) a shr_tarea"
+      changes:
+        - sql:
+            sql: >-
+              ALTER TABLE shr_tarea ADD COLUMN busqueda tsvector GENERATED ALWAYS AS (
+              setweight(to_tsvector('spanish', coalesce(clave, '')), 'A')
+              || setweight(to_tsvector('spanish', coalesce(titulo, '')), 'A')
+              || setweight(to_tsvector('spanish', coalesce(descripcion, '')), 'B')) STORED;
+              CREATE INDEX ix_shr_tarea_busqueda ON shr_tarea USING GIN (busqueda)
+      rollback:
+        - sql:
+            sql: "DROP INDEX IF EXISTS ix_shr_tarea_busqueda; ALTER TABLE shr_tarea DROP COLUMN IF EXISTS busqueda"

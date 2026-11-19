@@ -83,6 +83,11 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Clonar con `VERSIONES` asigna el clon a las versiones sin publicar del original.
 - Seed: versión 1.0 del proyecto Shiro, sin publicar.
 
+## Búsqueda
+
+- `POST /tarea/paginar` con el parámetro `texto` (en `parametros`) es la búsqueda de tareas: texto en español sobre la clave, el título y la descripción (con raíces: "tablero" encuentra "tableros"), o la clave exacta, combinable con los filtros. Respeta los permisos como cualquier listado. Usa una columna `tsvector` generada con índice GIN.
+- `POST /archivo/paginar` busca lo archivado de cualquier tipo (tareas, proyectos, sprints, versiones y usuarios), con filtro por tipo y texto: aparece lo que el usuario puede archivar (el tablero de la tarea o el proyecto); los usuarios, solo para administradores. Lo más reciente primero. Cada elemento se restaura en el endpoint de su tipo.
+
 ## Comentarios (`Comentario`)
 
 - ABM de `/comentario` sin borrar. El listado de una tarea es `POST /comentario/paginar` filtrado por `tareaUuid`.

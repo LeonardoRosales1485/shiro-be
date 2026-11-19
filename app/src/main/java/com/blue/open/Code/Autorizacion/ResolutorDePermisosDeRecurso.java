@@ -55,6 +55,11 @@ public class ResolutorDePermisosDeRecurso {
         return esAdministrador() || EvaluadorDeReglasDePermiso.puede(reglasDeLaSesion(), nivel, null, proyecto.getId());
     }
 
+    // Si el usuario de la sesion tiene el nivel sobre el tablero (o el proyecto, si idTablero es null) por sus ids
+    public boolean puede(NivelDePermiso nivel, Long idTablero, Long idProyecto) {
+        return esAdministrador() || EvaluadorDeReglasDePermiso.puede(reglasDeLaSesion(), nivel, idTablero, idProyecto);
+    }
+
     // Exige el nivel sobre el tablero. Lanza SIN_PERMISO si no lo tiene
     public void exigir(NivelDePermiso nivel, Tablero tablero) {
         if (!puede(nivel, tablero))

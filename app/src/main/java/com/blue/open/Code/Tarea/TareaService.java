@@ -18,6 +18,7 @@ import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Usuario.UsuarioRepository;
 import com.blue.open.Core.Crud.AbstractService;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
+import com.blue.open.Core.Kernel.DTO.ParametroDePaginado;
 import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
@@ -71,10 +72,16 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         tareaRepository.findFirstByUuid(uuid).ifPresent(tarea -> permisos.exigir(NivelDePermiso.VER, tarea.getTablero()));
     }
 
-    // El listado trae solo las tareas de los tableros que el usuario ve
+    // El listado trae solo las tareas de los tableros que el usuario ve. Con el parametro "texto" es la busqueda:
+    // texto en español sobre clave, titulo y descripcion, o la clave exacta (T5.4)
     @Override
     protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
         permisos.restringirATablerosVisibles(pedido, "t.tablero.id");
+        ParametroDePaginado texto = pedido.getParametroPorNombre("texto");
+        if (texto != null && texto.getValor() != null && !texto.getValor().isBlank()) {
+            List<Long> ids = tareaRepository.idsPorTexto(texto.getValor().trim());
+            pedido.agregarCondicion("t.id IN :idsDeBusqueda", Map.of("idsDeBusqueda", ids.isEmpty() ? List.of(-1L) : ids));
+        }
         return super.hookPaginarAntesDeConsultar(pedido);
     }
 
