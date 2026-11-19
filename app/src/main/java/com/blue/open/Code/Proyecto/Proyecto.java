@@ -65,4 +65,14 @@ public class Proyecto extends EntidadConBorradoLogico {
         this.ultimoNumero = this.ultimoNumero + 1;
         return this.ultimoNumero;
     }
+
+    /*
+     * Adelanta el contador de claves hasta el numero recibido, si es mayor que el actual (F4: el importador conserva
+     * las claves de Jira y las tareas nuevas siguen desde la mas alta). Nunca lo atrasa: un numero menor no cambia
+     * nada. Solo se llama con la fila del proyecto bloqueada.
+     */
+    public void continuarNumeracionDesde(long numero) {
+        if (numero > this.ultimoNumero)
+            this.ultimoNumero = numero;
+    }
 }

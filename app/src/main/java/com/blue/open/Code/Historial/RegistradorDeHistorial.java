@@ -1,5 +1,6 @@
 package com.blue.open.Code.Historial;
 
+import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Common.Canal.CanalDeLaPeticion;
 import com.blue.open.Core.Kernel.Puertos.ProveedorDeUsuarioActual;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +33,37 @@ public class RegistradorDeHistorial {
     // Igual que registrar, con la operacion de archivo que produjo el cambio (T1.8)
     public void registrar(String entidad, String uuid, AccionDeHistorial accion, String campo, String anterior,
             String nuevo, Long idOperacion) {
+        escribir(new Cambio(entidad, uuid, accion, campo, anterior, nuevo), idOperacion, canal.actual(),
+                usuarioActual.getIdUsuarioActual());
+    }
+
+    /*
+     * Igual que registrar, para un proceso sin sesion ni request propio (el importador de Jira en segundo plano, F4):
+     * el canal y el usuario los pasa el llamador.
+     */
+    public void registrarDesdeProceso(Cambio cambio, CanalDeCambio canalDelProceso, Long idUsuario) {
+        escribir(cambio, null, canalDelProceso, idUsuario);
+    }
+
+    // Escribe la fila en la transaccion del llamador
+    private void escribir(Cambio cambio, Long idOperacion, CanalDeCambio canalDeLaFila, Long idUsuario) {
         Historial fila = new Historial();
-        fila.setEntidad(entidad);
-        fila.setUuidEntidad(uuid);
-        fila.setAccion(accion);
-        fila.setCampo(campo);
-        fila.setValorAnterior(anterior);
-        fila.setValorNuevo(nuevo);
-        fila.setCanal(canal.actual());
+        fila.setEntidad(cambio.entidad());
+        fila.setUuidEntidad(cambio.uuid());
+        fila.setAccion(cambio.accion());
+        fila.setCampo(cambio.campo());
+        fila.setValorAnterior(cambio.anterior());
+        fila.setValorNuevo(cambio.nuevo());
+        fila.setCanal(canalDeLaFila);
         fila.setIdOperacion(idOperacion);
-        fila.setIdUsuarioDeCreacion(usuarioActual.getIdUsuarioActual());
+        fila.setIdUsuarioDeCreacion(idUsuario);
         repository.save(fila);
+    }
+
+    /**
+     * Un cambio a registrar: entidad, uuid, accion, campo (o null) y los valores como texto (o null).
+     */
+    public record Cambio(String entidad, String uuid, AccionDeHistorial accion, String campo, String anterior, String nuevo) {
     }
 
     // Escribe una fila EDITAR por cada campo cuyo valor cambio entre antes y despues (mismas claves, mismo orden)
