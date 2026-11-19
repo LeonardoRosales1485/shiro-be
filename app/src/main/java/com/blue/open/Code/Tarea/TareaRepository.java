@@ -40,6 +40,9 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Tarea por clave (SHI-123) en cualquier status: asi la nombran la gente y los agentes
     Optional<Tarea> findFirstByClave(String clave);
 
+    // Cantidad de tareas del proyecto con el status recibido (vista previa de archivar un proyecto)
+    long countByProyectoAndStatus(Proyecto proyecto, Integer status);
+
     // Tarea por uuid en cualquier status (vigente o archivada)
     Optional<Tarea> findFirstByUuid(String uuid);
 

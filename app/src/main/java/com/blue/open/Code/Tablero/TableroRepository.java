@@ -23,6 +23,9 @@ public interface TableroRepository extends EntidadRepositoryBorradoLogico<Tabler
     // Tablero del proyecto por codigo de tipo (PRINCIPAL, QA, ANALISIS, DISENO) con el status recibido
     Optional<Tablero> findFirstByProyectoAndTipoTableroCodigoAndStatus(Proyecto proyecto, String codigo, Integer status);
 
+    // Cantidad de tableros del proyecto con el status recibido (vista previa de archivar un proyecto)
+    long countByProyectoAndStatus(Proyecto proyecto, Integer status);
+
     // Tablero por uuid con el status recibido (0: vigente)
     Optional<Tablero> findFirstByUuidAndStatus(String uuid, Integer status);
 

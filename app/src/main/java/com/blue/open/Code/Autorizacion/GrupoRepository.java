@@ -19,6 +19,9 @@ public interface GrupoRepository extends Repository<Rol, Long> {
     // Grupos con los uuids y el status recibidos
     List<Rol> findByUuidInAndStatus(Collection<String> uuids, Integer status);
 
+    // Grupos con los nombres y el status recibidos
+    List<Rol> findByNombreInAndStatus(Collection<String> nombres, Integer status);
+
     // Grupo por uuid con el status recibido
     Optional<Rol> findFirstByUuidAndStatus(String uuid, Integer status);
 }
