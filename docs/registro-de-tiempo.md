@@ -60,5 +60,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 52 | 2026-11-19 | 13:02 | 13:13 | 11 min | Build | T6.3 en el front: backlog y sprints, y versiones con changelog | Backend: GET /version/{uuid}/tareas con prueba en rojo antes, verify 514 pruebas, versión 1.0.41. Front: pruebas en rojo (dceb753), 67 en verde, versión 0.0.4 |
 | 53 | 2026-11-19 | 13:16 | 13:52 | 36 min | Build | Resoluciones 46 y 47 (cierre de sprint guardado, cantidad de tareas y quién publicó) y T6.4 en el front: búsqueda, archivados y tokens MCP | Backend: pruebas en rojo antes, verify 525 pruebas, versión 1.0.44. Front: pruebas en rojo antes, 80 en verde, versión 0.0.6 |
 | 54 | 2026-11-19 | 13:56 | 14:57 | 61 min | Build | Resoluciones 49 a 51: vista previa e incluidos de archivados, último uso y revocados de tokens, filtros de varios valores y sin sprint; documentos en Claude Docs | Backend: pruebas en rojo antes, verify 534 pruebas, versión 1.0.46. Front: pruebas en rojo antes, 82 en verde, versión 0.0.7 |
+| 55 | 2026-11-19 | 15:59 | 16:23 | 24 min | Build | T6.5: administración (usuarios, grupos, permisos y proyectos) e importación desde Jira en el front | Backend: pruebas en rojo antes (cfd921a), GET /usuario/administracion, nombre en UsuarioDTO, cantidadDeTareas en ProyectoDTO, verify 538 pruebas, cobertura 94,1%, versión 1.0.48. Front: pruebas en rojo antes (2eda7cd), 98 en verde, lint, tipos, build, 0 duplicados, capturas, versión 0.0.8 |
 
-**Total acumulado medido:** 834 min
+**Total acumulado medido:** 858 min

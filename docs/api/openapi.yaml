@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.46"
+  version: "1.0.47"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -1422,7 +1422,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:40703"
               solo-sitios-de-atlassian:
                 summary: "Solo sitios de atlassian (SYSADMIN)"
                 value:
@@ -1458,7 +1458,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "otro-token"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:40703"
               proyecto-inexistente-en-jira:
                 summary: "Proyecto inexistente en jira (SYSADMIN)"
                 value:
@@ -1466,7 +1466,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:40703"
               el-prefijo-tiene-de-dos-a-seis-letras:
                 summary: "El prefijo tiene de dos a seis letras (SYSADMIN)"
                 value:
@@ -1474,7 +1474,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "S1"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:40703"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -1482,7 +1482,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:33239"
+                  url: "http://127.0.0.1:39141"
               un-proyecto-ya-importado-no-cambia-de-prefijo-2:
                 summary: "Un proyecto ya importado no cambia de prefijo (2) (SYSADMIN)"
                 value:
@@ -1490,7 +1490,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "OTRO"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:33239"
+                  url: "http://127.0.0.1:39141"
               importa-un-proyecto-real-sin-fallas:
                 summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                 value:
@@ -3235,7 +3235,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:40703"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
@@ -3493,13 +3493,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4f1-278e-7f06-ad74-06edd29a9a6c\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4f1-2796-781d-8cbe-241ef1105e5f\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f542-7aff-75a3-8b6c-2ed81ba06b68\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f542-7b05-7e40-b096-62fe38dacf81\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3514,7 +3514,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3529,7 +3529,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3544,7 +3544,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -3559,7 +3559,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -3574,7 +3574,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -3589,7 +3589,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -3604,7 +3604,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -3619,7 +3619,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica-2:
                   summary: "Reimportar no duplica (2) (SYSADMIN)"
@@ -3634,7 +3634,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
@@ -3643,7 +3643,7 @@ paths:
                     correo: "leonardorosales1485@gmail.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4f1-3bf5-7cf6-b91d-6d2dc0193e53\",\"11300\":\"01a1f4f1-3bf7-720f-bd7f-1d48724fd208\",\"11299\":\"01a1f4f1-3bf8-7055-b9e9-6fa0aa5050d4\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4f1-3bfa-7419-8ce9-7626f9093866\",\"11645\":\"01a1f4f1-3bfc-7d87-8219-912f22ab09cc\",\"11644\":\"01a1f4f1-3bfb-7855-bd26-52473c5b8ca9\",\"11864\":\"01a1f4f1-3bfd-7f70-9c97-ec9c8df79cbd\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f542-8fb2-7c42-850b-35b9e7bce02c\",\"11300\":\"01a1f542-8fb3-7f8a-8795-9ac584901ff4\",\"11299\":\"01a1f542-8fb4-756f-8b7d-c3ad4427b673\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f542-8fb5-78ae-808f-c11045e6e253\",\"11645\":\"01a1f542-8fb7-7899-bcd2-11aaa60f2f35\",\"11644\":\"01a1f542-8fb6-7ed3-987d-022fe21320fd\",\"11864\":\"01a1f542-8fb8-73e1-9343-7268c6cf6834\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -3808,10 +3808,10 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
-                  - idJira: "10004"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
-                  - idJira: "10003"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
+                  - idJira: "10000"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
+                  - idJira: "10001"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               un-tipo-sin-mapear-queda-en-las-fallas:
@@ -3866,10 +3866,10 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
-                  - idJira: "10004"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
-                  - idJira: "10003"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
+                  - idJira: "10000"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
+                  - idJira: "10001"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               importa-un-proyecto-real-sin-fallas:
@@ -3908,13 +3908,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4f1-278e-7f06-ad74-06edd29a9a6c\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4f1-2796-781d-8cbe-241ef1105e5f\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f542-7aff-75a3-8b6c-2ed81ba06b68\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f542-7b05-7e40-b096-62fe38dacf81\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3929,7 +3929,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3944,7 +3944,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3959,7 +3959,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -3974,7 +3974,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 mapear-deja-la-importacion-lista:
                   summary: "Mapear deja la importacion lista (SYSADMIN)"
@@ -3989,7 +3989,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -4004,7 +4004,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -4019,7 +4019,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -4034,7 +4034,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -4049,7 +4049,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:33239"
+                    urlJira: "http://127.0.0.1:39141"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
@@ -4058,7 +4058,7 @@ paths:
                     correo: "leonardorosales1485@gmail.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4f1-3bf5-7cf6-b91d-6d2dc0193e53\",\"11300\":\"01a1f4f1-3bf7-720f-bd7f-1d48724fd208\",\"11299\":\"01a1f4f1-3bf8-7055-b9e9-6fa0aa5050d4\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4f1-3bfa-7419-8ce9-7626f9093866\",\"11645\":\"01a1f4f1-3bfc-7d87-8219-912f22ab09cc\",\"11644\":\"01a1f4f1-3bfb-7855-bd26-52473c5b8ca9\",\"11864\":\"01a1f4f1-3bfd-7f70-9c97-ec9c8df79cbd\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f542-8fb2-7c42-850b-35b9e7bce02c\",\"11300\":\"01a1f542-8fb3-7f8a-8795-9ac584901ff4\",\"11299\":\"01a1f542-8fb4-756f-8b7d-c3ad4427b673\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f542-8fb5-78ae-808f-c11045e6e253\",\"11645\":\"01a1f542-8fb7-7899-bcd2-11aaa60f2f35\",\"11644\":\"01a1f542-8fb6-7ed3-987d-022fe21320fd\",\"11864\":\"01a1f542-8fb8-73e1-9343-7268c6cf6834\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: null
@@ -4538,6 +4538,7 @@ paths:
                 guardar-alta:
                   summary: "Guardar alta (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: "Trámites en línea"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Portal de Trámites"
@@ -4566,6 +4567,7 @@ paths:
                 crear-y-editar-dejan-su-fila-en-el-historial:
                   summary: "Crear y editar dejan su fila en el historial (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Historial"
@@ -4594,6 +4596,7 @@ paths:
                 crear-y-editar-dejan-su-fila-en-el-historial-2:
                   summary: "Crear y editar dejan su fila en el historial (2) (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Historial editado"
@@ -4622,6 +4625,7 @@ paths:
                 al-crear-se-generan-los-cuatro-tableros:
                   summary: "Al crear se generan los cuatro tableros (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Portal de Trámites"
@@ -4650,6 +4654,7 @@ paths:
                 editar-cambia-el-nombre-y-conserva-prefijo-y-tableros:
                   summary: "Editar cambia el nombre y conserva prefijo y tableros (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 2
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Shiro (gestor de trabajo)"
@@ -4678,6 +4683,7 @@ paths:
                 un-administrador-tambien-crea-proyectos:
                   summary: "Un administrador tambien crea proyectos (ADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Mesa de Ayuda"
@@ -4706,6 +4712,7 @@ paths:
                 el-prefijo-se-guarda-en-mayusculas:
                   summary: "El prefijo se guarda en mayusculas (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Recursos Humanos"
@@ -4734,6 +4741,7 @@ paths:
                 solo-el-super-admin-suma-personas-al-grupo-administradores:
                   summary: "Solo el super admin suma personas al grupo administradores"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Del nuevo admin"
@@ -4933,6 +4941,15 @@ paths:
                 value:
                   pagina: 1
                   tamano: 5
+              obtener-y-paginar-traen-la-cantidad-de-tareas-vigentes:
+                summary: "Obtener y paginar traen la cantidad de tareas vigentes (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "prefijo"
+                      operacion: "="
+                      valor: "PRS"
+                  pagina: 1
+                  tamano: 10
       responses:
         "200":
           description: "OK"
@@ -4946,7 +4963,8 @@ paths:
                   value:
                     cantidadDeElementos: 1
                     contenido:
-                    - descripcion: "Gestor de trabajo de Blue Open Data"
+                    - cantidadDeTareas: 2
+                      descripcion: "Gestor de trabajo de Blue Open Data"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "Shiro"
                       prefijo: "SHI"
@@ -4995,7 +5013,8 @@ paths:
                   value:
                     cantidadDeElementos: 1
                     contenido:
-                    - descripcion: "Gestor de trabajo de Blue Open Data"
+                    - cantidadDeTareas: 3
+                      descripcion: "Gestor de trabajo de Blue Open Data"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "Shiro"
                       prefijo: "SHI"
@@ -5032,7 +5051,8 @@ paths:
                   value:
                     cantidadDeElementos: 2
                     contenido:
-                    - descripcion: "Gestor de trabajo de Blue Open Data"
+                    - cantidadDeTareas: 2
+                      descripcion: "Gestor de trabajo de Blue Open Data"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "Shiro"
                       prefijo: "SHI"
@@ -5057,7 +5077,8 @@ paths:
                         tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
                         uuid: "b2000000-0000-4000-8000-000000000003"
                       uuid: "b1000000-0000-4000-8000-000000000001"
-                    - descripcion: null
+                    - cantidadDeTareas: 50
+                      descripcion: null
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       nombre: "Altas concurrentes"
                       prefijo: "CONC"
@@ -5086,6 +5107,44 @@ paths:
                     primera: true
                     tamano: 5
                     totalDeElementos: 2
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                obtener-y-paginar-traen-la-cantidad-de-tareas-vigentes:
+                  summary: "Obtener y paginar traen la cantidad de tareas vigentes (ADMIN)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - cantidadDeTareas: 1
+                      descripcion: null
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Proyecto PRS"
+                      prefijo: "PRS"
+                      status: 0
+                      tableros:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "PRINCIPAL"
+                        tipoTableroNombre: "Principal"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "QA"
+                        tipoTableroNombre: "QA"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "ANALISIS"
+                        tipoTableroNombre: "Análisis"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    numero: 0
+                    primera: true
+                    tamano: 10
+                    totalDeElementos: 1
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -5136,7 +5195,8 @@ paths:
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
-                    descripcion: "Importado de Jira (http://127.0.0.1:33239)"
+                    cantidadDeTareas: 5
+                    descripcion: "Importado de Jira (http://127.0.0.1:39141)"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Proyecto simulado"
                     prefijo: "SIM"
@@ -5164,6 +5224,7 @@ paths:
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
                   value:
+                    cantidadDeTareas: 2
                     descripcion: "Gestor de trabajo de Blue Open Data"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Shiro"
@@ -5189,6 +5250,35 @@ paths:
                       tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
                       uuid: "b2000000-0000-4000-8000-000000000003"
                     uuid: "b1000000-0000-4000-8000-000000000001"
+                obtener-y-paginar-traen-la-cantidad-de-tareas-vigentes:
+                  summary: "Obtener y paginar traen la cantidad de tareas vigentes (ADMIN)"
+                  value:
+                    cantidadDeTareas: 1
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Proyecto PRS"
+                    prefijo: "PRS"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "PRINCIPAL"
+                      tipoTableroNombre: "Principal"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "QA"
+                      tipoTableroNombre: "QA"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "ANALISIS"
+                      tipoTableroNombre: "Análisis"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
         "400":
           description: "Errores: `REGISTRO_NO_ENCONTRADO`"
           content:
@@ -5268,6 +5358,7 @@ paths:
                 archivar-arrastra-todo-y-restaurar-lo-devuelve:
                   summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
                   value:
+                    cantidadDeTareas: 0
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Archivable"
@@ -5771,6 +5862,7 @@ paths:
                 archivar-arrastra-todo-y-restaurar-lo-devuelve:
                   summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
                   value:
+                    cantidadDeTareas: 3
                     descripcion: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Archivable"
@@ -5995,6 +6087,16 @@ paths:
                   tableroUuid: "b2000000-0000-4000-8000-000000000002"
                   tipoRecurso: "TABLERO"
                   tipoSujeto: "ROL"
+              lista-las-reglas-del-proyecto-y-de-sus-tableros-y-cambia-el-efecto:
+                summary: "Lista las reglas del proyecto y de sus tableros y cambia el efecto (ADMIN)"
+                value:
+                  efecto: "NEGAR"
+                  nivel: "VER"
+                  rolUuid: "90000000-0000-4000-8000-000000000009"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                  tipoRecurso: "TABLERO"
+                  tipoSujeto: "ROL"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               el-sujeto-y-el-recurso-tienen-que-coincidir-con-su-tipo:
                 summary: "El sujeto y el recurso tienen que coincidir con su tipo (ADMIN)"
                 value:
@@ -6055,6 +6157,25 @@ paths:
                     efecto: "PERMITIR"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nivel: "EDITAR"
+                    proyectoPrefijo: null
+                    proyectoUuid: null
+                    rolNombre: "CLIENTE"
+                    rolUuid: "90000000-0000-4000-8000-000000000009"
+                    status: 0
+                    tableroCodigo: "QA"
+                    tableroProyectoPrefijo: "SHI"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                    tipoRecurso: "TABLERO"
+                    tipoSujeto: "ROL"
+                    usuarioNombreDeUsuario: null
+                    usuarioUuid: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                lista-las-reglas-del-proyecto-y-de-sus-tableros-y-cambia-el-efecto:
+                  summary: "Lista las reglas del proyecto y de sus tableros y cambia el efecto (ADMIN)"
+                  value:
+                    efecto: "NEGAR"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nivel: "VER"
                     proyectoPrefijo: null
                     proyectoUuid: null
                     rolNombre: "CLIENTE"
@@ -6231,6 +6352,18 @@ paths:
                 value:
                   pagina: 1
                   tamano: 5
+              lista-las-reglas-del-proyecto-y-de-sus-tableros-y-cambia-el-efecto:
+                summary: "Lista las reglas del proyecto y de sus tableros y cambia el efecto (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "b1000000-0000-4000-8000-000000000001"
+                    - campo: "tablero.proyecto.uuid"
+                      operacion: "="
+                      valor: "b1000000-0000-4000-8000-000000000001"
+                  pagina: 1
+                  tamano: 500
       responses:
         "200":
           description: "OK"
@@ -6264,6 +6397,50 @@ paths:
                     primera: true
                     tamano: 5
                     totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                lista-las-reglas-del-proyecto-y-de-sus-tableros-y-cambia-el-efecto:
+                  summary: "Lista las reglas del proyecto y de sus tableros y cambia el efecto (ADMIN)"
+                  value:
+                    cantidadDeElementos: 2
+                    contenido:
+                    - efecto: "PERMITIR"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nivel: "VER"
+                      proyectoPrefijo: "SHI"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      rolNombre: "CLIENTE"
+                      rolUuid: "90000000-0000-4000-8000-000000000009"
+                      status: 0
+                      tableroCodigo: null
+                      tableroProyectoPrefijo: null
+                      tableroUuid: null
+                      tipoRecurso: "PROYECTO"
+                      tipoSujeto: "ROL"
+                      usuarioNombreDeUsuario: null
+                      usuarioUuid: null
+                      uuid: "b5000000-0000-4000-8000-000000000001"
+                    - efecto: "PERMITIR"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nivel: "VER"
+                      proyectoPrefijo: null
+                      proyectoUuid: null
+                      rolNombre: "CLIENTE"
+                      rolUuid: "90000000-0000-4000-8000-000000000009"
+                      status: 0
+                      tableroCodigo: "QA"
+                      tableroProyectoPrefijo: "SHI"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                      tipoRecurso: "TABLERO"
+                      tipoSujeto: "ROL"
+                      usuarioNombreDeUsuario: null
+                      usuarioUuid: null
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    numero: 0
+                    primera: true
+                    tamano: 500
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -10543,7 +10720,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 8"
+                      titulo: "Alta concurrente 26"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                       versiones: []
@@ -13553,6 +13730,103 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+  /usuario/administracion:
+    get:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.listadoDeAdministracion"
+      summary: "Usuarios vigentes y archivados con su forma de ingreso y sus grupos, para la administración"
+      description: |-
+        **Caso de uso:** CU-USR-26
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-26"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UsuarioAdministracionResponseDTO"
+              examples:
+                lista-los-usuarios-con-su-ingreso-sus-grupos-y-los-archivados:
+                  summary: "Lista los usuarios con su ingreso sus grupos y los archivados (ADMIN)"
+                  value:
+                  - archivado: true
+                    cuentaDeShiro: true
+                    email: "admin.listado.archivado@example.com"
+                    fechaDeCreacion: null
+                    grupos: []
+                    nombre: null
+                    nombreDeUsuario: "admin.listado.archivado"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - archivado: false
+                    cuentaDeShiro: true
+                    email: "admin.listado.cuenta@example.com"
+                    fechaDeCreacion: null
+                    grupos:
+                    - desde: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "CLIENTE"
+                      status: 0
+                      uuid: "90000000-0000-4000-8000-000000000009"
+                    nombre: null
+                    nombreDeUsuario: "admin.listado.cuenta"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - archivado: false
+                    cuentaDeShiro: true
+                    email: "cliente@example.local"
+                    fechaDeCreacion: null
+                    grupos:
+                    - desde: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "CLIENTE"
+                      status: 0
+                      uuid: "90000000-0000-4000-8000-000000000009"
+                    nombre: "Cliente Pruebas"
+                    nombreDeUsuario: "cliente"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000015"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /usuario/borrar-token/{uuid}:
     delete:
       tags:
@@ -13973,6 +14247,14 @@ paths:
                   email: "usuario.contrasena.contrato@example.com"
                   nombreDeUsuario: "usuario.contrasena.contrato"
                   uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              guarda-el-nombre-y-apellido:
+                summary: "Guarda el nombre y apellido (SYSADMIN)"
+                value:
+                  contrasena: "123456"
+                  email: "usuario.nombre.contrato@example.com"
+                  nombre: "Rocío Villalba"
+                  nombreDeUsuario: "usuario.nombre.contrato"
+                  telefono: "3815550000"
               alta-de-un-usuario:
                 summary: "Alta de un usuario (SYSADMIN)"
                 value:
@@ -13994,6 +14276,7 @@ paths:
                     contrasena: null
                     email: "comun-editado@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "comun"
                     status: 0
                     telefono: null
@@ -14004,6 +14287,7 @@ paths:
                     contrasena: null
                     email: "usuario.contrato.heredado@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.contrato.heredado"
                     status: 0
                     telefono: "3815550000"
@@ -14014,6 +14298,7 @@ paths:
                     contrasena: null
                     email: "usuario.misma.forma@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.misma.forma"
                     status: 0
                     telefono: "3815550000"
@@ -14024,6 +14309,7 @@ paths:
                     contrasena: null
                     email: "usuario.edicion.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.edicion.contrato"
                     status: 0
                     telefono: "3815559999"
@@ -14034,9 +14320,21 @@ paths:
                     contrasena: null
                     email: "usuario.contrasena.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.contrasena.contrato"
                     status: 0
                     telefono: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                guarda-el-nombre-y-apellido:
+                  summary: "Guarda el nombre y apellido (SYSADMIN)"
+                  value:
+                    contrasena: null
+                    email: "usuario.nombre.contrato@example.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Rocío Villalba"
+                    nombreDeUsuario: "usuario.nombre.contrato"
+                    status: 0
+                    telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 alta-de-un-usuario:
                   summary: "Alta de un usuario (SYSADMIN)"
@@ -14044,6 +14342,7 @@ paths:
                     contrasena: null
                     email: "usuario.prueba.contrato@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.prueba.contrato"
                     status: 0
                     telefono: "3815550000"
@@ -14143,27 +14442,27 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.ijOq3rGWXrvVsJbdhZ_vD9-0s0LAMAnr6h_tHjT3OtR7p4rtkmceQG1zfXdIpBV7n2nTg5mlm0Z4KPsw3zNneH8n-Ds8KWwzqsraZFX_x-3uw3zhp8Fe_p8OuWiWkH4U6fKdGaP9VciYxUi2LjpadxAug-GMSWHmzDzwWv1nTIcHQBdnk7yzQVl3J6FN8pQcBWaxmFZciG8WQkv4Hs0Z3h-ttfbOQia3A24wV83MyFsAQyc9tenjyweG3z2N0tDI2nmnm0ESoH7hbFEyEhVTnV1vf4b4AYBWCJUZ7_Xa7LHBqS3na5RBL2ALb7MI8X4Z_YLarwswCb3yObMninfy3g"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjR9.WdSouvuD-R4wTqkZTEwk9dieQEHztjOYoIbtxiCcNWYbu0rseAQvvgRWiCtqhCpORn7mG1dgjGJfXWHlaJOy1xVxG3pUF-BsUWcSUwbeer-n1cE9IJsDaVKAmRvnPZEew1eQucWzGa5EFzXNx8y3PTHaaJX13RkCXodZ5XfDg1ELLfy3T-HBhDoXYTibdWC3YERTHQ3GL1zIt70I4luVIvo_023DtXwAitXT_i0i2YN7wYoSVAW7nVdtYzuczXVEJFgMCHul1v27QHHnPeANaMmGndhYK_aHI06zGGTo2XBkdsD_nXA8G4EnIHr8vo-EuVrafTgEfprPfdCtv-LQhA"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE0MzkzfQ.DLagZxcF99kilu2Sj2CFC2JLyN8jGxvhFXzpgGpvfWLQxYrZfy3bcEM1c2wbMDx5Z_Loo6bmuJNIhhEsdkLyRrZoA6ZQXXVGpIyCEL04K2L3dH8LtYMTh5lFgWFGJQpF8_5q6xAScuorRe9LnlLEZQFbTyGaqHF6tQeOi-JdrVoXVxJjoCaAXHBM7mXSQdroRD1j6uiVf2vXcU88EEXpSUUlTZ1k4au8S4lagQRhMruyCady-1ndecMkmbVPy2ACfOAILwYACLjqqY2vkEEsxJzDDRRMzG94pUC-uaJsSc66gG9NJHJVYkvJUVncFyAbFEwgm_rQO0yeCSxSvt3RaA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE5NzI0fQ.f9QskkoQX7F8TNFCCeyYziXELUT2jc_eFC2e__zy32ujDztSnw-ZitqB8_eITZS8UeqU2GvvyV4o-ePa5TLCnQgjctZzMxbCxif8TWr4U8UqjpsHNeaXlnn87ZqdsP-rcHmdbP7xbvjIf0qJLIcORT_L04KrC84eK56DNor5jg47zzhBYZpb7VWONLjz9OURMgbYpyNboWIFB9sUx_30VCQKTNmVM5q5YftfJ-Yc3giQDlHnCcCQwmB8kLk4-Zj2DsjqiKWwXhg75XDScvk100ykFAmbHKqLenRoB8-Y7t2MoZI5owDq-zumx4WrZdj5CUnzb3-ag0fHFhZuLSeEjQ"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE0MzkzfQ.aYkOro-qvMQDpVVMGDXb1_eaRK1hKfZJ6v74SWaIXJd4gsUzYfk-Fyc1vIabYneUqOf-Cj9QIw6_Ntm65kEvQAVEfJaoN87GwVfR7htCh7bSbrGqucSV8NqVif-gAugvl-O9dmsUK_XFTJvYVqRGzGUI43V6RA8MrTiXKgR6BXwGxeZa6QkITFIoI2ytAe20pbd_xQGdJmB1LSIMqdRmfWfS9ciDiD9I8RnfieUkvSvqIFpk9mcTrYO25JMwn_xDw8PyZlWIkWeSUTPT2k2vxXajTUQnxDyiaNslS4AvWitSbkxOdbX2wVnCt6Hpc5xaHW1SKzaMGfPthwp5zW8e3w"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE5NzI0fQ.WOsjqSTy8kmFXAnrSuz3kT3YKW5136SwSAeMTrNQlcWl00PD7MEPVmWTYrpiGOv57kdJJP1fJfxiGk--sTd2uFkITV5uHu1NFA16Y9_OgGJGHoW3QCeU-FaIpBKlAo_cYg8gvFcs0iwKB9e1cGZ3RR4VoCOMIN14PwedbkFV-Im4PHYWd5BvFFM_Y_nS5wHkOPO5pPPvud9QskM5ImtsZkjEp57n3JQ40uaSHPM9N6_2OHMAY9n_1F2fdLvLur-OP5nPgJaVL2HdzzgcCLpisLhyAqALlbRUgjXa_-ujof83EP6lxAx1ivLlK7ZCPS4h8hnqDx_7v4G5j0eEnhLCQQ"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.LEIjoxGz2GujVIU38G97TsGsHFXH3BJXEgHXSoF0MCY95rARZ-dKOOJLalG7GWtmIp5TGwpTd5EeiP0KVUPLdWoum9wJthCFYlAcfNfaS3-Y2A_DzHS59FH2yttX4HCcO9nemR-rSDCVtr8i0vzE0rKVC661jTx_-9RQAMIY7Z1YvfI1cpq20S_4rLYhae7W85Ao08UPhMRXYFEvqmd1F4oC70LqytwJDSGnGdZHUjjYEjnvAeoWKrqgVrG98ab8BZIrOIX3Rz1tHubJypHZWAfVGnmMOfl_a1RdeY2yaJqSTiSFWAttP-7HekhnVeXBOth4WmICdPn_Tn_UpvJHoQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjR9.ckFt-KO5XmZmEcvBN_qoZYPE04fsNeIb2N52cVasJgfrXtv2tNyQGUmEFyKf4uMn8niMwLrq18QmH_Iw6mJ-LhuJb4sXL_CaVkCcFavM3nZI77i4wG8qHNBzI3snzWjSUyJ4_dPqGtNwQc6zLAutXnfFS8pi3Y_LwtS5mGnHs5FRrva86HpkCdShRfOPzAOW2d_hg_SjUBbee0o1x31b5fwv8AFMyTdqgj5Tzl-TBbTHmLaUcYxUuIPVTdsJk06X2jAY28T1tMNSaQkv5_3aJDTjn_nBaQCzBOJh_t1_024dXqiD2kYSGN3LzxPAXOFu8q1vwAHnobxeoUBRGjsCPQ"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxMTQzOTN9.UrrzLTsGil30Jcx6aiIZu1wKyuyNsPw9dd-3W4Kab6IaY5ozmbKplVv9mi_Q6ClFiyS5hFkz6KaryVdrn409O99xFQ030Fi6i7t8IGqYBVTSx1X-bWviDVZP6eSHFupPV3w_ieBjBVNiYCltkLRDoAxKd8DDOeTrdlX6YGG0L8aYOStjQqC4YIW1IZQaxa9IOxoXvA6kyIzJU5OPQxazSGM71C84_Tpe9ZQ5zoAlh3ksfh9NqpSBQ6xBOTX55mqDQ1_PMmpKCcg7hzZL_FnU5VIzNYqFvU61nhq-UM1gq9PyJtwyvgMUGUMuAlhEID3UU8sFNv1Xm3pcCzM3ZBzA8A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxMTk3MjV9.SKxtsk7jD88WAX2GXNNkvusZquNleLbfzbEWoGj1F6KqYSFRNiuj9-nj7XH7RE3f_KkOBrBQAC_9TqCr1Q5PkxyjuxjHc-Wokj3cYabVYOAHn9vixscAKyqsnAaH8sfwWKSeOyY71Ywssy8MYbZyN2v42njxMditPwp0FtUP6gk6-FHQHUlroZdn9LtPf_3iArIg_Bi5jDqm_uWOhc9zFm42HTq05MNiS5Lk1MhoQ0Hc_zjJsGWBhhizFBIeKc5qTJcF-k6wRO_pA9HdNH72fj5yoPje7Dq1TdfF-Kxphr4VpJerO3QA0U6mpLsgXZ8kUhBQSTAE5P1GxgzzyNDMQg"
               google-no-responde:
                 summary: "Google no responde"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.gBT4MCjALx7u1mb8-RoaGXFDokaBx5fi1z42qPNieohSoHLSOMKPMj4dPORMP7jE6szUkYD8HXc5bsPKybvb88bBX4yGrsJJ-3D32CMVYBFMReAmjYdA3ZJJ0Z_3Vikk8tg8zWaJ2aENeGvFxYNC42-qbX_P3nCDePpAtHcEQlBsI12F0BSZJSqvibZ5uyWuUU0QJgmcyng0QSgARKCDKF8PoxgEhQnls534IDtE57Z9-w4ezVObNPbRgq3CrSXpj8QhdJ5AQp-xFBG-gNoASBTYmF6zJshqsXHxaLb6FR6TfeWjaUeFFA2JyKYxF8PsVlpBreWoEXGFVZtfsQLuGA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjV9.oaeSY08sYsWRG34vEkGyKKq61Ah6Pq5s3cH6MqFTAzl12kaOdIagU8097OTZEgBhxibagae4PM3-LY8ZbIDsxAh8vNT06AXU5bArIzyRfgNuyBQbwiXuDsTc2JGB3NC-TmzqqyVf5X9QGmRoXMTzmIbZ-mf11CEY8GEIdOaaKOhayh5c6MJiGOd9pKQuBzg9U0pGQMQNMaD2dXcxoAQhp-PfOsbpLFWAnBUvEBBFR5kGvaAGOVcnmWcWQ6VtpKlCM0AUtZTNjeO6N7TFMMdu8s_PCn3fwLahSkCzDd6BYG0mFWLzMWNxhOVuplvIEbTR-SdcTLX07yL9vpZDmdMvng"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -14507,6 +14806,7 @@ paths:
                     - contrasena: null
                       email: "sysadmin@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "SysAdmin"
                       nombreDeUsuario: "sysadmin"
                       status: 0
                       telefono: null
@@ -14514,6 +14814,7 @@ paths:
                     - contrasena: null
                       email: "demo@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Usuario Demo"
                       nombreDeUsuario: "demo"
                       status: 0
                       telefono: "1122334455"
@@ -14521,6 +14822,7 @@ paths:
                     - contrasena: null
                       email: "sysadmin-pruebas@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Sysadmin Pruebas"
                       nombreDeUsuario: "sysadmin-pruebas"
                       status: 0
                       telefono: "1122334501"
@@ -14540,6 +14842,7 @@ paths:
                     - contrasena: null
                       email: "cliente@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Cliente Pruebas"
                       nombreDeUsuario: "cliente"
                       status: 0
                       telefono: "1122334502"
@@ -14547,6 +14850,7 @@ paths:
                     - contrasena: null
                       email: "sysadmin-pruebas@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Sysadmin Pruebas"
                       nombreDeUsuario: "sysadmin-pruebas"
                       status: 0
                       telefono: "1122334501"
@@ -14554,6 +14858,7 @@ paths:
                     - contrasena: null
                       email: "demo@example.local"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Usuario Demo"
                       nombreDeUsuario: "demo"
                       status: 0
                       telefono: "1122334455"
@@ -14743,6 +15048,7 @@ paths:
                     contrasena: null
                     email: "nueva@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Persona de Prueba"
                     nombreDeUsuario: "nueva@example.com"
                     status: 0
                     telefono: null
@@ -14753,6 +15059,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -14763,6 +15070,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -14773,6 +15081,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -14783,6 +15092,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -15012,6 +15322,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -15022,7 +15333,19 @@ paths:
                     contrasena: null
                     email: "usuario.misma.forma@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "usuario.misma.forma"
+                    status: 0
+                    telefono: "3815550000"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                guarda-el-nombre-y-apellido:
+                  summary: "Guarda el nombre y apellido (SYSADMIN)"
+                  value:
+                    contrasena: null
+                    email: "usuario.nombre.contrato@example.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Rocío Villalba"
+                    nombreDeUsuario: "usuario.nombre.contrato"
                     status: 0
                     telefono: "3815550000"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -15032,6 +15355,7 @@ paths:
                     contrasena: null
                     email: "demo@example.local"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Usuario Demo"
                     nombreDeUsuario: "demo"
                     status: 0
                     telefono: "1122334455"
@@ -15128,6 +15452,7 @@ paths:
                     contrasena: null
                     email: "a-archivar@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "a-archivar"
                     status: -1
                     telefono: "3815550000"
@@ -15476,6 +15801,7 @@ paths:
                     contrasena: null
                     email: "a-restaurar@example.com"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: null
                     nombreDeUsuario: "a-restaurar"
                     status: 0
                     telefono: "3815550000"
@@ -18078,6 +18404,11 @@ components:
     ProyectoDTO:
       type: "object"
       properties:
+        cantidadDeTareas:
+          type:
+          - "integer"
+          - "null"
+          description: "Cantidad de tareas vigentes del proyecto. Solo lectura"
         descripcion:
           type:
           - "string"
@@ -19098,6 +19429,85 @@ components:
           - "null"
           description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
+    UsuarioAdministracionGrupoDTO:
+      type: "object"
+      properties:
+        desde:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Desde cuándo el usuario está en el grupo"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del grupo. SYSADMIN es el super admin y ADMIN el grupo Administradores"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
+    UsuarioAdministracionResponseDTO:
+      type: "object"
+      properties:
+        archivado:
+          type: "boolean"
+          description: "true si está archivado: no puede ingresar"
+        cuentaDeShiro:
+          type: "boolean"
+          description: "true si ingresa con cuenta de Shiro (tiene contraseña); false si ingresa con Google o es un usuario importado sin acceso"
+        email:
+          type:
+          - "string"
+          - "null"
+          description: "Correo"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        grupos:
+          description: "Grupos del usuario, por nombre"
+          type:
+          - "array"
+          - "null"
+          items:
+            $ref: "#/components/schemas/UsuarioAdministracionGrupoDTO"
+            description: "Grupos del usuario, por nombre"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre y apellido"
+        nombreDeUsuario:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre de usuario (en los de Google, su correo)"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     UsuarioAsignarGruposRequestDTO:
       type: "object"
       properties:
@@ -19145,6 +19555,12 @@ components:
           format: "date-time"
           description: "Fecha y hora de creación del registro (solo lectura)"
           pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre y apellido de la persona. Los de Google lo toman de su cuenta al ingresar"
+          maxLength: 255
         nombreDeUsuario:
           type: "string"
           description: "Nombre de usuario con el que inicia sesión con usuario y contraseña: según el proyecto, un nombre elegido o un identificador propio de la organización (por ejemplo, un legajo). Único entre todos los usuarios"
