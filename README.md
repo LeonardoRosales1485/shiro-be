@@ -56,4 +56,31 @@ Las reglas de `CLAUDE.md` aplican por igual a todas las personas y agentes que t
 
 Cada proyecto completa esta sección con lo que sea propio: variables de entorno, integraciones externas y comandos de operación del servidor. Si crece, se mueve a `docs/` y se deja el link acá.
 
+### Variables de entorno de Shiro
+
+| Variable | Para qué | Si falta |
+|---|---|---|
+| `SHIRO_CIFRADO_FRASE` | Frase de la que sale la clave AES-256-GCM con que se cifra el token de Jira del importador | El backend arranca y el importador responde 503 `CIFRADO_NO_CONFIGURADO`. En local hay una frase de desarrollo por defecto |
+| `GOOGLE_CLIENT_ID` | Client id OAuth de Google para el ingreso con Google | El ingreso con Google queda deshabilitado; se entra con cuentas de Shiro |
+| `GOOGLE_DOMINIO` | Dominio de Google Workspace aceptado (por ejemplo `blueopendata.com`) | Igual que el client id |
+
+**Cómo configurar `SHIRO_CIFRADO_FRASE`:**
+
+1. Generar una frase larga y aleatoria, una por ambiente (no se reutiliza entre ambientes):
+
+   ```bash
+   openssl rand -base64 48
+   ```
+
+2. Cargarla como variable de entorno del contenedor del backend en el ambiente (st7, st8). En local, en `deploy.yml` (`SHIRO_CIFRADO_FRASE`) o como variable del sistema; si queda vacía, `application.local.properties` usa una frase de desarrollo.
+3. No commitearla ni pegarla en tickets, chats o logs.
+4. Si se cambia, los tokens de Jira guardados dejan de descifrarse (`CREDENCIAL_NO_DESCIFRABLE`): hay que volver a conectar cada importación.
+
+### Pendiente de desarrollo
+
+- **Client id de Google:** falta crear el cliente OAuth y cargar `GOOGLE_CLIENT_ID` y `GOOGLE_DOMINIO` en los ambientes (y `VITE_GOOGLE_CLIENT_ID` en el front). Hasta entonces el ingreso con Google está deshabilitado.
+- **Puertos locales definitivos:** hoy son provisorios: backend 7090, Postgres 5090 y front 7091. Los asigna el líder técnico.
+
+### Otros
+
 - Si el proyecto usa `core-protocolo-sso` con Malvinas: [certificado](https://github.com/SM-SOLUCIONES/sm-core-maven/blob/main/core-protocolo-sso/docs/certificados-malvinas.md).

@@ -48,3 +48,20 @@ revise y se agreguen a los documentos. Cada una dice qué documento afecta.
 | 39 | 19/11/2026 | T4.3 | Spec 6 | Las descripciones y comentarios de Jira (formato ADF) se pasan a texto: párrafos, listas con guion y saltos de línea. El resto del formato (negritas, tablas, menciones, adjuntos) se pierde | La spec no menciona el formato. Los adjuntos de Jira no se importan |
 | 40 | 19/11/2026 | T4.1 a T4.3 | Spec 3 | Endpoints: `POST /importacion/conectar` (responde el catálogo), `GET /importacion/{uuid}/catalogo`, `POST /importacion/{uuid}/mapeo`, `POST /importacion/{uuid}/ejecutar`, uuid y paginar. No hay borrar | La spec lista `/mapeo` y `/ejecutar` sin uuid; con uuid en la ruta sigue la regla de casos de uso del template. El catálogo se puede volver a leer si se recarga la pantalla |
 | 41 | 19/11/2026 | T4.1 | Seguridad | La URL de Jira la escribe un administrador y el backend la llama (sin seguir redirecciones): puede apuntar a la red interna. Queda para la revisión humana de seguridad si hace falta limitarla a `*.atlassian.net` | Riesgo de SSRF acotado a administradores |
+
+## Resoluciones del arquitecto (19/11/2026)
+
+Aprobadas tal como están: 2 a 21, 23 a 31 y 37 a 40, y las decisiones de la implementación que no eran adendas (front sin librería de rutas, sesión por cookies, importador sin pasar por `TareaService`, traducción de prioridades, semilla de importación de ejemplo, ejecución en el mismo hilo en las pruebas, bitácora resumida en Claude Docs). Cambios pedidos, ya implementados:
+
+| Propuesta | Resolución |
+| --- | --- |
+| 1 (clon de una Subtarea conserva el padre) | Al clonar una Subtarea se pregunta: el clon queda como tarea propia eligiendo su tipo (Historia, Tarea o Bug, sin padre) o como subtarea de otra tarea existente. Rechazada la versión que conservaba el padre |
+| 22 (backlog sin épicas ni subtareas) | El backlog tiene todos los tipos de tarea |
+| 32 y 34 (prefijo = clave de Jira; clave en uso) | El administrador elige el prefijo al conectar; las tareas importadas llevan la clave `J-PREFIJO-número de Jira` y toman un número del contador del proyecto (el número es único por proyecto), así las nuevas siguen `PREFIJO-n` sin choques |
+| 33 (tipo o estado sin mapear queda en las fallas) | El mapeo puede crear los estados y tipos que faltan en el catálogo global (se reusa uno con el mismo nombre). Si igual queda alguno sin mapear, sigue yendo a las fallas |
+| 35 (persona de Jira sin cuenta: responsable vacío, comentario a nombre de quien importa) | Se crea un usuario de Shiro sin acceso llamado «Usuario importado» y su nombre de Jira, responsable de sus tareas y autor de sus comentarios |
+| 36 (sprints sin fechas duran dos semanas) | El mapeo pide la duración en días de los sprints sin fechas |
+| 41 (URL de Jira abierta) | Solo sitios https de `*.atlassian.net` |
+
+Otras resoluciones: el front pregunta si el usuario es administrador con `GET /usuario/sesion/grupos` (A12, adenda en el diseño técnico); el ingreso dice «Usuario» (el backend recibe el nombre de usuario); el tema por defecto es oscuro; el front se versiona desde 0.0.1, +0.0.1 en cada push.
+
