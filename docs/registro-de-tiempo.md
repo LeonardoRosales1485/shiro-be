@@ -59,5 +59,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 51 | 2026-11-19 | 12:48 | 12:57 | 9 min | Build | Resoluciones de las propuestas 42 a 45 de T6.2: usuarios del proyecto eligen responsable, Markdown con vista previa, clonar solo en el proyecto e historias desde la épica | Backend: GET /proyecto/{uuid}/usuarios con prueba en rojo antes, verify 511 pruebas, versión 1.0.39. Front: pruebas en rojo antes, 50 en verde, versión 0.0.3 |
 | 52 | 2026-11-19 | 13:02 | 13:13 | 11 min | Build | T6.3 en el front: backlog y sprints, y versiones con changelog | Backend: GET /version/{uuid}/tareas con prueba en rojo antes, verify 514 pruebas, versión 1.0.41. Front: pruebas en rojo (dceb753), 67 en verde, versión 0.0.4 |
 | 53 | 2026-11-19 | 13:16 | 13:52 | 36 min | Build | Resoluciones 46 y 47 (cierre de sprint guardado, cantidad de tareas y quién publicó) y T6.4 en el front: búsqueda, archivados y tokens MCP | Backend: pruebas en rojo antes, verify 525 pruebas, versión 1.0.44. Front: pruebas en rojo antes, 80 en verde, versión 0.0.6 |
+| 54 | 2026-11-19 | 13:56 | 14:57 | 61 min | Build | Resoluciones 49 a 51: vista previa e incluidos de archivados, último uso y revocados de tokens, filtros de varios valores y sin sprint; documentos en Claude Docs | Backend: pruebas en rojo antes, verify 534 pruebas, versión 1.0.46. Front: pruebas en rojo antes, 82 en verde, versión 0.0.7 |
 
-**Total acumulado medido:** 773 min
+**Total acumulado medido:** 834 min
