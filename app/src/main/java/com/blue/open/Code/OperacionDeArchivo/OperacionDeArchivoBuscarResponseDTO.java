@@ -34,6 +34,9 @@ public class OperacionDeArchivoBuscarResponseDTO extends EntidadBaseDTO {
     @Descripcion("Nombre del usuario que lo archivó. Vacío si no se sabe")
     private String archivadoPorNombre;
 
+    @Descripcion("Cuántas tareas se archivaron junto con el elemento (subtareas o historias de una tarea, tareas de un proyecto). Vacío en los demás tipos")
+    private Integer incluidos;
+
     // Arma el DTO a partir del elemento archivado
     public OperacionDeArchivoBuscarResponseDTO(ElementoArchivado elemento) {
         setUuid(elemento.uuid());
