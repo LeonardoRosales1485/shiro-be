@@ -40,5 +40,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 32 | 2026-11-18 | 20:24 | 20:24 | 0 min | Soporte | Consulta: nivel de esfuerzo del modelo para F1 | Recomendación dada; T1.2 interrumpido antes de empezar |
 | 33 | 2026-11-18 | 20:26 | 20:26 | 0 min | Soporte | Agregar a la skill la recomendación de nivel de esfuerzo | Regla agregada a la copia local de la skill y SKILL.md listo para cargar en claude.ai |
 | 34 | 2026-11-18 | 20:28 | 20:39 | 11 min | Build | Procede con T1.2 | T1.2 cerrada: proyectos con cuatro tableros y prefijo único (4341c68, versión 1.0.7) |
+| 35 | 2026-11-18 | 21:01 | 21:19 | 18 min | Build | T1.3 (esfuerzo Alto): pruebas en rojo, tareas en modo rápido y edición, clave con bloqueo de fila, 50 altas concurrentes; arreglo del pool (ConfiguracionDesdeBase) | Cerrada, verify verde, push |
 
-**Total acumulado medido:** 108 min
+**Total acumulado medido:** 126 min
