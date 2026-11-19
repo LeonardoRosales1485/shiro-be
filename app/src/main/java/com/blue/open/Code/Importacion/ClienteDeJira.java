@@ -134,7 +134,7 @@ public class ClienteDeJira {
         return versiones;
     }
 
-    // Comentarios de un incidencia, todas las paginas
+    // Comentarios de una incidencia, todas las paginas
     public List<DatosDeJira.Comentario> comentarios(CredencialesDeJira credenciales, String claveDeIncidencia) {
         List<DatosDeJira.Comentario> comentarios = new ArrayList<>();
         int desde = 0;

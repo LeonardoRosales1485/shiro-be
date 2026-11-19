@@ -76,12 +76,12 @@ class ProyectoBacklogContratoTest extends PruebaDeContrato {
                 .esperarError(400, "REGISTRO_NO_ENCONTRADO");
     }
 
-    // GET /backlog/proyecto/{uuid} de Shiro como el actor del rol
+    // GET /proyecto/{uuid}/backlog de Shiro como el actor del rol
     private JsonNode backlog(String rol) {
         return como(rol).get("/proyecto/{uuid}/backlog", PROYECTO_SHIRO).ejecutar().esperar(200).json();
     }
 
-    // POST /backlog/ordenar de Shiro como Administrador
+    // POST /proyecto/{uuid}/ordenar-backlog de Shiro como Administrador
     private Respuesta ordenar(List<String> tareas) {
         return como(ADMIN).post("/proyecto/{uuid}/ordenar-backlog", PROYECTO_SHIRO).json(Map.of("tareas", tareas)).ejecutar();
     }

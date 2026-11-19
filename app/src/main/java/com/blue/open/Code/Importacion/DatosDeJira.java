@@ -84,7 +84,7 @@ public final class DatosDeJira {
     }
 
     /**
-     * Comentario de un incidencia.
+     * Comentario de una incidencia.
      *
      * @param id     id de Jira
      * @param autor  autor

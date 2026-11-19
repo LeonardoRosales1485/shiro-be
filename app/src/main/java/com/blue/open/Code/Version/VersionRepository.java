@@ -17,6 +17,6 @@ public interface VersionRepository extends EntidadRepositoryBorradoLogico<Versio
     // Version por uuid con el status recibido
     Optional<Version> findFirstByUuidAndStatus(String uuid, Integer status);
 
-    // Versions del proyecto con el status recibido (el importador los resuelve en memoria)
+    // Versiones del proyecto con el status recibido (el importador las resuelve en memoria)
     List<Version> findByProyectoAndStatus(Proyecto proyecto, Integer status);
 }
