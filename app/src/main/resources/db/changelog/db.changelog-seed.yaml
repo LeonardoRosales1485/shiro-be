@@ -14,3 +14,33 @@ databaseChangeLog:
   - include:
       file: seeds/2026-10-09-insert-tokens-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-18-insert-proyectos-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-18-insert-tareas-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-18-insert-comentarios-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-tokens-con-hash-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-reglas-de-permiso-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-sprints-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-versiones-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-importaciones-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-importaciones-prefijo-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-ejemplos-auditoria-seed.yaml
+      relativeToChangelogFile: true

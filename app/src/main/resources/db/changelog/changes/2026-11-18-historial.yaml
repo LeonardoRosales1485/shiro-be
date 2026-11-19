@@ -1,0 +1,43 @@
+# Historial de cambios (T1.6). Solo se inserta: shr_aplicar_permisos_app le da al usuario de la aplicacion SELECT e
+# INSERT, sin UPDATE ni DELETE. Sin status: hereda de EntidadBase.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-historial-1
+      author: shiro
+      comment: "Crea shr_historial"
+      changes:
+        - createTable:
+            tableName: shr_historial
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: entidad, type: VARCHAR(30), constraints: {nullable: false}}
+              - column: {name: uuid_entidad, type: CHAR(36), constraints: {nullable: false}}
+              - column: {name: accion, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: campo, type: VARCHAR(60)}
+              - column: {name: valor_anterior, type: TEXT}
+              - column: {name: valor_nuevo, type: TEXT}
+              - column: {name: canal, type: VARCHAR(15), constraints: {nullable: false}}
+              - column: {name: id_operacion, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+        - addForeignKeyConstraint:
+            baseTableName: shr_historial
+            baseColumnNames: id_usuario_de_creacion
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_historial_usuario
+        - sql:
+            comment: "Canal y accion acotados"
+            sql: "ALTER TABLE shr_historial ADD CONSTRAINT ck_shr_historial_canal CHECK (canal IN ('WEB', 'MCP', 'IMPORTACION'))"
+        - createIndex:
+            tableName: shr_historial
+            indexName: ix_shr_historial_entidad
+            columns:
+              - column: {name: entidad}
+              - column: {name: uuid_entidad}
+      rollback:
+        - dropTable:
+            tableName: shr_historial

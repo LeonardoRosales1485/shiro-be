@@ -11,6 +11,7 @@ Razón de la separación: `docs/rules/` se lee entero antes de cada tarea. Un cr
 | Criterio | Disparador |
 |---|---|
 | [versionado-de-api.md](versionado-de-api.md) | Escribir el primer controller de un proyecto nuevo; crear o modificar un endpoint cuyo consumidor no es el front propio; entregarle a un consumidor externo la URL de un endpoint que ya existe |
+| [herramientas-mcp.md](herramientas-mcp.md) | Crear o modificar una herramienta MCP (`@McpTool`) |
 
 ## Plantilla
 

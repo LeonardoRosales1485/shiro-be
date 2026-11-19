@@ -1,8 +1,12 @@
 package com.blue.open.Code.Usuario;
 
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +24,21 @@ public interface UsuarioRepository extends EntidadRepositoryBorradoLogico<Usuari
     Optional<Usuario> findFirstByEmailAndStatus(String email, Integer status);
 
     Optional<Usuario> findFirstByEmailAndStatusNot(String email, Integer status);
+
+    // Usuarios vigentes con alguno de los correos recibidos, en una consulta (vincular usuarios de Jira, F4)
+    List<Usuario> findByEmailInAndStatus(Collection<String> emails, Integer status);
+
+    // Usuario por uuid con el status recibido (0: vigente, -1: archivado)
+    Optional<Usuario> findFirstByUuidAndStatus(String uuid, Integer status);
+
+    // Usuario por uuid en cualquier status
+    Optional<Usuario> findFirstByUuid(String uuid);
+
+    // Grupos vigentes del usuario (auth_usuarios_roles de core-monoempresa), por nombre
+    @Query("SELECT new com.blue.open.Code.Usuario.GrupoDeUsuarioDTO(r.uuid, r.nombre) FROM UsuarioRol ur JOIN ur.rol r "
+            + "WHERE ur.idUsuario = :usuario AND ur.status = 0 AND r.status = 0 ORDER BY r.nombre")
+    List<GrupoDeUsuarioDTO> gruposDe(@Param("usuario") Long usuario);
+
+    // Usuarios por uuid, en una consulta (usuarios importados de Jira, F4)
+    List<Usuario> findByUuidIn(Collection<String> uuids);
 }

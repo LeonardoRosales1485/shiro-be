@@ -1,0 +1,13 @@
+# Tokens con hash (T2.1): hashea los tokens de los seeds, que se insertan en texto plano despues de la migracion de
+# changes/2026-11-19-tokens-con-hash.yaml. Las pruebas y la demo siguen usando el token en claro (demo-access-token).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-tokens-con-hash-seed-1
+      author: shiro
+      comment: "Reemplaza los tokens de los seeds por su SHA-256"
+      context: "@seed"
+      changes:
+        - sql:
+            sql: "UPDATE auth_access_tokens SET codigo = encode(sha256(convert_to(codigo, 'UTF8')), 'hex') WHERE codigo !~ '^[0-9a-f]{64}$'"
+      rollback:
+        - empty

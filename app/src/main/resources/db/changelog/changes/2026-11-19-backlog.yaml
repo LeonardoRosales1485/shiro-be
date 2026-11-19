@@ -1,0 +1,19 @@
+# Backlog con orden unico (T5.1): posicion de cada tarea en el backlog de su proyecto.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-backlog-1
+      author: shiro
+      comment: "Agrega orden_backlog a shr_tarea"
+      changes:
+        - addColumn:
+            tableName: shr_tarea
+            columns:
+              - column: {name: orden_backlog, type: BIGINT}
+        - createIndex:
+            tableName: shr_tarea
+            indexName: ix_shr_tarea_proyecto_orden_backlog
+            columns:
+              - column: {name: id_proyecto}
+              - column: {name: orden_backlog}
+      rollback:
+        - dropColumn: {tableName: shr_tarea, columnName: orden_backlog}

@@ -1,0 +1,22 @@
+# Seeds de comentarios (T1.9): un comentario del usuario demo en SHI-1.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-insert-comentarios-seed-1
+      author: shiro
+      comment: "Comenta SHI-1"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_comentario WHERE uuid = 'b4000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_comentario
+            columns:
+              - column: {name: uuid, value: b4000000-0000-4000-8000-000000000001}
+              - column: {name: id_tarea, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000001')"}
+              - column: {name: id_autor, valueComputed: "(SELECT id FROM auth_usuarios WHERE uuid = '90000000-0000-4000-8000-000000000002')"}
+              - column: {name: cuerpo, value: "Arranco con las columnas del tablero principal."}
+              - column: {name: canal, value: WEB}
+              - column: {name: fecha, valueComputed: CURRENT_TIMESTAMP}
+      rollback:
+        - delete: {tableName: shr_comentario, where: "uuid = 'b4000000-0000-4000-8000-000000000001'"}

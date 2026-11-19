@@ -1,0 +1,19 @@
+# Seeds del importador (resolucion A3 del 19/11): la importacion de ejemplo con su prefijo de Shiro.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-importaciones-prefijo-seed-1
+      author: shiro
+      comment: "Prefijo de la importacion de ejemplo"
+      context: "@seed"
+      changes:
+        - update:
+            tableName: shr_importacion
+            columns:
+              - column: {name: prefijo, value: "EJ"}
+            where: "uuid = 'b8000000-0000-4000-8000-000000000001' AND prefijo IS NULL"
+      rollback:
+        - update:
+            tableName: shr_importacion
+            columns:
+              - column: {name: prefijo, valueComputed: "NULL"}
+            where: "uuid = 'b8000000-0000-4000-8000-000000000001'"

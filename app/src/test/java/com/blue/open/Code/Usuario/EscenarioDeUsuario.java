@@ -3,6 +3,7 @@ package com.blue.open.Code.Usuario;
 import com.blue.open.Core.Test.Peticion;
 import tools.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -48,9 +49,15 @@ public final class EscenarioDeUsuario {
         return crear(nombreDeUsuario).get("uuid").asString();
     }
 
-    // Elimina (borrado logico) el usuario recibido (DELETE /usuario/borrar/{uuid})
+    // Archiva el usuario recibido (POST /usuario/{uuid}/archivar)
     public void eliminar(String uuid) {
-        como.apply(SYSADMIN).delete("/usuario/borrar/{uuid}", uuid)
+        como.apply(SYSADMIN).post("/usuario/{uuid}/archivar", uuid)
+                .preparacion().ejecutar().esperar(200);
+    }
+
+    // Asigna los grupos recibidos al usuario (POST /usuario/{uuid}/grupos) como super admin
+    public void asignarGrupos(String uuid, String... gruposUuid) {
+        como.apply(SYSADMIN).post("/usuario/{uuid}/grupos", uuid).json(Map.of("grupos", List.of(gruposUuid)))
                 .preparacion().ejecutar().esperar(200);
     }
 

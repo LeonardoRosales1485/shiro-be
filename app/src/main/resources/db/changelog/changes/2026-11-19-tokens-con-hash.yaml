@@ -1,0 +1,12 @@
+# Tokens con hash (T2.1 y Spec 2): auth_access_tokens.codigo pasa a guardar el SHA-256 del token en hexadecimal.
+# Hashea los tokens existentes; uno que ya es un hash (64 caracteres hexadecimales) no se toca.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-tokens-con-hash-1
+      author: shiro
+      comment: "Reemplaza los tokens en texto plano por su SHA-256"
+      changes:
+        - sql:
+            sql: "UPDATE auth_access_tokens SET codigo = encode(sha256(convert_to(codigo, 'UTF8')), 'hex') WHERE codigo !~ '^[0-9a-f]{64}$'"
+      rollback:
+        - empty

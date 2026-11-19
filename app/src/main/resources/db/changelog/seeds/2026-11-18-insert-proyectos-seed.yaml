@@ -1,0 +1,113 @@
+# Seeds de proyectos (T1.2): Shiro (SHI) con sus cuatro tableros, para las pruebas y la demo, y un proyecto archivado
+# (ARC) que muestra que el prefijo de un archivado queda reservado.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-1
+      author: shiro
+      comment: "Crea el proyecto Shiro (SHI)"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_proyecto WHERE uuid = 'b1000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_proyecto
+            columns:
+              - column: {name: uuid, value: b1000000-0000-4000-8000-000000000001}
+              - column: {name: nombre, value: Shiro}
+              - column: {name: prefijo, value: SHI}
+              - column: {name: descripcion, value: "Gestor de trabajo de Blue Open Data"}
+      rollback:
+        - delete: {tableName: shr_proyecto, where: "uuid = 'b1000000-0000-4000-8000-000000000001'"}
+
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-2
+      author: shiro
+      comment: "Crea el tablero PRINCIPAL del proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_tablero WHERE uuid = 'b2000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_tablero
+            columns:
+              - column: {name: uuid, value: b2000000-0000-4000-8000-000000000001}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+      rollback:
+        - delete: {tableName: shr_tablero, where: "uuid = 'b2000000-0000-4000-8000-000000000001'"}
+
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-3
+      author: shiro
+      comment: "Crea el tablero QA del proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_tablero WHERE uuid = 'b2000000-0000-4000-8000-000000000002'"}
+      changes:
+        - insert:
+            tableName: shr_tablero
+            columns:
+              - column: {name: uuid, value: b2000000-0000-4000-8000-000000000002}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+      rollback:
+        - delete: {tableName: shr_tablero, where: "uuid = 'b2000000-0000-4000-8000-000000000002'"}
+
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-4
+      author: shiro
+      comment: "Crea el tablero ANALISIS del proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_tablero WHERE uuid = 'b2000000-0000-4000-8000-000000000003'"}
+      changes:
+        - insert:
+            tableName: shr_tablero
+            columns:
+              - column: {name: uuid, value: b2000000-0000-4000-8000-000000000003}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+      rollback:
+        - delete: {tableName: shr_tablero, where: "uuid = 'b2000000-0000-4000-8000-000000000003'"}
+
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-5
+      author: shiro
+      comment: "Crea el tablero DISENO del proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_tablero WHERE uuid = 'b2000000-0000-4000-8000-000000000004'"}
+      changes:
+        - insert:
+            tableName: shr_tablero
+            columns:
+              - column: {name: uuid, value: b2000000-0000-4000-8000-000000000004}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+      rollback:
+        - delete: {tableName: shr_tablero, where: "uuid = 'b2000000-0000-4000-8000-000000000004'"}
+
+  - changeSet:
+      id: 2026-11-18-insert-proyectos-seed-6
+      author: shiro
+      comment: "Crea un proyecto archivado (ARC): su prefijo queda reservado"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_proyecto WHERE uuid = 'b1000000-0000-4000-8000-000000000002'"}
+      changes:
+        - insert:
+            tableName: shr_proyecto
+            columns:
+              - column: {name: uuid, value: b1000000-0000-4000-8000-000000000002}
+              - column: {name: nombre, value: "Proyecto archivado"}
+              - column: {name: prefijo, value: ARC}
+              - column: {name: status, valueNumeric: -1}
+              - column: {name: fecha_de_borrado, valueComputed: CURRENT_TIMESTAMP}
+      rollback:
+        - delete: {tableName: shr_proyecto, where: "uuid = 'b1000000-0000-4000-8000-000000000002'"}

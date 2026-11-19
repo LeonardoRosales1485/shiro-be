@@ -1,0 +1,526 @@
+# Catalogos de Shiro (T1.1): tipos de tablero, estados por tablero y tipos de tarea, con sus datos obligatorios.
+# Son datos de produccion, no seeds: sin ellos no se puede crear un proyecto ni una tarea. Los uuid son fijos para que
+# el catalogo sea el mismo en todos los ambientes. Estados y "terminado": seccion 4 y adenda 3 del DAF.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-catalogos-1
+      author: shiro
+      comment: "Crea shr_tipo_tablero"
+      changes:
+        - createTable:
+            tableName: shr_tipo_tablero
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: CHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: TINYINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: codigo
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nombre
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: orden
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_usuario_de_creacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_actualizacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_borrado
+                  type: BIGINT
+              - column:
+                  name: fecha_de_creacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_actualizacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_borrado
+                  type: TIMESTAMP
+        - addUniqueConstraint:
+            tableName: shr_tipo_tablero
+            columnNames: codigo
+            constraintName: uk_shr_tipo_tablero_codigo
+      rollback:
+        - dropTable:
+            tableName: shr_tipo_tablero
+
+  - changeSet:
+      id: 2026-11-18-catalogos-2
+      author: shiro
+      comment: "Crea shr_estado"
+      changes:
+        - createTable:
+            tableName: shr_estado
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: CHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: TINYINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_tipo_tablero
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nombre
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: orden
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: inicial
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: terminado
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_usuario_de_creacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_actualizacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_borrado
+                  type: BIGINT
+              - column:
+                  name: fecha_de_creacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_actualizacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_borrado
+                  type: TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: shr_estado
+            baseColumnNames: id_tipo_tablero
+            referencedTableName: shr_tipo_tablero
+            referencedColumnNames: id
+            constraintName: fk_shr_estado_tipo_tablero
+        - addUniqueConstraint:
+            tableName: shr_estado
+            columnNames: id_tipo_tablero, orden
+            constraintName: uk_shr_estado_tablero_orden
+      rollback:
+        - dropTable:
+            tableName: shr_estado
+
+  - changeSet:
+      id: 2026-11-18-catalogos-3
+      author: shiro
+      comment: "Crea shr_tipo_tarea"
+      changes:
+        - createTable:
+            tableName: shr_tipo_tarea
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: CHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: TINYINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: codigo
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nombre
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nivel
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: orden
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_usuario_de_creacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_actualizacion
+                  type: BIGINT
+              - column:
+                  name: id_usuario_de_borrado
+                  type: BIGINT
+              - column:
+                  name: fecha_de_creacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_actualizacion
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_de_borrado
+                  type: TIMESTAMP
+        - addUniqueConstraint:
+            tableName: shr_tipo_tarea
+            columnNames: codigo
+            constraintName: uk_shr_tipo_tarea_codigo
+      rollback:
+        - dropTable:
+            tableName: shr_tipo_tarea
+
+  - changeSet:
+      id: 2026-11-18-catalogos-4
+      author: shiro
+      comment: "Siembra los cuatro tipos de tablero"
+      changes:
+        - insert:
+            tableName: shr_tipo_tablero
+            columns:
+              - column: {name: uuid, value: "a1000000-0000-4000-8000-000000000001"}
+              - column: {name: codigo, value: PRINCIPAL}
+              - column: {name: nombre, value: "Principal"}
+              - column: {name: orden, valueNumeric: 1}
+        - insert:
+            tableName: shr_tipo_tablero
+            columns:
+              - column: {name: uuid, value: "a1000000-0000-4000-8000-000000000002"}
+              - column: {name: codigo, value: QA}
+              - column: {name: nombre, value: "QA"}
+              - column: {name: orden, valueNumeric: 2}
+        - insert:
+            tableName: shr_tipo_tablero
+            columns:
+              - column: {name: uuid, value: "a1000000-0000-4000-8000-000000000003"}
+              - column: {name: codigo, value: ANALISIS}
+              - column: {name: nombre, value: "Análisis"}
+              - column: {name: orden, valueNumeric: 3}
+        - insert:
+            tableName: shr_tipo_tablero
+            columns:
+              - column: {name: uuid, value: "a1000000-0000-4000-8000-000000000004"}
+              - column: {name: codigo, value: DISENO}
+              - column: {name: nombre, value: "Diseño"}
+              - column: {name: orden, valueNumeric: 4}
+      rollback:
+        - delete:
+            tableName: shr_tipo_tablero
+            where: uuid LIKE 'a1000000-%'
+
+  - changeSet:
+      id: 2026-11-18-catalogos-5
+      author: shiro
+      comment: "Siembra los estados de cada tablero (seccion 4 y adenda 3 del DAF)"
+      changes:
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000011"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+              - column: {name: nombre, value: "Por hacer"}
+              - column: {name: orden, valueNumeric: 1}
+              - column: {name: inicial, valueBoolean: true}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000012"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+              - column: {name: nombre, value: "En curso"}
+              - column: {name: orden, valueNumeric: 2}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000013"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+              - column: {name: nombre, value: "Bloqueado"}
+              - column: {name: orden, valueNumeric: 3}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000014"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+              - column: {name: nombre, value: "En revisión"}
+              - column: {name: orden, valueNumeric: 4}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000015"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'PRINCIPAL')"}
+              - column: {name: nombre, value: "Hecho"}
+              - column: {name: orden, valueNumeric: 5}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: true}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000021"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+              - column: {name: nombre, value: "Por probar"}
+              - column: {name: orden, valueNumeric: 1}
+              - column: {name: inicial, valueBoolean: true}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000022"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+              - column: {name: nombre, value: "Probando"}
+              - column: {name: orden, valueNumeric: 2}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000023"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+              - column: {name: nombre, value: "Bloqueado"}
+              - column: {name: orden, valueNumeric: 3}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000024"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+              - column: {name: nombre, value: "Aprobado"}
+              - column: {name: orden, valueNumeric: 4}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: true}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000025"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'QA')"}
+              - column: {name: nombre, value: "Rechazado"}
+              - column: {name: orden, valueNumeric: 5}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000031"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+              - column: {name: nombre, value: "Por analizar"}
+              - column: {name: orden, valueNumeric: 1}
+              - column: {name: inicial, valueBoolean: true}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000032"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+              - column: {name: nombre, value: "Analizando"}
+              - column: {name: orden, valueNumeric: 2}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000033"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+              - column: {name: nombre, value: "Bloqueado"}
+              - column: {name: orden, valueNumeric: 3}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000034"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+              - column: {name: nombre, value: "En validación"}
+              - column: {name: orden, valueNumeric: 4}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000035"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'ANALISIS')"}
+              - column: {name: nombre, value: "Aprobado"}
+              - column: {name: orden, valueNumeric: 5}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: true}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000041"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+              - column: {name: nombre, value: "Por diseñar"}
+              - column: {name: orden, valueNumeric: 1}
+              - column: {name: inicial, valueBoolean: true}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000042"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+              - column: {name: nombre, value: "Diseñando"}
+              - column: {name: orden, valueNumeric: 2}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000043"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+              - column: {name: nombre, value: "Bloqueado"}
+              - column: {name: orden, valueNumeric: 3}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000044"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+              - column: {name: nombre, value: "En revisión"}
+              - column: {name: orden, valueNumeric: 4}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: false}
+        - insert:
+            tableName: shr_estado
+            columns:
+              - column: {name: uuid, value: "a2000000-0000-4000-8000-000000000045"}
+              - column: {name: id_tipo_tablero, valueComputed: "(SELECT id FROM shr_tipo_tablero WHERE codigo = 'DISENO')"}
+              - column: {name: nombre, value: "Aprobado"}
+              - column: {name: orden, valueNumeric: 5}
+              - column: {name: inicial, valueBoolean: false}
+              - column: {name: terminado, valueBoolean: true}
+      rollback:
+        - delete:
+            tableName: shr_estado
+            where: uuid LIKE 'a2000000-%'
+
+  - changeSet:
+      id: 2026-11-18-catalogos-6
+      author: shiro
+      comment: "Siembra los cinco tipos de tarea con su nivel"
+      changes:
+        - insert:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: uuid, value: "a3000000-0000-4000-8000-000000000001"}
+              - column: {name: codigo, value: EPICA}
+              - column: {name: nombre, value: "Épica"}
+              - column: {name: nivel, valueNumeric: 1}
+              - column: {name: orden, valueNumeric: 1}
+        - insert:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: uuid, value: "a3000000-0000-4000-8000-000000000002"}
+              - column: {name: codigo, value: HISTORIA}
+              - column: {name: nombre, value: "Historia"}
+              - column: {name: nivel, valueNumeric: 2}
+              - column: {name: orden, valueNumeric: 2}
+        - insert:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: uuid, value: "a3000000-0000-4000-8000-000000000003"}
+              - column: {name: codigo, value: TAREA}
+              - column: {name: nombre, value: "Tarea"}
+              - column: {name: nivel, valueNumeric: 2}
+              - column: {name: orden, valueNumeric: 3}
+        - insert:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: uuid, value: "a3000000-0000-4000-8000-000000000004"}
+              - column: {name: codigo, value: BUG}
+              - column: {name: nombre, value: "Bug"}
+              - column: {name: nivel, valueNumeric: 2}
+              - column: {name: orden, valueNumeric: 4}
+        - insert:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: uuid, value: "a3000000-0000-4000-8000-000000000005"}
+              - column: {name: codigo, value: SUBTAREA}
+              - column: {name: nombre, value: "Subtarea"}
+              - column: {name: nivel, valueNumeric: 3}
+              - column: {name: orden, valueNumeric: 5}
+      rollback:
+        - delete:
+            tableName: shr_tipo_tarea
+            where: uuid LIKE 'a3000000-%'

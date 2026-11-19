@@ -21,6 +21,5 @@ Reglas para esta tabla:
 
 | Id | Alcance | Motivo | Aprobó | Fecha |
 |---|---|---|---|---|
-| | | | | |
-
-El template no tiene excepciones. Un proyecto nuevo arranca con esta tabla vacía.
+| BD-04 | `db/changelog/changes/2026-11-18-historial.yaml` (`shr_historial`) | Solo la escribe el sistema, en la misma transacción de cada cambio: los seeds de las demás tablas no pasan por los casos de uso, y una fila sembrada a mano mostraría un historial que no ocurrió. Se prueba creando datos por los endpoints | Arquitecto | 19/11/2026 |
+| BD-04 | `db/changelog/changes/2026-11-18-operaciones-de-archivo.yaml` (`shr_operacion_archivo`) | Solo la escribe el sistema al archivar un proyecto o tablero en cascada; sembrarla exigiría sembrar también registros archivados coherentes. Se prueba archivando por los endpoints | Arquitecto | 19/11/2026 |

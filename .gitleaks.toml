@@ -9,3 +9,8 @@ paths = [
   '''^docs/api/''',
   '''^app/src/test/java/com/blue/open/Code/Usuario/AuthJwtServiceDePrueba\.java$''',
 ]
+
+[[allowlists]]
+description = "Tokens de acceso de los seeds de ejemplo (contexto seed, solo local y pruebas; en servidor no se cargan): aparecen en los ejemplos de curl de la documentacion y en las pruebas"
+regexTarget = "line"
+regexes = ['''(sysadmin|demo|cliente)-access-token''']

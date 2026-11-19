@@ -1,0 +1,186 @@
+# Archivar y restaurar con id de operacion (T1.8 y Spec 1). shr_operacion_archivo agrupa lo archivado en cascada;
+# todas las tablas shr_ con status suman id_operacion_archivo, y el historial apunta a su operacion.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-1
+      author: shiro
+      comment: "Crea shr_operacion_archivo"
+      changes:
+        - createTable:
+            tableName: shr_operacion_archivo
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: tipo, type: VARCHAR(10), constraints: {nullable: false}}
+              - column: {name: entidad, type: VARCHAR(30), constraints: {nullable: false}}
+              - column: {name: uuid_entidad, type: CHAR(36), constraints: {nullable: false}}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+        - sql:
+            comment: "Tipo acotado"
+            sql: "ALTER TABLE shr_operacion_archivo ADD CONSTRAINT ck_shr_operacion_archivo_tipo CHECK (tipo IN ('ARCHIVAR', 'RESTAURAR'))"
+        - addForeignKeyConstraint:
+            baseTableName: shr_historial
+            baseColumnNames: id_operacion
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_historial_operacion
+      rollback:
+        - dropForeignKeyConstraint: {baseTableName: shr_historial, constraintName: fk_shr_historial_operacion}
+        - dropTable:
+            tableName: shr_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-2
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_proyecto"
+      changes:
+        - addColumn:
+            tableName: shr_proyecto
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_proyecto
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_proyecto_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_proyecto
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-3
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_tablero"
+      changes:
+        - addColumn:
+            tableName: shr_tablero
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tablero
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_tablero_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_tablero
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-4
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_tarea"
+      changes:
+        - addColumn:
+            tableName: shr_tarea
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_tarea
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-5
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_tarea_etiqueta"
+      changes:
+        - addColumn:
+            tableName: shr_tarea_etiqueta
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea_etiqueta
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_etiqueta_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_tarea_etiqueta
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-6
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_tipo_tablero"
+      changes:
+        - addColumn:
+            tableName: shr_tipo_tablero
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tipo_tablero
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_tipo_tablero_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_tipo_tablero
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-7
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_estado"
+      changes:
+        - addColumn:
+            tableName: shr_estado
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_estado
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_estado_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_estado
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-8
+      author: shiro
+      comment: "Agrega id_operacion_archivo a shr_tipo_tarea"
+      changes:
+        - addColumn:
+            tableName: shr_tipo_tarea
+            columns:
+              - column: {name: id_operacion_archivo, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tipo_tarea
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_tipo_tarea_operacion_archivo
+      rollback:
+        - dropColumn:
+            tableName: shr_tipo_tarea
+            columnName: id_operacion_archivo
+
+  - changeSet:
+      id: 2026-11-18-operaciones-de-archivo-9
+      author: shiro
+      comment: "Indice para restaurar por operacion"
+      changes:
+        - createIndex:
+            tableName: shr_tarea
+            indexName: ix_shr_tarea_operacion_archivo
+            columns:
+              - column: {name: id_operacion_archivo}
+      rollback:
+        - dropIndex: {tableName: shr_tarea, indexName: ix_shr_tarea_operacion_archivo}

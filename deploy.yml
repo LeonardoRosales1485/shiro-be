@@ -17,6 +17,9 @@ local:
       # Usuario de la aplicacion sin DELETE sobre shr_ (T0.3); lo crea Liquibase (solo local)
       SHIRO_DB_USUARIO_APP: "shiro_app"
       SHIRO_DB_CONTRASENA_APP: "shiro_app_local"
+      # Ingreso con Google (T2.2): client id OAuth y dominio de Workspace. Vacios: solo cuentas locales
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_DOMINIO: ""
     postgres_user: shiro
     postgres_db: shiro
     postgres_pass: shiro

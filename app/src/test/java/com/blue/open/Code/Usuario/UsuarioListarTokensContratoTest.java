@@ -30,7 +30,8 @@ class UsuarioListarTokensContratoTest extends PruebaDeContrato {
         }
         assertNotNull(demo, "Falta el token del seed: " + tokens);
         assertEquals(UsuariosDeSeed.TOKEN_DEMO_NOMBRE, demo.get("nombre").asString());
-        assertEquals(UsuariosDeSeed.TOKEN_DEMO_CODIGO, demo.get("codigo").asString());
+        // El token se muestra solo al crearlo (T2.1): el listado no lo trae
+        assertTrue(demo.get("codigo").isNull());
         assertEquals(1, demo.get("activo").asInt());
     }
 

@@ -1,0 +1,24 @@
+# Seeds del importador (F4): una importacion conectada a un Jira de ejemplo, sin mapear. El token cifrado es un valor
+# de ejemplo que no se puede descifrar: sirve para ver la pantalla de importaciones, no para ejecutarla.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-importaciones-seed-1
+      author: shiro
+      comment: "Crea una importacion de ejemplo conectada"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_importacion WHERE uuid = 'b8000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_importacion
+            columns:
+              - column: {name: uuid, value: b8000000-0000-4000-8000-000000000001}
+              - column: {name: url_jira, value: "https://ejemplo.atlassian.net"}
+              - column: {name: correo, value: "importador@example.local"}
+              - column: {name: token_cifrado, value: "ejemplo-no-descifrable"}
+              - column: {name: clave_proyecto_jira, value: "EJ"}
+              - column: {name: nombre_proyecto_jira, value: "Proyecto de ejemplo"}
+              - column: {name: estado, value: CONECTADA}
+      rollback:
+        - delete: {tableName: shr_importacion, where: "uuid = 'b8000000-0000-4000-8000-000000000001'"}
