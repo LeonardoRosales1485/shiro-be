@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.44"
+  version: "1.0.46"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -144,6 +144,13 @@ paths:
                   pagina: 1
                   tamano: 200
                   tipo: "USUARIO"
+              cada-elemento-dice-cuanto-se-archivo-con-el:
+                summary: "Cada elemento dice cuanto se archivo con el (ADMIN)"
+                value:
+                  pagina: 1
+                  tamano: 200
+                  texto: "Padre con subtareas"
+                  tipo: "TAREA"
               el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto-2:
                 summary: "El administrador ve todo lo archivado y filtra por tipo y texto (2) (ADMIN)"
                 value:
@@ -209,6 +216,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "SHI-7 Archivada en Shiro"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -233,6 +241,27 @@ paths:
                     totalDePaginas: 0
                     ultima: true
                     vacia: true
+                cada-elemento-dice-cuanto-se-archivo-con-el:
+                  summary: "Cada elemento dice cuanto se archivo con el (ADMIN)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - archivadoPorNombre: "Usuario Demo"
+                      fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      incluidos: 2
+                      nombre: "SHI-7 Padre con subtareas"
+                      proyectoPrefijo: "SHI"
+                      status: -1
+                      tipo: "TAREA"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    numero: 1
+                    primera: false
+                    tamano: 200
+                    totalDeElementos: 201
+                    totalDePaginas: 2
+                    ultima: true
+                    vacia: false
                 el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto:
                   summary: "El administrador ve todo lo archivado y filtra por tipo y texto (ADMIN)"
                   value:
@@ -241,6 +270,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: null
                       nombre: "Versión archivada"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -249,6 +279,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -257,6 +288,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: null
                       nombre: "agente-mcp"
                       proyectoPrefijo: null
                       status: -1
@@ -277,6 +309,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -285,6 +318,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "MCPP-3 Tercera"
                       proyectoPrefijo: "MCPP"
                       status: -1
@@ -305,6 +339,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -325,6 +360,7 @@ paths:
                     - archivadoPorNombre: null
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "ARC Proyecto archivado"
                       proyectoPrefijo: "ARC"
                       status: -1
@@ -345,6 +381,7 @@ paths:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
+                      incluidos: 0
                       nombre: "SHI-7 Archivada por alguien"
                       proyectoPrefijo: "SHI"
                       status: -1
@@ -372,6 +409,145 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /archivo/{tipo}/{uuid}/vista-previa:
+    get:
+      tags:
+      - "Archivo"
+      operationId: "ArchivoController.vistaPrevia"
+      summary: "Vista previa de un archivado: qué es, dónde estaba, qué se restaura con él y qué queda archivado"
+      description: |-
+        **Caso de uso:** CU-ARC-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-ARC-02"
+      security:
+      - bearer: []
+      parameters:
+      - name: "tipo"
+        in: "path"
+        required: true
+        description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO"
+        schema:
+          type: "string"
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del elemento archivado"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArchivoVistaPreviaResponseDTO"
+              examples:
+                una-subtarea-con-el-padre-archivado-lo-avisa:
+                  summary: "Una subtarea con el padre archivado lo avisa (ADMIN)"
+                  value:
+                    cantidadQueSeRestaura: 0
+                    descripcion: null
+                    fechaDeCreacion: null
+                    nombre: "SHI-8 Hija"
+                    padreArchivado: true
+                    quedanArchivadas: []
+                    seRestauran: []
+                    status: 0
+                    tipo: "TAREA"
+                    ubicacion: "Principal · Por hacer"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                una-tarea-dice-que-se-restaura-y-que-queda-archivado:
+                  summary: "Una tarea dice que se restaura y que queda archivado (ADMIN)"
+                  value:
+                    cantidadQueSeRestaura: 1
+                    descripcion: null
+                    fechaDeCreacion: null
+                    nombre: "SHI-7 Exportar a CSV"
+                    padreArchivado: false
+                    quedanArchivadas:
+                    - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "SHI-8 Exportar a Excel"
+                      status: 0
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    seRestauran:
+                    - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "SHI-9 Armar el CSV"
+                      status: 0
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: 0
+                    tipo: "TAREA"
+                    ubicacion: "Principal · Por hacer"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                un-proyecto-cuenta-sus-tareas:
+                  summary: "Un proyecto cuenta sus tareas (ADMIN)"
+                  value:
+                    cantidadQueSeRestaura: 1
+                    descripcion: null
+                    fechaDeCreacion: null
+                    nombre: "AVP Proyecto AVP"
+                    padreArchivado: false
+                    quedanArchivadas: []
+                    seRestauran:
+                    - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "AVP-1 Una"
+                      status: 0
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    status: 0
+                    tipo: "PROYECTO"
+                    ubicacion: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-tarea-vigente-no-tiene-vista-previa:
+                  summary: "Una tarea vigente no tiene vista previa (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-archivar-sobre-el-recurso-no-se-ve:
+                  summary: "Sin archivar sobre el recurso no se ve (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para archivar en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /comentario/guardar:
     post:
@@ -1246,7 +1422,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40513"
+                  url: "http://127.0.0.1:38579"
               solo-sitios-de-atlassian:
                 summary: "Solo sitios de atlassian (SYSADMIN)"
                 value:
@@ -1282,7 +1458,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "otro-token"
-                  url: "http://127.0.0.1:40513"
+                  url: "http://127.0.0.1:38579"
               proyecto-inexistente-en-jira:
                 summary: "Proyecto inexistente en jira (SYSADMIN)"
                 value:
@@ -1290,7 +1466,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40513"
+                  url: "http://127.0.0.1:38579"
               el-prefijo-tiene-de-dos-a-seis-letras:
                 summary: "El prefijo tiene de dos a seis letras (SYSADMIN)"
                 value:
@@ -1298,7 +1474,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "S1"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40513"
+                  url: "http://127.0.0.1:38579"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -1306,7 +1482,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39017"
+                  url: "http://127.0.0.1:33239"
               un-proyecto-ya-importado-no-cambia-de-prefijo-2:
                 summary: "Un proyecto ya importado no cambia de prefijo (2) (SYSADMIN)"
                 value:
@@ -1314,7 +1490,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "OTRO"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39017"
+                  url: "http://127.0.0.1:33239"
               importa-un-proyecto-real-sin-fallas:
                 summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                 value:
@@ -3059,7 +3235,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:40513"
+                    urlJira: "http://127.0.0.1:38579"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
@@ -3317,13 +3493,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4b4-60a1-7c40-b369-85d623694190\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4b4-60ab-794d-be38-3d95ad5699c7\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4f1-278e-7f06-ad74-06edd29a9a6c\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4f1-2796-781d-8cbe-241ef1105e5f\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3338,7 +3514,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3353,7 +3529,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3368,7 +3544,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -3383,7 +3559,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -3398,7 +3574,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -3413,7 +3589,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -3428,7 +3604,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -3443,7 +3619,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica-2:
                   summary: "Reimportar no duplica (2) (SYSADMIN)"
@@ -3458,7 +3634,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
@@ -3467,7 +3643,7 @@ paths:
                     correo: "leonardorosales1485@gmail.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4b4-7d08-79d4-add9-461e0069bfcb\",\"11300\":\"01a1f4b4-7d0b-73e5-a9c6-6411f98357b5\",\"11299\":\"01a1f4b4-7d0e-725e-a29c-0039f9416260\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4b4-7d10-7a5f-bce4-90ba6e7f9d5a\",\"11645\":\"01a1f4b4-7d13-750a-ae4a-c2acc464b527\",\"11644\":\"01a1f4b4-7d12-7529-bf8d-e5c7efb1f5bd\",\"11864\":\"01a1f4b4-7d15-7525-a815-094d0035377c\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4f1-3bf5-7cf6-b91d-6d2dc0193e53\",\"11300\":\"01a1f4f1-3bf7-720f-bd7f-1d48724fd208\",\"11299\":\"01a1f4f1-3bf8-7055-b9e9-6fa0aa5050d4\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4f1-3bfa-7419-8ce9-7626f9093866\",\"11645\":\"01a1f4f1-3bfc-7d87-8219-912f22ab09cc\",\"11644\":\"01a1f4f1-3bfb-7855-bd26-52473c5b8ca9\",\"11864\":\"01a1f4f1-3bfd-7f70-9c97-ec9c8df79cbd\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -3632,10 +3808,10 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               un-tipo-sin-mapear-queda-en-las-fallas:
@@ -3690,10 +3866,10 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               importa-un-proyecto-real-sin-fallas:
@@ -3732,13 +3908,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4b4-60a1-7c40-b369-85d623694190\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4b4-60ab-794d-be38-3d95ad5699c7\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f4f1-278e-7f06-ad74-06edd29a9a6c\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f4f1-2796-781d-8cbe-241ef1105e5f\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3753,7 +3929,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3768,7 +3944,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3783,7 +3959,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -3798,7 +3974,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 mapear-deja-la-importacion-lista:
                   summary: "Mapear deja la importacion lista (SYSADMIN)"
@@ -3813,7 +3989,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -3828,7 +4004,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -3843,7 +4019,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -3858,7 +4034,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -3873,7 +4049,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39017"
+                    urlJira: "http://127.0.0.1:33239"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
@@ -3882,7 +4058,7 @@ paths:
                     correo: "leonardorosales1485@gmail.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4b4-7d08-79d4-add9-461e0069bfcb\",\"11300\":\"01a1f4b4-7d0b-73e5-a9c6-6411f98357b5\",\"11299\":\"01a1f4b4-7d0e-725e-a29c-0039f9416260\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4b4-7d10-7a5f-bce4-90ba6e7f9d5a\",\"11645\":\"01a1f4b4-7d13-750a-ae4a-c2acc464b527\",\"11644\":\"01a1f4b4-7d12-7529-bf8d-e5c7efb1f5bd\",\"11864\":\"01a1f4b4-7d15-7525-a815-094d0035377c\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f4f1-3bf5-7cf6-b91d-6d2dc0193e53\",\"11300\":\"01a1f4f1-3bf7-720f-bd7f-1d48724fd208\",\"11299\":\"01a1f4f1-3bf8-7055-b9e9-6fa0aa5050d4\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f4f1-3bfa-7419-8ce9-7626f9093866\",\"11645\":\"01a1f4f1-3bfc-7d87-8219-912f22ab09cc\",\"11644\":\"01a1f4f1-3bfb-7855-bd26-52473c5b8ca9\",\"11864\":\"01a1f4f1-3bfd-7f70-9c97-ec9c8df79cbd\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: null
@@ -4960,7 +5136,7 @@ paths:
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
-                    descripcion: "Importado de Jira (http://127.0.0.1:39017)"
+                    descripcion: "Importado de Jira (http://127.0.0.1:33239)"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Proyecto simulado"
                     prefijo: "SIM"
@@ -9758,6 +9934,66 @@ paths:
                 value:
                   pagina: 1
                   tamano: 5
+              filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable:
+                summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "tipo.codigo"
+                      operacion: "="
+                      valor: "BUG"
+                  pagina: 1
+                  tamano: 50
+              filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-2:
+                summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (2) (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "tablero.tipoTablero.codigo"
+                      operacion: "="
+                      valor: "PRINCIPAL"
+                  pagina: 1
+                  tamano: 50
+              filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-3:
+                summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (3) (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "tablero.tipoTablero.codigo"
+                      operacion: "="
+                      valor: "QA"
+                  pagina: 1
+                  tamano: 50
+              filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-4:
+                summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (4) (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "estado.uuid"
+                      operacion: "="
+                      valor: "a2000000-0000-4000-8000-000000000011"
+                  pagina: 1
+                  tamano: 50
+              filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-5:
+                summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (5) (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "responsable.uuid"
+                      operacion: "="
+                      valor: "no-existe"
+                  pagina: 1
+                  tamano: 50
               filtra-por-version-y-por-etiqueta:
                 summary: "Filtra por version y por etiqueta (ADMIN)"
                 value:
@@ -9793,6 +10029,24 @@ paths:
                   parametros:
                   - nombre: "etiqueta"
                     valor: "otra"
+                  tamano: 50
+              varios-valores-de-un-filtro-se-combinan-con-oy-sin-sprint-es-nulo:
+                summary: "Varios valores de un filtro se combinan con oy sin sprint es nulo (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "proyecto.uuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - - campo: "tipo.codigo"
+                      operacion: "="
+                      valor: "BUG"
+                    - campo: "tipo.codigo"
+                      operacion: "="
+                      valor: "HISTORIA"
+                  - - campo: "sprint.uuid"
+                      operacion: "is null"
+                      valor: ""
+                  pagina: 1
                   tamano: 50
       responses:
         "200":
@@ -10289,7 +10543,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 30"
+                      titulo: "Alta concurrente 8"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                       versiones: []
@@ -10300,6 +10554,206 @@ paths:
                     totalDePaginas: 11
                     ultima: false
                     vacia: false
+                filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable:
+                  summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (ADMIN)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - clave: "TFB-1"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "BUG"
+                      tipoNombre: "Bug"
+                      titulo: "Un bug"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      vencimiento: null
+                      versiones: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-2:
+                  summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (2) (ADMIN)"
+                  value:
+                    cantidadDeElementos: 2
+                    contenido:
+                    - clave: "TFB-1"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "BUG"
+                      tipoNombre: "Bug"
+                      titulo: "Un bug"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      vencimiento: null
+                      versiones: []
+                    - clave: "TFB-2"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Una tarea"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                      vencimiento: null
+                      versiones: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 2
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-3:
+                  summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (3) (ADMIN)"
+                  value:
+                    cantidadDeElementos: 0
+                    contenido: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 0
+                    totalDePaginas: 0
+                    ultima: true
+                    vacia: true
+                filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-4:
+                  summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (4) (ADMIN)"
+                  value:
+                    cantidadDeElementos: 2
+                    contenido:
+                    - clave: "TFB-1"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "BUG"
+                      tipoNombre: "Bug"
+                      titulo: "Un bug"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      vencimiento: null
+                      versiones: []
+                    - clave: "TFB-2"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Una tarea"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                      vencimiento: null
+                      versiones: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 2
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                filtra-por-tipo-de-tablero-tipo-de-tarea-estado-y-responsable-5:
+                  summary: "Filtra por tipo de tablero tipo de tarea estado y responsable (5) (ADMIN)"
+                  value:
+                    cantidadDeElementos: 0
+                    contenido: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 0
+                    totalDePaginas: 0
+                    ultima: true
+                    vacia: true
                 filtra-por-version-y-por-etiqueta:
                   summary: "Filtra por version y por etiqueta (ADMIN)"
                   value:
@@ -10402,6 +10856,74 @@ paths:
                     totalDePaginas: 0
                     ultima: true
                     vacia: true
+                varios-valores-de-un-filtro-se-combinan-con-oy-sin-sprint-es-nulo:
+                  summary: "Varios valores de un filtro se combinan con oy sin sprint es nulo (ADMIN)"
+                  value:
+                    cantidadDeElementos: 2
+                    contenido:
+                    - clave: "TFC-1"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "BUG"
+                      tipoNombre: "Bug"
+                      titulo: "Un bug"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      vencimiento: null
+                      versiones: []
+                    - clave: "TFC-2"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "HISTORIA"
+                      tipoNombre: "Historia"
+                      titulo: "Una historia"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                      vencimiento: null
+                      versiones: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 2
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:
@@ -13069,6 +13591,16 @@ paths:
                     status: -1
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                lista-los-vigentes-y-los-revocados-con-su-ultimo-uso:
+                  summary: "Lista los vigentes y los revocados con su ultimo uso (ADMIN)"
+                  value:
+                    activo: 0
+                    codigo: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token revocado"
+                    status: -1
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-token-revocado-deja-de-autenticar:
                   summary: "Un token revocado deja de autenticar (ADMIN)"
                   value:
@@ -13220,6 +13752,14 @@ paths:
                 summary: "Sin nombre (ADMIN)"
                 value:
                   nombre: ""
+              lista-los-vigentes-y-los-revocados-con-su-ultimo-uso:
+                summary: "Lista los vigentes y los revocados con su ultimo uso (ADMIN)"
+                value:
+                  nombre: "Token usado"
+              lista-los-vigentes-y-los-revocados-con-su-ultimo-uso-2:
+                summary: "Lista los vigentes y los revocados con su ultimo uso (2) (ADMIN)"
+                value:
+                  nombre: "Token revocado"
               un-token-revocado-deja-de-autenticar:
                 summary: "Un token revocado deja de autenticar (ADMIN)"
                 value:
@@ -13257,6 +13797,26 @@ paths:
                     codigo: "token-de-prueba-token-de-prueba"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Token de prueba"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                lista-los-vigentes-y-los-revocados-con-su-ultimo-uso:
+                  summary: "Lista los vigentes y los revocados con su ultimo uso (ADMIN)"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-token-usado"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token usado"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                lista-los-vigentes-y-los-revocados-con-su-ultimo-uso-2:
+                  summary: "Lista los vigentes y los revocados con su ultimo uso (2) (ADMIN)"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-token-revocado"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token revocado"
                     status: 0
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -13583,27 +14143,27 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTA0MDl9.bDptU6_noezH1fOR2klbSa_HEVTwgwrhIL-GnBXLNheKU6GKU0pdfwN47JMFsGgcgWwy3qISbFrG4zr1sbdNx6hAdhDefN72JaJwbGaYlUaR5I6UwbPTWq_hVuFFE9DgDKHTwWEBhsHP8L8jkmc7AbZNl488F84FsEvanu_h6sR1lggef4xFymezrI1iec5OG_ubr3N_PqIDVpfBWx2vL-15d9Luc3sGEER_HMMUxLTqWs7tB5X73vNTBge8g1RpReB_ZL9rNI3sihyipIEaS80SrcEv6_DB1SH3X5l0-vL1M8xqDY5txhH-9XKeooNQki6HnphGHdbwEPxvnAXwVA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.ijOq3rGWXrvVsJbdhZ_vD9-0s0LAMAnr6h_tHjT3OtR7p4rtkmceQG1zfXdIpBV7n2nTg5mlm0Z4KPsw3zNneH8n-Ds8KWwzqsraZFX_x-3uw3zhp8Fe_p8OuWiWkH4U6fKdGaP9VciYxUi2LjpadxAug-GMSWHmzDzwWv1nTIcHQBdnk7yzQVl3J6FN8pQcBWaxmFZciG8WQkv4Hs0Z3h-ttfbOQia3A24wV83MyFsAQyc9tenjyweG3z2N0tDI2nmnm0ESoH7hbFEyEhVTnV1vf4b4AYBWCJUZ7_Xa7LHBqS3na5RBL2ALb7MI8X4Z_YLarwswCb3yObMninfy3g"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTEwNDA5fQ.p3zsOFD9zomWX22uZ6MZhtgcAoBohGBHhBF5ONtI-zaKKCS1yydqs0VE9LuvCEnxkk3Oj1oM-cXKIE7SmlinS4Ola12QZL9eHigW5DNWwWopZ8N1x8dK56B8oQenhgSVWQRFYw9L-9_KFVK9rS9KnhnshPQqzW69_UCcZzb-DhP0l7_XAyUhBRQCgiXp8QksyNzpwH8XrBwiAUvbW72nUP9HWp8guVq3g64Rj5W99XcR0VTzWgg2Nsx5By5WcWocCbj0j1BcAAwNVBXFOEN1VeMeAh1pAOwI3IT2Rvdbs89_iCggzMqlfcd9iFkmLBpOCbh25R9TdT5sFtI4IwkrYQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE0MzkzfQ.DLagZxcF99kilu2Sj2CFC2JLyN8jGxvhFXzpgGpvfWLQxYrZfy3bcEM1c2wbMDx5Z_Loo6bmuJNIhhEsdkLyRrZoA6ZQXXVGpIyCEL04K2L3dH8LtYMTh5lFgWFGJQpF8_5q6xAScuorRe9LnlLEZQFbTyGaqHF6tQeOi-JdrVoXVxJjoCaAXHBM7mXSQdroRD1j6uiVf2vXcU88EEXpSUUlTZ1k4au8S4lagQRhMruyCady-1ndecMkmbVPy2ACfOAILwYACLjqqY2vkEEsxJzDDRRMzG94pUC-uaJsSc66gG9NJHJVYkvJUVncFyAbFEwgm_rQO0yeCSxSvt3RaA"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTEwNDA5fQ.YxDbGJ4TN3qLaGGA7_ZO5YGqlpEfCyZcLqAo7mzgrg52f-HfB2gXbMtOtEg93EjyS61GrOzmPFgZoXeHosAt00H22PQNQVrudQvb6klip9zo6alvRL7riKw3zKsGufI-JtaRm7LS12CrEOBPL0-tuTj-bB5GZITwWFhm2H64pZkXsYvVKXyAqrxQX02I0x9T3oRoBACcyJFA-yZAhP1IckTn0n218doj1j9gEtVEgRGwAZEQBRizBGMIdhs6ado-yLg8H3LvvGMGVPc7lZTx7w3dK3tj_7taJxemOtsmELodqASeEQZMZ1kVCJTvt8Z9fVCAsIoKgXOWqROuj3aqZg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE0MzkzfQ.aYkOro-qvMQDpVVMGDXb1_eaRK1hKfZJ6v74SWaIXJd4gsUzYfk-Fyc1vIabYneUqOf-Cj9QIw6_Ntm65kEvQAVEfJaoN87GwVfR7htCh7bSbrGqucSV8NqVif-gAugvl-O9dmsUK_XFTJvYVqRGzGUI43V6RA8MrTiXKgR6BXwGxeZa6QkITFIoI2ytAe20pbd_xQGdJmB1LSIMqdRmfWfS9ciDiD9I8RnfieUkvSvqIFpk9mcTrYO25JMwn_xDw8PyZlWIkWeSUTPT2k2vxXajTUQnxDyiaNslS4AvWitSbkxOdbX2wVnCt6Hpc5xaHW1SKzaMGfPthwp5zW8e3w"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTA0MTB9.YubEpstkSrSH-d6cE_hjnKsq27Cp6gtKYerUYo0MamvhycuQXJGAegIZ2zBn-b17uYnBhGIu-qzBjnWX4fmNHaDY-G9SSSwR-yIH-1YGKg6BtkwA3SWhSAQ1pDuQj-ZbX58LxeDWI6FxF9ZlLiadC5_hBmBI1ajeJkS0SM6C8pky7TO2FKk12b7HNdUC5moC8due4XTLJunR40VGiJ9qjQf19hxbGYKQtJPnvQgy2MRlzs9jUXdZlYldb8z1fGpeMyoKkrW3boaaD4dOyirOuErwgoScvo3W4dkTAim-_E0NBFBJoSalAkL1kZfteojIoxDKdWPifcdNIfDQktmGTg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.LEIjoxGz2GujVIU38G97TsGsHFXH3BJXEgHXSoF0MCY95rARZ-dKOOJLalG7GWtmIp5TGwpTd5EeiP0KVUPLdWoum9wJthCFYlAcfNfaS3-Y2A_DzHS59FH2yttX4HCcO9nemR-rSDCVtr8i0vzE0rKVC661jTx_-9RQAMIY7Z1YvfI1cpq20S_4rLYhae7W85Ao08UPhMRXYFEvqmd1F4oC70LqytwJDSGnGdZHUjjYEjnvAeoWKrqgVrG98ab8BZIrOIX3Rz1tHubJypHZWAfVGnmMOfl_a1RdeY2yaJqSTiSFWAttP-7HekhnVeXBOth4WmICdPn_Tn_UpvJHoQ"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxMTA0MTB9.BgKF2Z6vSVjO6vBD8XEcjUk82HDnQE3CF1nPN855ag67ycYP0kHifb5kYtWR0kkLyCVSDZaFirC4iamGUqWyI0I1lgym_FhwYEba2UVyaa98BZOeES51xLSw4XRbCKezFhlnZtF4117nns8KjZZpt8yX-28HAxk0_8-T7X8rbDqxhbZkN4Q4cXTDa_xRvKuAj9PhqqvS8VglwDuCqvn3Voy-RXV1Sfg8xcgcdusi3E1uiBjfHXHpLbDZmTTYhzWVrck3-hCaXl871QMsUYgkJaVmW60xyaRcEERFVbZ5aHkjBvtGAmndlzJU6eyfhssI09FbFAdkPp5n_0SfiWc_bA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxMTQzOTN9.UrrzLTsGil30Jcx6aiIZu1wKyuyNsPw9dd-3W4Kab6IaY5ozmbKplVv9mi_Q6ClFiyS5hFkz6KaryVdrn409O99xFQ030Fi6i7t8IGqYBVTSx1X-bWviDVZP6eSHFupPV3w_ieBjBVNiYCltkLRDoAxKd8DDOeTrdlX6YGG0L8aYOStjQqC4YIW1IZQaxa9IOxoXvA6kyIzJU5OPQxazSGM71C84_Tpe9ZQ5zoAlh3ksfh9NqpSBQ6xBOTX55mqDQ1_PMmpKCcg7hzZL_FnU5VIzNYqFvU61nhq-UM1gq9PyJtwyvgMUGUMuAlhEID3UU8sFNv1Xm3pcCzM3ZBzA8A"
               google-no-responde:
                 summary: "Google no responde"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTA0MTB9.SBB04fTkVxw3d3xDImZoscK2ul7bD8_mLJUIMmhBgHQnTO37vNLO3aXbpLSwQJq9sU7183GrCxramqGxWElFBgp6YXvkSwNhTpfrzpo2gHTqDGGBZ2CFX5XCy4tLAcoJKSeO-oNnjmldVWZy0pgq0ypPXVbuIEhzs9nE6HSm3ZHSyWTWC6Zge426nuWmQrzPH7L0ODNtmDo9bA6xXRrg04UXOXJ9NBfQ5jvb8JJCZ7QV7brzDr7pr9F4_9-8LfWz2KOHCQa1zOwudpERZb_7IMGGHpewK5UBzUd6-v4UmGNKKuhsMznh6udyowITGq5MVHwSK-kQNw2lljKQHMz5dg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTQzOTN9.gBT4MCjALx7u1mb8-RoaGXFDokaBx5fi1z42qPNieohSoHLSOMKPMj4dPORMP7jE6szUkYD8HXc5bsPKybvb88bBX4yGrsJJ-3D32CMVYBFMReAmjYdA3ZJJ0Z_3Vikk8tg8zWaJ2aENeGvFxYNC42-qbX_P3nCDePpAtHcEQlBsI12F0BSZJSqvibZ5uyWuUU0QJgmcyng0QSgARKCDKF8PoxgEhQnls534IDtE57Z9-w4ezVObNPbRgq3CrSXpj8QhdJ5AQp-xFBG-gNoASBTYmF6zJshqsXHxaLb6FR6TfeWjaUeFFA2JyKYxF8PsVlpBreWoEXGFVZtfsQLuGA"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -13798,6 +14358,70 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario o contraseña incorrectos"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /usuario/mis-tokens:
+    get:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.misTokens"
+      summary: "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso"
+      description: |-
+        **Caso de uso:** CU-USR-25
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-USR-25"
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UsuarioTokenResponseDTO"
+              examples:
+                lista-los-vigentes-y-los-revocados-con-su-ultimo-uso:
+                  summary: "Lista los vigentes y los revocados con su ultimo uso (ADMIN)"
+                  value:
+                  - activo: false
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeRevocacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token revocado"
+                    status: 0
+                    ultimoUso: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - activo: true
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeRevocacion: null
+                    nombre: "Token usado"
+                    status: 0
+                    ultimoUso: "2026-01-01T12:00:00.000-03:00"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - activo: true
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeRevocacion: null
+                    nombre: "Token demo"
+                    status: 0
+                    ultimoUso: "2026-11-18T15:40:00.000-03:00"
+                    uuid: "90000000-0000-4000-8000-000000000007"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
   /usuario/paginar:
@@ -14125,6 +14749,16 @@ paths:
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 la-cookie-de-acceso-autentica-un-endpoint:
                   summary: "La cookie de acceso autentica un endpoint"
+                  value:
+                    contrasena: null
+                    email: "demo@example.local"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombreDeUsuario: "demo"
+                    status: 0
+                    telefono: "1122334455"
+                    uuid: "90000000-0000-4000-8000-000000000002"
+                lista-los-vigentes-y-los-revocados-con-su-ultimo-uso:
+                  summary: "Lista los vigentes y los revocados con su ultimo uso"
                   value:
                     contrasena: null
                     email: "demo@example.local"
@@ -15984,6 +16618,67 @@ components:
       anyOf:
       - type: "null"
       - $ref: "#/components/schemas/AccionDeHistorial"
+    ArchivoVistaPreviaResponseDTO:
+      type: "object"
+      properties:
+        cantidadQueSeRestaura:
+          type: "integer"
+          description: "Cuántas tareas se restauran con el elemento (las archivadas en la misma operación)"
+        descripcion:
+          type:
+          - "string"
+          - "null"
+          description: "Descripción de la tarea en Markdown. Vacía en los demás tipos"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible: clave y título de la tarea, prefijo y nombre del proyecto, nombre del sprint o versión, nombre de usuario"
+        padreArchivado:
+          type: "boolean"
+          description: "En una tarea: si su padre sigue archivado (restaurarla responde PADRE_ARCHIVADO hasta restaurar el padre)"
+        quedanArchivadas:
+          description: "Tareas archivadas por separado que quedan archivadas: hijas de la tarea o tareas del proyecto (hasta 50)"
+          type:
+          - "array"
+          - "null"
+          items:
+            $ref: "#/components/schemas/ElementoDeArchivoDTO"
+            description: "Tareas archivadas por separado que quedan archivadas: hijas de la tarea o tareas del proyecto (hasta 50)"
+        seRestauran:
+          description: "Tareas que se restauran con el elemento, por número (hasta 50)"
+          type:
+          - "array"
+          - "null"
+          items:
+            $ref: "#/components/schemas/ElementoDeArchivoDTO"
+            description: "Tareas que se restauran con el elemento, por número (hasta 50)"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tipo:
+          type:
+          - "string"
+          - "null"
+          description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO"
+        ubicacion:
+          type:
+          - "string"
+          - "null"
+          description: "Dónde vuelve: en una tarea, el tablero y el estado que tenía («Principal · Por hacer»). Vacío en los demás tipos"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     CanalDeCambio:
       type: "string"
       enum:
@@ -16141,6 +16836,37 @@ components:
       enum:
       - "PERMITIR"
       - "NEGAR"
+    ElementoDeArchivoDTO:
+      type: "object"
+      properties:
+        fechaDeBorrado:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Cuándo se archivó"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Clave y título de la tarea"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     ElementoDeJiraDTO:
       type: "object"
       properties:
@@ -16789,6 +17515,11 @@ components:
           format: "date-time"
           description: "Fecha y hora de creación del registro (solo lectura)"
           pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        incluidos:
+          type:
+          - "integer"
+          - "null"
+          description: "Cuántas tareas se archivaron junto con el elemento (subtareas o historias de una tarea, tareas de un proyecto). Vacío en los demás tipos"
         nombre:
           type:
           - "string"
@@ -18518,6 +19249,47 @@ components:
         status:
           type: "integer"
           description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
+    UsuarioTokenResponseDTO:
+      type: "object"
+      properties:
+        activo:
+          type: "boolean"
+          description: "Si el token sirve para entrar; false si fue revocado"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        fechaDeRevocacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Cuándo se revocó. Vacío si está activo"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre con el que el usuario identifica el token"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        ultimoUso:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Última vez que se entró con el token (se registra a lo sumo una vez por minuto). Vacío si nunca se usó"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
         uuid:
           type:
           - "string"
