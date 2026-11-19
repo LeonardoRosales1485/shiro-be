@@ -16,11 +16,11 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 
 ## Proyectos (`Proyecto`)
 
-- Crean y editan proyectos el super admin (`SYSADMIN`) y el grupo Administradores (`ADMIN`). Leer requiere sesión; el filtro por permisos de proyecto llega en F2.
+- Crean y editan proyectos el super admin (`SYSADMIN`) y el grupo Administradores (`ADMIN`). Leer exige `VER` y archivar o restaurar, `ARCHIVAR` (ver "Permisos por recurso").
 - `nombre` obligatorio (hasta 120 caracteres); `descripcion` opcional (hasta 2000).
 - `prefijo`: de 2 a 6 letras, se guarda en mayúsculas. No se repite entre proyectos, tampoco con uno archivado (queda reservado), y no se cambia después de crear el proyecto (adenda 3 del DAF).
 - Al crear un proyecto se generan sus cuatro tableros: Principal, QA, Análisis y Diseño.
-- Archivar (`POST /proyecto/{uuid}/archivar`, super admin y Administradores) arrastra todo lo que hay dentro: tableros, tareas en todos los niveles, comentarios y relaciones, con el mismo id de operación. Restaurar (`POST /proyecto/{uuid}/restaurar`) devuelve lo de esa operación; lo archivado antes por separado queda archivado (adenda 4 del DAF).
+- Archivar (`POST /proyecto/{uuid}/archivar`, con `ARCHIVAR` en el proyecto) arrastra todo lo que hay dentro: tableros, tareas en todos los niveles, comentarios y relaciones, con el mismo id de operación. Restaurar (`POST /proyecto/{uuid}/restaurar`) devuelve lo de esa operación; lo archivado antes por separado queda archivado (adenda 4 del DAF).
 - Nada se borra: no hay `/borrar`.
 
 ## Tableros, estados y tipos de tarea
@@ -40,7 +40,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 
 ## Tareas (`Tarea`)
 
-- Por ahora crear, editar y leer requiere sesión; los permisos por proyecto (ver, editar) llegan en F2.
+- Permisos por recurso: ver la sección "Permisos por recurso".
 - Modo rápido: para crear alcanzan `tableroUuid` (el tablero que se está viendo), `tipoCodigo` y `titulo` (hasta 255 caracteres). El resto de los campos es opcional.
 - La tarea nace en el estado inicial de su tablero, con prioridad `MEDIA` y con quien la crea como informante (si no se indica otro).
 - Clave: prefijo del proyecto y número (`SHI-123`). Es única en el proyecto y puede tener saltos. La da el contador del proyecto (`ultimo_numero`), que se bloquea por fila al crear: 50 altas simultáneas reciben 50 claves distintas.
@@ -85,6 +85,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Resolución (Spec 2, `ResolutorDePermisosDeRecurso`): el super admin y los Administradores pueden todo. Si no: sobre el tablero, la regla del usuario decide; si no hay, entre las de sus grupos gana negar y, si alguna permite, permitido. Si el tablero no decide, lo mismo sobre el proyecto. Sin reglas, negado.
 - `EDITAR` y `ARCHIVAR` permitidos implican `VER`; negar `EDITAR` o `ARCHIVAR` no niega `VER`. `EDITAR` y `ARCHIVAR` son independientes entre sí (la spec manda sobre el prototipo, que los mostraba acumulativos).
 - Las reglas del usuario se leen una vez por request.
+- Qué exige cada endpoint de F1 (T2.4): leer (uuid, historial, relaciones, comentarios) exige `VER` en el tablero o el proyecto; crear y editar tareas, moverlas, comentar y relacionar (en el tablero de origen; `VER` en el de destino) exige `EDITAR`; archivar y restaurar tareas y proyectos exige `ARCHIVAR`; clonar exige `VER` en el original y `EDITAR` en el destino. Sin el nivel: 403 `SIN_PERMISO`. Los listados (`paginar` de proyectos, tareas y comentarios) traen solo lo visible: un proyecto se ve si se ve el proyecto o alguno de sus tableros. Crear y editar proyectos, y las reglas de permiso, siguen siendo solo para el super admin y los Administradores.
 - Seed: el grupo `CLIENTE` ve el proyecto Shiro.
 
 ## Roles y permisos

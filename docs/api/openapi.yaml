@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.19"
+  version: "1.0.20"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -158,6 +158,16 @@ paths:
                   cuerpo: "Segunda versión"
                   tareaUuid: "b3000000-0000-4000-8000-000000000001"
                   uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                value:
+                  cuerpo: "Hola"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              sin-permiso-cada-endpoint-de-f1-responde403:
+                summary: "Sin permiso cada endpoint de f1 responde403"
+                value:
+                  cuerpo: "Sin permiso"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
       responses:
         "200":
           description: "OK"
@@ -322,6 +332,24 @@ paths:
                     mensajeParaUsuario: "Solo el autor edita su comentario."
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
+                el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                  summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /comentario/paginar:
     post:
       tags:
@@ -360,6 +388,11 @@ paths:
                     direccion: "asc"
                   pagina: 1
                   tamano: 10
+              sin-permiso-los-listados-vienen-vacios:
+                summary: "Sin permiso los listados vienen vacios"
+                value:
+                  pagina: 1
+                  tamano: 50
       responses:
         "200":
           description: "OK"
@@ -419,6 +452,18 @@ paths:
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
+                sin-permiso-los-listados-vienen-vacios:
+                  summary: "Sin permiso los listados vienen vacios"
+                  value:
+                    cantidadDeElementos: 0
+                    contenido: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 0
+                    totalDePaginas: 0
+                    ultima: true
+                    vacia: true
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:
@@ -506,6 +551,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /configuracion/guardar:
     post:
@@ -1570,6 +1631,11 @@ paths:
             schema:
               $ref: "#/components/schemas/PedidoDePaginado"
             examples:
+              el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                value:
+                  pagina: 1
+                  tamano: 50
               paginar:
                 summary: "Paginar (SYSADMIN)"
                 value:
@@ -1583,6 +1649,92 @@ paths:
               schema:
                 $ref: "#/components/schemas/Pagina_ProyectoDTO_"
               examples:
+                el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                  summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - descripcion: "Gestor de trabajo de Blue Open Data"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Shiro"
+                      prefijo: "SHI"
+                      status: 0
+                      tableros:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "PRINCIPAL"
+                        tipoTableroNombre: "Principal"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                        uuid: "b2000000-0000-4000-8000-000000000001"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "QA"
+                        tipoTableroNombre: "QA"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                        uuid: "b2000000-0000-4000-8000-000000000002"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "ANALISIS"
+                        tipoTableroNombre: "Análisis"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                        uuid: "b2000000-0000-4000-8000-000000000003"
+                      uuid: "b1000000-0000-4000-8000-000000000001"
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                sin-permiso-los-listados-vienen-vacios:
+                  summary: "Sin permiso los listados vienen vacios"
+                  value:
+                    cantidadDeElementos: 0
+                    contenido: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 0
+                    totalDePaginas: 0
+                    ultima: true
+                    vacia: true
+                una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero:
+                  summary: "Una regla de usuario sobre un tablero habilita solo ese tablero"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - descripcion: "Gestor de trabajo de Blue Open Data"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Shiro"
+                      prefijo: "SHI"
+                      status: 0
+                      tableros:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "PRINCIPAL"
+                        tipoTableroNombre: "Principal"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                        uuid: "b2000000-0000-4000-8000-000000000001"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "QA"
+                        tipoTableroNombre: "QA"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                        uuid: "b2000000-0000-4000-8000-000000000002"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "ANALISIS"
+                        tipoTableroNombre: "Análisis"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                        uuid: "b2000000-0000-4000-8000-000000000003"
+                      uuid: "b1000000-0000-4000-8000-000000000001"
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
@@ -1749,18 +1901,33 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el proyecto."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /proyecto/{uuid}/archivar:
     post:
       tags:
       - "Proyecto"
       operationId: "ProyectoController.archivar"
-      summary: "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones"
+      summary: "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones (exige ARCHIVAR en el proyecto)"
       description: |-
         **Caso de uso:** CU-PRY-04
 
-        **Permiso:** `SYSADMIN, ADMIN`
+        **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-04"
-      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters:
@@ -1827,13 +1994,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
                   value:
                     codigo: "SIN_PERMISO"
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
+                    mensajeParaUsuario: "No tenés permiso para archivar en el proyecto."
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /proyecto/{uuid}/restaurar:
@@ -1841,13 +2008,12 @@ paths:
       tags:
       - "Proyecto"
       operationId: "ProyectoController.restaurar"
-      summary: "Restaura un proyecto archivado con lo que se archivó junto con él"
+      summary: "Restaura un proyecto archivado con lo que se archivó junto con él (exige ARCHIVAR en el proyecto)"
       description: |-
         **Caso de uso:** CU-PRY-05
 
-        **Permiso:** `SYSADMIN, ADMIN`
+        **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-05"
-      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters:
@@ -1932,13 +2098,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
                   value:
                     codigo: "SIN_PERMISO"
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
+                    mensajeParaUsuario: "No tenés permiso para archivar en el proyecto."
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /regla-permiso/guardar:
@@ -2495,6 +2661,12 @@ paths:
             schema:
               $ref: "#/components/schemas/RelacionCrearRequestDTO"
             examples:
+              sin-permiso-cada-endpoint-de-f1-responde403:
+                summary: "Sin permiso cada endpoint de f1 responde403"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "b3000000-0000-4000-8000-000000000001"
+                  tipo: "BLOQUEA"
               una-tarea-no-se-relaciona-consigo-misma:
                 summary: "Una tarea no se relaciona consigo misma (ADMIN)"
                 value:
@@ -2661,6 +2833,22 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /relacion/{uuid}/archivar:
     post:
       tags:
@@ -2742,6 +2930,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /rol/borrar/{uuid}:
     delete:
@@ -3436,6 +3640,32 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaDTO"
             examples:
+              sin-permiso-cada-endpoint-de-f1-responde403:
+                summary: "Sin permiso cada endpoint de f1 responde403"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Sin permiso"
+              sin-permiso-cada-endpoint-de-f1-responde403-2:
+                summary: "Sin permiso cada endpoint de f1 responde403 (2)"
+                value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Editada sin permiso"
+                  uuid: "b3000000-0000-4000-8000-000000000001"
+              una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero:
+                summary: "Una regla de usuario sobre un tablero habilita solo ese tablero"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                  tipoCodigo: "BUG"
+                  titulo: "En QA"
+              una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero-2:
+                summary: "Una regla de usuario sobre un tablero habilita solo ese tablero (2)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "En el principal"
               archivar-arrastra-todo-y-restaurar-lo-devuelve:
                 summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
                 value:
@@ -3656,6 +3886,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero:
+                  summary: "Una regla de usuario sobre un tablero habilita solo ese tablero"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por probar"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000021"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: null
+                    informanteUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                    tipoCodigo: "BUG"
+                    tipoNombre: "Bug"
+                    titulo: "En QA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vencimiento: null
                 guardar-alta:
                   summary: "Guardar alta (SYSADMIN)"
                   value:
@@ -4262,6 +4520,40 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                sin-permiso-cada-endpoint-de-f1-responde403-2:
+                  summary: "Sin permiso cada endpoint de f1 responde403 (2)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero-2:
+                  summary: "Una regla de usuario sobre un tablero habilita solo ese tablero (2)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
         "409":
           description: "Errores: `TAREA_MODIFICADA`"
           content:
@@ -4308,6 +4600,11 @@ paths:
             schema:
               $ref: "#/components/schemas/PedidoDePaginado"
             examples:
+              el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                value:
+                  pagina: 1
+                  tamano: 50
               paginar:
                 summary: "Paginar (SYSADMIN)"
                 value:
@@ -4321,6 +4618,55 @@ paths:
               schema:
                 $ref: "#/components/schemas/Pagina_TareaDTO_"
               examples:
+                el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                  summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - clave: "SHI-1"
+                      descripcion: "Primera tarea de ejemplo del proyecto."
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Usuario Demo"
+                      informanteUuid: "90000000-0000-4000-8000-000000000002"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "MEDIA"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Definir el tablero principal de Shiro"
+                      uuid: "b3000000-0000-4000-8000-000000000001"
+                      vencimiento: null
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                sin-permiso-los-listados-vienen-vacios:
+                  summary: "Sin permiso los listados vienen vacios"
+                  value:
+                    cantidadDeElementos: 0
+                    contenido: []
+                    numero: 0
+                    primera: true
+                    tamano: 50
+                    totalDeElementos: 0
+                    totalDePaginas: 0
+                    ultima: true
+                    vacia: true
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
@@ -4373,7 +4719,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 23"
+                      titulo: "Alta concurrente 16"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -4398,7 +4744,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 3"
+                      titulo: "Alta concurrente 9"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -4452,6 +4798,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                  summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                  value:
+                    clave: "SHI-1"
+                    descripcion: "Primera tarea de ejemplo del proyecto."
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                    vencimiento: null
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
                   value:
@@ -4539,6 +4913,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /tarea/{uuid}/archivar:
     post:
@@ -4721,6 +5111,22 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para archivar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/clonar:
     post:
       tags:
@@ -4748,6 +5154,10 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaClonarRequestDTO"
             examples:
+              sin-permiso-cada-endpoint-de-f1-responde403:
+                summary: "Sin permiso cada endpoint de f1 responde403"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
               el-clon-de-una-historia-no-hereda-el-padre:
                 summary: "El clon de una historia no hereda el padre (ADMIN)"
                 value:
@@ -4760,10 +5170,6 @@ paths:
               sin-tablero-rechazado:
                 summary: "Sin tablero rechazado (ADMIN)"
                 value: {}
-              el-clon-de-una-subtarea-conserva-el-padre:
-                summary: "El clon de una subtarea conserva el padre (ADMIN)"
-                value:
-                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
               tablero-de-otro-proyecto-rechazado:
                 summary: "Tablero de otro proyecto rechazado (ADMIN)"
                 value:
@@ -5037,6 +5443,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /tarea/{uuid}/historial:
     get:
@@ -5406,6 +5828,22 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/mover:
     post:
       tags:
@@ -5433,8 +5871,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaMoverRequestDTO"
             examples:
-              archivar-arrastra-todo-y-restaurar-lo-devuelve:
-                summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+              el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
                 value:
                   estadoUuid: "a2000000-0000-4000-8000-000000000012"
               sin-estado-rechazado:
@@ -5886,6 +6324,31 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
+                  summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/relaciones:
     get:
       tags:
@@ -6014,6 +6477,22 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para ver en el tablero."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/restaurar:
     post:
       tags:
@@ -6119,6 +6598,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso-cada-endpoint-de-f1-responde403:
+                  summary: "Sin permiso cada endpoint de f1 responde403"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para archivar en el tablero."
+                    status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /tipo-tablero/listar:
     get:
@@ -7113,23 +7608,23 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMwMDl9.FEKbaeJ4svu_ODLxFXwLLhtRuEjeM5GXHtJoBGlWP1xvEjDYAFW81_aM6-p4XDzNQFR2e0zxIgeTYjuqV6gH1J9rxes1Sqk62IZ2_IOpWM9NFb9ru4o_mCsAoSkfOLUy_eZ71GzVoY2JATdrMcaIB2mvje0ATqFaC3YUwFwtTxXPSG5TqCv8NCe0kmm9IJPvFr5o0Kzc8rkCDh2IsJ_9Cu2IIYcgZI-T2KzFTytHhDasmN1pKzE1alWSJtyoLbFVglvH22typx-91xIWuF3W6987qE7u1Tjv4aJSFPgZV2q-jjjQYqDnZNEOW-bbPNlRQ9mhWLkeQLssPrEF3HBaHQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.Us76JI1fe_nqizMtZly-Jw7gy3FAGAz-MxZ1T5DKOvdNQbLIbuy1qkQrKe-0G_vdgsUKcH563gl9FzZlMcFq8j6Nvpmm2IXt2HXS9Hrf48Exj6REpXfko_VKv4bVlENml7iP2TIHYes20vuVjG4U-bdyOLc8T2FCDOTGPtaaavE7nuYmfj5pNf-Y0G1ECbpkcVARqlK3TZqN-iCVXzKcRG5g-G7rLmqHqfYY45GqgHO-HvTXOE9gxbAtJewsg7wLVI1dZcJZIL3MpVYUyTAE5byAdnMnynXd6W1Rtbhf21nkynYiMzk_J_hJ3o1suWEI9L2c8JEKBktglEtTDjR68A"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMDA5fQ.0kM73dcbsWO9iVFyM66kBAFsweva5CkNDSz3puOxC42r78zmbk2_Xe2ExsovVCW0GPsiyQp47cwFeTc1T22HWrMlcum_qW265G99kCwPYTlfglODFtU6eVF09GKRHHxzLvq60QKDLYQfOjd1ZvlsUKibAZOrXNq1-ORYbXvch8kNfe6uG9KJZDX9E3izD41f-GN01Z_-xLM3g3yCbExw9VDDWSEXhIZGuvEH1n41nUANbytGsPSdi4UYrZZXlQ-oavoqmh3Biyat5DzZHWLIV2rXObdv8TWijPsbkRC_VvJsDgGdshFer29Xi0hgAo1a8TnS5c81NGPFMgjFL00sbA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.b9M748xX3bG9ZO-uvPl-uzSPIYGY6uPov9xpTY31bwljQyq6Gx5F7ZOMYy-AK79K1zmXodzgV4nY0SauZZPXSC_ziG3YR3m-w2QqmkyN1YEXy7CweKdIpsvaLV1TV8w-EfnaGdA48jeHxp-zsH_IUuac7KCt8VNZy6wC1Tzzik4J7sNeNsw42MSWJNKI2nekjhUgc4HONJnIcQttZJkbk3iRVj3Zqf86bdOj_UcoI3E_6fFVUMz8ZTgbddqZTiLidzzxo84uRoAVy63KMBKvPa1BoPTeZINsK202IT09bOrkoGoNJ1wwGNGzaZXA2q-WFpVFaaGQHci87Psj6XiU8A"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMDA5fQ.3nSA9h7MoOUD4oAp0Hb4RudLK_1ZLpI8RL-_imEF7FLSlt8PBeDOBNIbNO1-AOIQV7MGb62L-dN12dzR_NhKuXv09DuVjXIpF72_rhUZ-UyKbSquH4YG6vfn3a9AheM0SlC3s2v4pOF3RDmVwqYkWJceRS7UxXYQuA2Idgp26vM5QbkN78_LFi3vS-_mec_37xknpfqb2YiC3E0U4moUIvmesZ7D5jQU8goy1DjT8NKSdaRu-mqlkAMA9iMk8p0eASvLF0jrI4m3Rv5tQXXP7mluRLo3Xsnx3YgIEXPz8MtKxvQexkrmieq9xQo47P8FvQStJ97gyjuPO9g_2Yb7ug"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.IcRIt1I1DXcbubX4AoEKt2ksWoSKVgmNP9EBCmjY2jj3ctjzQ9mpNTS6uxmL9VqjLcl2U89wk7f7SKZi-2OPxlY_tChEF9zABMK9IwsMknY_gdMqGgV2H17gco96DVAyY70UIaQkR83j9myVxIky3zH5gmAPmYS6QoY32DpZzlCGY51H96S_NliMQbhVX-35NrrlWXe8aWbB2xHLibsPkZaKpDk3FvUPqhDtNjwBgazwGK_XpoVVS0hcDWodEsKnTLFZYsLav4-pq--KjkMlvVp7afzS4w9YEbKndyHP1lLiGcnE7TW3A3sXJ66KIay00y2BJTs67sS3b6-WKTIMNQ"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMwMDl9.bfw_5o2TDUiBTSA_2YjylLp_OcwdItnkFwzodUqaQRC9zW2Y1iN2WLTY5C-0kx0P-NA86slrYjJDkICWp4GSn01xJ2vScYEDEUdPatjOe-Eax2g7uaduRpqa74gfs7itk4ZVOxDaEDGtm3ulME6ZVuARkF6y2s9Yi3ZiUTUODTJ6eMZ-umtMmg6mh2y2V2NobHiJYRd8ls5hXORH36kdsiALVIVD2SqcGIi_ETxOFhq2uduVviiSMG1Iu3qG4vcVO75TmXeLaRj1RAhKDbP3Gz7I11ElTe3d5hAuepOe_akp3FOA9spu5_DTJeEF1WQgJJJMNui0eLSIWKaRNfv41g"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.TIy9lAJpuZvdd2w4b3YrOMTbg5TliekPhv-db0vQPvx3Rax3PflQ0MVBzIIDDDfTZawmMficvIW5njbClSr7HU2pSTo7YQ83Rmi9wlg73bMA0xmnxBIsHiCSh7rH5JiXVOlsnWTcOfzbv5WRxia2w933iPZOGSZ36IywoThsMnCkf2bLSiECVPa0U7uyhlywqVX_h0-IVqC-XEoOz-UgaxSIN6IgPqJJhbu7D6t2kWzEZ75i3lhhgAS3tNtEkyRXFNpnF5k38SZFqbZ7sIECqxVV-Bz3iYVybztcaX9awz6vo9HD87Idlb00HxBlLbIHYu52_Im2PqLIpSPhQkIFOQ"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjMwMDl9.S2-pozOK3ZdMiFOBlLMo9uh_-35lnIMP3j5JXfx2CTcMcQBqA0V4kflCSY7jFdXBz6VXRFcXBZD0T0Ifmk3ldoacmYgpLckLiOAS7NDfqgSalF1wyF9RE18cLVj8cdrepDDYHTUlCPSqx04cMOJXpQqKM9TFEVWtPR8CqERYEuJf5vGqUfyDg1BTQyUpWAEMe__FVlKm79NN9xosKdtz0NTIaRbuUHetr5ygU-TLNhrzuD-z2FV0XFeQJZpa9D-piId9ER0Oh1p9qs4C451UkPiWmVnWfmCGLRwq-DiL7SAqeKkAhQBxZfPqfDaoTamKjm-cWwZhK2Fsgrr3WHadOA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjMzNTR9.oaahOvAEGIgVXd6kayAp9ui4BAw5NdrQjDLRMGYVUAJinYl-JAlzYIBjGJI6igGfdr9kLqoKhuy4izvZqZ_HnAximrkbwo0rzGR-5IMpxO_sCmgCtxrT2fCKQNWC3LGBlkxEnezQu4e1kMCN06N248tzR5xkf6o109ZB7z0xekuqhmwVh2w1e0N9RHsQZH3nz4NZG0U4rap8La3Byfu6bMSCAd32KTAq3RizA7fntiCcAC9HPy84FDhYSici_Ug1c_hFM231nJhZq8oUY06LrVJEQo-Dq7JbsfIPD60VDYe-qRoQxJEyn_DUiYsue6O-unDiadHCFZ8JCi_FX_OMLQ"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}

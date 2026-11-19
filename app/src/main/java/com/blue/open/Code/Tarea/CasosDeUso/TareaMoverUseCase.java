@@ -1,11 +1,13 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Estado.EstadoRepository;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaDTO;
 import com.blue.open.Code.Tarea.TareaMoverRequestDTO;
@@ -42,11 +44,14 @@ public class TareaMoverUseCase {
 
     private final RegistradorDeHistorial historial;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public TareaDTO ejecutar(String uuid, TareaMoverRequestDTO dto) {
         Tarea tarea = tareaRepository.findFirstByUuidAndStatus(uuid, VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "TareaMoverUseCase | ejecutar | tarea " + uuid));
+        permisos.exigir(NivelDePermiso.EDITAR, tarea.getTablero());
         Estado estado = estadoRepository.findFirstByUuidAndStatus(dto.getEstadoUuid(), VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.RELACION_NO_ENCONTRADA,
                         "TareaMoverUseCase | ejecutar | estado " + dto.getEstadoUuid()).conDato("campo", "estadoUuid"));

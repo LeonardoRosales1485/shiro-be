@@ -1,6 +1,8 @@
 package com.blue.open.Code.Relacion.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Relacion.Relacion;
 import com.blue.open.Code.Relacion.RelacionCrearRequestDTO;
 import com.blue.open.Code.Relacion.RelacionDTO;
@@ -37,6 +39,8 @@ public class RelacionCrearUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public RelacionDTO ejecutar(RelacionCrearRequestDTO dto) {
         if (dto.getTipo() == TipoDeRelacion.CLONA)
@@ -44,6 +48,9 @@ public class RelacionCrearUseCase {
                     "RelacionCrearUseCase | ejecutar | tipo CLONA");
         Tarea origen = vigente(dto.getOrigenUuid(), "origenUuid");
         Tarea destino = vigente(dto.getDestinoUuid(), "destinoUuid");
+        // Relacionar exige EDITAR en el tablero de origen y VER en el de destino
+        permisos.exigir(NivelDePermiso.EDITAR, origen.getTablero());
+        permisos.exigir(NivelDePermiso.VER, destino.getTablero());
         if (origen.getId().equals(destino.getId()))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.RELACION_CONSIGO_MISMA,
                     "RelacionCrearUseCase | ejecutar | tarea " + origen.getClave());

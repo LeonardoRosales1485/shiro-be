@@ -1,5 +1,6 @@
 package com.blue.open.Code.Proyecto.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Comentario.ComentarioRepository;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
@@ -10,6 +11,7 @@ import com.blue.open.Code.OperacionDeArchivo.TipoDeOperacionDeArchivo;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoDTO;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Relacion.RelacionRepository;
 import com.blue.open.Code.Tablero.TableroRepository;
 import com.blue.open.Code.Tarea.TareaRepository;
@@ -55,11 +57,14 @@ public class ProyectoArchivarUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public ProyectoDTO ejecutar(String uuid) {
         Proyecto proyecto = proyectoRepository.findFirstByUuidAndStatus(uuid, 0)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "ProyectoArchivarUseCase | ejecutar | proyecto vigente " + uuid));
+        permisos.exigir(NivelDePermiso.ARCHIVAR, proyecto);
         Long usuario = usuarioActual.getIdUsuarioActual();
         Timestamp fecha = new Timestamp(System.currentTimeMillis());
         Long operacion = operacionRepository.save(new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR,

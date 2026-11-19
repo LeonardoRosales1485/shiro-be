@@ -37,8 +37,8 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Tareas archivadas por la operacion recibida
     List<Tarea> findByIdOperacionArchivoAndStatus(Long idOperacionArchivo, Integer status);
 
-    // Si existe una tarea con el uuid, en cualquier status
-    boolean existsByUuid(String uuid);
+    // Tarea por uuid en cualquier status (vigente o archivada)
+    Optional<Tarea> findFirstByUuid(String uuid);
 
     // Si la tarea tiene alguna hija vigente cuyo tipo tiene nivel menor o igual al recibido
     boolean existsByPadreAndStatusAndTipoNivelLessThanEqual(Tarea padre, Integer status, Integer nivel);

@@ -4,8 +4,10 @@ import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.ReglaPermiso.ReglaPermisoRepository;
 import com.blue.open.Code.Tablero.Tablero;
+import com.blue.open.Code.Tablero.TableroRepository;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Service.AuthService;
+import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Resuelve si el usuario de la sesion tiene un nivel (ver, editar, archivar) sobre un proyecto o un tablero (Spec 2).
@@ -36,6 +42,8 @@ public class ResolutorDePermisosDeRecurso {
 
     private final ReglaPermisoRepository reglas;
 
+    private final TableroRepository tableros;
+
     // Si el usuario de la sesion tiene el nivel sobre el tablero (sus reglas o, si no deciden, las de su proyecto)
     public boolean puede(NivelDePermiso nivel, Tablero tablero) {
         return esAdministrador() || EvaluadorDeReglasDePermiso.puede(reglasDeLaSesion(), nivel, tablero.getId(),
@@ -57,6 +65,37 @@ public class ResolutorDePermisosDeRecurso {
     public void exigir(NivelDePermiso nivel, Proyecto proyecto) {
         if (!puede(nivel, proyecto))
             throw sinPermiso(nivel, "el proyecto", "proyecto " + proyecto.getUuid());
+    }
+
+    // Restringe un paginado a los tableros que el usuario puede ver (ruta: el id del tablero en el JPQL, ej.
+    // "t.tablero.id"). A los administradores no los restringe
+    public void restringirATablerosVisibles(PedidoDePaginado pedido, String ruta) {
+        if (!esAdministrador())
+            pedido.agregarCondicion(ruta + " IN :tablerosVisibles",
+                    Map.of("tablerosVisibles", alMenosUno(visibles(TableroDeProyecto::idTablero))));
+    }
+
+    // Restringe un paginado a los proyectos que el usuario puede ver: los que ve, o en los que ve algun tablero
+    public void restringirAProyectosVisibles(PedidoDePaginado pedido, String ruta) {
+        if (!esAdministrador())
+            pedido.agregarCondicion(ruta + " IN :proyectosVisibles",
+                    Map.of("proyectosVisibles", alMenosUno(visibles(TableroDeProyecto::idProyecto))));
+    }
+
+    // Ids (de tablero o de proyecto, segun la funcion) de los tableros vigentes que el usuario de la sesion puede ver
+    private Set<Long> visibles(Function<TableroDeProyecto, Long> id) {
+        List<ReglaEvaluable> reglasDelUsuario = reglasDeLaSesion();
+        Set<Long> visibles = new HashSet<>();
+        for (TableroDeProyecto tablero : tableros.listarVigentesConProyecto()) {
+            if (EvaluadorDeReglasDePermiso.puede(reglasDelUsuario, NivelDePermiso.VER, tablero.idTablero(), tablero.idProyecto()))
+                visibles.add(id.apply(tablero));
+        }
+        return visibles;
+    }
+
+    // La lista de ids, o una con un id que no existe: IN () no es JPQL valido
+    private static List<Long> alMenosUno(Set<Long> ids) {
+        return ids.isEmpty() ? List.of(-1L) : List.copyOf(ids);
     }
 
     // Si el usuario de la sesion es el super admin o del grupo Administradores

@@ -1,11 +1,13 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivo;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoRepository;
 import com.blue.open.Code.OperacionDeArchivo.TipoDeOperacionDeArchivo;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaDTO;
 import com.blue.open.Code.Tarea.TareaRepository;
@@ -44,11 +46,14 @@ public class TareaArchivarUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public TareaDTO ejecutar(String uuid) {
         Tarea raiz = tareaRepository.bloquearVigentePorUuid(uuid)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "TareaArchivarUseCase | ejecutar | tarea vigente " + uuid));
+        permisos.exigir(NivelDePermiso.ARCHIVAR, raiz.getTablero());
         Long idUsuario = usuarioActual.getIdUsuarioActual();
         OperacionDeArchivo operacion = operacionRepository.save(
                 new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR, Historial.TAREA, uuid, idUsuario));

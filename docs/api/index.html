@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.19</title>
+    <title>API de Open Data 1.0.20</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,7 +1868,7 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.19",
+    "version" : "1.0.20",
     "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |\n| `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `REGLA_DE_PERMISO_INVALIDA` | 400 | La regla tiene que indicar un sujeto y un recurso, según su tipo. | Al guardar una regla de permiso, el sujeto no coincide con tipoSujeto (va rolUuid o usuarioUuid, uno solo) o el recurso no coincide con tipoRecurso (va proyectoUuid o tableroUuid, uno solo) |\n| `REGLA_DE_PERMISO_REPETIDA` | 400 | Ya hay una regla para ese sujeto, recurso y nivel. Editá esa. | Al guardar una regla de permiso, ya hay otra vigente con el mismo sujeto, recurso y nivel: hay que editar esa |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_DE_GOOGLE_INVALIDO` | 401 | No se pudo validar tu cuenta de Google. Volvé a intentar. | Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
   },
   "servers" : [ {
@@ -1990,6 +1990,20 @@
                     "cuerpo" : "Segunda versión",
                     "tareaUuid" : "b3000000-0000-4000-8000-000000000001",
                     "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  }
+                },
+                "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                  "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                  "value" : {
+                    "cuerpo" : "Hola",
+                    "tareaUuid" : "b3000000-0000-4000-8000-000000000001"
+                  }
+                },
+                "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                  "summary" : "Sin permiso cada endpoint de f1 responde403",
+                  "value" : {
+                    "cuerpo" : "Sin permiso",
+                    "tareaUuid" : "b3000000-0000-4000-8000-000000000001"
                   }
                 }
               }
@@ -2202,6 +2216,28 @@
                       "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
+                  },
+                  "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                    "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
                   }
                 }
               }
@@ -2250,6 +2286,13 @@
                     } ],
                     "pagina" : 1,
                     "tamano" : 10
+                  }
+                },
+                "sin-permiso-los-listados-vienen-vacios" : {
+                  "summary" : "Sin permiso los listados vienen vacios",
+                  "value" : {
+                    "pagina" : 1,
+                    "tamano" : 50
                   }
                 }
               }
@@ -2321,6 +2364,20 @@
                       "totalDePaginas" : 1,
                       "ultima" : true,
                       "vacia" : false
+                    }
+                  },
+                  "sin-permiso-los-listados-vienen-vacios" : {
+                    "summary" : "Sin permiso los listados vienen vacios",
+                    "value" : {
+                      "cantidadDeElementos" : 0,
+                      "contenido" : [ ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 0,
+                      "totalDePaginas" : 0,
+                      "ultima" : true,
+                      "vacia" : true
                     }
                   }
                 }
@@ -2438,6 +2495,29 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Usuario no identificado",
                       "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el tablero.",
+                      "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -3816,6 +3896,13 @@
                 "$ref" : "#/components/schemas/PedidoDePaginado"
               },
               "examples" : {
+                "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                  "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                  "value" : {
+                    "pagina" : 1,
+                    "tamano" : 50
+                  }
+                },
                 "paginar" : {
                   "summary" : "Paginar (SYSADMIN)",
                   "value" : {
@@ -3836,6 +3923,106 @@
                   "$ref" : "#/components/schemas/Pagina_ProyectoDTO_"
                 },
                 "examples" : {
+                  "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                    "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                    "value" : {
+                      "cantidadDeElementos" : 1,
+                      "contenido" : [ {
+                        "descripcion" : "Gestor de trabajo de Blue Open Data",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "nombre" : "Shiro",
+                        "prefijo" : "SHI",
+                        "status" : 0,
+                        "tableros" : [ {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "PRINCIPAL",
+                          "tipoTableroNombre" : "Principal",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                          "uuid" : "b2000000-0000-4000-8000-000000000001"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "QA",
+                          "tipoTableroNombre" : "QA",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                          "uuid" : "b2000000-0000-4000-8000-000000000002"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "ANALISIS",
+                          "tipoTableroNombre" : "Análisis",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                          "uuid" : "b2000000-0000-4000-8000-000000000003"
+                        } ],
+                        "uuid" : "b1000000-0000-4000-8000-000000000001"
+                      } ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 1,
+                      "totalDePaginas" : 1,
+                      "ultima" : true,
+                      "vacia" : false
+                    }
+                  },
+                  "sin-permiso-los-listados-vienen-vacios" : {
+                    "summary" : "Sin permiso los listados vienen vacios",
+                    "value" : {
+                      "cantidadDeElementos" : 0,
+                      "contenido" : [ ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 0,
+                      "totalDePaginas" : 0,
+                      "ultima" : true,
+                      "vacia" : true
+                    }
+                  },
+                  "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero" : {
+                    "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero",
+                    "value" : {
+                      "cantidadDeElementos" : 1,
+                      "contenido" : [ {
+                        "descripcion" : "Gestor de trabajo de Blue Open Data",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "nombre" : "Shiro",
+                        "prefijo" : "SHI",
+                        "status" : 0,
+                        "tableros" : [ {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "PRINCIPAL",
+                          "tipoTableroNombre" : "Principal",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                          "uuid" : "b2000000-0000-4000-8000-000000000001"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "QA",
+                          "tipoTableroNombre" : "QA",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                          "uuid" : "b2000000-0000-4000-8000-000000000002"
+                        }, {
+                          "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                          "status" : 0,
+                          "tipoTableroCodigo" : "ANALISIS",
+                          "tipoTableroNombre" : "Análisis",
+                          "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                          "uuid" : "b2000000-0000-4000-8000-000000000003"
+                        } ],
+                        "uuid" : "b1000000-0000-4000-8000-000000000001"
+                      } ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 1,
+                      "totalDePaginas" : 1,
+                      "ultima" : true,
+                      "vacia" : false
+                    }
+                  },
                   "paginar" : {
                     "summary" : "Paginar (SYSADMIN)",
                     "value" : {
@@ -4048,6 +4235,29 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el proyecto.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -4056,10 +4266,9 @@
       "post" : {
         "tags" : [ "Proyecto" ],
         "operationId" : "ProyectoController.archivar",
-        "summary" : "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones",
-        "description" : "**Caso de uso:** CU-PRY-04\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "summary" : "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones (exige ARCHIVAR en el proyecto)",
+        "description" : "**Caso de uso:** CU-PRY-04\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-04",
-        "x-permiso" : "SYSADMIN, ADMIN",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -4151,13 +4360,13 @@
                   "$ref" : "#/components/schemas/ErrorResponseDTO"
                 },
                 "examples" : {
-                  "sin-permiso" : {
-                    "summary" : "Sin permiso (CLIENTE)",
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
                     "value" : {
                       "codigo" : "SIN_PERMISO",
                       "errores" : [ ],
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
-                      "mensajeParaUsuario" : "No tienes permiso",
+                      "mensajeParaUsuario" : "No tenés permiso para archivar en el proyecto.",
                       "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
@@ -4173,10 +4382,9 @@
       "post" : {
         "tags" : [ "Proyecto" ],
         "operationId" : "ProyectoController.restaurar",
-        "summary" : "Restaura un proyecto archivado con lo que se archivó junto con él",
-        "description" : "**Caso de uso:** CU-PRY-05\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "summary" : "Restaura un proyecto archivado con lo que se archivó junto con él (exige ARCHIVAR en el proyecto)",
+        "description" : "**Caso de uso:** CU-PRY-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-05",
-        "x-permiso" : "SYSADMIN, ADMIN",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -4289,13 +4497,13 @@
                   "$ref" : "#/components/schemas/ErrorResponseDTO"
                 },
                 "examples" : {
-                  "sin-permiso" : {
-                    "summary" : "Sin permiso (CLIENTE)",
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
                     "value" : {
                       "codigo" : "SIN_PERMISO",
                       "errores" : [ ],
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
-                      "mensajeParaUsuario" : "No tienes permiso",
+                      "mensajeParaUsuario" : "No tenés permiso para archivar en el proyecto.",
                       "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
@@ -5009,6 +5217,14 @@
                 "$ref" : "#/components/schemas/RelacionCrearRequestDTO"
               },
               "examples" : {
+                "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                  "summary" : "Sin permiso cada endpoint de f1 responde403",
+                  "value" : {
+                    "destinoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                    "origenUuid" : "b3000000-0000-4000-8000-000000000001",
+                    "tipo" : "BLOQUEA"
+                  }
+                },
                 "una-tarea-no-se-relaciona-consigo-misma" : {
                   "summary" : "Una tarea no se relaciona consigo misma (ADMIN)",
                   "value" : {
@@ -5229,6 +5445,29 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -5330,6 +5569,29 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Usuario no identificado",
                       "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -6232,6 +6494,40 @@
                 "$ref" : "#/components/schemas/TareaDTO"
               },
               "examples" : {
+                "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                  "summary" : "Sin permiso cada endpoint de f1 responde403",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                    "tipoCodigo" : "TAREA",
+                    "titulo" : "Sin permiso"
+                  }
+                },
+                "sin-permiso-cada-endpoint-de-f1-responde403-2" : {
+                  "summary" : "Sin permiso cada endpoint de f1 responde403 (2)",
+                  "value" : {
+                    "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                    "tipoCodigo" : "TAREA",
+                    "titulo" : "Editada sin permiso",
+                    "uuid" : "b3000000-0000-4000-8000-000000000001"
+                  }
+                },
+                "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero" : {
+                  "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000002",
+                    "tipoCodigo" : "BUG",
+                    "titulo" : "En QA"
+                  }
+                },
+                "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero-2" : {
+                  "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero (2)",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                    "tipoCodigo" : "TAREA",
+                    "titulo" : "En el principal"
+                  }
+                },
                 "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
                   "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
                   "value" : {
@@ -6521,6 +6817,36 @@
                   "$ref" : "#/components/schemas/TareaDTO"
                 },
                 "examples" : {
+                  "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero" : {
+                    "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero",
+                    "value" : {
+                      "clave" : "SHI-2",
+                      "descripcion" : null,
+                      "estadoNombre" : "Por probar",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000021",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : null,
+                      "informanteUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "b1000000-0000-4000-8000-000000000001",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "QA",
+                      "tableroUuid" : "b2000000-0000-4000-8000-000000000002",
+                      "tipoCodigo" : "BUG",
+                      "tipoNombre" : "Bug",
+                      "titulo" : "En QA",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "vencimiento" : null
+                    }
+                  },
                   "guardar-alta" : {
                     "summary" : "Guardar alta (SYSADMIN)",
                     "value" : {
@@ -7218,6 +7544,51 @@
               }
             }
           },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "sin-permiso-cada-endpoint-de-f1-responde403-2" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403 (2)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero-2" : {
+                    "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero (2)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Errores: `TAREA_MODIFICADA`",
             "content" : {
@@ -7274,6 +7645,13 @@
                 "$ref" : "#/components/schemas/PedidoDePaginado"
               },
               "examples" : {
+                "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                  "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                  "value" : {
+                    "pagina" : 1,
+                    "tamano" : 50
+                  }
+                },
                 "paginar" : {
                   "summary" : "Paginar (SYSADMIN)",
                   "value" : {
@@ -7294,6 +7672,60 @@
                   "$ref" : "#/components/schemas/Pagina_TareaDTO_"
                 },
                 "examples" : {
+                  "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                    "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                    "value" : {
+                      "cantidadDeElementos" : 1,
+                      "contenido" : [ {
+                        "clave" : "SHI-1",
+                        "descripcion" : "Primera tarea de ejemplo del proyecto.",
+                        "estadoNombre" : "Por hacer",
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                        "etiquetas" : [ ],
+                        "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "hijas" : [ ],
+                        "informanteNombre" : "Usuario Demo",
+                        "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                        "padreClave" : null,
+                        "padreUuid" : null,
+                        "prioridad" : "MEDIA",
+                        "proyectoUuid" : "b1000000-0000-4000-8000-000000000001",
+                        "puntos" : null,
+                        "responsableNombre" : null,
+                        "responsableUuid" : null,
+                        "status" : 0,
+                        "tableroCodigo" : "PRINCIPAL",
+                        "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                        "tipoCodigo" : "TAREA",
+                        "tipoNombre" : "Tarea",
+                        "titulo" : "Definir el tablero principal de Shiro",
+                        "uuid" : "b3000000-0000-4000-8000-000000000001",
+                        "vencimiento" : null
+                      } ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 1,
+                      "totalDePaginas" : 1,
+                      "ultima" : true,
+                      "vacia" : false
+                    }
+                  },
+                  "sin-permiso-los-listados-vienen-vacios" : {
+                    "summary" : "Sin permiso los listados vienen vacios",
+                    "value" : {
+                      "cantidadDeElementos" : 0,
+                      "contenido" : [ ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 50,
+                      "totalDeElementos" : 0,
+                      "totalDePaginas" : 0,
+                      "ultima" : true,
+                      "vacia" : true
+                    }
+                  },
                   "paginar" : {
                     "summary" : "Paginar (SYSADMIN)",
                     "value" : {
@@ -7347,7 +7779,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 23",
+                        "titulo" : "Alta concurrente 16",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
                         "vencimiento" : null
                       }, {
@@ -7373,7 +7805,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 3",
+                        "titulo" : "Alta concurrente 9",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
                         "vencimiento" : null
                       } ],
@@ -7444,6 +7876,36 @@
                   "$ref" : "#/components/schemas/TareaDTO"
                 },
                 "examples" : {
+                  "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                    "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                    "value" : {
+                      "clave" : "SHI-1",
+                      "descripcion" : "Primera tarea de ejemplo del proyecto.",
+                      "estadoNombre" : "Por hacer",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "b1000000-0000-4000-8000-000000000001",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                      "tipoCodigo" : "TAREA",
+                      "tipoNombre" : "Tarea",
+                      "titulo" : "Definir el tablero principal de Shiro",
+                      "uuid" : "b3000000-0000-4000-8000-000000000001",
+                      "vencimiento" : null
+                    }
+                  },
                   "obtener-por-uuid" : {
                     "summary" : "Obtener por uuid (SYSADMIN)",
                     "value" : {
@@ -7547,6 +8009,29 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Usuario no identificado",
                       "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el tablero.",
+                      "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -7765,6 +8250,29 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para archivar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -7796,6 +8304,12 @@
                 "$ref" : "#/components/schemas/TareaClonarRequestDTO"
               },
               "examples" : {
+                "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                  "summary" : "Sin permiso cada endpoint de f1 responde403",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000002"
+                  }
+                },
                 "el-clon-de-una-historia-no-hereda-el-padre" : {
                   "summary" : "El clon de una historia no hereda el padre (ADMIN)",
                   "value" : {
@@ -7812,12 +8326,6 @@
                 "sin-tablero-rechazado" : {
                   "summary" : "Sin tablero rechazado (ADMIN)",
                   "value" : { }
-                },
-                "el-clon-de-una-subtarea-conserva-el-padre" : {
-                  "summary" : "El clon de una subtarea conserva el padre (ADMIN)",
-                  "value" : {
-                    "tableroUuid" : "b2000000-0000-4000-8000-000000000002"
-                  }
                 },
                 "tablero-de-otro-proyecto-rechazado" : {
                   "summary" : "Tablero de otro proyecto rechazado (ADMIN)",
@@ -8135,6 +8643,29 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Usuario no identificado",
                       "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el tablero.",
+                      "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -8568,6 +9099,29 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -8599,8 +9153,8 @@
                 "$ref" : "#/components/schemas/TareaMoverRequestDTO"
               },
               "examples" : {
-                "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
-                  "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                  "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
                   "value" : {
                     "estadoUuid" : "a2000000-0000-4000-8000-000000000012"
                   }
@@ -9130,6 +9684,40 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita" : {
+                    "summary" : "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para editar en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -9292,6 +9880,29 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para ver en el tablero.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -9419,6 +10030,29 @@
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Usuario no identificado",
                       "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso-cada-endpoint-de-f1-responde403" : {
+                    "summary" : "Sin permiso cada endpoint de f1 responde403",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tenés permiso para archivar en el tablero.",
+                      "status" : "403 FORBIDDEN",
                       "traceId" : "0000000000000000"
                     }
                   }
@@ -10685,31 +11319,31 @@
                 "un-token-invalido-rechazado" : {
                   "summary" : "Un token invalido rechazado",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMwMDl9.FEKbaeJ4svu_ODLxFXwLLhtRuEjeM5GXHtJoBGlWP1xvEjDYAFW81_aM6-p4XDzNQFR2e0zxIgeTYjuqV6gH1J9rxes1Sqk62IZ2_IOpWM9NFb9ru4o_mCsAoSkfOLUy_eZ71GzVoY2JATdrMcaIB2mvje0ATqFaC3YUwFwtTxXPSG5TqCv8NCe0kmm9IJPvFr5o0Kzc8rkCDh2IsJ_9Cu2IIYcgZI-T2KzFTytHhDasmN1pKzE1alWSJtyoLbFVglvH22typx-91xIWuF3W6987qE7u1Tjv4aJSFPgZV2q-jjjQYqDnZNEOW-bbPNlRQ9mhWLkeQLssPrEF3HBaHQ"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.Us76JI1fe_nqizMtZly-Jw7gy3FAGAz-MxZ1T5DKOvdNQbLIbuy1qkQrKe-0G_vdgsUKcH563gl9FzZlMcFq8j6Nvpmm2IXt2HXS9Hrf48Exj6REpXfko_VKv4bVlENml7iP2TIHYes20vuVjG4U-bdyOLc8T2FCDOTGPtaaavE7nuYmfj5pNf-Y0G1ECbpkcVARqlK3TZqN-iCVXzKcRG5g-G7rLmqHqfYY45GqgHO-HvTXOE9gxbAtJewsg7wLVI1dZcJZIL3MpVYUyTAE5byAdnMnynXd6W1Rtbhf21nkynYiMzk_J_hJ3o1suWEI9L2c8JEKBktglEtTDjR68A"
                   }
                 },
                 "el-mismo-correo-entra-como-el-mismo-usuario" : {
                   "summary" : "El mismo correo entra como el mismo usuario",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMDA5fQ.0kM73dcbsWO9iVFyM66kBAFsweva5CkNDSz3puOxC42r78zmbk2_Xe2ExsovVCW0GPsiyQp47cwFeTc1T22HWrMlcum_qW265G99kCwPYTlfglODFtU6eVF09GKRHHxzLvq60QKDLYQfOjd1ZvlsUKibAZOrXNq1-ORYbXvch8kNfe6uG9KJZDX9E3izD41f-GN01Z_-xLM3g3yCbExw9VDDWSEXhIZGuvEH1n41nUANbytGsPSdi4UYrZZXlQ-oavoqmh3Biyat5DzZHWLIV2rXObdv8TWijPsbkRC_VvJsDgGdshFer29Xi0hgAo1a8TnS5c81NGPFMgjFL00sbA"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.b9M748xX3bG9ZO-uvPl-uzSPIYGY6uPov9xpTY31bwljQyq6Gx5F7ZOMYy-AK79K1zmXodzgV4nY0SauZZPXSC_ziG3YR3m-w2QqmkyN1YEXy7CweKdIpsvaLV1TV8w-EfnaGdA48jeHxp-zsH_IUuac7KCt8VNZy6wC1Tzzik4J7sNeNsw42MSWJNKI2nekjhUgc4HONJnIcQttZJkbk3iRVj3Zqf86bdOj_UcoI3E_6fFVUMz8ZTgbddqZTiLidzzxo84uRoAVy63KMBKvPa1BoPTeZINsK202IT09bOrkoGoNJ1wwGNGzaZXA2q-WFpVFaaGQHci87Psj6XiU8A"
                   }
                 },
                 "un-usuario-nuevo-entra-sin-roles" : {
                   "summary" : "Un usuario nuevo entra sin roles",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMDA5fQ.3nSA9h7MoOUD4oAp0Hb4RudLK_1ZLpI8RL-_imEF7FLSlt8PBeDOBNIbNO1-AOIQV7MGb62L-dN12dzR_NhKuXv09DuVjXIpF72_rhUZ-UyKbSquH4YG6vfn3a9AheM0SlC3s2v4pOF3RDmVwqYkWJceRS7UxXYQuA2Idgp26vM5QbkN78_LFi3vS-_mec_37xknpfqb2YiC3E0U4moUIvmesZ7D5jQU8goy1DjT8NKSdaRu-mqlkAMA9iMk8p0eASvLF0jrI4m3Rv5tQXXP7mluRLo3Xsnx3YgIEXPz8MtKxvQexkrmieq9xQo47P8FvQStJ97gyjuPO9g_2Yb7ug"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.IcRIt1I1DXcbubX4AoEKt2ksWoSKVgmNP9EBCmjY2jj3ctjzQ9mpNTS6uxmL9VqjLcl2U89wk7f7SKZi-2OPxlY_tChEF9zABMK9IwsMknY_gdMqGgV2H17gco96DVAyY70UIaQkR83j9myVxIky3zH5gmAPmYS6QoY32DpZzlCGY51H96S_NliMQbhVX-35NrrlWXe8aWbB2xHLibsPkZaKpDk3FvUPqhDtNjwBgazwGK_XpoVVS0hcDWodEsKnTLFZYsLav4-pq--KjkMlvVp7afzS4w9YEbKndyHP1lLiGcnE7TW3A3sXJ66KIay00y2BJTs67sS3b6-WKTIMNQ"
                   }
                 },
                 "un-usuario-archivado-no-entra" : {
                   "summary" : "Un usuario archivado no entra",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMwMDl9.bfw_5o2TDUiBTSA_2YjylLp_OcwdItnkFwzodUqaQRC9zW2Y1iN2WLTY5C-0kx0P-NA86slrYjJDkICWp4GSn01xJ2vScYEDEUdPatjOe-Eax2g7uaduRpqa74gfs7itk4ZVOxDaEDGtm3ulME6ZVuARkF6y2s9Yi3ZiUTUODTJ6eMZ-umtMmg6mh2y2V2NobHiJYRd8ls5hXORH36kdsiALVIVD2SqcGIi_ETxOFhq2uduVviiSMG1Iu3qG4vcVO75TmXeLaRj1RAhKDbP3Gz7I11ElTe3d5hAuepOe_akp3FOA9spu5_DTJeEF1WQgJJJMNui0eLSIWKaRNfv41g"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.TIy9lAJpuZvdd2w4b3YrOMTbg5TliekPhv-db0vQPvx3Rax3PflQ0MVBzIIDDDfTZawmMficvIW5njbClSr7HU2pSTo7YQ83Rmi9wlg73bMA0xmnxBIsHiCSh7rH5JiXVOlsnWTcOfzbv5WRxia2w933iPZOGSZ36IywoThsMnCkf2bLSiECVPa0U7uyhlywqVX_h0-IVqC-XEoOz-UgaxSIN6IgPqJJhbu7D6t2kWzEZ75i3lhhgAS3tNtEkyRXFNpnF5k38SZFqbZ7sIECqxVV-Bz3iYVybztcaX9awz6vo9HD87Idlb00HxBlLbIHYu52_Im2PqLIpSPhQkIFOQ"
                   }
                 },
                 "una-cuenta-de-otro-dominio-rechazada" : {
                   "summary" : "Una cuenta de otro dominio rechazada",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjMwMDl9.S2-pozOK3ZdMiFOBlLMo9uh_-35lnIMP3j5JXfx2CTcMcQBqA0V4kflCSY7jFdXBz6VXRFcXBZD0T0Ifmk3ldoacmYgpLckLiOAS7NDfqgSalF1wyF9RE18cLVj8cdrepDDYHTUlCPSqx04cMOJXpQqKM9TFEVWtPR8CqERYEuJf5vGqUfyDg1BTQyUpWAEMe__FVlKm79NN9xosKdtz0NTIaRbuUHetr5ygU-TLNhrzuD-z2FV0XFeQJZpa9D-piId9ER0Oh1p9qs4C451UkPiWmVnWfmCGLRwq-DiL7SAqeKkAhQBxZfPqfDaoTamKjm-cWwZhK2Fsgrr3WHadOA"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjMzNTR9.oaahOvAEGIgVXd6kayAp9ui4BAw5NdrQjDLRMGYVUAJinYl-JAlzYIBjGJI6igGfdr9kLqoKhuy4izvZqZ_HnAximrkbwo0rzGR-5IMpxO_sCmgCtxrT2fCKQNWC3LGBlkxEnezQu4e1kMCN06N248tzR5xkf6o109ZB7z0xekuqhmwVh2w1e0N9RHsQZH3nz4NZG0U4rap8La3Byfu6bMSCAd32KTAq3RizA7fntiCcAC9HPy84FDhYSici_Ug1c_hFM231nJhZq8oUY06LrVJEQo-Dq7JbsfIPD60VDYe-qRoQxJEyn_DUiYsue6O-unDiadHCFZ8JCi_FX_OMLQ"
                   }
                 },
                 "sin-token-rechazado" : {

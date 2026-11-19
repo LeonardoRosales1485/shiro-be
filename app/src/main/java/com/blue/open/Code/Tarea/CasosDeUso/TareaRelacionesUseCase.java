@@ -1,6 +1,9 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Relacion.RelacionRepository;
+import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaRelacionDTO;
 import com.blue.open.Code.Tarea.TareaRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
@@ -23,12 +26,16 @@ public class TareaRelacionesUseCase {
 
     private final TareaRepository tareaRepository;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     private final RelacionRepository relacionRepository;
 
     @Transactional(readOnly = true)
     public List<TareaRelacionDTO> ejecutar(String uuid) {
-        if (!tareaRepository.existsByUuid(uuid))
-            throw new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "TareaRelacionesUseCase | ejecutar | tarea " + uuid);
+        Tarea tarea = tareaRepository.findFirstByUuid(uuid)
+                .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
+                        "TareaRelacionesUseCase | ejecutar | tarea " + uuid));
+        permisos.exigir(NivelDePermiso.VER, tarea.getTablero());
         return relacionRepository.listarDeTarea(uuid);
     }
 }

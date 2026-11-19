@@ -1,14 +1,17 @@
 package com.blue.open.Code.Proyecto;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.Tablero.TableroRepository;
 import com.blue.open.Code.TipoTablero.TipoTablero;
 import com.blue.open.Code.TipoTablero.TipoTableroRepository;
 import com.blue.open.Core.Crud.AbstractService;
+import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,21 @@ public class ProyectoService extends AbstractService<Proyecto, ProyectoDTO, Proy
     private final TableroRepository tableroRepository;
 
     private final RegistradorDeHistorial historial;
+
+    private final ResolutorDePermisosDeRecurso permisos;
+
+    // Exige VER sobre el proyecto (si no existe, el Core responde REGISTRO_NO_ENCONTRADO)
+    @Override
+    protected void hookObtenerAuth(String uuid) {
+        proyectoRepository.findFirstByUuid(uuid).ifPresent(proyecto -> permisos.exigir(NivelDePermiso.VER, proyecto));
+    }
+
+    // El listado trae solo los proyectos que el usuario ve (el proyecto o alguno de sus tableros)
+    @Override
+    protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
+        permisos.restringirAProyectosVisibles(pedido, "t.id");
+        return super.hookPaginarAntesDeConsultar(pedido);
+    }
 
     /*
      * Valida el prefijo antes de aplicar el DTO y lo deja en mayusculas. Alta: el prefijo no puede usarlo otro

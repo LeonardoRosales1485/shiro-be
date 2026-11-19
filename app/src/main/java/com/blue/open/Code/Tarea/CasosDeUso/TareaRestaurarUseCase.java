@@ -1,5 +1,6 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
@@ -7,6 +8,7 @@ import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivo;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoRepository;
 import com.blue.open.Code.OperacionDeArchivo.TipoDeOperacionDeArchivo;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaDTO;
 import com.blue.open.Code.Tarea.TareaRepository;
@@ -42,11 +44,14 @@ public class TareaRestaurarUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public TareaDTO ejecutar(String uuid) {
         Tarea raiz = tareaRepository.bloquearArchivadaPorUuid(uuid)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "TareaRestaurarUseCase | ejecutar | tarea archivada " + uuid));
+        permisos.exigir(NivelDePermiso.ARCHIVAR, raiz.getTablero());
         Tarea padre = raiz.getPadre();
         if (padre != null && padre.getStatus() == ARCHIVADA)
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.PADRE_ARCHIVADO, "Restaurá primero " + padre.getClave() + ".",

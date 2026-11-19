@@ -24,6 +24,9 @@ public interface ProyectoRepository extends EntidadRepositoryBorradoLogico<Proye
     @Query("SELECT p FROM Proyecto p WHERE p.id = :id AND p.status = 0")
     Optional<Proyecto> bloquearPorId(@Param("id") Long id);
 
+    // Proyecto por uuid en cualquier status
+    Optional<Proyecto> findFirstByUuid(String uuid);
+
     // Proyecto por uuid con el status recibido (0: vigente, -1: archivado)
     Optional<Proyecto> findFirstByUuidAndStatus(String uuid, Integer status);
 

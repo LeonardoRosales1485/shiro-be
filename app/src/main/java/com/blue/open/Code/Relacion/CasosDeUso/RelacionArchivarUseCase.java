@@ -1,11 +1,13 @@
 package com.blue.open.Code.Relacion.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivo;
 import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoRepository;
 import com.blue.open.Code.OperacionDeArchivo.TipoDeOperacionDeArchivo;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Relacion.Relacion;
 import com.blue.open.Code.Relacion.RelacionDTO;
 import com.blue.open.Code.Relacion.RelacionRepository;
@@ -41,11 +43,14 @@ public class RelacionArchivarUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public RelacionDTO ejecutar(String uuid) {
         Relacion relacion = relacionRepository.findFirstByUuidAndStatus(uuid, 0)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "RelacionArchivarUseCase | ejecutar | relacion vigente " + uuid));
+        permisos.exigir(NivelDePermiso.EDITAR, relacion.getOrigen().getTablero());
         Long idUsuario = usuarioActual.getIdUsuarioActual();
         OperacionDeArchivo operacion = operacionRepository.save(
                 new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR, RELACION, uuid, idUsuario));

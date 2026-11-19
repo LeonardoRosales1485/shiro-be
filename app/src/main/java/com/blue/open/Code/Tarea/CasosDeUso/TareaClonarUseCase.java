@@ -1,11 +1,13 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Comentario.Comentario;
 import com.blue.open.Code.Comentario.ComentarioRepository;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Relacion.TipoDeRelacion;
 import com.blue.open.Code.Relacion.VinculadorDeTareas;
 import com.blue.open.Code.Tablero.Tablero;
@@ -68,11 +70,14 @@ public class TareaClonarUseCase {
 
     private final Proyector proyector;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     @Transactional
     public TareaDTO ejecutar(String uuid, TareaClonarRequestDTO dto) {
         Tarea original = tareaRepository.findFirstByUuidAndStatus(uuid, VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "TareaClonarUseCase | ejecutar | tarea " + uuid));
+        permisos.exigir(NivelDePermiso.VER, original.getTablero());
         Tablero destino = tableroRepository.findFirstByUuidAndStatus(dto.getTableroUuid(), VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.RELACION_NO_ENCONTRADA,
                         "TareaClonarUseCase | ejecutar | tablero " + dto.getTableroUuid()).conDato("campo", "tableroUuid"));

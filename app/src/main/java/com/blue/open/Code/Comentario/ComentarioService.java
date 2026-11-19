@@ -1,14 +1,17 @@
 package com.blue.open.Code.Comentario;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Common.Canal.CanalDeLaPeticion;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Usuario.UsuarioRepository;
 import com.blue.open.Core.Crud.AbstractService;
+import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,24 @@ public class ComentarioService extends AbstractService<Comentario, ComentarioDTO
 
     private final RegistradorDeHistorial historial;
 
+    private final ComentarioRepository comentarioRepository;
+
+    private final ResolutorDePermisosDeRecurso permisos;
+
+    // Exige VER sobre el tablero de la tarea comentada (si no existe, el Core responde REGISTRO_NO_ENCONTRADO)
+    @Override
+    protected void hookObtenerAuth(String uuid) {
+        comentarioRepository.findFirstByUuid(uuid)
+                .ifPresent(comentario -> permisos.exigir(NivelDePermiso.VER, comentario.getTarea().getTablero()));
+    }
+
+    // El listado trae solo los comentarios de tareas de tableros que el usuario ve
+    @Override
+    protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
+        permisos.restringirATablerosVisibles(pedido, "t.tarea.tablero.id");
+        return super.hookPaginarAntesDeConsultar(pedido);
+    }
+
     /*
      * Aplica el DTO: en un alta completa autor, canal y fecha; en una edicion valida que edite el autor y conserva
      * tarea, autor, canal y fecha. Recuerda el cuerpo anterior para el historial. Lanza SIN_PERMISO si edita otro.
@@ -41,6 +62,8 @@ public class ComentarioService extends AbstractService<Comentario, ComentarioDTO
     protected Comentario hookGuardarAplicarDto(ComentarioDTO dto, Comentario modelo) {
         boolean esAlta = modelo.getId() == null;
         Long idUsuario = usuarioActual.getIdUsuarioActual();
+        if (!esAlta)
+            permisos.exigir(NivelDePermiso.EDITAR, modelo.getTarea().getTablero());
         if (!esAlta && !modelo.getAutor().getId().equals(idUsuario))
             throw new ExcepcionDeApi(CodigoDeErrorKernel.SIN_PERMISO, "Solo el autor edita su comentario.",
                     "ComentarioService | hookGuardarAplicarDto | comentario " + modelo.getUuid());
@@ -55,6 +78,8 @@ public class ComentarioService extends AbstractService<Comentario, ComentarioDTO
             dto.setTareaUuid(tareaActual.getUuid());
         Comentario aplicado = super.hookGuardarAplicarDto(dto, modelo);
         if (esAlta) {
+            // Comentar exige EDITAR en el tablero de la tarea (Spec 2)
+            permisos.exigir(NivelDePermiso.EDITAR, aplicado.getTarea().getTablero());
             aplicado.setAutor(usuarioRepository.findById(idUsuario)
                     .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorKernel.NO_AUTENTICADO,
                             "ComentarioService | hookGuardarAplicarDto | sin usuario de sesion")));

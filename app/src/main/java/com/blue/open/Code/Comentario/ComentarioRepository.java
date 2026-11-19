@@ -9,11 +9,15 @@ import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de comentarios. El listado del front es el paginado del ABM, filtrado por tareaUuid.
  */
 public interface ComentarioRepository extends EntidadRepositoryBorradoLogico<Comentario> {
+
+    // Comentario por uuid en cualquier status
+    Optional<Comentario> findFirstByUuid(String uuid);
 
     // Comentarios con el status recibido de una tarea, por fecha (lo usa clonar para copiarlos)
     List<Comentario> findByTareaAndStatusOrderByFechaAsc(Tarea tarea, Integer status);

@@ -1,9 +1,12 @@
 package com.blue.open.Code.Tarea.CasosDeUso;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.HistorialDTO;
 import com.blue.open.Code.Historial.HistorialRepository;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
@@ -26,12 +29,16 @@ public class TareaHistorialUseCase {
 
     private final TareaRepository tareaRepository;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
     private final HistorialRepository historialRepository;
 
     @Transactional(readOnly = true)
     public List<HistorialDTO> ejecutar(String uuid, CanalDeCambio canal) {
-        if (!tareaRepository.existsByUuid(uuid))
-            throw new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "TareaHistorialUseCase | ejecutar | tarea " + uuid);
+        Tarea tarea = tareaRepository.findFirstByUuid(uuid)
+                .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
+                        "TareaHistorialUseCase | ejecutar | tarea " + uuid));
+        permisos.exigir(NivelDePermiso.VER, tarea.getTablero());
         return canal == null ? historialRepository.listar(Historial.TAREA, uuid)
                 : historialRepository.listarPorCanal(Historial.TAREA, uuid, canal);
     }

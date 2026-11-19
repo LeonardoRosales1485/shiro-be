@@ -1,5 +1,6 @@
 package com.blue.open.Code.Tablero;
 
+import com.blue.open.Code.Autorizacion.TableroDeProyecto;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import org.springframework.data.jpa.repository.Modifying;
@@ -7,12 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Repositorio de tableros de proyecto.
  */
 public interface TableroRepository extends EntidadRepositoryBorradoLogico<Tablero> {
+
+    // Tableros vigentes con el id de su proyecto (para calcular lo visible de un usuario)
+    @Query("SELECT new com.blue.open.Code.Autorizacion.TableroDeProyecto(t.id, t.proyecto.id) FROM Tablero t WHERE t.status = 0")
+    List<TableroDeProyecto> listarVigentesConProyecto();
 
     // Tablero por uuid con el status recibido (0: vigente)
     Optional<Tablero> findFirstByUuidAndStatus(String uuid, Integer status);

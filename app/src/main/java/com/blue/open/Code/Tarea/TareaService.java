@@ -1,5 +1,6 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Estado.EstadoRepository;
@@ -8,6 +9,7 @@ import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.TipoTarea.TipoTareaRepository;
@@ -15,6 +17,7 @@ import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Usuario.UsuarioRepository;
 import com.blue.open.Core.Crud.AbstractService;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
+import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +62,21 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final RegistradorDeHistorial historial;
 
+    private final ResolutorDePermisosDeRecurso permisos;
+
+    // Exige VER sobre el tablero de la tarea (si no existe, el Core responde REGISTRO_NO_ENCONTRADO)
+    @Override
+    protected void hookObtenerAuth(String uuid) {
+        tareaRepository.findFirstByUuid(uuid).ifPresent(tarea -> permisos.exigir(NivelDePermiso.VER, tarea.getTablero()));
+    }
+
+    // El listado trae solo las tareas de los tableros que el usuario ve
+    @Override
+    protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
+        permisos.restringirATablerosVisibles(pedido, "t.tablero.id");
+        return super.hookPaginarAntesDeConsultar(pedido);
+    }
+
     // Busca la tarea a editar con su fila bloqueada. Vacio si es un alta (sin uuid)
     @Override
     protected Optional<Tarea> hookGuardarBuscarExistente(TareaDTO dto) {
@@ -76,8 +94,10 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     @Override
     protected Tarea hookGuardarAplicarDto(TareaDTO dto, Tarea modelo) {
         boolean esAlta = modelo.getId() == null;
-        if (!esAlta)
+        if (!esAlta) {
+            permisos.exigir(NivelDePermiso.EDITAR, modelo.getTablero());
             validarFechaLeida(dto, modelo);
+        }
         if (!esAlta && !modelo.getTablero().getUuid().equals(dto.getTableroUuid()))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TABLERO_DE_TAREA_NO_SE_CAMBIA,
                     "TareaService | hookGuardarAplicarDto | tarea " + modelo.getClave() + " | tablero pedido "
@@ -96,6 +116,8 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         dto.setEstadoUuid(null);
 
         Tarea aplicada = super.hookGuardarAplicarDto(dto, modelo);
+        if (esAlta)
+            permisos.exigir(NivelDePermiso.EDITAR, aplicada.getTablero());
         if (!esAlta) {
             // Antes de cualquier consulta: una consulta dispara el flush y la tarea no puede quedar sin proyecto
             aplicada.setProyecto(proyectoActual);

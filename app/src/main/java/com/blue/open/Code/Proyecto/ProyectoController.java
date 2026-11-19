@@ -58,16 +58,16 @@ public class ProyectoController {
 
     // Archiva un proyecto con todo lo que contiene. Responde el proyecto archivado
     @PostMapping("/{uuid}/archivar")
-    @Contrato(casoDeUso = "CU-PRY-04", resumen = "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones",
-            permiso = {"SYSADMIN", "ADMIN"})
+    @Contrato(casoDeUso = "CU-PRY-04", resumen = "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones (exige ARCHIVAR en el proyecto)",
+            permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> archivar(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 
     // Restaura un proyecto archivado con lo que se archivo en su misma operacion. Responde el proyecto restaurado
     @PostMapping("/{uuid}/restaurar")
-    @Contrato(casoDeUso = "CU-PRY-05", resumen = "Restaura un proyecto archivado con lo que se archivó junto con él",
-            permiso = {"SYSADMIN", "ADMIN"})
+    @Contrato(casoDeUso = "CU-PRY-05", resumen = "Restaura un proyecto archivado con lo que se archivó junto con él (exige ARCHIVAR en el proyecto)",
+            permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> restaurar(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
