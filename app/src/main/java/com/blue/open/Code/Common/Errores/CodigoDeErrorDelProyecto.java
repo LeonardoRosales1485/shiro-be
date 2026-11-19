@@ -84,6 +84,24 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     VERSION_PUBLICADA(HttpStatus.BAD_REQUEST, "La versión está publicada y no cambia."),
     @Descripcion("Se mandó una tarea de otro proyecto (o archivada) para una versión")
     TAREA_DE_OTRO_PROYECTO(HttpStatus.BAD_REQUEST, "La tarea tiene que ser del mismo proyecto."),
+    @Descripcion("Se intentó usar el importador de Jira y el servidor no tiene configurada la frase de cifrado de credenciales (SHIRO_CIFRADO_FRASE)")
+    CIFRADO_NO_CONFIGURADO(HttpStatus.SERVICE_UNAVAILABLE, "El importador de Jira no está habilitado en este servidor."),
+    @Descripcion("Al ejecutar una importación, el token de Jira guardado no se puede descifrar (cambió la frase de cifrado del servidor): hay que volver a conectar")
+    CREDENCIAL_NO_DESCIFRABLE(HttpStatus.BAD_REQUEST, "Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira."),
+    @Descripcion("Al conectar con Jira, la clave del proyecto de Jira no sirve como prefijo de Shiro (2 a 6 letras): se importa con esa clave, así que no se puede importar")
+    CLAVE_DE_JIRA_NO_ES_PREFIJO(HttpStatus.BAD_REQUEST, "La clave del proyecto de Jira tiene que tener de 2 a 6 letras para usarla como prefijo en Shiro."),
+    @Descripcion("Jira rechazó el correo o el token de API (o no tienen acceso al proyecto)")
+    JIRA_CREDENCIALES_INVALIDAS(HttpStatus.BAD_REQUEST, "Jira rechazó el correo o el token. Revisalos y volvé a intentar."),
+    @Descripcion("Al conectar con Jira, no existe un proyecto con esa clave (o las credenciales no lo ven)")
+    JIRA_PROYECTO_NO_ENCONTRADO(HttpStatus.BAD_REQUEST, "No hay un proyecto con esa clave en Jira."),
+    @Descripcion("Jira no responde, responde un error o la URL no es de un Jira: hay que revisar la URL o reintentar más tarde")
+    JIRA_NO_DISPONIBLE(HttpStatus.SERVICE_UNAVAILABLE, "Jira no responde. Revisá la URL o volvé a intentar en unos minutos."),
+    @Descripcion("Al mapear una importación, un tablero no es del proyecto de Jira, un tipo o estado no existe, o un estado no es del tipo de tablero elegido")
+    MAPEO_DE_JIRA_INVALIDO(HttpStatus.BAD_REQUEST, "El mapeo no es válido. Revisá los tableros, estados y tipos elegidos."),
+    @Descripcion("Se intentó ejecutar una importación que todavía no tiene mapeo")
+    IMPORTACION_SIN_MAPEO(HttpStatus.BAD_REQUEST, "Antes de importar hay que mapear los tableros, estados y tipos."),
+    @Descripcion("Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine")
+    IMPORTACION_EN_CURSO(HttpStatus.CONFLICT, "La importación está en curso. Esperá a que termine."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

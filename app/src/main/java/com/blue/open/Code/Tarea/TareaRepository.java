@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,4 +94,13 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     @Query("UPDATE Tarea x SET x.status = 0, x.fechaDeBorrado = NULL, x.idUsuarioDeBorrado = NULL, x.idOperacionArchivo = NULL, x.fechaDeActualizacion = :fecha, x.idUsuarioDeActualizacion = :usuario WHERE x.idOperacionArchivo = :operacion AND x.status = -1")
     int restaurarPorOperacion(@Param("operacion") Long operacion, @Param("usuario") Long usuario,
             @Param("fecha") Timestamp fecha);
+
+    // Tareas por uuid con su tablero, tipo de tablero, tipo, estado, responsable, padre y sprint, en una consulta (importador, F4)
+    @Query("SELECT t FROM Tarea t JOIN FETCH t.tablero tb JOIN FETCH tb.tipoTablero JOIN FETCH t.tipo "
+            + "JOIN FETCH t.estado LEFT JOIN FETCH t.responsable LEFT JOIN FETCH t.padre LEFT JOIN FETCH t.sprint WHERE t.uuid IN :uuids")
+    List<Tarea> buscarParaImportar(@Param("uuids") Collection<String> uuids);
+
+    // Cuales de las claves recibidas ya usa alguna tarea (importador, F4)
+    @Query("SELECT t.clave FROM Tarea t WHERE t.clave IN :claves")
+    List<String> clavesEnUso(@Param("claves") Collection<String> claves);
 }

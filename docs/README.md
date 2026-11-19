@@ -120,6 +120,18 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Qué exige cada endpoint de F1 (T2.4): leer (uuid, historial, relaciones, comentarios) exige `VER` en el tablero o el proyecto; crear y editar tareas, moverlas, comentar y relacionar (en el tablero de origen; `VER` en el de destino) exige `EDITAR`; archivar y restaurar tareas y proyectos exige `ARCHIVAR`; clonar exige `VER` en el original y `EDITAR` en el destino. Sin el nivel: 403 `SIN_PERMISO`. Los listados (`paginar` de proyectos, tareas y comentarios) traen solo lo visible: un proyecto se ve si se ve el proyecto o alguno de sus tableros. Crear y editar proyectos, y las reglas de permiso, siguen siendo solo para el super admin y los Administradores.
 - Seed: el grupo `CLIENTE` ve el proyecto Shiro.
 
+## Importador de Jira (`Importacion`)
+
+- Solo el super admin y los Administradores importan. Se conecta con la URL del sitio de Jira, el correo de una cuenta y un token de API de esa cuenta; el token se guarda cifrado (`SHIRO_CIFRADO_FRASE`) y nunca se devuelve. Sin frase de cifrado el importador está deshabilitado.
+- La clave del proyecto de Jira es el prefijo del proyecto en Shiro: tiene que tener de 2 a 6 letras y no la puede usar otro proyecto, salvo el que se creó en una importación anterior de esa misma clave (se reusa).
+- Al conectar, Shiro responde los tableros, estados, tipos y usuarios del proyecto de Jira. Cada usuario se vincula por correo con el de Shiro.
+- El mapeo lleva cada tablero de Jira a un tipo de tablero de Shiro (principal o sub-tablero; varios pueden ir al mismo), cada estado de Jira de ese tablero a un estado de ese tipo de tablero, y cada tipo de Jira a un tipo de Shiro. Solo se importan las tareas de los tableros mapeados.
+- La ejecución corre en segundo plano (una a la vez): crea el proyecto con sus tableros si no existe y trae versiones, sprints, tareas, subtareas, etiquetas y comentarios, conservando las claves de Jira. El contador del proyecto sigue desde la clave más alta. Todo queda en el historial con canal IMPORTACION.
+- Lo que no se puede importar no corta la ejecución: queda en las fallas del resumen (tipo o estado sin mapear, subtarea sin padre importado). Los cambios forzados quedan como advertencias (otra clave, sin padre, sprint activo repetido).
+- Un responsable sin usuario en Shiro queda vacío; un comentario de un autor sin usuario queda a nombre de quien importa, con el nombre de Jira al principio. Los correos sin vincular aparecen en el resumen.
+- Reimportar (volver a ejecutar, o conectar de nuevo con la misma clave) actualiza lo ya importado sin duplicar: cada elemento de Jira queda registrado en `shr_mapeo_jira`. Una tarea no cambia de tablero; los comentarios ya importados no se vuelven a traer.
+- El resumen tiene las tareas creadas y actualizadas (y por tipo), los comentarios nuevos, los sprints, las versiones, las fallas, las advertencias y los usuarios sin vincular.
+
 ## Roles y permisos
 
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.

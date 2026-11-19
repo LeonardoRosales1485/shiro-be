@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,9 @@ public interface UsuarioRepository extends EntidadRepositoryBorradoLogico<Usuari
     Optional<Usuario> findFirstByEmailAndStatus(String email, Integer status);
 
     Optional<Usuario> findFirstByEmailAndStatusNot(String email, Integer status);
+
+    // Usuarios vigentes con alguno de los correos recibidos, en una consulta (vincular usuarios de Jira, F4)
+    List<Usuario> findByEmailInAndStatus(Collection<String> emails, Integer status);
 
     // Usuario por uuid con el status recibido (0: vigente, -1: archivado)
     Optional<Usuario> findFirstByUuidAndStatus(String uuid, Integer status);

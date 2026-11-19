@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.29</title>
+    <title>API de Open Data 1.0.30</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,8 +1868,8 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.29",
-    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |\n| `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |\n| `GRUPO_DEL_SISTEMA` | 400 | Los grupos del sistema no se archivan. | Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva |\n| `GRUPO_REPETIDO` | 400 | Ya hay un grupo con ese nombre. | Al crear o editar un grupo, ya hay otro vigente con ese nombre |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `REGLA_DE_PERMISO_INVALIDA` | 400 | La regla tiene que indicar un sujeto y un recurso, según su tipo. | Al guardar una regla de permiso, el sujeto no coincide con tipoSujeto (va rolUuid o usuarioUuid, uno solo) o el recurso no coincide con tipoRecurso (va proyectoUuid o tableroUuid, uno solo) |\n| `REGLA_DE_PERMISO_REPETIDA` | 400 | Ya hay una regla para ese sujeto, recurso y nivel. Editá esa. | Al guardar una regla de permiso, ya hay otra vigente con el mismo sujeto, recurso y nivel: hay que editar esa |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `SPRINT_ACTIVO_EXISTENTE` | 400 | Ya hay un sprint activo en el proyecto. Cerralo antes de iniciar otro. | Al iniciar un sprint, el proyecto ya tiene otro activo: hay que cerrarlo primero |\n| `SPRINT_ACTIVO_NO_SE_ARCHIVA` | 400 | El sprint activo no se archiva: cerralo primero. | Se intentó archivar el sprint activo: hay que cerrarlo primero |\n| `SPRINT_CERRADO` | 400 | El sprint está cerrado: no se le asignan ni quitan tareas. | Se intentó asignar o quitar tareas de un sprint cerrado |\n| `SPRINT_DESTINO_INVALIDO` | 400 | El sprint de destino tiene que ser un sprint planificado del mismo proyecto. | Al cerrar un sprint hacia otro sprint, el destino no es un sprint planificado del mismo proyecto |\n| `SPRINT_FECHAS_INVALIDAS` | 400 | La fecha de fin del sprint no puede ser anterior a la de inicio. | Al guardar un sprint, la fecha de fin es anterior a la de inicio |\n| `SPRINT_NO_ACTIVO` | 400 | Solo se cierra el sprint activo. | Se intentó cerrar un sprint que no está activo |\n| `SPRINT_NO_PLANIFICADO` | 400 | Solo se inicia un sprint planificado. | Se intentó iniciar un sprint que no está planificado (ya está activo o cerrado) |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_DE_OTRO_PROYECTO` | 400 | La tarea tiene que ser del mismo proyecto. | Se mandó una tarea de otro proyecto (o archivada) para una versión |\n| `TAREA_FUERA_DEL_BACKLOG` | 400 | Una de las tareas no está en el backlog del proyecto. | Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea) |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_DE_GOOGLE_INVALIDO` | 401 | No se pudo validar tu cuenta de Google. Volvé a intentar. | Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n| `USUARIO_NO_SE_ARCHIVA_A_SI_MISMO` | 400 | No podés archivar tu propio usuario. | Al archivar un usuario se eligió el propio usuario de la sesión: nadie se archiva a sí mismo |\n| `VERSION_PUBLICADA` | 400 | La versión está publicada y no cambia. | Se intentó cambiar una versión publicada (editarla, asignarle o quitarle tareas, o publicarla otra vez): una versión publicada no cambia |\n"
+    "version" : "1.0.30",
+    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CIFRADO_NO_CONFIGURADO` | 503 | El importador de Jira no está habilitado en este servidor. | Se intentó usar el importador de Jira y el servidor no tiene configurada la frase de cifrado de credenciales (SHIRO_CIFRADO_FRASE) |\n| `CLAVE_DE_JIRA_NO_ES_PREFIJO` | 400 | La clave del proyecto de Jira tiene que tener de 2 a 6 letras para usarla como prefijo en Shiro. | Al conectar con Jira, la clave del proyecto de Jira no sirve como prefijo de Shiro (2 a 6 letras): se importa con esa clave, así que no se puede importar |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CREDENCIAL_NO_DESCIFRABLE` | 400 | Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira. | Al ejecutar una importación, el token de Jira guardado no se puede descifrar (cambió la frase de cifrado del servidor): hay que volver a conectar |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |\n| `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |\n| `GRUPO_DEL_SISTEMA` | 400 | Los grupos del sistema no se archivan. | Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva |\n| `GRUPO_REPETIDO` | 400 | Ya hay un grupo con ese nombre. | Al crear o editar un grupo, ya hay otro vigente con ese nombre |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `IMPORTACION_EN_CURSO` | 409 | La importación está en curso. Esperá a que termine. | Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine |\n| `IMPORTACION_SIN_MAPEO` | 400 | Antes de importar hay que mapear los tableros, estados y tipos. | Se intentó ejecutar una importación que todavía no tiene mapeo |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `JIRA_CREDENCIALES_INVALIDAS` | 400 | Jira rechazó el correo o el token. Revisalos y volvé a intentar. | Jira rechazó el correo o el token de API (o no tienen acceso al proyecto) |\n| `JIRA_NO_DISPONIBLE` | 503 | Jira no responde. Revisá la URL o volvé a intentar en unos minutos. | Jira no responde, responde un error o la URL no es de un Jira: hay que revisar la URL o reintentar más tarde |\n| `JIRA_PROYECTO_NO_ENCONTRADO` | 400 | No hay un proyecto con esa clave en Jira. | Al conectar con Jira, no existe un proyecto con esa clave (o las credenciales no lo ven) |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MAPEO_DE_JIRA_INVALIDO` | 400 | El mapeo no es válido. Revisá los tableros, estados y tipos elegidos. | Al mapear una importación, un tablero no es del proyecto de Jira, un tipo o estado no existe, o un estado no es del tipo de tablero elegido |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `REGLA_DE_PERMISO_INVALIDA` | 400 | La regla tiene que indicar un sujeto y un recurso, según su tipo. | Al guardar una regla de permiso, el sujeto no coincide con tipoSujeto (va rolUuid o usuarioUuid, uno solo) o el recurso no coincide con tipoRecurso (va proyectoUuid o tableroUuid, uno solo) |\n| `REGLA_DE_PERMISO_REPETIDA` | 400 | Ya hay una regla para ese sujeto, recurso y nivel. Editá esa. | Al guardar una regla de permiso, ya hay otra vigente con el mismo sujeto, recurso y nivel: hay que editar esa |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `SPRINT_ACTIVO_EXISTENTE` | 400 | Ya hay un sprint activo en el proyecto. Cerralo antes de iniciar otro. | Al iniciar un sprint, el proyecto ya tiene otro activo: hay que cerrarlo primero |\n| `SPRINT_ACTIVO_NO_SE_ARCHIVA` | 400 | El sprint activo no se archiva: cerralo primero. | Se intentó archivar el sprint activo: hay que cerrarlo primero |\n| `SPRINT_CERRADO` | 400 | El sprint está cerrado: no se le asignan ni quitan tareas. | Se intentó asignar o quitar tareas de un sprint cerrado |\n| `SPRINT_DESTINO_INVALIDO` | 400 | El sprint de destino tiene que ser un sprint planificado del mismo proyecto. | Al cerrar un sprint hacia otro sprint, el destino no es un sprint planificado del mismo proyecto |\n| `SPRINT_FECHAS_INVALIDAS` | 400 | La fecha de fin del sprint no puede ser anterior a la de inicio. | Al guardar un sprint, la fecha de fin es anterior a la de inicio |\n| `SPRINT_NO_ACTIVO` | 400 | Solo se cierra el sprint activo. | Se intentó cerrar un sprint que no está activo |\n| `SPRINT_NO_PLANIFICADO` | 400 | Solo se inicia un sprint planificado. | Se intentó iniciar un sprint que no está planificado (ya está activo o cerrado) |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_DE_OTRO_PROYECTO` | 400 | La tarea tiene que ser del mismo proyecto. | Se mandó una tarea de otro proyecto (o archivada) para una versión |\n| `TAREA_FUERA_DEL_BACKLOG` | 400 | Una de las tareas no está en el backlog del proyecto. | Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea) |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_DE_GOOGLE_INVALIDO` | 401 | No se pudo validar tu cuenta de Google. Volvé a intentar. | Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n| `USUARIO_NO_SE_ARCHIVA_A_SI_MISMO` | 400 | No podés archivar tu propio usuario. | Al archivar un usuario se eligió el propio usuario de la sesión: nadie se archiva a sí mismo |\n| `VERSION_PUBLICADA` | 400 | La versión está publicada y no cambia. | Se intentó cambiar una versión publicada (editarla, asignarle o quitarle tareas, o publicarla otra vez): una versión publicada no cambia |\n"
   },
   "servers" : [ {
     "url" : "/api"
@@ -1884,6 +1884,8 @@
     "name" : "Comentario"
   }, {
     "name" : "Configuracion"
+  }, {
+    "name" : "Importacion"
   }, {
     "name" : "JwtLogin"
   }, {
@@ -3734,6 +3736,2136 @@
         }
       }
     },
+    "/importacion/conectar" : {
+      "post" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.conectar",
+        "summary" : "Conecta con un proyecto de Jira (guarda el token cifrado) y responde sus tableros, estados, tipos y usuarios para mapear",
+        "description" : "**Caso de uso:** CU-IMP-01\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-01",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ImportacionConectarRequestDTO"
+              },
+              "examples" : {
+                "jira-no-responde" : {
+                  "summary" : "Jira no responde (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JSIM",
+                    "correo" : "importador@example.com",
+                    "token" : "token-de-jira-simulado",
+                    "url" : "http://127.0.0.1:1"
+                  }
+                },
+                "la-clave-no-sirve-como-prefijo" : {
+                  "summary" : "La clave no sirve como prefijo (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JS1M",
+                    "correo" : "importador@example.com",
+                    "token" : "token-de-jira-simulado",
+                    "url" : "http://127.0.0.1:45645"
+                  }
+                },
+                "conectar-responde-el-catalogo-de-jira" : {
+                  "summary" : "Conectar responde el catalogo de jira (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JSIM",
+                    "correo" : "importador@example.com",
+                    "token" : "token-de-jira-simulado",
+                    "url" : "http://127.0.0.1:45645"
+                  }
+                },
+                "cuerpo-invalido" : {
+                  "summary" : "Cuerpo invalido (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JSIM"
+                  }
+                },
+                "credenciales-invalidas" : {
+                  "summary" : "Credenciales invalidas (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JSIM",
+                    "correo" : "importador@example.com",
+                    "token" : "otro-token",
+                    "url" : "http://127.0.0.1:45645"
+                  }
+                },
+                "proyecto-inexistente-en-jira" : {
+                  "summary" : "Proyecto inexistente en jira (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "NOPE",
+                    "correo" : "importador@example.com",
+                    "token" : "token-de-jira-simulado",
+                    "url" : "http://127.0.0.1:45645"
+                  }
+                },
+                "un-tablero-que-no-es-de-jira-no-se-mapea" : {
+                  "summary" : "Un tablero que no es de jira no se mapea (SYSADMIN)",
+                  "value" : {
+                    "claveProyecto" : "JSIM",
+                    "correo" : "importador@example.com",
+                    "token" : "token-de-jira-simulado",
+                    "url" : "http://127.0.0.1:33139"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportacionCatalogoDTO"
+                },
+                "examples" : {
+                  "conectar-responde-el-catalogo-de-jira" : {
+                    "summary" : "Conectar responde el catalogo de jira (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "el-catalogo-se-vuelve-a-leer" : {
+                    "summary" : "El catalogo se vuelve a leer (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "un-tablero-que-no-es-de-jira-no-se-mapea" : {
+                    "summary" : "Un tablero que no es de jira no se mapea (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "un-tipo-sin-mapear-queda-en-las-fallas" : {
+                    "summary" : "Un tipo sin mapear queda en las fallas (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "importar-trae-todo-conservando-las-claves" : {
+                    "summary" : "Importar trae todo conservando las claves (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "un-estado-de-otro-tipo-de-tablero-no-se-mapea" : {
+                    "summary" : "Un estado de otro tipo de tablero no se mapea (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "mapear-deja-la-importacion-lista" : {
+                    "summary" : "Mapear deja la importacion lista (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "sin-mapeo-no-se-ejecuta" : {
+                    "summary" : "Sin mapeo no se ejecuta (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "el-contador-sigue-desde-la-clave-mas-alta" : {
+                    "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado-2" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  },
+                  "reimportar-no-duplica" : {
+                    "summary" : "Reimportar no duplica (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `CLAVE_DE_JIRA_NO_ES_PREFIJO`, `FORMULARIO_INVALIDO`, `JIRA_CREDENCIALES_INVALIDAS`, `JIRA_PROYECTO_NO_ENCONTRADO`, `PREFIJO_DE_PROYECTO_EN_USO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "la-clave-no-sirve-como-prefijo" : {
+                    "summary" : "La clave no sirve como prefijo (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "CLAVE_DE_JIRA_NO_ES_PREFIJO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "La clave del proyecto de Jira tiene que tener de 2 a 6 letras para usarla como prefijo en Shiro.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "cuerpo-invalido" : {
+                    "summary" : "Cuerpo invalido (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "Escribí el correo de la cuenta de Jira",
+                        "nombre" : "correo"
+                      }, {
+                        "mensaje" : "Escribí el token de API de Jira",
+                        "nombre" : "token"
+                      }, {
+                        "mensaje" : "Escribí la URL de Jira",
+                        "nombre" : "url"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "la-clave-ya-la-usa-otro-proyecto" : {
+                    "summary" : "La clave ya la usa otro proyecto (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "PREFIJO_DE_PROYECTO_EN_USO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El prefijo JSIM ya lo usa un proyecto que no se importó de Jira.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "credenciales-invalidas" : {
+                    "summary" : "Credenciales invalidas (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "JIRA_CREDENCIALES_INVALIDAS",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Jira rechazó el correo o el token. Revisalos y volvé a intentar.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "proyecto-inexistente-en-jira" : {
+                    "summary" : "Proyecto inexistente en jira (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "JIRA_PROYECTO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No hay un proyecto con esa clave en Jira.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Errores: `JIRA_NO_DISPONIBLE`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "jira-no-responde" : {
+                    "summary" : "Jira no responde (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "JIRA_NO_DISPONIBLE",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Jira no responde. Revisá la URL o volvé a intentar en unos minutos.",
+                      "status" : "503 SERVICE_UNAVAILABLE",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importacion/paginar" : {
+      "post" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.paginar",
+        "summary" : "Lista las importaciones de Jira con filtros y orden",
+        "description" : "**Caso de uso:** CU-IMP-06\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-06",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PedidoDePaginado"
+              },
+              "examples" : {
+                "paginar" : {
+                  "summary" : "Paginar (SYSADMIN)",
+                  "value" : {
+                    "pagina" : 1,
+                    "tamano" : 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pagina_ImportacionDTO_"
+                },
+                "examples" : {
+                  "paginar" : {
+                    "summary" : "Paginar (SYSADMIN)",
+                    "value" : {
+                      "cantidadDeElementos" : 1,
+                      "contenido" : [ {
+                        "claveProyectoJira" : "EJ",
+                        "correo" : "importador@example.local",
+                        "estado" : "CONECTADA",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "mapeo" : null,
+                        "nombreProyectoJira" : "Proyecto de ejemplo",
+                        "proyectoUuid" : null,
+                        "resumen" : null,
+                        "status" : 0,
+                        "urlJira" : "https://ejemplo.atlassian.net",
+                        "uuid" : "b8000000-0000-4000-8000-000000000001"
+                      } ],
+                      "numero" : 0,
+                      "primera" : true,
+                      "tamano" : 5,
+                      "totalDeElementos" : 1,
+                      "totalDePaginas" : 1,
+                      "ultima" : true,
+                      "vacia" : false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importacion/uuid/{uuid}" : {
+      "get" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.obtenerPorUuid",
+        "summary" : "Obtiene una importación de Jira por su uuid (estado, mapeo y resumen; nunca el token)",
+        "description" : "**Caso de uso:** CU-IMP-05\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-05",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid del registro",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportacionDTO"
+                },
+                "examples" : {
+                  "conectar-responde-el-catalogo-de-jira" : {
+                    "summary" : "Conectar responde el catalogo de jira (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "CONECTADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : null,
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:45645",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "obtener-por-uuid" : {
+                    "summary" : "Obtener por uuid (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "EJ",
+                      "correo" : "importador@example.local",
+                      "estado" : "CONECTADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : null,
+                      "nombreProyectoJira" : "Proyecto de ejemplo",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "https://ejemplo.atlassian.net",
+                      "uuid" : "b8000000-0000-4000-8000-000000000001"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `REGISTRO_NO_ENCONTRADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "obtener-uuid-inexistente" : {
+                    "summary" : "Obtener uuid inexistente (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importacion/{uuid}/catalogo" : {
+      "get" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.catalogo",
+        "summary" : "Vuelve a leer de Jira los tableros, estados, tipos y usuarios de una importación",
+        "description" : "**Caso de uso:** CU-IMP-02\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-02",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid de la importación",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportacionCatalogoDTO"
+                },
+                "examples" : {
+                  "el-catalogo-se-vuelve-a-leer" : {
+                    "summary" : "El catalogo se vuelve a leer (SYSADMIN)",
+                    "value" : {
+                      "estados" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "1",
+                        "nombre" : "To Do",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "3",
+                        "nombre" : "Done",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "21",
+                        "nombre" : "Testing",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "fechaDeCreacion" : null,
+                      "importacionUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "11",
+                        "nombre" : "Desarrollo",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "12",
+                        "nombre" : "QA",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "tipos" : [ {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10000",
+                        "nombre" : "Epic",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10001",
+                        "nombre" : "Story",
+                        "status" : 0,
+                        "uuid" : null
+                      }, {
+                        "fechaDeCreacion" : null,
+                        "idJira" : "10002",
+                        "nombre" : "Task",
+                        "status" : 0,
+                        "uuid" : null
+                      } ],
+                      "usuarios" : [ {
+                        "correo" : "demo@example.local",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Demo",
+                        "status" : 0,
+                        "usuarioUuid" : "90000000-0000-4000-8000-000000000002",
+                        "uuid" : null
+                      }, {
+                        "correo" : "nadie@example.com",
+                        "fechaDeCreacion" : null,
+                        "nombre" : "Nadie",
+                        "status" : 0,
+                        "usuarioUuid" : null,
+                        "uuid" : null
+                      } ],
+                      "uuid" : null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importacion/{uuid}/ejecutar" : {
+      "post" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.ejecutar",
+        "summary" : "Ejecuta la importación en segundo plano (reimportar actualiza sin duplicar); se consulta su estado hasta que termine",
+        "description" : "**Caso de uso:** CU-IMP-04\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-04",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid de la importación",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportacionDTO"
+                },
+                "examples" : {
+                  "un-tipo-sin-mapear-queda-en-las-fallas" : {
+                    "summary" : "Un tipo sin mapear queda en las fallas (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "importar-trae-todo-conservando-las-claves" : {
+                    "summary" : "Importar trae todo conservando las claves (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "el-contador-sigue-desde-la-clave-mas-alta" : {
+                    "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado-2" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "reimportar-no-duplica" : {
+                    "summary" : "Reimportar no duplica (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  },
+                  "reimportar-no-duplica-2" : {
+                    "summary" : "Reimportar no duplica (2) (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "TERMINADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "resumen" : "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosSinVincular\":[\"nadie@example.com\"],\"versiones\":1}",
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `IMPORTACION_SIN_MAPEO`, `REGISTRO_NO_ENCONTRADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "importacion-inexistente" : {
+                    "summary" : "Importacion inexistente (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "sin-mapeo-no-se-ejecuta" : {
+                    "summary" : "Sin mapeo no se ejecuta (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "IMPORTACION_SIN_MAPEO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Antes de importar hay que mapear los tableros, estados y tipos.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importacion/{uuid}/mapeo" : {
+      "post" : {
+        "tags" : [ "Importacion" ],
+        "operationId" : "ImportacionController.mapear",
+        "summary" : "Guarda el mapeo de tableros, estados y tipos de Jira a los de Shiro",
+        "description" : "**Caso de uso:** CU-IMP-03\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-IMP-03",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid de la importación",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ImportacionMapeoRequestDTO"
+              },
+              "examples" : {
+                "un-tablero-que-no-es-de-jira-no-se-mapea" : {
+                  "summary" : "Un tablero que no es de jira no se mapea (SYSADMIN)",
+                  "value" : {
+                    "tableros" : [ {
+                      "estados" : [ ],
+                      "idJira" : "999",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001"
+                    } ],
+                    "tipos" : [ ]
+                  }
+                },
+                "un-tipo-sin-mapear-queda-en-las-fallas" : {
+                  "summary" : "Un tipo sin mapear queda en las fallas (SYSADMIN)",
+                  "value" : {
+                    "tableros" : [ {
+                      "estados" : [ {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                        "idJira" : "1"
+                      }, {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000015",
+                        "idJira" : "3"
+                      } ],
+                      "idJira" : "11",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001"
+                    }, {
+                      "estados" : [ {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000021",
+                        "idJira" : "21"
+                      } ],
+                      "idJira" : "12",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002"
+                    } ],
+                    "tipos" : [ {
+                      "idJira" : "10000",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000001"
+                    }, {
+                      "idJira" : "10002",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000003"
+                    }, {
+                      "idJira" : "10001",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000002"
+                    } ]
+                  }
+                },
+                "importar-trae-todo-conservando-las-claves" : {
+                  "summary" : "Importar trae todo conservando las claves (SYSADMIN)",
+                  "value" : {
+                    "tableros" : [ {
+                      "estados" : [ {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                        "idJira" : "1"
+                      }, {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000015",
+                        "idJira" : "3"
+                      } ],
+                      "idJira" : "11",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001"
+                    }, {
+                      "estados" : [ {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000021",
+                        "idJira" : "21"
+                      } ],
+                      "idJira" : "12",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002"
+                    } ],
+                    "tipos" : [ {
+                      "idJira" : "10004",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000005"
+                    }, {
+                      "idJira" : "10003",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000004"
+                    }, {
+                      "idJira" : "10002",
+                      "tipoTareaUuid" : "a3000000-0000-4000-8000-000000000003"
+                    } ]
+                  }
+                },
+                "un-estado-de-otro-tipo-de-tablero-no-se-mapea" : {
+                  "summary" : "Un estado de otro tipo de tablero no se mapea (SYSADMIN)",
+                  "value" : {
+                    "tableros" : [ {
+                      "estados" : [ {
+                        "estadoUuid" : "a2000000-0000-4000-8000-000000000024",
+                        "idJira" : "1"
+                      } ],
+                      "idJira" : "11",
+                      "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001"
+                    } ],
+                    "tipos" : [ ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportacionDTO"
+                },
+                "examples" : {
+                  "un-tipo-sin-mapear-queda-en-las-fallas" : {
+                    "summary" : "Un tipo sin mapear queda en las fallas (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "importar-trae-todo-conservando-las-claves" : {
+                    "summary" : "Importar trae todo conservando las claves (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "mapear-deja-la-importacion-lista" : {
+                    "summary" : "Mapear deja la importacion lista (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "el-contador-sigue-desde-la-clave-mas-alta" : {
+                    "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "una-nueva-conexion-reusa-el-proyecto-importado-2" : {
+                    "summary" : "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
+                  "reimportar-no-duplica" : {
+                    "summary" : "Reimportar no duplica (SYSADMIN)",
+                    "value" : {
+                      "claveProyectoJira" : "JSIM",
+                      "correo" : "importador@example.com",
+                      "estado" : "MAPEADA",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "mapeo" : "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"}}",
+                      "nombreProyectoJira" : "Proyecto simulado",
+                      "proyectoUuid" : null,
+                      "resumen" : null,
+                      "status" : 0,
+                      "urlJira" : "http://127.0.0.1:33139",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `MAPEO_DE_JIRA_INVALIDO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "un-tablero-que-no-es-de-jira-no-se-mapea" : {
+                    "summary" : "Un tablero que no es de jira no se mapea (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "MAPEO_DE_JIRA_INVALIDO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El tablero 999 no es del proyecto de Jira o está repetido.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "un-estado-de-otro-tipo-de-tablero-no-se-mapea" : {
+                    "summary" : "Un estado de otro tipo de tablero no se mapea (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "MAPEO_DE_JIRA_INVALIDO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "El estado Aprobado no es del tablero Principal.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/permiso/paginar" : {
       "post" : {
         "tags" : [ "Permiso" ],
@@ -4965,6 +7097,39 @@
                   "$ref" : "#/components/schemas/ProyectoDTO"
                 },
                 "examples" : {
+                  "el-contador-sigue-desde-la-clave-mas-alta" : {
+                    "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                    "value" : {
+                      "descripcion" : "Importado de Jira (http://127.0.0.1:33139)",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Proyecto simulado",
+                      "prefijo" : "JSIM",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  },
                   "obtener-por-uuid" : {
                     "summary" : "Obtener por uuid (SYSADMIN)",
                     "value" : {
@@ -8501,6 +10666,14 @@
                 "$ref" : "#/components/schemas/TareaDTO"
               },
               "examples" : {
+                "el-contador-sigue-desde-la-clave-mas-alta" : {
+                  "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                  "value" : {
+                    "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                    "tipoCodigo" : "TAREA",
+                    "titulo" : "Despues de importar"
+                  }
+                },
                 "sin-permiso-cada-endpoint-de-f1-responde403" : {
                   "summary" : "Sin permiso cada endpoint de f1 responde403",
                   "value" : {
@@ -8824,6 +10997,39 @@
                   "$ref" : "#/components/schemas/TareaDTO"
                 },
                 "examples" : {
+                  "el-contador-sigue-desde-la-clave-mas-alta" : {
+                    "summary" : "El contador sigue desde la clave mas alta (SYSADMIN)",
+                    "value" : {
+                      "clave" : "JSIM-10",
+                      "descripcion" : null,
+                      "estadoNombre" : "Por hacer",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Sysadmin Pruebas",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000012",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "sprintNombre" : null,
+                      "sprintUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "tipoCodigo" : "TAREA",
+                      "tipoNombre" : "Tarea",
+                      "titulo" : "Despues de importar",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+                      "vencimiento" : null,
+                      "versiones" : [ ]
+                    }
+                  },
                   "una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero" : {
                     "summary" : "Una regla de usuario sobre un tablero habilita solo ese tablero",
                     "value" : {
@@ -10171,7 +12377,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 1",
+                        "titulo" : "Alta concurrente 11",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
                         "vencimiento" : null,
                         "versiones" : [ ]
@@ -11255,6 +13461,43 @@
                       "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
                       "valorAnterior" : null,
                       "valorNuevo" : "Lo tomo yo"
+                    } ]
+                  },
+                  "importar-trae-todo-conservando-las-claves" : {
+                    "summary" : "Importar trae todo conservando las claves (SYSADMIN)",
+                    "value" : [ {
+                      "accion" : "COMENTAR",
+                      "campo" : null,
+                      "canal" : "IMPORTACION",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "status" : 0,
+                      "usuarioNombre" : "Sysadmin Pruebas",
+                      "usuarioUuid" : "90000000-0000-4000-8000-000000000012",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "valorAnterior" : null,
+                      "valorNuevo" : "Empiezo por los sprints"
+                    }, {
+                      "accion" : "CREAR_SUBTAREA",
+                      "campo" : null,
+                      "canal" : "IMPORTACION",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "status" : 0,
+                      "usuarioNombre" : "Sysadmin Pruebas",
+                      "usuarioUuid" : "90000000-0000-4000-8000-000000000012",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "valorAnterior" : null,
+                      "valorNuevo" : "JSIM-7"
+                    }, {
+                      "accion" : "EDITAR",
+                      "campo" : "padre",
+                      "canal" : "IMPORTACION",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "status" : 0,
+                      "usuarioNombre" : "Sysadmin Pruebas",
+                      "usuarioUuid" : "90000000-0000-4000-8000-000000000012",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+                      "valorAnterior" : null,
+                      "valorNuevo" : "JSIM-1"
                     } ]
                   },
                   "la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial" : {
@@ -13773,31 +16016,31 @@
                 "un-token-invalido-rechazado" : {
                   "summary" : "Un token invalido rechazado",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjYxMDR9.oQILRSH_ueDGR3WEEv0WBugAeUmsdzZhOOx8Mvzgg7_GiuhaZD4IQWRUOXDw3Fuj1LXpy0bU2PtyVEYJOuMX0xV1ZS9kA8pg_3J4xGRMB6KtBpqoLj7meGGsQOg8577Wc3IjOwQTy22ozpIvCYw51rZuHVxW8xt-f7whBPFPr0XVhieWmMZL0QXGGGfZb-50cDiRGodJrYpRq3KMhpziT8wP7Y2-ry4WswWEfLfHFU-uv73F2KPuNvG2GQ_oRKdAN0ZuyziF2Q7jsbkGIWemf_pmKrpU15MP-1B_Os1-Rzoja2XTdSEGiSmf9H0y0zKp0JcwiM9t6H4Jp_yxc8V2Uw"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjczODV9.eI0iklPVWQLIHuffp-0YPc3wLExWEGNFqNe22QcqGyTJNsH5a7IM6SwxZbYz7DIaw373LkT0n1tzyRjcaMeHi9BxORqlYhm2O7OSIDWv9aQEm6-tEwA_CDfXGEEFC64JPyFRYVIcONarDLnl2XunN6rhdk5d2b8PTbX56bC22wXtxzCl98fztYlHOsyB_mojwonJufC8Cw-Bwa5iTcnHYZRqtTofh1WArgL3HE-Bnw_EQRkd9PmTPx8m-d7w_vgabPOpc0e-ndoYJiBCcuFCO94QASNTQHPPgmFcGca2mre-aY0vPLc8rE3vMgtnAbCnAaEinwixWGyIQkurX5hkHA"
                   }
                 },
                 "el-mismo-correo-entra-como-el-mismo-usuario" : {
                   "summary" : "El mismo correo entra como el mismo usuario",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY2MTA0fQ.j0MGCXxB04Qck8WVkHo6g5Oa7mzpgyxA11rp8ubVgBj2pfJZjVq907T1AiAm-_nCP8SvYDkM4vI1TXlpvxKHq93mWgFFCJiZ-qiKPXZHvZt7SekaD62j1G4bSM13wyrrdzxxpdd_S0IgY4VE_Ee50jUGfrcTehBVuC_9oU53lxkRm96IkhtueHj1XB4StRjyOSohx45yO8xS82ZSNBQavL9a3HL-TsHHeZ5RKLXItcaBM-tKI4hJO7uGZa7QB4uK44zkBLvIiZjVhWSD5kaPIgVI2xALaoezyEEsKGGytt0o0bVrmnjioL1qu00zZSvIzHT4yfsICuGdjv9b7jVqSQ"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY3Mzg2fQ.g19ueFLyDGyhnD_mtJYFX347gfPV6_D-eqHvpGl6zXteAhNujGTUkYRo83GXWSzPp5FSK2FOVvzUkRjxJg5LFslZBKLt5q9FUmvfDqLpJv_SEgwkN2ZZ0cz16Zes2rsCDZkGljL9dPlkjPOCL67u9POfMqzDEbxD5zNSrdHyYrvnXqx61ilPRBxUSyzAME7xy-DqxgdAS8H-S-zGMhYbUn017mWBvVy1Ik97p9xbdD6I9qRZJy0Db_KMSnSWwnfKYLPUMwo8hhCygzhWZi8PYZJreNwZM1U22FB2cv1RYjMZ4_gpQ_0Ze35kWCV42wZvLHw_pbks25Wz5E-eR73Ufg"
                   }
                 },
                 "un-usuario-nuevo-entra-sin-roles" : {
                   "summary" : "Un usuario nuevo entra sin roles",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY2MTA0fQ.Wy_MEVxZcB-CXJ-HKuA3umcovJ7d8p7O1iSf5WPM5CZuEQTYOv3yiG_QIsqIYhhp9x0YT4KTa9ysLrC6OmatNg6uk-XM_hDR-npDIzMGRErhiYHbkvwWl-0PLs5368yU66HYDPtTZBDtYG9_kdCaWjljprYXelyhdAbOTnlKp6mo50alw95DfVAqYKmzUGOpoxIUj8izIgDoQDZ25Z0-ePm4SgwVlmOWaRhw3E3MmVBvFzOWIJeFU5NY4_0ZBAHk0TTC42HKM_Ps8QhxKVnQ8DNMJOdOEDfNPIlIwnW9H13UmWVNNTQz390vBmRTRFRXR4riKAvD0fhrdYila9skqg"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY3Mzg2fQ.my73zZmLJuHa5wDRJ6kL0LdSLfZLh3nnCCdNZowFlcDb1ZPBjyzqfPpWoqR37CsymEb4XjDJKOtqPdVmBbWoa3pes9domcXqpPOQPFFMcTxiFNcSLuPaxDYGNr7n1Lruxv3ET7gG6FzAgSi1yY_JTwvtQ_X_bwx3RqlM7_3ZhRFUaGKsu1qmsmaK1My1bDgl9yvHKND61Sf-XM-1bZe309vFbPsurk4W4s_UErpMN_gwB4HsatcXVIGaREE7Y4AA7gAB1pTL4vtVnyfLTZCZPEXvYcWT03N2J_CPVqqX3TCs1YBpSt81sMxPoa0cYaIYMixz-wlhr2uU12Wz-aZMJg"
                   }
                 },
                 "un-usuario-archivado-no-entra" : {
                   "summary" : "Un usuario archivado no entra",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjYxMDV9.47oNBw0OgBRvkaZmBFHOT0P6V3iMuddsJq6H1_Uaw4k2Ykm7ycTeQJ4mB8ub8hQvj4TX3iCGVR5Ck7aoAz-_cltx2W-PU3ecyxwRSeZ-FsJAE_3gIU3FTJ3PKwdWwoWhA6Wj3HOfpFz9L6FTxoZdpM4b8VKrC1AHe51JTDYG_2blDzU8eTYJp0laRePJFjo9ZYhn20Zf7I9rcYEzgMjvB3NVMWsV2poGiIwCsqCzdxt0-F_uZ4ZOcIjattkOBOO-C_oNHzGdIuUE3i_IBxqCFQx1D_CLvyWi6g2E-y4mf7dzq2lL9a7K_JKRElbQ_KBJyYb9T7sxD4QSeHrQON08NA"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjczODZ9.mQ_ohvDVw6QSYtHTWFIKEAtJVBzqiy7-yFPs8cg6GjNqnGVb7HvISXBUfEoF11htIOpkC_idd4oY7pqMq8f6-NwsNL1OXd-x30Mj0oG-RShautvkttWRkJi_qKPM9f-9sI3RWQGs5U7H8h-aq1_WwhF3GsAd4eOJkxlSQGmZHpd6H3f3zu93T8w7UahT2lTTqy_uL3fhCKv6EV1vnD72xpE324uLhqsVWNgniSs-Pcf2DOLKXnz59aAiUWJY1tnAUw-P_HCm9Hn2GwL3bz9vqA02jfzm1Qnd6GJz-qihdj7PLEE22SXpn9svJYZRXgssu4ZWdMu5m_BNS6WUXqengg"
                   }
                 },
                 "una-cuenta-de-otro-dominio-rechazada" : {
                   "summary" : "Una cuenta de otro dominio rechazada",
                   "value" : {
-                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjYxMDV9.EBeNpgKc4mBlqdOziVB-ywYebper2LlUAK9ROT_t_qO-uNWRcWXUulu0DW_5ss61iiGySTwfYnt8eUr4fxhfsQI1M6hCeHWdLpXDDiHvtnmxDj1VyPFMWra46Tl57POJW-4x7_5pLn_oVmE4c-22sStDPdxipIQ-u9EqZ0sZzAyU1k3xKe3X5ph8pYV5gIGc3EON7r-HAPfd-MGAPzSuZG0z-et_ikzOynrWPx8p--oZzNgaa8_BR3w8lbEIWh-dFs9lS3oAvIlsk9pviae0wCXf2VpdGMVME3nen6H-bkP3TGSC6H2zurglYgKhYBeLpi-CjQoJ3bB85XnpaHsqlA"
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjczODZ9.EPnSuPTGeWSg7KFFNVEgGjrsZrp-GgdKQld7GflbY6a7FDsQLt69oW5OAdhUeTD5fJGw0P7z8JfjgADxMOb3t9STJJ1lCrO9g--Iy3nrHRoyyjnxQIZl0WHos_ooSRYt1d6KAHLP81u1XDoxRGtvMA52ohF3bNXCyrCxEkAcp4gpUWj5jMNyakm6lT0Uu7KkuVmMbZmOUhjXE0b97yr5Zyf6akhMRxYo0JLwbYcg2reUvOh8p68QfzImjkutvWWks6CMt-Au2XmVgZ8Y4Zg0eZOcIEtEvHTFgi-ryKf_iYiMJYdQO_k1qb0I012MvqypPJoCG_2RCMO_LJvWQI7CQg"
                   }
                 },
                 "sin-token-rechazado" : {
@@ -16660,6 +18903,34 @@
         "type" : "string",
         "enum" : [ "PERMITIR", "NEGAR" ]
       },
+      "ElementoDeJiraDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "idJira" : {
+            "type" : [ "string", "null" ],
+            "description" : "Id del elemento en Jira: es el que se manda en el mapeo"
+          },
+          "nombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre del elemento en Jira"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
       "ErrorResponseDTO" : {
         "type" : "object",
         "properties" : {
@@ -16740,6 +19011,17 @@
           }
         },
         "additionalProperties" : false
+      },
+      "EstadoDeImportacion" : {
+        "type" : "string",
+        "enum" : [ "CONECTADA", "MAPEADA", "EN_CURSO", "TERMINADA", "FALLIDA" ]
+      },
+      "EstadoDeImportacion-nullable" : {
+        "anyOf" : [ {
+          "type" : "null"
+        }, {
+          "$ref" : "#/components/schemas/EstadoDeImportacion"
+        } ]
       },
       "EstadoDeSprint" : {
         "type" : "string",
@@ -16853,6 +19135,203 @@
         },
         "additionalProperties" : false
       },
+      "ImportacionCatalogoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "estados" : {
+            "description" : "Estados del proyecto en Jira: en cada tablero mapeado, cada uno se mapea a un estado de ese tipo de tablero",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/ElementoDeJiraDTO",
+              "description" : "Estados del proyecto en Jira: en cada tablero mapeado, cada uno se mapea a un estado de ese tipo de tablero"
+            }
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "importacionUuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Uuid de la importación"
+          },
+          "nombreProyectoJira" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre del proyecto en Jira"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tableros" : {
+            "description" : "Tableros del proyecto en Jira: cada uno se mapea a un tipo de tablero de Shiro (principal o sub-tablero)",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/ElementoDeJiraDTO",
+              "description" : "Tableros del proyecto en Jira: cada uno se mapea a un tipo de tablero de Shiro (principal o sub-tablero)"
+            }
+          },
+          "tipos" : {
+            "description" : "Tipos de tarea del proyecto en Jira: cada uno se mapea a un tipo de Shiro",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/ElementoDeJiraDTO",
+              "description" : "Tipos de tarea del proyecto en Jira: cada uno se mapea a un tipo de Shiro"
+            }
+          },
+          "usuarios" : {
+            "description" : "Usuarios asignables del proyecto en Jira, vinculados por correo con los de Shiro",
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/UsuarioDeJiraDTO",
+              "description" : "Usuarios asignables del proyecto en Jira, vinculados por correo con los de Shiro"
+            }
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ImportacionConectarRequestDTO" : {
+        "type" : "object",
+        "properties" : {
+          "claveProyecto" : {
+            "type" : "string",
+            "description" : "Clave del proyecto de Jira (JSIM). Va a ser el prefijo del proyecto en Shiro: de 2 a 6 letras",
+            "minLength" : 1,
+            "maxLength" : 20
+          },
+          "correo" : {
+            "type" : "string",
+            "description" : "Correo de la cuenta de Jira",
+            "minLength" : 1,
+            "maxLength" : 255,
+            "format" : "email"
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "token" : {
+            "type" : "string",
+            "description" : "Token de API de Jira de esa cuenta. Se guarda cifrado y nunca se devuelve",
+            "minLength" : 1,
+            "maxLength" : 512
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL del sitio de Jira (https://empresa.atlassian.net)",
+            "minLength" : 1,
+            "maxLength" : 255,
+            "pattern" : "^https?://\\S+$"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "claveProyecto", "correo", "token", "url" ],
+        "additionalProperties" : false
+      },
+      "ImportacionDTO" : {
+        "type" : "object",
+        "properties" : {
+          "claveProyectoJira" : {
+            "type" : [ "string", "null" ],
+            "description" : "Clave del proyecto de Jira: es el prefijo del proyecto en Shiro"
+          },
+          "correo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Correo de la cuenta de Jira con la que se conecta"
+          },
+          "estado" : {
+            "$ref" : "#/components/schemas/EstadoDeImportacion-nullable",
+            "description" : "Estado: CONECTADA, MAPEADA, EN_CURSO (corre en segundo plano), TERMINADA o FALLIDA"
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "mapeo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Mapeo elegido, como JSON: tableros (id de Jira a uuid de tipo de tablero), estados (por tablero de Jira, id de estado de Jira a uuid de estado) y tipos (id de Jira a uuid de tipo de tarea). Null hasta mapear"
+          },
+          "nombreProyectoJira" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre del proyecto en Jira"
+          },
+          "proyectoUuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Uuid del proyecto de Shiro con lo importado. Null hasta la primera ejecución"
+          },
+          "resumen" : {
+            "type" : [ "string", "null" ],
+            "description" : "Resumen de la última ejecución, como JSON: tareasCreadas, tareasActualizadas, tareasPorTipo, comentarios, sprints, versiones, fallas (claveJira y motivo), advertencias y usuariosSinVincular. Null hasta ejecutar"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "urlJira" : {
+            "type" : [ "string", "null" ],
+            "description" : "URL del sitio de Jira"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ImportacionMapeoRequestDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tableros" : {
+            "description" : "Tableros de Jira a importar, cada uno con su tipo de tablero de Shiro y sus estados",
+            "minItems" : 1,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MapeoDeTableroDTO",
+              "description" : "Tableros de Jira a importar, cada uno con su tipo de tablero de Shiro y sus estados"
+            }
+          },
+          "tipos" : {
+            "description" : "Tipos de Jira y su tipo de Shiro. Una tarea de un tipo sin mapear no se importa (queda en las fallas)",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MapeoDeTipoDTO",
+              "description" : "Tipos de Jira y su tipo de Shiro. Una tarea de un tipo sin mapear no se importa (queda en las fallas)"
+            }
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "tableros", "tipos" ],
+        "additionalProperties" : false
+      },
       "JwtTokenDTO" : {
         "type" : "object",
         "properties" : {
@@ -16876,6 +19355,107 @@
         }, {
           "$ref" : "#/components/schemas/Map_String.Object_"
         } ]
+      },
+      "MapeoDeEstadoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "estadoUuid" : {
+            "type" : "string",
+            "description" : "Uuid del estado de Shiro. Tiene que ser del tipo de tablero elegido para ese tablero",
+            "minLength" : 1
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "idJira" : {
+            "type" : "string",
+            "description" : "Id del estado en Jira",
+            "minLength" : 1
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "estadoUuid", "idJira" ],
+        "additionalProperties" : false
+      },
+      "MapeoDeTableroDTO" : {
+        "type" : "object",
+        "properties" : {
+          "estados" : {
+            "description" : "Estados de Jira de ese tablero y su estado de Shiro. Una tarea en un estado sin mapear no se importa (queda en las fallas)",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MapeoDeEstadoDTO",
+              "description" : "Estados de Jira de ese tablero y su estado de Shiro. Una tarea en un estado sin mapear no se importa (queda en las fallas)"
+            }
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "idJira" : {
+            "type" : "string",
+            "description" : "Id del tablero en Jira (del catálogo)",
+            "minLength" : 1
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tipoTableroUuid" : {
+            "type" : "string",
+            "description" : "Uuid del tipo de tablero de Shiro: el principal o un sub-tablero. Varios tableros de Jira pueden ir al mismo",
+            "minLength" : 1
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "estados", "idJira", "tipoTableroUuid" ],
+        "additionalProperties" : false
+      },
+      "MapeoDeTipoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "idJira" : {
+            "type" : "string",
+            "description" : "Id del tipo en Jira (del catálogo)",
+            "minLength" : 1
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "tipoTareaUuid" : {
+            "type" : "string",
+            "description" : "Uuid del tipo de tarea de Shiro",
+            "minLength" : 1
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "idJira", "tipoTareaUuid" ],
+        "additionalProperties" : false
       },
       "NivelDePermiso" : {
         "type" : "string",
@@ -16950,6 +19530,52 @@
             "description" : "Registros de la página",
             "items" : {
               "$ref" : "#/components/schemas/ComentarioDTO"
+            }
+          },
+          "totalDeElementos" : {
+            "type" : "integer",
+            "description" : "Total de registros que cumplen los filtros"
+          },
+          "totalDePaginas" : {
+            "type" : "integer",
+            "description" : "Total de páginas"
+          },
+          "tamano" : {
+            "type" : "integer",
+            "description" : "Tamaño de la página"
+          },
+          "numero" : {
+            "type" : "integer",
+            "description" : "Número de página (desde 0)"
+          },
+          "cantidadDeElementos" : {
+            "type" : "integer",
+            "description" : "Registros en esta página"
+          },
+          "primera" : {
+            "type" : "boolean",
+            "description" : "Es la primera página"
+          },
+          "ultima" : {
+            "type" : "boolean",
+            "description" : "Es la última página"
+          },
+          "vacia" : {
+            "type" : "boolean",
+            "description" : "La página no tiene registros"
+          }
+        },
+        "additionalProperties" : false
+      },
+      "Pagina_ImportacionDTO_" : {
+        "type" : "object",
+        "description" : "Página de resultados",
+        "properties" : {
+          "contenido" : {
+            "type" : "array",
+            "description" : "Registros de la página",
+            "items" : {
+              "$ref" : "#/components/schemas/ImportacionDTO"
             }
           },
           "totalDeElementos" : {
@@ -18420,6 +21046,38 @@
         "required" : [ "email", "nombreDeUsuario" ],
         "additionalProperties" : false
       },
+      "UsuarioDeJiraDTO" : {
+        "type" : "object",
+        "properties" : {
+          "correo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Correo del usuario en Jira. Null si Jira no lo muestra (privacidad del perfil)"
+          },
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "nombre" : {
+            "type" : [ "string", "null" ],
+            "description" : "Nombre visible en Jira"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "usuarioUuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Uuid del usuario de Shiro con el mismo correo. Null si no existe: sus tareas quedan sin responsable"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "additionalProperties" : false
+      },
       "UsuarioIngresarConGoogleRequestDTO" : {
         "type" : "object",
         "properties" : {
@@ -18601,6 +21259,18 @@
     "cuando" : "Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1",
     "origen" : "CodigoDeErrorKernel"
   }, {
+    "codigo" : "CIFRADO_NO_CONFIGURADO",
+    "status" : 503,
+    "mensajePorDefecto" : "El importador de Jira no está habilitado en este servidor.",
+    "cuando" : "Se intentó usar el importador de Jira y el servidor no tiene configurada la frase de cifrado de credenciales (SHIRO_CIFRADO_FRASE)",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "CLAVE_DE_JIRA_NO_ES_PREFIJO",
+    "status" : 400,
+    "mensajePorDefecto" : "La clave del proyecto de Jira tiene que tener de 2 a 6 letras para usarla como prefijo en Shiro.",
+    "cuando" : "Al conectar con Jira, la clave del proyecto de Jira no sirve como prefijo de Shiro (2 a 6 letras): se importa con esa clave, así que no se puede importar",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
     "codigo" : "CODIGO_INVALIDO",
     "status" : 400,
     "mensajePorDefecto" : "Código inválido",
@@ -18630,6 +21300,12 @@
     "mensajePorDefecto" : "Usuario o contraseña incorrectos",
     "cuando" : "Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide",
     "origen" : "CodigoDeErrorIdentity"
+  }, {
+    "codigo" : "CREDENCIAL_NO_DESCIFRABLE",
+    "status" : 400,
+    "mensajePorDefecto" : "Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira.",
+    "cuando" : "Al ejecutar una importación, el token de Jira guardado no se puede descifrar (cambió la frase de cifrado del servidor): hay que volver a conectar",
+    "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "CUERPO_INVALIDO",
     "status" : 400,
@@ -18727,10 +21403,40 @@
     "cuando" : "El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend",
     "origen" : "CodigoDeErrorIdentity"
   }, {
+    "codigo" : "IMPORTACION_EN_CURSO",
+    "status" : 409,
+    "mensajePorDefecto" : "La importación está en curso. Esperá a que termine.",
+    "cuando" : "Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "IMPORTACION_SIN_MAPEO",
+    "status" : 400,
+    "mensajePorDefecto" : "Antes de importar hay que mapear los tableros, estados y tipos.",
+    "cuando" : "Se intentó ejecutar una importación que todavía no tiene mapeo",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
     "codigo" : "JERARQUIA_DE_TAREA_INVALIDA",
     "status" : 400,
     "mensajePorDefecto" : "El tipo de la tarea no encaja en la jerarquía.",
     "cuando" : "Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "JIRA_CREDENCIALES_INVALIDAS",
+    "status" : 400,
+    "mensajePorDefecto" : "Jira rechazó el correo o el token. Revisalos y volvé a intentar.",
+    "cuando" : "Jira rechazó el correo o el token de API (o no tienen acceso al proyecto)",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "JIRA_NO_DISPONIBLE",
+    "status" : 503,
+    "mensajePorDefecto" : "Jira no responde. Revisá la URL o volvé a intentar en unos minutos.",
+    "cuando" : "Jira no responde, responde un error o la URL no es de un Jira: hay que revisar la URL o reintentar más tarde",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "JIRA_PROYECTO_NO_ENCONTRADO",
+    "status" : 400,
+    "mensajePorDefecto" : "No hay un proyecto con esa clave en Jira.",
+    "cuando" : "Al conectar con Jira, no existe un proyecto con esa clave (o las credenciales no lo ven)",
     "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "LOGIN_NO_DISPONIBLE",
@@ -18738,6 +21444,12 @@
     "mensajePorDefecto" : "No está disponible este metodo de login",
     "cuando" : "Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT",
     "origen" : "CodigoDeErrorJwt"
+  }, {
+    "codigo" : "MAPEO_DE_JIRA_INVALIDO",
+    "status" : 400,
+    "mensajePorDefecto" : "El mapeo no es válido. Revisá los tableros, estados y tipos elegidos.",
+    "cuando" : "Al mapear una importación, un tablero no es del proyecto de Jira, un tipo o estado no existe, o un estado no es del tipo de tablero elegido",
+    "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "MEDIA_TYPE_NO_SOPORTADO",
     "status" : 415,

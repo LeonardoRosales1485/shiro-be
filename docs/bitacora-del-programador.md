@@ -6,7 +6,21 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F5 terminada.** Versión 1.0.29. Sigue F4 (importador de Jira, contra un Jira simulado hasta tener credenciales). Guía local: `shiro-be/docs/levantar-en-local.md`.
+F4 hecho salvo T4.5 (prueba con el Jira real de la empresa: necesita credenciales y al equipo)
+
+## Cierre de F4
+
+F4 (importador de Jira) terminado el 19/11/2026 contra un Jira simulado (`JiraSimulado`, servidor HTTP local con la API de Jira Cloud), versión 1.0.30.
+
+| Tarea | Verificación del plan | Evidencia |
+| --- | --- | --- |
+| T4.1 | Credenciales cifradas; lectura de tableros, estados, tipos y usuarios | `ImportacionConectarContratoTest`, `CifradorDeCredencialesTest` |
+| T4.2 | Mapeo validado; un prefijo existente corta | `ImportacionEjecutarContratoTest` (mapeo inválido), `ImportacionConectarContratoTest` (prefijo en uso, clave que no sirve como prefijo) |
+| T4.3 | Importar dos veces no duplica; claves de Jira conservadas y contador desde la más alta; historial IMPORTACION | `ImportacionEjecutarContratoTest`, `ProyectoTest`, `EjecucionDeImportacionTest` |
+| T4.4 | Resumen con conteos por tipo, fallas y usuarios sin vincular | `ImportacionEjecutarContratoTest` |
+| T4.5 | Prueba con el Jira real de la empresa | Pendiente: necesita credenciales de un Jira de prueba y al equipo |
+
+Nueva variable de entorno: `SHIRO_CIFRADO_FRASE` (vacía en `deploy.yml`; sin ella el importador queda deshabilitado). Decisiones para revisar: adendas propuestas 30 a 41.
 
 ## Cierre de F3 y F5
 
@@ -69,6 +83,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T4.1 a T4.4 | Importador de Jira contra un Jira simulado: conectar con el token cifrado (AES-256-GCM, SHIRO_CIFRADO_FRASE), catálogo, mapeo validado, ejecución en segundo plano que crea o reusa el proyecto (clave = prefijo), trae versiones, sprints, tareas, subtareas, etiquetas y comentarios conservando las claves, historial IMPORTACION, reimportación sin duplicar (shr_mapeo_jira) y resumen con fallas, advertencias y usuarios sin vincular. Adendas propuestas 30 a 41 | Pruebas en rojo commiteadas primero (029fd0f, 345e30b). mvnw verify: 469 pruebas, 0 fallas, cobertura 92,6%. Versión 1.0.30 |
 | 18/11/2026 | T5.5 | Herramientas MCP de planificación: ver_backlog y ordenar_backlog (HerramientasMcpDeBacklog), gestionar_sprint (crear, asignar, quitar, iniciar, cerrar con vista previa), gestionar_version (crear, asignar, quitar, changelog, publicar con vista previa) y buscar_archivados. Prueba de punta a punta con el cliente MCP oficial. Decisión 29 | 36d6415 (rojo) y verde en el commit siguiente. ./mvnw verify: 435 pruebas, 0 fallas, 29 omitidas; cobertura 93,1%. Versión 1.0.29 |
 | 18/11/2026 | T5.4 | Columna busqueda (tsvector en español generado de clave, título y descripción) con índice GIN. POST /tarea/paginar con el parámetro texto filtra por esa búsqueda o por clave (consulta nativa con comentario) y respeta permisos; buscar_tareas de MCP usa lo mismo. POST /archivo/paginar busca tareas, proyectos, sprints, versiones y usuarios archivados según ARCHIVAR sobre su recurso (usuarios solo administradores), con filtro por tipo y texto. Decisiones 27 y 28 | 9b4d872 (rojo) y verde en el commit siguiente. ./mvnw verify: 433 pruebas, 0 fallas, 29 omitidas. Versión 1.0.28 |
 | 18/11/2026 | T5.3 | shr_version y shr_tarea_version. ABM /version y casos de uso asignar, quitar, publicar (fecha elegida; changelog guardado; la versión publicada no cambia), changelog en Markdown (ChangelogDeVersion: tareas terminadas agrupadas por tipo), archivar y restaurar. La tarea muestra sus versiones; clonar con VERSIONES las copia a las sin publicar. Seed versión 1.0. Decisiones 25 y 26 | 95c517e (rojo) y verde en el commit siguiente. ./mvnw verify: 428 pruebas, 0 fallas, 29 omitidas. Versión 1.0.27 |

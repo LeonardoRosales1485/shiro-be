@@ -35,3 +35,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-versiones-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-importaciones-seed.yaml
+      relativeToChangelogFile: true

@@ -5,6 +5,7 @@ import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +26,7 @@ public interface TareaVersionRepository extends EntidadRepositoryBorradoLogico<T
             + "WHERE tv.version = :version AND tv.status = 0 AND t.status = 0 AND e.terminado = true "
             + "ORDER BY ti.orden, t.numero")
     List<LineaDeChangelog> lineasDeChangelog(@Param("version") Version version);
+
+    // Asignaciones vigentes de varias tareas, en una consulta (importador, F4)
+    List<TareaVersion> findByTareaInAndStatus(Collection<Tarea> tareas, Integer status);
 }

@@ -89,3 +89,9 @@ shiro:
     client-id: shiro-pruebas.apps.googleusercontent.com
     dominio: example.com
     comprobar-al-iniciar: false
+  # Importador de Jira (F4): frase de cifrado solo de prueba y ejecucion en el hilo del request (para verificar y
+  # revertir en la transaccion de la prueba)
+  cifrado:
+    frase: frase-de-cifrado-solo-para-pruebas
+  importacion:
+    sincronica: true

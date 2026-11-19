@@ -1,0 +1,73 @@
+# Importador de Jira (F4, Spec 6): cada conexion con Jira y su resultado (shr_importacion) y el registro de que
+# elemento de Jira quedo en que registro de Shiro (shr_mapeo_jira), para reimportar sin duplicar.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-importaciones-1
+      author: shiro
+      comment: "Crea shr_importacion"
+      changes:
+        - createTable:
+            tableName: shr_importacion
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: url_jira, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: correo, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: token_cifrado, type: VARCHAR(1024), constraints: {nullable: false}}
+              - column: {name: clave_proyecto_jira, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: nombre_proyecto_jira, type: VARCHAR(255)}
+              - column: {name: estado, type: VARCHAR(15), defaultValue: CONECTADA, constraints: {nullable: false}}
+              - column: {name: mapeo, type: TEXT}
+              - column: {name: resumen, type: TEXT}
+              - column: {name: id_proyecto, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_importacion
+            baseColumnNames: id_proyecto
+            referencedTableName: shr_proyecto
+            referencedColumnNames: id
+            constraintName: fk_shr_importacion_proyecto
+        - sql:
+            comment: "Estado acotado"
+            sql: >-
+              ALTER TABLE shr_importacion ADD CONSTRAINT ck_shr_importacion_estado
+              CHECK (estado IN ('CONECTADA', 'MAPEADA', 'EN_CURSO', 'TERMINADA', 'FALLIDA'))
+      rollback:
+        - dropTable:
+            tableName: shr_importacion
+
+  - changeSet:
+      id: 2026-11-19-importaciones-2
+      author: shiro
+      comment: "Crea shr_mapeo_jira"
+      changes:
+        - createTable:
+            tableName: shr_mapeo_jira
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: tipo_entidad, type: VARCHAR(15), constraints: {nullable: false}}
+              - column: {name: id_jira, type: VARCHAR(64), constraints: {nullable: false}}
+              - column: {name: uuid_shiro, type: VARCHAR(36), constraints: {nullable: false}}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+        - addUniqueConstraint:
+            tableName: shr_mapeo_jira
+            columnNames: tipo_entidad, id_jira
+            constraintName: ux_shr_mapeo_jira_tipo_id
+        - sql:
+            comment: "Tipo de entidad acotado"
+            sql: >-
+              ALTER TABLE shr_mapeo_jira ADD CONSTRAINT ck_shr_mapeo_jira_tipo
+              CHECK (tipo_entidad IN ('PROYECTO', 'TAREA', 'COMENTARIO', 'SPRINT', 'VERSION'))
+      rollback:
+        - dropTable:
+            tableName: shr_mapeo_jira
