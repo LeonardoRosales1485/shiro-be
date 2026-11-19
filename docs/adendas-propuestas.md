@@ -92,3 +92,11 @@ Otras resoluciones: el front pregunta si el usuario es administrador con `GET /u
 | 46 (sprint cerrado sin datos del cierre) | Se guardan: el sprint registra quién lo cerró y cuándo (`shr_sprint.id_usuario_cierre` y `fecha_de_cierre`) y `shr_sprint_cierre_tarea` guarda, por cada tarea, su estado y puntos al cerrar, si estaba terminada y su destino (terminada, backlog u otro sprint). `GET /sprint/{uuid}/cierre` (CU-SPR-09) y `cerradoPorNombre`/`fechaDeCierre` en `SprintDTO`. El front muestra el sprint cerrado como el prototipo |
 | 47 (versiones sin cantidad de tareas ni quién publicó) | `VersionDTO` trae `cantidadDeTareas` y `publicadaPorNombre` (`shr_version.id_usuario_publicacion`). La lista muestra la cantidad y el detalle, quién publicó |
 | 48 (backlog sin paginar ni arrastrar) | Aprobada tal como está |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.4 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 49 (archivados sin «Incluye», «Ver» ni detalle de la restauración) | `/archivo/paginar` trae `incluidos` (tareas archivadas en la misma operación) y `GET /archivo/{tipo}/{uuid}/vista-previa` (CU-ARC-02, con `ARCHIVAR`; usuarios, administradores) dice dónde vuelve, qué se restaura con el elemento y qué queda archivado, y si el padre sigue archivado. El front muestra «Incluye», «Ver» y la vista previa al restaurar |
+| 50 (tokens sin último uso ni revocados) | `shr_uso_de_token` guarda el último uso de cada token (lo registra la autenticación por token, a lo sumo una vez por minuto) y `GET /usuario/mis-tokens` (CU-USR-25) lista todos los tokens del usuario, también los revocados, con creación, revocación y último uso |
+| 51 (búsqueda sin «Sin sprint» ni varios valores) | Tablero, tipo, estado, responsable y sprint aceptan varios valores (se combinan con O, en un mismo grupo de filtros del paginado) y el sprint tiene «Sin sprint (backlog)» (operación `is null`). Sin cambios en el backend |

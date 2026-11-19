@@ -95,7 +95,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - `POST /tarea/paginar` con el parámetro `texto` (en `parametros`) es la búsqueda de tareas: texto en español sobre la clave, el título y la descripción (con raíces: "tablero" encuentra "tableros"), o la clave exacta, combinable con los filtros. Respeta los permisos como cualquier listado. Usa una columna `tsvector` generada con índice GIN.
 - `POST /archivo/paginar` busca lo archivado de cualquier tipo (tareas, proyectos, sprints, versiones y usuarios), con filtro por tipo y texto: aparece lo que el usuario puede archivar (el tablero de la tarea o el proyecto); los usuarios, solo para administradores. Lo más reciente primero. Cada elemento se restaura en el endpoint de su tipo.
 
-- Parámetros de `/tarea/paginar` además de `texto`: `version` (uuid: las tareas asignadas a esa versión) y `etiqueta` (las que tienen esa etiqueta, sin distinguir mayúsculas). Los archivados (`/archivo/paginar`) traen `archivadoPorNombre`.
+- Parámetros de `/tarea/paginar` además de `texto`: `version` (uuid: las tareas asignadas a esa versión) y `etiqueta` (las que tienen esa etiqueta, sin distinguir mayúsculas). Los archivados (`/archivo/paginar`) traen `archivadoPorNombre` e `incluidos` (tareas archivadas en la misma operación). `GET /archivo/{tipo}/{uuid}/vista-previa` (con `ARCHIVAR`; los usuarios, administradores) dice dónde vuelve un archivado, qué se restaura con él, qué queda archivado y si su padre sigue archivado. En el paginado, varios filtros en un mismo grupo se combinan con O y `is null` sirve para «sin sprint».
 
 ## Comentarios (`Comentario`)
 
@@ -147,6 +147,10 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.
 - Roles base: `SYSADMIN` (super admin) y `ADMIN`. Los permisos por proyecto y tablero de Shiro (`shr_regla_permiso`) llegan en F2.
 - Un usuario no puede crear un rol ni asignar a otro usuario un rol con permisos que él mismo no tiene (salvo `SYSADMIN`).
+
+## Tokens de acceso
+
+- `GET /usuario/mis-tokens` (con sesión): todos los tokens del usuario, también los revocados, con creación, revocación y último uso. El último uso lo registra la autenticación por token en `shr_uso_de_token`, a lo sumo una vez por minuto por token.
 
 ## MCP
 
