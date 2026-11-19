@@ -54,6 +54,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     GOOGLE_NO_CONFIGURADO(HttpStatus.SERVICE_UNAVAILABLE, "El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña."),
     @Descripcion("Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde")
     GOOGLE_NO_DISPONIBLE(HttpStatus.SERVICE_UNAVAILABLE, "Google no responde. Volvé a intentar en unos minutos."),
+    @Descripcion("Al guardar una regla de permiso, el sujeto no coincide con tipoSujeto (va rolUuid o usuarioUuid, uno solo) o el recurso no coincide con tipoRecurso (va proyectoUuid o tableroUuid, uno solo)")
+    REGLA_DE_PERMISO_INVALIDA(HttpStatus.BAD_REQUEST, "La regla tiene que indicar un sujeto y un recurso, según su tipo."),
+    @Descripcion("Al guardar una regla de permiso, ya hay otra vigente con el mismo sujeto, recurso y nivel: hay que editar esa")
+    REGLA_DE_PERMISO_REPETIDA(HttpStatus.BAD_REQUEST, "Ya hay una regla para ese sujeto, recurso y nivel. Editá esa."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

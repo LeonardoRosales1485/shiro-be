@@ -1,0 +1,23 @@
+# Seeds de reglas de permiso (T2.3): el grupo CLIENTE ve el proyecto Shiro (no edita ni archiva).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-reglas-de-permiso-seed-1
+      author: shiro
+      comment: "El grupo CLIENTE ve el proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_regla_permiso WHERE uuid = 'b5000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_regla_permiso
+            columns:
+              - column: {name: uuid, value: b5000000-0000-4000-8000-000000000001}
+              - column: {name: tipo_sujeto, value: ROL}
+              - column: {name: id_rol, valueComputed: "(SELECT id FROM auth_roles WHERE uuid = '90000000-0000-4000-8000-000000000009')"}
+              - column: {name: tipo_recurso, value: PROYECTO}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: nivel, value: VER}
+              - column: {name: efecto, value: PERMITIR}
+      rollback:
+        - delete: {tableName: shr_regla_permiso, where: "uuid = 'b5000000-0000-4000-8000-000000000001'"}

@@ -79,6 +79,14 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - `GET /tarea/{uuid}/historial` responde lo más nuevo primero; `?canal=MCP` filtra por canal. Sirve también para tareas archivadas.
 - El canal lo marca el filtro de `/mcp` (T3.1) en el atributo `shiro.canal` del request; sin marca es `WEB`.
 
+## Permisos por recurso (`ReglaPermiso`)
+
+- Una regla dice que un grupo (rol) o un usuario tiene permitido o negado un nivel (`VER`, `EDITAR`, `ARCHIVAR`) sobre un proyecto o un tablero. ABM en `/regla-permiso` (más `POST /regla-permiso/{uuid}/archivar`), solo para el super admin y los Administradores. No se repite el mismo sujeto, recurso y nivel (`REGLA_DE_PERMISO_REPETIDA`); el sujeto y el recurso tienen que coincidir con su tipo (`REGLA_DE_PERMISO_INVALIDA`).
+- Resolución (Spec 2, `ResolutorDePermisosDeRecurso`): el super admin y los Administradores pueden todo. Si no: sobre el tablero, la regla del usuario decide; si no hay, entre las de sus grupos gana negar y, si alguna permite, permitido. Si el tablero no decide, lo mismo sobre el proyecto. Sin reglas, negado.
+- `EDITAR` y `ARCHIVAR` permitidos implican `VER`; negar `EDITAR` o `ARCHIVAR` no niega `VER`. `EDITAR` y `ARCHIVAR` son independientes entre sí (la spec manda sobre el prototipo, que los mostraba acumulativos).
+- Las reglas del usuario se leen una vez por request.
+- Seed: el grupo `CLIENTE` ve el proyecto Shiro.
+
 ## Roles y permisos
 
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.
