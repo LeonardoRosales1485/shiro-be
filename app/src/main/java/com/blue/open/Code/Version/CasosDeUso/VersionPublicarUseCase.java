@@ -11,6 +11,7 @@ import com.blue.open.Code.Version.Version;
 import com.blue.open.Code.Version.VersionDTO;
 import com.blue.open.Code.Version.VersionPublicarRequestDTO;
 import com.blue.open.Code.Version.VersionRepository;
+import com.blue.open.Code.Usuario.UsuarioDeLaSesion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,13 +38,14 @@ public class VersionPublicarUseCase {
 
     private final RegistradorDeHistorial historial;
 
+    private final UsuarioDeLaSesion usuarioDeLaSesion;
+
     @Transactional
     public VersionDTO ejecutar(String uuid, VersionPublicarRequestDTO dto) {
         Version version = tareasDeVersion.sinPublicar(uuid);
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires"));
-        version.setEstado(EstadoDeVersion.PUBLICADA);
-        version.setFechaDePublicacion(fecha);
-        version.setChangelog(ChangelogDeVersion.armar(version.getNombre(), fecha, tareaVersionRepository.lineasDeChangelog(version)));
+        version.publicar(fecha, ChangelogDeVersion.armar(version.getNombre(), fecha, tareaVersionRepository.lineasDeChangelog(version)),
+                usuarioDeLaSesion.obtener());
         versionRepository.save(version);
         historial.registrar(Historial.VERSION, uuid, AccionDeHistorial.EDITAR, "estado", EstadoDeVersion.SIN_PUBLICAR.name(),
                 EstadoDeVersion.PUBLICADA.name() + " " + fecha);

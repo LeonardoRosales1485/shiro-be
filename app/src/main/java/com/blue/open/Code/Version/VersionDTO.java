@@ -40,4 +40,11 @@ public class VersionDTO extends EntidadBaseDTO {
     @Descripcion("Fecha de publicación elegida al publicar (aaaa-mm-dd). Vacía si no está publicada. Solo lectura")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate fechaDePublicacion;
+
+    @Descripcion("Cantidad de tareas vigentes asignadas. Solo lectura")
+    private Integer cantidadDeTareas;
+
+    @Descripcion("Nombre del usuario que publicó la versión. Solo lectura; vacío si no está publicada")
+    @Columna("publicadaPor.nombre")
+    private String publicadaPorNombre;
 }
