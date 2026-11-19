@@ -62,8 +62,16 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 
 ## Backlog
 
-- `GET /backlog/proyecto/{uuid}` (exige `VER` en el proyecto): las tareas vigentes del proyecto de todos los tableros, sin épicas ni subtareas (y sin sprint, desde T5.2), en un único orden, el mismo para todos. Las que nadie ordenó todavía van al final, por número.
+- `GET /backlog/proyecto/{uuid}` (exige `VER` en el proyecto): las tareas vigentes del proyecto de todos los tableros, sin épicas ni subtareas y sin sprint, en un único orden, el mismo para todos. Las que nadie ordenó todavía van al final, por número.
 - `POST /backlog/ordenar` (exige `EDITAR` en el proyecto): las tareas recibidas van primero, en ese orden; las demás quedan después en su orden anterior. Una tarea que no está en el backlog responde `TAREA_FUERA_DEL_BACKLOG`. Deja una fila `ORDENAR_BACKLOG` en el historial del proyecto.
+
+## Sprints (`Sprint`)
+
+- Son del proyecto e incluyen tareas de todos los tableros. ABM en `/sprint` (nombre y fechas de inicio y fin, sin hora; fin no anterior al inicio: `SPRINT_FECHAS_INVALIDAS`). Leer exige `VER` en el proyecto y el resto, `EDITAR`.
+- Ciclo: se crea `PLANIFICADO`; `POST /sprint/{uuid}/asignar` y `/quitar` mueven historias, tareas y bugs del proyecto entre el backlog y el sprint (`TAREA_FUERA_DEL_BACKLOG` si no corresponde; `SPRINT_CERRADO` si ya cerró); `POST /sprint/{uuid}/iniciar` lo activa (uno solo activo por proyecto: `SPRINT_ACTIVO_EXISTENTE`, con índice único parcial en la base); `POST /sprint/{uuid}/cerrar` con destino `BACKLOG` o `SPRINT` (otro planificado del proyecto): lo terminado queda en el sprint cerrado y lo pendiente va al destino.
+- `POST /sprint/{uuid}/archivar`: el activo no se archiva (`SPRINT_ACTIVO_NO_SE_ARCHIVA`); las tareas de uno planificado vuelven al backlog; las de uno cerrado quedan registradas en él.
+- Cada movimiento de tarea deja una fila `EDITAR` (campo `sprint`) en su historial; el sprint registra sus cambios de estado.
+- Seed: Sprint 1 del proyecto Shiro, planificado.
 
 ## Comentarios (`Comentario`)
 

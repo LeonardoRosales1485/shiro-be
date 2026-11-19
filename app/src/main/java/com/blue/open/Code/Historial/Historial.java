@@ -37,6 +37,8 @@ public class Historial extends EntidadBase {
 
     public static final String REGLA_PERMISO = "REGLA_PERMISO";
 
+    public static final String SPRINT = "SPRINT";
+
     // Entidad que cambio: TAREA, PROYECTO, ...
     private String entidad;
 

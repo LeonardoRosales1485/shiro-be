@@ -102,6 +102,14 @@ public class TareaDTO extends EntidadBaseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate vencimiento;
 
+    @Descripcion("Uuid del sprint de la tarea; vacío si está en el backlog. Solo lectura: se cambia con asignar y quitar del sprint")
+    @Columna("sprint.uuid")
+    private String sprintUuid;
+
+    @Descripcion("Nombre del sprint. Solo lectura")
+    @Columna("sprint.nombre")
+    private String sprintNombre;
+
     @Descripcion("Uuid de la tarea padre. Vacío si no tiene. El padre es del mismo proyecto y de un tipo de nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea)")
     @Columna("padre.uuid")
     private String padreUuid;

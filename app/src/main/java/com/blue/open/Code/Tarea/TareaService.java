@@ -10,6 +10,7 @@ import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
 import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.TipoTarea.TipoTareaRepository;
@@ -108,12 +109,14 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         if (!esAlta)
             modelo.setValoresAnteriores(valoresDelHistorial(modelo, textosVigentes(modelo)));
         Proyecto proyectoActual = modelo.getProyecto();
+        Sprint sprintActual = modelo.getSprint();
         Estado estadoActual = modelo.getEstado();
         Usuario informanteActual = modelo.getInformante();
         PrioridadDeTarea prioridadActual = modelo.getPrioridad();
         // Proyecto y estado los decide el servidor: se descartan antes de que el Proyector asigne las relaciones
         dto.setProyectoUuid(null);
         dto.setEstadoUuid(null);
+        dto.setSprintUuid(null);
 
         Tarea aplicada = super.hookGuardarAplicarDto(dto, modelo);
         if (esAlta)
@@ -122,6 +125,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
             // Antes de cualquier consulta: una consulta dispara el flush y la tarea no puede quedar sin proyecto
             aplicada.setProyecto(proyectoActual);
             aplicada.setEstado(estadoActual);
+            aplicada.setSprint(sprintActual);
         }
         aplicada.setTipo(tipo);
         aplicada.setPrioridad(dto.getPrioridad() != null ? dto.getPrioridad()

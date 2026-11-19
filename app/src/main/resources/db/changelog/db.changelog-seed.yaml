@@ -29,3 +29,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-reglas-de-permiso-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-sprints-seed.yaml
+      relativeToChangelogFile: true

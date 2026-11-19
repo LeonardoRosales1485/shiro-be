@@ -2,6 +2,7 @@ package com.blue.open.Code.Tarea;
 
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Proyecto.Proyecto;
+import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.Usuario.Usuario;
@@ -103,6 +104,11 @@ public class Tarea extends EntidadConBorradoLogico {
     // Tareas hijas (las que tienen a esta como padre)
     @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY)
     private List<Tarea> hijas = new ArrayList<>();
+
+    // Sprint de la tarea; null si esta en el backlog. Lo cambian los casos de uso del sprint, no guardar
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sprint")
+    private Sprint sprint;
 
     // Posicion en el backlog del proyecto (un unico orden para todos); null hasta que alguien lo ordena: va al
     // final, por numero. Lo cambia el caso de uso de ordenar el backlog

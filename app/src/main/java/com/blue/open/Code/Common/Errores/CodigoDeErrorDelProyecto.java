@@ -66,6 +66,20 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     GRUPO_DEL_SISTEMA(HttpStatus.BAD_REQUEST, "Los grupos del sistema no se archivan."),
     @Descripcion("Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea)")
     TAREA_FUERA_DEL_BACKLOG(HttpStatus.BAD_REQUEST, "Una de las tareas no está en el backlog del proyecto."),
+    @Descripcion("Al guardar un sprint, la fecha de fin es anterior a la de inicio")
+    SPRINT_FECHAS_INVALIDAS(HttpStatus.BAD_REQUEST, "La fecha de fin del sprint no puede ser anterior a la de inicio."),
+    @Descripcion("Al iniciar un sprint, el proyecto ya tiene otro activo: hay que cerrarlo primero")
+    SPRINT_ACTIVO_EXISTENTE(HttpStatus.BAD_REQUEST, "Ya hay un sprint activo en el proyecto. Cerralo antes de iniciar otro."),
+    @Descripcion("Se intentó iniciar un sprint que no está planificado (ya está activo o cerrado)")
+    SPRINT_NO_PLANIFICADO(HttpStatus.BAD_REQUEST, "Solo se inicia un sprint planificado."),
+    @Descripcion("Se intentó cerrar un sprint que no está activo")
+    SPRINT_NO_ACTIVO(HttpStatus.BAD_REQUEST, "Solo se cierra el sprint activo."),
+    @Descripcion("Se intentó asignar o quitar tareas de un sprint cerrado")
+    SPRINT_CERRADO(HttpStatus.BAD_REQUEST, "El sprint está cerrado: no se le asignan ni quitan tareas."),
+    @Descripcion("Al cerrar un sprint hacia otro sprint, el destino no es un sprint planificado del mismo proyecto")
+    SPRINT_DESTINO_INVALIDO(HttpStatus.BAD_REQUEST, "El sprint de destino tiene que ser un sprint planificado del mismo proyecto."),
+    @Descripcion("Se intentó archivar el sprint activo: hay que cerrarlo primero")
+    SPRINT_ACTIVO_NO_SE_ARCHIVA(HttpStatus.BAD_REQUEST, "El sprint activo no se archiva: cerralo primero."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

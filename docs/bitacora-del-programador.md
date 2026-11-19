@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F5 en curso** (se adelanta a F4). T5.1 cerrada (versión 1.0.25). Sigue T5.2 (sprints). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F5 en curso.** T5.1 y T5.2 cerradas (versión 1.0.26). Sigue T5.3 (versiones y changelog). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Cierre de F2
 
@@ -51,6 +51,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T5.2 | shr_sprint con índice único parcial (un ACTIVO por proyecto) e id_sprint en shr_tarea. ABM /sprint y casos de uso asignar, quitar, iniciar, cerrar (destino BACKLOG o SPRINT; lo terminado queda en el sprint) y archivar (activo rechazado; planificado devuelve sus tareas). TareasDeSprint reúne los pasos compartidos. El backlog excluye las tareas con sprint y /tarea/guardar conserva el sprint. Seed Sprint 1. Decisiones 23 y 24 | 0e592c0 (rojo) y verde en el commit siguiente. ./mvnw verify: 414 pruebas, 0 fallas, 26 omitidas. Versión 1.0.26 |
 | 18/11/2026 | T5.1 | F5 se adelanta a F4 (el importador necesita sprints y versiones; F4 además espera credenciales de Jira). orden_backlog en shr_tarea; GET /backlog/proyecto/{uuid} y POST /backlog/ordenar (BacklogController en Tarea/); historias, tareas y bugs, orden único, nuevas al final; VER para leer y EDITAR en el proyecto para ordenar; fila ORDENAR_BACKLOG en el historial. Decisiones 21 y 22 | 5c4ba3d (rojo) y verde en el commit siguiente. ./mvnw verify: 399 pruebas, 0 fallas, 23 omitidas. Versión 1.0.25 |
 | 18/11/2026 | T3.3 | HerramientasMcpDeArchivo (archivar y restaurar tarea, proyecto y usuario) y HerramientasMcpDeAdministracion (administrar_proyecto, administrar_usuarios, administrar_grupos, administrar_permisos). Confirmacion: sin confirmar: true las acciones de alto impacto no cambian nada y responden la vista previa con conteos. La administración exige ser super admin o Administrador dentro de la herramienta. Decisiones 19 y 20. T3.4 (prueba con un LLM real del equipo en st7) queda pendiente: necesita el despliegue en st7 y al equipo | 1a5f1e1 (rojo) y verde en el commit siguiente. ./mvnw verify: 394 pruebas, 0 fallas, 23 omitidas; cobertura 92,5%. Versión 1.0.24 |
 | 18/11/2026 | T3.2 | Herramientas MCP de consulta y de tareas (HerramientasMcpDeProyecto y HerramientasMcpDeTarea, en la carpeta de su entidad): listar_proyectos, ver_tablero, buscar_tareas, obtener_tarea, ver_historial, crear_tarea, editar_tarea, mover_tarea, clonar_tarea, comentar_tarea y relacionar_tareas. Llaman a los mismos servicios y casos de uso que la API; ReferenciasDeMcp traduce clave, prefijo, tablero, estado y usuario. Respuesta {resumen, datos}. Prueba de punta a punta con el cliente MCP oficial: historial con canal MCP y errores de permiso. La implementación se escribió antes que la prueba por error: se sacó, se commiteó la prueba en rojo y se volvió a poner. ver_backlog y buscar_archivados quedan para F5. Decisiones 17 y 18 | 1662730 (rojo) y verde en el commit siguiente. ./mvnw verify: 390 pruebas, 0 fallas, 23 omitidas. Versión 1.0.23 |

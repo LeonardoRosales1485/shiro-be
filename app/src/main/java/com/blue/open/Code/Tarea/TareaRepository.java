@@ -1,6 +1,7 @@
 package com.blue.open.Code.Tarea;
 
 import com.blue.open.Code.Proyecto.Proyecto;
+import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
@@ -48,14 +49,17 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     @Query("SELECT new com.blue.open.Code.Tarea.TareaDeBacklogDTO(t.uuid, t.clave, t.titulo, ti.codigo, e.nombre, tt.codigo, "
             + "t.prioridad, t.puntos, r.nombre) FROM Tarea t JOIN t.tipo ti JOIN t.estado e JOIN t.tablero tb "
             + "JOIN tb.tipoTablero tt LEFT JOIN t.responsable r "
-            + "WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 "
+            + "WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
     List<TareaDeBacklogDTO> backlogDe(@Param("proyecto") Proyecto proyecto);
 
     // Las mismas tareas del backlog, como entidades, en el mismo orden (para reordenarlas)
-    @Query("SELECT t FROM Tarea t JOIN t.tipo ti WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 "
+    @Query("SELECT t FROM Tarea t JOIN t.tipo ti WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
     List<Tarea> tareasDelBacklog(@Param("proyecto") Proyecto proyecto);
+
+    // Tareas del sprint con el status recibido
+    List<Tarea> findBySprintAndStatus(Sprint sprint, Integer status);
 
     // Tarea por uuid en cualquier status (vigente o archivada)
     Optional<Tarea> findFirstByUuid(String uuid);
