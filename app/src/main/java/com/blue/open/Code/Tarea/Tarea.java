@@ -151,6 +151,16 @@ public class Tarea extends EntidadConBorradoLogico {
     }
 
     /*
+     * Asigna el numero y la clave de una tarea importada de Jira (resolucion A3 del 19/11): el numero sale del contador
+     * del proyecto (es unico por proyecto) y la clave es J-PREFIJO-numero de Jira (J-SIM-7), para que no choque con las
+     * claves propias. Invariante: la clave no cambia; si ya tiene, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void numerarImportada(String prefijo, long numero, String numeroDeJira) {
+        numerar(prefijo, numero);
+        this.clave = "J-" + prefijo + "-" + numeroDeJira;
+    }
+
+    /*
      * Archiva la tarea (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
      * Invariante: solo se archiva una tarea vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO (lo filtra antes
      * el caso de uso).

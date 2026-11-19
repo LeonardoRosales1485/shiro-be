@@ -19,7 +19,9 @@ public class MapeoDeTipoDTO extends EntidadBaseDTO {
     @NotBlank(message = "Falta el id de Jira de un tipo")
     private String idJira;
 
-    @Descripcion("Uuid del tipo de tarea de Shiro")
-    @NotBlank(message = "Elegí el tipo de Shiro de cada tipo de Jira")
+    @Descripcion("Uuid del tipo de tarea de Shiro. Va este campo o crear, uno solo")
     private String tipoTareaUuid;
+
+    @Descripcion("true para crear un tipo de tarea con el nombre y el nivel del de Jira (se reusa si ya hay uno con ese nombre). Queda en el catálogo de todos los proyectos")
+    private boolean crear;
 }

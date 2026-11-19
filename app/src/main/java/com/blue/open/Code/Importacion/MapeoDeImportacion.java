@@ -10,7 +10,8 @@ import java.util.Map;
  * @param tableros uuid de tipo de tablero por id de tablero de Jira, en el orden del mapeo
  * @param estados  por id de tablero de Jira, uuid de estado por id de estado de Jira
  * @param tipos    uuid de tipo de tarea por id de tipo de Jira
+ * @param duracionDeSprintEnDias duracion de los sprints sin fechas
  */
 public record MapeoDeImportacion(LinkedHashMap<String, String> tableros, Map<String, Map<String, String>> estados,
-        Map<String, String> tipos) {
+        Map<String, String> tipos, Integer duracionDeSprintEnDias) {
 }

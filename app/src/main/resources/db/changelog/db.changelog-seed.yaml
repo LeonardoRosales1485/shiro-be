@@ -38,3 +38,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-importaciones-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-importaciones-prefijo-seed.yaml
+      relativeToChangelogFile: true

@@ -39,8 +39,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Ejecuta una importacion de Jira (Spec 6, T4.3) en una transaccion: crea (o reusa) el proyecto con la clave de Jira
- * como prefijo y sus tableros, resuelve el mapeo, importa versiones y sprints, delega las tareas y comentarios en
+ * Ejecuta una importacion de Jira (Spec 6, T4.3) en una transaccion: crea (o reusa) el proyecto con el prefijo elegido
+ * al conectar y sus tableros, resuelve el mapeo, importa versiones y sprints, delega las tareas y comentarios en
  * ImportadorDeTareas y deja la importacion TERMINADA con su resumen. Cada elemento se busca en shr_mapeo_jira:
  * si ya se importo se actualiza, si no se crea. Todo va al historial con canal IMPORTACION.
  * Dependencias externas: Jira (ClienteDeJira) y la base de datos.
@@ -51,6 +51,7 @@ public class ImportadorDeJira {
 
     private static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
 
+    // Duracion de los sprints sin fechas en importaciones mapeadas antes de que el mapeo la pidiera
     private static final int DIAS_DE_SPRINT_SIN_FECHAS = 14;
 
     private final ImportacionRepository importacionRepository;
@@ -97,7 +98,8 @@ public class ImportadorDeJira {
         CredencialesDeJira credenciales = catalogo.credenciales(importacion);
         MapeoDeImportacion mapeo = lector.readValue(importacion.getMapeo(), MapeoDeImportacion.class);
         Proyecto proyecto = proyecto(importacion, idUsuario);
-        ContextoDeImportacion contexto = new ContextoDeImportacion(proyecto, credenciales, usuario, new ResumenDeImportacion());
+        ContextoDeImportacion contexto = new ContextoDeImportacion(proyecto, credenciales, importacion.getClaveProyectoJira(), usuario, new ResumenDeImportacion(),
+                mapeo.duracionDeSprintEnDias() == null ? DIAS_DE_SPRINT_SIN_FECHAS : mapeo.duracionDeSprintEnDias());
         resolverMapeo(contexto, mapeo);
         versiones(contexto);
         sprints(contexto);
@@ -124,15 +126,16 @@ public class ImportadorDeJira {
     // Crea el proyecto con sus tableros y registra el mapeo. Lanza PREFIJO_DE_PROYECTO_EN_USO
     private Proyecto crearProyecto(Importacion importacion, Long idUsuario) {
         String clave = importacion.getClaveProyectoJira();
-        if (proyectoRepository.existsByPrefijo(clave))
-            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.PREFIJO_DE_PROYECTO_EN_USO, "ImportadorDeJira | prefijo en uso: " + clave);
+        String prefijo = importacion.getPrefijo() == null ? clave : importacion.getPrefijo();
+        if (proyectoRepository.existsByPrefijo(prefijo))
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.PREFIJO_DE_PROYECTO_EN_USO, "ImportadorDeJira | prefijo en uso: " + prefijo);
         Proyecto proyecto = new Proyecto();
         proyecto.setNombre(importacion.getNombreProyectoJira() == null ? clave : importacion.getNombreProyectoJira());
-        proyecto.setPrefijo(clave);
+        proyecto.setPrefijo(prefijo);
         proyecto.setDescripcion("Importado de Jira (" + importacion.getUrlJira() + ")");
         proyecto.setIdUsuarioDeCreacion(idUsuario);
         Proyecto guardado = proyectoRepository.save(proyecto);
-        registrar(new RegistradorDeHistorial.Cambio(Historial.PROYECTO, guardado.getUuid(), AccionDeHistorial.CREAR, null, null, clave), idUsuario);
+        registrar(new RegistradorDeHistorial.Cambio(Historial.PROYECTO, guardado.getUuid(), AccionDeHistorial.CREAR, null, null, prefijo), idUsuario);
         for (TipoTablero tipo : tipoTableroRepository.findByStatusOrderByOrden(0)) {
             Tablero tablero = new Tablero(guardado, tipo);
             tablero.setIdUsuarioDeCreacion(idUsuario);
@@ -162,7 +165,7 @@ public class ImportadorDeJira {
 
     // Importa las versiones del proyecto: una publicada en Shiro ya no cambia
     private void versiones(ContextoDeImportacion contexto) {
-        List<DatosDeJira.Version> deJira = jira.versiones(contexto.getCredenciales(), contexto.getProyecto().getPrefijo());
+        List<DatosDeJira.Version> deJira = jira.versiones(contexto.getCredenciales(), contexto.getClaveDeJira());
         Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.VERSION, deJira.stream().map(DatosDeJira.Version::id).toList());
         for (DatosDeJira.Version version : deJira) {
             Version enShiro = Optional.ofNullable(yaImportadas.get(version.id())).flatMap(versionRepository::buscarVigentePorUuid)
@@ -216,10 +219,10 @@ public class ImportadorDeJira {
         }
     }
 
-    // Copia nombre, fechas y estado del sprint de Jira. Sin fechas: desde hoy, dos semanas. Si ya hay otro activo, queda planificado
+    // Copia nombre, fechas y estado del sprint de Jira. Sin fechas: desde hoy, los dias del mapeo. Si ya hay otro activo, queda planificado
     private void aplicarSprint(ContextoDeImportacion contexto, DatosDeJira.Sprint sprint, Sprint enShiro) {
         LocalDate inicio = sprint.inicio() == null ? LocalDate.now(ZONA) : sprint.inicio();
-        LocalDate fin = sprint.fin() == null || sprint.fin().isBefore(inicio) ? inicio.plusDays(DIAS_DE_SPRINT_SIN_FECHAS) : sprint.fin();
+        LocalDate fin = sprint.fin() == null || sprint.fin().isBefore(inicio) ? inicio.plusDays(contexto.getDuracionDeSprintEnDias()) : sprint.fin();
         enShiro.setProyecto(contexto.getProyecto());
         enShiro.setNombre(sprint.nombre());
         enShiro.setInicio(inicio);

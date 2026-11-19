@@ -88,15 +88,17 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     CIFRADO_NO_CONFIGURADO(HttpStatus.SERVICE_UNAVAILABLE, "El importador de Jira no está habilitado en este servidor."),
     @Descripcion("Al ejecutar una importación, el token de Jira guardado no se puede descifrar (cambió la frase de cifrado del servidor): hay que volver a conectar")
     CREDENCIAL_NO_DESCIFRABLE(HttpStatus.BAD_REQUEST, "Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira."),
-    @Descripcion("Al conectar con Jira, la clave del proyecto de Jira no sirve como prefijo de Shiro (2 a 6 letras): se importa con esa clave, así que no se puede importar")
-    CLAVE_DE_JIRA_NO_ES_PREFIJO(HttpStatus.BAD_REQUEST, "La clave del proyecto de Jira tiene que tener de 2 a 6 letras para usarla como prefijo en Shiro."),
+    @Descripcion("Al conectar con Jira, la URL no es un sitio https de Jira Cloud (*.atlassian.net)")
+    JIRA_URL_NO_PERMITIDA(HttpStatus.BAD_REQUEST, "La URL de Jira tiene que ser https://{tu-sitio}.atlassian.net."),
+    @Descripcion("Al conectar con Jira, esa clave ya se importó en un proyecto de Shiro con otro prefijo: hay que usar el prefijo de ese proyecto")
+    IMPORTACION_CON_OTRO_PREFIJO(HttpStatus.BAD_REQUEST, "Ese proyecto de Jira ya se importó con otro prefijo. Usá el mismo para reimportarlo."),
     @Descripcion("Jira rechazó el correo o el token de API (o no tienen acceso al proyecto)")
     JIRA_CREDENCIALES_INVALIDAS(HttpStatus.BAD_REQUEST, "Jira rechazó el correo o el token. Revisalos y volvé a intentar."),
     @Descripcion("Al conectar con Jira, no existe un proyecto con esa clave (o las credenciales no lo ven)")
     JIRA_PROYECTO_NO_ENCONTRADO(HttpStatus.BAD_REQUEST, "No hay un proyecto con esa clave en Jira."),
     @Descripcion("Jira no responde, responde un error o la URL no es de un Jira: hay que revisar la URL o reintentar más tarde")
     JIRA_NO_DISPONIBLE(HttpStatus.SERVICE_UNAVAILABLE, "Jira no responde. Revisá la URL o volvé a intentar en unos minutos."),
-    @Descripcion("Al mapear una importación, un tablero no es del proyecto de Jira, un tipo o estado no existe, o un estado no es del tipo de tablero elegido")
+    @Descripcion("Al mapear una importación, un tablero no es del proyecto de Jira, un tipo o estado no existe, un estado no es del tipo de tablero elegido, o un estado o tipo no indica si se mapea o se crea (o indica las dos cosas)")
     MAPEO_DE_JIRA_INVALIDO(HttpStatus.BAD_REQUEST, "El mapeo no es válido. Revisá los tableros, estados y tipos elegidos."),
     @Descripcion("Se intentó ejecutar una importación que todavía no tiene mapeo")
     IMPORTACION_SIN_MAPEO(HttpStatus.BAD_REQUEST, "Antes de importar hay que mapear los tableros, estados y tipos."),

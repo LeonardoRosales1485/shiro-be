@@ -1,0 +1,35 @@
+# Resoluciones del 19/11 sobre el importador de Jira: el prefijo de Shiro lo elige el administrador al conectar
+# (A3: claves J-PREFIJO-numero) y lo importado registra tambien los usuarios de Jira creados sin acceso (B34).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-importaciones-resoluciones-1
+      author: shiro
+      comment: "Agrega el prefijo elegido a shr_importacion"
+      changes:
+        - addColumn:
+            tableName: shr_importacion
+            columns:
+              - column: {name: prefijo, type: VARCHAR(6)}
+        # Sin NOT NULL: la semilla de importaciones (publicada antes) inserta sin prefijo; conectar siempre lo completa
+        - sql:
+            comment: "Las importaciones anteriores usaban la clave de Jira como prefijo"
+            sql: UPDATE shr_importacion SET prefijo = LEFT(clave_proyecto_jira, 6) WHERE prefijo IS NULL
+      rollback:
+        - dropColumn: {tableName: shr_importacion, columnName: prefijo}
+
+  - changeSet:
+      id: 2026-11-19-importaciones-resoluciones-2
+      author: shiro
+      comment: "shr_mapeo_jira registra tambien usuarios"
+      changes:
+        - sql:
+            sql: >-
+              ALTER TABLE shr_mapeo_jira DROP CONSTRAINT ck_shr_mapeo_jira_tipo;
+              ALTER TABLE shr_mapeo_jira ADD CONSTRAINT ck_shr_mapeo_jira_tipo
+              CHECK (tipo_entidad IN ('PROYECTO', 'TAREA', 'COMENTARIO', 'SPRINT', 'VERSION', 'USUARIO'))
+      rollback:
+        - sql:
+            sql: >-
+              ALTER TABLE shr_mapeo_jira DROP CONSTRAINT ck_shr_mapeo_jira_tipo;
+              ALTER TABLE shr_mapeo_jira ADD CONSTRAINT ck_shr_mapeo_jira_tipo
+              CHECK (tipo_entidad IN ('PROYECTO', 'TAREA', 'COMENTARIO', 'SPRINT', 'VERSION'))

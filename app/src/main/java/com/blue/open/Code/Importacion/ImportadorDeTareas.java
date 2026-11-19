@@ -36,9 +36,9 @@ import java.util.Set;
 /**
  * Importa las tareas, subtareas y comentarios de Jira de una ejecucion (Spec 6, T4.3), dentro de la transaccion de
  * ImportadorDeJira. Trae los issues de los tableros mapeados, descarta (como falla) los de tipo o estado sin mapear y
- * las subtareas sin padre importado, conserva las claves de Jira (si una ya la usa otra tarea, toma el siguiente
- * numero del proyecto) y adelanta el contador del proyecto hasta la clave mas alta. Una tarea ya importada se
- * actualiza y no cambia de tablero; un comentario ya importado no se vuelve a traer.
+ * las subtareas sin padre importado. Cada tarea nueva toma el numero del contador del proyecto y la clave
+ * J-PREFIJO-numero de Jira (resolucion A3). Responsables y autores se resuelven con UsuariosDeJira (B34). Una tarea
+ * ya importada se actualiza y no cambia de tablero; un comentario ya importado no se vuelve a traer.
  * Dependencias externas: Jira (ClienteDeJira) y la base de datos.
  */
 @Component
@@ -53,7 +53,7 @@ public class ImportadorDeTareas {
 
     private final MapeosDeJira mapeos;
 
-    private final CatalogoDeJira catalogo;
+    private final UsuariosDeJira usuariosDeJira;
 
     private final TareaRepository tareaRepository;
 
@@ -68,17 +68,16 @@ public class ImportadorDeTareas {
     // Importa las tareas y sus comentarios. Lo que no se puede importar queda en las fallas del resumen
     public void importar(ContextoDeImportacion contexto) {
         Map<String, IssueAImportar> aceptadas = aceptar(contexto, traer(contexto));
-        List<DatosDeJira.Usuario> responsables = aceptadas.values().stream().map(a -> a.issue().responsable()).filter(Objects::nonNull).toList();
-        contexto.getUsuariosPorCorreo().putAll(catalogo.usuariosPorCorreo(responsables.stream().map(DatosDeJira.Usuario::correo).toList()));
+        usuariosDeJira.precargar(contexto, aceptadas.values().stream().map(a -> a.issue().responsable()).toList());
         Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.TAREA, aceptadas.values().stream().map(a -> a.issue().id()).toList());
         Map<String, Tarea> existentes = new HashMap<>();
         if (!yaImportadas.isEmpty())
             tareaRepository.buscarParaImportar(yaImportadas.values()).forEach(tarea -> existentes.put(tarea.getUuid(), tarea));
-        Map<String, Long> numeros = numerar(contexto.getProyecto(), aceptadas.values(), yaImportadas.keySet());
+        Map<String, String> sufijos = sufijosDeClave(contexto, aceptadas.values(), yaImportadas.keySet());
         Map<String, Tarea> porClave = new LinkedHashMap<>();
         for (IssueAImportar aceptada : aceptadas.values()) {
             Tarea existente = existentes.get(yaImportadas.get(aceptada.issue().id()));
-            porClave.put(aceptada.issue().clave(), guardar(contexto, aceptada, existente, numeros.get(aceptada.issue().clave())));
+            porClave.put(aceptada.issue().clave(), guardar(contexto, aceptada, existente, sufijos.get(aceptada.issue().clave())));
         }
         padres(contexto, aceptadas, porClave);
         etiquetasYVersiones(contexto, aceptadas, porClave);
@@ -89,7 +88,7 @@ public class ImportadorDeTareas {
     private Map<String, IssueAImportar> traer(ContextoDeImportacion contexto) {
         Map<String, IssueAImportar> issues = new LinkedHashMap<>();
         for (String tablero : contexto.getTableros().keySet())
-            for (DatosDeJira.Issue issue : jira.issues(contexto.getCredenciales(), tablero, contexto.getProyecto().getPrefijo()))
+            for (DatosDeJira.Issue issue : jira.issues(contexto.getCredenciales(), tablero, contexto.getClaveDeJira()))
                 issues.putIfAbsent(issue.clave(), new IssueAImportar(issue, tablero, null, null));
         return issues;
     }
@@ -131,28 +130,32 @@ public class ImportadorDeTareas {
     }
 
     /*
-     * Numero de cada tarea nueva: el de su clave de Jira si es del proyecto y ninguna tarea la usa; si no, el
-     * siguiente del contador (con una advertencia). Antes adelanta el contador hasta la clave mas alta conservada.
+     * Sufijo de la clave J-PREFIJO-sufijo de cada tarea nueva (resolucion A3 del 19/11): el numero de su clave de Jira
+     * (JSIM-7 queda J-SIM-7). Si esa clave ya la usa otra tarea, o dos issues dan el mismo numero (uno movido de otro
+     * proyecto de Jira), el sufijo es la clave de Jira entera (J-SIM-OLD-7), con una advertencia.
      */
-    private Map<String, Long> numerar(Proyecto proyecto, Iterable<IssueAImportar> aceptadas, Set<String> idsYaImportados) {
-        String prefijo = proyecto.getPrefijo() + "-";
-        List<String> nuevas = new ArrayList<>();
+    private Map<String, String> sufijosDeClave(ContextoDeImportacion contexto, Iterable<IssueAImportar> aceptadas, Set<String> idsYaImportados) {
+        String inicio = "J-" + contexto.getProyecto().getPrefijo() + "-";
+        Map<String, String> sufijos = new LinkedHashMap<>();
         for (IssueAImportar aceptada : aceptadas)
-            if (!idsYaImportados.contains(aceptada.issue().id()))
-                nuevas.add(aceptada.issue().clave());
-        Set<String> enUso = nuevas.isEmpty() ? Set.of() : new HashSet<>(tareaRepository.clavesEnUso(nuevas));
-        Map<String, Long> numeros = new HashMap<>();
-        for (String clave : nuevas)
-            if (clave.startsWith(prefijo) && !enUso.contains(clave) && clave.substring(prefijo.length()).matches("\\d{1,15}"))
-                numeros.put(clave, Long.parseLong(clave.substring(prefijo.length())));
-        numeros.values().stream().max(Long::compare).ifPresent(proyecto::continuarNumeracionDesde);
-        for (String clave : nuevas)
-            numeros.computeIfAbsent(clave, sinNumero -> proyecto.siguienteNumero());
-        return numeros;
+            if (!idsYaImportados.contains(aceptada.issue().id())) {
+                String clave = aceptada.issue().clave();
+                sufijos.put(clave, clave.substring(clave.lastIndexOf('-') + 1));
+            }
+        Set<String> enUso = sufijos.isEmpty() ? Set.of()
+                : new HashSet<>(tareaRepository.clavesEnUso(sufijos.values().stream().map(sufijo -> inicio + sufijo).toList()));
+        Set<String> tomados = new HashSet<>();
+        sufijos.replaceAll((clave, sufijo) -> {
+            if (!enUso.contains(inicio + sufijo) && tomados.add(sufijo))
+                return sufijo;
+            contexto.getResumen().advertir(clave, "Su número ya lo usaba otra tarea: se importó como " + inicio + clave + ".");
+            return clave;
+        });
+        return sufijos;
     }
 
     // Crea o actualiza la tarea de un issue aceptado y escribe su historial. Responde la tarea guardada
-    private Tarea guardar(ContextoDeImportacion contexto, IssueAImportar aceptada, Tarea existente, Long numero) {
+    private Tarea guardar(ContextoDeImportacion contexto, IssueAImportar aceptada, Tarea existente, String sufijoDeClave) {
         DatosDeJira.Issue issue = aceptada.issue();
         boolean nueva = existente == null;
         Tarea tarea = nueva ? new Tarea() : existente;
@@ -162,9 +165,7 @@ public class ImportadorDeTareas {
             tarea.setTablero(contexto.getTableros().get(aceptada.tablero()));
             tarea.setInformante(contexto.getUsuario());
             tarea.setIdUsuarioDeCreacion(contexto.idUsuario());
-            tarea.numerar(contexto.getProyecto().getPrefijo(), numero);
-            if (!tarea.getClave().equals(issue.clave()))
-                contexto.getResumen().advertir(issue.clave(), "Su clave ya la usaba otra tarea de Shiro: se importó como " + tarea.getClave() + ".");
+            tarea.numerarImportada(contexto.getProyecto().getPrefijo(), contexto.getProyecto().siguienteNumero(), sufijoDeClave);
         }
         tarea.setTitulo(issue.titulo().length() > LARGO_DEL_TITULO ? issue.titulo().substring(0, LARGO_DEL_TITULO) : issue.titulo());
         tarea.setDescripcion(issue.descripcion());
@@ -174,7 +175,7 @@ public class ImportadorDeTareas {
         else
             contexto.getResumen().advertir(issue.clave(), "Ya estaba importada en otro tablero: conservó su estado.");
         tarea.setPrioridad(prioridad(issue.prioridad()));
-        tarea.setResponsable(contexto.vincular(issue.responsable()));
+        tarea.setResponsable(usuariosDeJira.resolver(contexto, issue.responsable()));
         tarea.setSprint(issue.sprintId() == null ? null : contexto.getSprints().get(issue.sprintId()));
         tarea.setIdUsuarioDeActualizacion(contexto.idUsuario());
         Tarea guardada = tareaRepository.save(tarea);
@@ -249,16 +250,16 @@ public class ImportadorDeTareas {
         Map<DatosDeJira.Comentario, Tarea> deJira = new LinkedHashMap<>();
         porClave.forEach((clave, tarea) -> jira.comentarios(contexto.getCredenciales(), clave).forEach(comentario -> deJira.put(comentario, tarea)));
         Map<String, String> yaImportados = mapeos.uuids(TipoDeEntidadJira.COMENTARIO, deJira.keySet().stream().map(DatosDeJira.Comentario::id).toList());
-        contexto.getUsuariosPorCorreo().putAll(catalogo.usuariosPorCorreo(deJira.keySet().stream().map(c -> c.autor().correo()).toList()));
+        usuariosDeJira.precargar(contexto, deJira.keySet().stream().map(DatosDeJira.Comentario::autor).toList());
         deJira.forEach((deJiraComentario, tarea) -> {
             if (yaImportados.containsKey(deJiraComentario.id()))
                 return;
-            Usuario autor = contexto.vincular(deJiraComentario.autor());
+            Usuario autor = usuariosDeJira.resolver(contexto, deJiraComentario.autor());
             String cuerpo = deJiraComentario.cuerpo() == null ? "" : deJiraComentario.cuerpo();
             Comentario comentario = new Comentario();
             comentario.setTarea(tarea);
             comentario.setAutor(autor == null ? contexto.getUsuario() : autor);
-            comentario.setCuerpo(autor == null ? "_Comentario de " + deJiraComentario.autor().identificacion() + " en Jira._\n\n" + cuerpo : cuerpo);
+            comentario.setCuerpo(cuerpo);
             comentario.setCanal(CanalDeCambio.IMPORTACION);
             comentario.setFecha(Timestamp.from(deJiraComentario.fecha().toInstant()));
             comentario.setIdUsuarioDeCreacion(contexto.idUsuario());

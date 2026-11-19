@@ -5,6 +5,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
@@ -13,11 +17,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-IMP-03 y CU-IMP-04: mapear y ejecutar una importacion (T4.2 a T4.4 del plan, Spec 6 y Spec 7). El mapeo lleva
@@ -126,8 +125,8 @@ class ImportacionEjecutarContratoTest extends PruebaDeContrato {
         JsonNode importacion = escenario.importarJsim();
 
         JsonNode sprint = como("SYSADMIN").post("/sprint/paginar").json(Map.of("pagina", 1, "tamano", 10, "filtros",
-                List.of(List.of(Map.of("campo", "nombre", "operacion", "=", "valor", "Sprint sin fechas"),
-                        Map.of("campo", "proyecto.uuid", "operacion", "=", "valor", importacion.get("proyectoUuid").asString())))))
+                List.of(List.of(Map.of("campo", "nombre", "operacion", "=", "valor", "Sprint sin fechas")),
+                        List.of(Map.of("campo", "proyecto.uuid", "operacion", "=", "valor", importacion.get("proyectoUuid").asString())))))
                 .ejecutar().esperar(200).json().get("contenido").get(0);
 
         assertEquals(14, ChronoUnit.DAYS.between(LocalDate.parse(sprint.get("inicio").asString()),

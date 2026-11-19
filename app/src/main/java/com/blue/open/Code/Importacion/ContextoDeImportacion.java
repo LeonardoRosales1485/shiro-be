@@ -16,8 +16,8 @@ import java.util.Map;
 
 /**
  * Estado de una ejecucion del importador (ImportadorDeJira e ImportadorDeTareas): el proyecto de Shiro (con la fila
- * bloqueada), las credenciales, quien importa, el mapeo ya resuelto a entidades, los sprints y versiones importados
- * por id de Jira, los usuarios de Shiro por correo y el resumen que se va armando. Vive lo que dura una ejecucion.
+ * bloqueada), las credenciales, quien importa, el mapeo ya resuelto a entidades, la duracion de los sprints sin fechas, los sprints y versiones importados
+ * por id de Jira, los usuarios de Shiro por correo y los importados, y el resumen que se va armando. Vive lo que dura una ejecucion.
  */
 @Getter
 @RequiredArgsConstructor
@@ -26,6 +26,9 @@ public class ContextoDeImportacion {
     private final Proyecto proyecto;
 
     private final CredencialesDeJira credenciales;
+
+    // Clave del proyecto de Jira (la que se usa en la API de Jira; el prefijo de Shiro puede ser otro)
+    private final String claveDeJira;
 
     // Usuario que ejecuta la importacion: informante de las tareas nuevas y autor del historial
     private final Usuario usuario;
@@ -47,24 +50,17 @@ public class ContextoDeImportacion {
     // Versiones importadas por id de Jira
     private final Map<String, Version> versiones = new HashMap<>();
 
+    // Duracion en dias de los sprints de Jira sin fechas (la del mapeo)
+    private final int duracionDeSprintEnDias;
+
     // Usuarios de Shiro por correo (los que ya se buscaron)
     private final Map<String, Usuario> usuariosPorCorreo = new HashMap<>();
+
+    // Usuarios creados sin acceso por id de Jira (en esta importacion o en una anterior)
+    private final Map<String, Usuario> usuariosImportados = new HashMap<>();
 
     // Id del usuario que importa
     public Long idUsuario() {
         return usuario.getId();
-    }
-
-    /*
-     * Usuario de Shiro del usuario de Jira recibido, por correo (ya buscado con usuariosPorCorreo). Si no hay, lo
-     * anota en el resumen como sin vincular y responde null.
-     */
-    public Usuario vincular(DatosDeJira.Usuario deJira) {
-        if (deJira == null)
-            return null;
-        if (deJira.correo() != null && usuariosPorCorreo.containsKey(deJira.correo()))
-            return usuariosPorCorreo.get(deJira.correo());
-        resumen.sinVincular(deJira.identificacion());
-        return null;
     }
 }

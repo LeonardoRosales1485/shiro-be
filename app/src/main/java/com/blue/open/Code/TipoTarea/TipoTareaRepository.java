@@ -18,4 +18,7 @@ public interface TipoTareaRepository extends EntidadRepositoryBorradoLogico<Tipo
 
     // Tipo de tarea vigente por su codigo (EPICA, HISTORIA, TAREA, BUG o SUBTAREA)
     Optional<TipoTarea> findFirstByCodigoAndStatus(String codigo, Integer status);
+
+    // Tipos vigentes por orden (el importador los usa para reusar uno por nombre o crear el siguiente)
+    List<TipoTarea> findByStatusOrderByOrden(Integer status);
 }

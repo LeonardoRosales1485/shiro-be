@@ -38,4 +38,7 @@ public interface UsuarioRepository extends EntidadRepositoryBorradoLogico<Usuari
     @Query("SELECT new com.blue.open.Code.Usuario.GrupoDeUsuarioDTO(r.uuid, r.nombre) FROM UsuarioRol ur JOIN ur.rol r "
             + "WHERE ur.idUsuario = :usuario AND ur.status = 0 AND r.status = 0 ORDER BY r.nombre")
     List<GrupoDeUsuarioDTO> gruposDe(@Param("usuario") Long usuario);
+
+    // Usuarios por uuid, en una consulta (usuarios importados de Jira, F4)
+    List<Usuario> findByUuidIn(Collection<String> uuids);
 }

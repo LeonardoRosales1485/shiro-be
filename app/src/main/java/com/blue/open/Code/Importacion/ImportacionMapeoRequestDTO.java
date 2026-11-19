@@ -3,6 +3,8 @@ package com.blue.open.Code.Importacion;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.EntidadBaseDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,4 +32,10 @@ public class ImportacionMapeoRequestDTO extends EntidadBaseDTO {
     @NotNull(message = "Faltan los tipos")
     @Valid
     private List<MapeoDeTipoDTO> tipos = new ArrayList<>();
+
+    @Descripcion("Duración en días de los sprints de Jira que no traen fechas (empiezan el día de la importación). Los que traen fechas las conservan")
+    @NotNull(message = "Indicá cuántos días duran los sprints sin fechas")
+    @Min(value = 1, message = "Un sprint dura al menos 1 día")
+    @Max(value = 90, message = "Un sprint puede durar hasta 90 días")
+    private Integer duracionDeSprintEnDias;
 }

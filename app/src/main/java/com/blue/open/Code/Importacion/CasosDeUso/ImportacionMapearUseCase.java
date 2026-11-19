@@ -4,6 +4,7 @@ import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Estado.EstadoRepository;
 import com.blue.open.Code.Importacion.CatalogoDeJira;
+import com.blue.open.Code.Importacion.CatalogosDesdeJira;
 import com.blue.open.Code.Importacion.ElementoDeJiraDTO;
 import com.blue.open.Code.Importacion.EstadoDeImportacion;
 import com.blue.open.Code.Importacion.Importacion;
@@ -38,7 +39,8 @@ import java.util.stream.Collectors;
  * Caso de uso: guarda el mapeo de una importacion (CU-IMP-03, T4.2 y Spec 6) y la deja MAPEADA. Valida contra el
  * catalogo de Jira (tableros, estados y tipos del proyecto) y contra Shiro: cada tablero va a un tipo de tablero
  * vigente, cada estado elegido es de ese tipo de tablero y cada tipo de Jira va a un tipo de tarea vigente. Un
- * tablero no se mapea dos veces. Reemplaza el mapeo anterior. No es transaccional mientras espera a Jira.
+ * tablero no se mapea dos veces. Un estado o tipo sin equivalente se puede crear en el catalogo (resolucion B32) y
+ * el mapeo fija cuantos dias duran los sprints sin fechas (B35). Reemplaza el mapeo anterior. No es transaccional mientras espera a Jira.
  * Dependencias externas: Jira (CatalogoDeJira) y la base de datos.
  * Recibe: uuid de la importacion e ImportacionMapeoRequestDTO. Responde: ImportacionDTO. Lanza REGISTRO_NO_ENCONTRADO,
  * IMPORTACION_EN_CURSO, MAPEO_DE_JIRA_INVALIDO y los errores de Jira.
@@ -61,6 +63,8 @@ public class ImportacionMapearUseCase {
 
     private final ProveedorDeUsuarioActual usuarioActual;
 
+    private final CatalogosDesdeJira catalogosDesdeJira;
+
     private final ObjectMapper lector = new ObjectMapper();
 
     public ImportacionDTO ejecutar(String uuid, ImportacionMapeoRequestDTO dto) {
@@ -78,11 +82,16 @@ public class ImportacionMapearUseCase {
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "ImportacionMapearUseCase | " + uuid));
     }
 
-    // Valida el mapeo contra el catalogo de Jira y los catalogos de Shiro y lo arma. Lanza MAPEO_DE_JIRA_INVALIDO
+    /*
+     * Valida el mapeo contra el catalogo de Jira y los catalogos de Shiro y lo arma; crea los estados y tipos que se
+     * piden crear. Cada estado y tipo se mapea a uno existente o se crea, una sola de las dos. Lanza
+     * MAPEO_DE_JIRA_INVALIDO.
+     */
     private MapeoDeImportacion validar(ImportacionMapeoRequestDTO dto, ImportacionCatalogoDTO deJira) {
-        Set<String> tablerosDeJira = ids(deJira.getTableros());
-        Set<String> estadosDeJira = ids(deJira.getEstados());
-        Set<String> tiposDeJira = ids(deJira.getTipos());
+        Map<String, ElementoDeJiraDTO> estadosDeJira = porId(deJira.getEstados());
+        Map<String, ElementoDeJiraDTO> tiposDeJira = porId(deJira.getTipos());
+        Set<String> tablerosDeJira = porId(deJira.getTableros()).keySet();
+        Long idUsuario = usuarioActual.getIdUsuarioActual();
         LinkedHashMap<String, String> tableros = new LinkedHashMap<>();
         Map<String, Map<String, String>> estados = new HashMap<>();
         for (MapeoDeTableroDTO tablero : dto.getTableros()) {
@@ -92,28 +101,40 @@ public class ImportacionMapearUseCase {
                     .orElseThrow(() -> invalido("El tablero de Shiro elegido no existe."));
             Map<String, String> deTablero = new HashMap<>();
             for (MapeoDeEstadoDTO estado : tablero.getEstados()) {
-                Estado enShiro = estadoRepository.findFirstByUuidAndStatus(estado.getEstadoUuid(), 0)
-                        .orElseThrow(() -> invalido("Un estado de Shiro elegido no existe."));
-                exigir(estadosDeJira.contains(estado.getIdJira()), "El estado " + estado.getIdJira() + " no es del proyecto de Jira.");
-                exigir(Objects.equals(enShiro.getTipoTablero().getId(), tipo.getId()),
-                        "El estado " + enShiro.getNombre() + " no es del tablero " + tipo.getNombre() + ".");
-                deTablero.put(estado.getIdJira(), estado.getEstadoUuid());
+                ElementoDeJiraDTO enJira = estadosDeJira.get(estado.getIdJira());
+                exigir(enJira != null, "El estado " + estado.getIdJira() + " no es del proyecto de Jira.");
+                exigir(estado.isCrear() != (estado.getEstadoUuid() != null),
+                        "El estado " + enJira.getNombre() + " tiene que mapearse a uno de Shiro o crearse (una sola de las dos).");
+                deTablero.put(estado.getIdJira(), estado.isCrear() ? catalogosDesdeJira.estado(tipo, enJira, idUsuario) : estadoExistente(estado, tipo));
             }
             tableros.put(tablero.getIdJira(), tablero.getTipoTableroUuid());
             estados.put(tablero.getIdJira(), deTablero);
         }
         Map<String, String> tipos = new HashMap<>();
         for (MapeoDeTipoDTO tipo : dto.getTipos()) {
-            exigir(tiposDeJira.contains(tipo.getIdJira()), "El tipo " + tipo.getIdJira() + " no es del proyecto de Jira.");
-            exigir(tipoTareaRepository.buscarVigentePorUuid(tipo.getTipoTareaUuid()).isPresent(), "Un tipo de Shiro elegido no existe.");
-            tipos.put(tipo.getIdJira(), tipo.getTipoTareaUuid());
+            ElementoDeJiraDTO enJira = tiposDeJira.get(tipo.getIdJira());
+            exigir(enJira != null, "El tipo " + tipo.getIdJira() + " no es del proyecto de Jira.");
+            exigir(tipo.isCrear() != (tipo.getTipoTareaUuid() != null),
+                    "El tipo " + enJira.getNombre() + " tiene que mapearse a uno de Shiro o crearse (una sola de las dos).");
+            if (!tipo.isCrear())
+                exigir(tipoTareaRepository.buscarVigentePorUuid(tipo.getTipoTareaUuid()).isPresent(), "Un tipo de Shiro elegido no existe.");
+            tipos.put(tipo.getIdJira(), tipo.isCrear() ? catalogosDesdeJira.tipo(enJira, idUsuario) : tipo.getTipoTareaUuid());
         }
-        return new MapeoDeImportacion(tableros, estados, tipos);
+        return new MapeoDeImportacion(tableros, estados, tipos, dto.getDuracionDeSprintEnDias());
     }
 
-    // Ids de Jira de los elementos del catalogo
-    private static Set<String> ids(List<ElementoDeJiraDTO> elementos) {
-        return elementos.stream().map(ElementoDeJiraDTO::getIdJira).collect(Collectors.toSet());
+    // Uuid del estado de Shiro elegido, validando que exista y sea del tipo de tablero. Lanza MAPEO_DE_JIRA_INVALIDO
+    private String estadoExistente(MapeoDeEstadoDTO estado, TipoTablero tipo) {
+        Estado enShiro = estadoRepository.findFirstByUuidAndStatus(estado.getEstadoUuid(), 0)
+                .orElseThrow(() -> invalido("Un estado de Shiro elegido no existe."));
+        exigir(Objects.equals(enShiro.getTipoTablero().getId(), tipo.getId()),
+                "El estado " + enShiro.getNombre() + " no es del tablero " + tipo.getNombre() + ".");
+        return enShiro.getUuid();
+    }
+
+    // Elementos del catalogo de Jira por id
+    private static Map<String, ElementoDeJiraDTO> porId(List<ElementoDeJiraDTO> elementos) {
+        return elementos.stream().collect(Collectors.toMap(ElementoDeJiraDTO::getIdJira, elemento -> elemento, (a, b) -> a));
     }
 
     // Lanza MAPEO_DE_JIRA_INVALIDO con el motivo si no se cumple la condicion

@@ -37,8 +37,11 @@ public class Importacion extends EntidadConBorradoLogico {
     @NoProyectable
     private String tokenCifrado;
 
-    // Clave del proyecto de Jira: es el prefijo del proyecto en Shiro
+    // Clave del proyecto de Jira (JSIM)
     private String claveProyectoJira;
+
+    // Prefijo del proyecto en Shiro, elegido al conectar (resolucion A3): las tareas importadas quedan J-PREFIJO-n
+    private String prefijo;
 
     // Nombre del proyecto en Jira (el del proyecto que se crea en Shiro)
     private String nombreProyectoJira;

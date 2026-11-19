@@ -68,21 +68,21 @@ public class ClienteDeJira {
         return tableros;
     }
 
-    // Estados del proyecto (de todos sus tipos de issue, sin repetir), en el orden de Jira
+    // Estados del proyecto (de todos sus tipos de issue, sin repetir), en el orden de Jira, con si cuentan como terminados
     public List<ElementoDeJiraDTO> estados(CredencialesDeJira credenciales, String clave) {
         Map<String, ElementoDeJiraDTO> estados = new LinkedHashMap<>();
         for (JsonNode tipo : obligatorio(credenciales, "/rest/api/3/project/" + codificar(clave) + "/statuses"))
             for (JsonNode estado : tipo.path("statuses"))
-                estados.putIfAbsent(estado.path("id").asString(), new ElementoDeJiraDTO(estado.path("id").asString(),
-                        estado.path("name").asString()));
+                estados.putIfAbsent(estado.path("id").asString(), ElementoDeJiraDTO.estado(estado.path("id").asString(),
+                        estado.path("name").asString(), "done".equals(estado.path("statusCategory").path("key").asString(""))));
         return new ArrayList<>(estados.values());
     }
 
-    // Tipos de issue del proyecto
+    // Tipos de issue del proyecto, con su nivel en Shiro
     public List<ElementoDeJiraDTO> tipos(CredencialesDeJira credenciales, String idProyecto) {
         List<ElementoDeJiraDTO> tipos = new ArrayList<>();
         for (JsonNode tipo : obligatorio(credenciales, "/rest/api/3/issuetype/project?projectId=" + codificar(idProyecto)))
-            tipos.add(new ElementoDeJiraDTO(tipo.path("id").asString(), tipo.path("name").asString()));
+            tipos.add(ElementoDeJiraDTO.tipo(tipo.path("id").asString(), tipo.path("name").asString(), nivel(tipo.path("hierarchyLevel").asInt(0))));
         return tipos;
     }
 
@@ -173,7 +173,15 @@ public class ClienteDeJira {
 
     // Usuario del JSON de Jira
     private static DatosDeJira.Usuario usuario(JsonNode usuario) {
-        return new DatosDeJira.Usuario(usuario.path("emailAddress").asString(null), usuario.path("displayName").asString(null));
+        return new DatosDeJira.Usuario(usuario.path("accountId").asString(null), usuario.path("emailAddress").asString(null),
+                usuario.path("displayName").asString(null));
+    }
+
+    // Nivel de Shiro del hierarchyLevel de Jira: 1 o mas es epica (1), negativo es subtarea (3), el resto nivel 2
+    private static int nivel(int nivelDeJira) {
+        if (nivelDeJira >= 1)
+            return 1;
+        return nivelDeJira < 0 ? 3 : 2;
     }
 
     // Dia (en GMT-3) de una fecha de Jira, o null

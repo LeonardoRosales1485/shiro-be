@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 /**
  * Resumen de una ejecucion del importador (Spec 6, T4.4): cuantas tareas se crearon y actualizaron (y por tipo),
- * cuantos comentarios, sprints y versiones, las fallas, las advertencias y los correos de Jira sin usuario en Shiro.
+ * cuantos comentarios, sprints y versiones, las fallas, las advertencias y los usuarios creados sin acceso.
  * Se guarda como JSON en Importacion.resumen.
  */
 @Getter
@@ -38,8 +38,8 @@ public class ResumenDeImportacion {
     // Elementos que se importaron con un cambio (otra clave, sin padre, sprint no activo)
     private final List<Falla> advertencias = new ArrayList<>();
 
-    // Correos (o nombres, si Jira oculta el correo) de Jira sin usuario en Shiro, ordenados
-    private final TreeSet<String> usuariosSinVincular = new TreeSet<>();
+    // Usuarios creados sin acceso en esta ejecucion («Usuario importado» y el nombre de Jira), ordenados
+    private final TreeSet<String> usuariosImportados = new TreeSet<>();
 
     // Cuenta una tarea creada o actualizada del tipo recibido
     public void contarTarea(boolean creada, String tipo) {
@@ -75,9 +75,8 @@ public class ResumenDeImportacion {
         advertencias.add(new Falla(clave, motivo));
     }
 
-    // Registra un usuario de Jira sin usuario en Shiro
-    public void sinVincular(String usuario) {
-        if (usuario != null)
-            usuariosSinVincular.add(usuario);
+    // Registra un usuario creado sin acceso
+    public void importado(String nombre) {
+        usuariosImportados.add(nombre);
     }
 }

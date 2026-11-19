@@ -69,6 +69,9 @@ databaseChangeLog:
   - include:
       file: changes/2026-11-19-importaciones.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changes/2026-11-19-importaciones-resoluciones.yaml
+      relativeToChangelogFile: true
   # Tiene que quedar ultimo: crea el usuario de la aplicacion y le aplica los permisos sobre todas las tablas
   - include:
       file: changes/2026-11-18-usuario-de-la-app.yaml

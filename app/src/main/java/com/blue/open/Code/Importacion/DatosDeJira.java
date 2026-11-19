@@ -23,15 +23,18 @@ public final class DatosDeJira {
     }
 
     /**
-     * Usuario asignable del proyecto.
+     * Usuario de Jira (asignable, responsable o autor).
      *
+     * @param id     accountId de Jira (null si no viene)
      * @param correo correo (null si Jira lo oculta)
      * @param nombre nombre visible
      */
-    public record Usuario(String correo, String nombre) {
+    public record Usuario(String id, String correo, String nombre) {
 
-        // Lo que se muestra en el resumen si no tiene usuario en Shiro: el correo, o el nombre si no hay correo
+        // Identificador estable para registrar el usuario importado: el accountId, o el correo, o el nombre
         public String identificacion() {
+            if (id != null)
+                return id;
             return correo != null ? correo : nombre;
         }
     }
