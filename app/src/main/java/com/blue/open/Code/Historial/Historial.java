@@ -39,6 +39,8 @@ public class Historial extends EntidadBase {
 
     public static final String SPRINT = "SPRINT";
 
+    public static final String VERSION = "VERSION";
+
     // Entidad que cambio: TAREA, PROYECTO, ...
     private String entidad;
 

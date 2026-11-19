@@ -6,6 +6,7 @@ import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.Usuario.Usuario;
+import com.blue.open.Code.Version.TareaVersion;
 import com.blue.open.Core.Kernel.Entidad.EntidadConBorradoLogico;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
@@ -118,6 +119,10 @@ public class Tarea extends EntidadConBorradoLogico {
     // archivar y restaurar
     @Setter(AccessLevel.NONE)
     private Long idOperacionArchivo;
+
+    // Versiones a las que esta asignada (las quitadas quedan con status -1)
+    @OneToMany(mappedBy = "tarea", fetch = FetchType.LAZY)
+    private List<TareaVersion> versiones = new ArrayList<>();
 
     // Etiquetas de la tarea; las quitadas quedan con status -1
     @OneToMany(mappedBy = "tarea", fetch = FetchType.LAZY)

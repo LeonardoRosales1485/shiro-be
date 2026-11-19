@@ -80,6 +80,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     SPRINT_DESTINO_INVALIDO(HttpStatus.BAD_REQUEST, "El sprint de destino tiene que ser un sprint planificado del mismo proyecto."),
     @Descripcion("Se intentó archivar el sprint activo: hay que cerrarlo primero")
     SPRINT_ACTIVO_NO_SE_ARCHIVA(HttpStatus.BAD_REQUEST, "El sprint activo no se archiva: cerralo primero."),
+    @Descripcion("Se intentó cambiar una versión publicada (editarla, asignarle o quitarle tareas, o publicarla otra vez): una versión publicada no cambia")
+    VERSION_PUBLICADA(HttpStatus.BAD_REQUEST, "La versión está publicada y no cambia."),
+    @Descripcion("Se mandó una tarea de otro proyecto (o archivada) para una versión")
+    TAREA_DE_OTRO_PROYECTO(HttpStatus.BAD_REQUEST, "La tarea tiene que ser del mismo proyecto."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

@@ -122,6 +122,10 @@ public class TareaDTO extends EntidadBaseDTO {
     @Coleccion(value = "hijas", orden = "numero")
     private List<TareaHijaDTO> hijas = new ArrayList<>();
 
+    @Descripcion("Versiones a las que está asignada la tarea. Solo lectura: se asigna desde la versión")
+    @Coleccion(value = "versiones", orden = "id")
+    private List<TareaVersionDTO> versiones = new ArrayList<>();
+
     @Descripcion("Etiquetas de la tarea, en orden alfabético. Al guardar reemplaza la lista completa: las que no vienen se quitan")
     @Valid
     @Size(max = 20, message = "Una tarea puede tener hasta 20 etiquetas")

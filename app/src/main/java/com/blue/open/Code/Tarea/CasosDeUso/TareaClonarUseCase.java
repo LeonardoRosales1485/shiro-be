@@ -21,6 +21,9 @@ import com.blue.open.Code.Tarea.TareaEtiquetaDTO;
 import com.blue.open.Code.Tarea.TareaEtiquetaRepository;
 import com.blue.open.Code.Tarea.TareaRepository;
 import com.blue.open.Code.Tarea.TareaService;
+import com.blue.open.Code.Version.EstadoDeVersion;
+import com.blue.open.Code.Version.TareaVersion;
+import com.blue.open.Code.Version.TareaVersionRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import com.blue.open.Core.Kernel.Proyeccion.Proyector;
@@ -59,6 +62,8 @@ public class TareaClonarUseCase {
     private final TareaEtiquetaRepository etiquetaRepository;
 
     private final ComentarioRepository comentarioRepository;
+
+    private final TareaVersionRepository tareaVersionRepository;
 
     private final TareaService tareaService;
 
@@ -117,6 +122,8 @@ public class TareaClonarUseCase {
         Tarea clon = tareaRepository.findFirstByUuidAndStatus(uuidDelClon, VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
                         "TareaClonarUseCase | clonar | clon " + uuidDelClon));
+        if (copiar.contains(DatoAClonar.VERSIONES))
+            copiarVersiones(original, clon);
         if (copiar.contains(DatoAClonar.COMENTARIOS))
             copiarComentarios(original, clon);
         if (copiar.contains(DatoAClonar.SUBTAREAS)) {
@@ -135,6 +142,14 @@ public class TareaClonarUseCase {
             etiquetas.add(copia);
         }
         return etiquetas;
+    }
+
+    // Asigna el clon a las versiones sin publicar del original (una version publicada no cambia)
+    private void copiarVersiones(Tarea original, Tarea clon) {
+        for (TareaVersion asignacion : tareaVersionRepository.findByTareaAndStatus(original, VIGENTE)) {
+            if (asignacion.getVersion().getEstado() == EstadoDeVersion.SIN_PUBLICAR && asignacion.getVersion().getStatus() == VIGENTE)
+                tareaVersionRepository.save(new TareaVersion(clon, asignacion.getVersion()));
+        }
     }
 
     // Copia los comentarios vigentes del original al clon, con su autor, fecha y canal originales

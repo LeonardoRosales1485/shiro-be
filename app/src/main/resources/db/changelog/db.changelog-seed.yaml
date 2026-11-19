@@ -32,3 +32,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-sprints-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-versiones-seed.yaml
+      relativeToChangelogFile: true

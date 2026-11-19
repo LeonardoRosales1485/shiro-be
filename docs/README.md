@@ -55,7 +55,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).
 - Jerarquía (`padreUuid`): Épica, después Historia, Tarea o Bug, después Subtarea. El padre es del mismo proyecto (si no, `PADRE_DE_OTRO_PROYECTO`) y de un tipo de nivel menor; al editar, el tipo nuevo tiene que seguir siendo de nivel menor que el de sus hijas. Si no, `JERARQUIA_DE_TAREA_INVALIDA`. La tarea responde sus `hijas` vigentes. El padre puede estar en cualquier tablero del mismo proyecto. Una Subtarea tiene siempre padre: al crearla, al editarla y al cambiarle el tipo (adenda 4 del DAF).
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).
-- Clonar (`POST /tarea/{uuid}/clonar`, `tableroUuid` y `copiar`): a cualquier tablero del mismo proyecto (si no, `TABLERO_DE_OTRO_PROYECTO`). Título y tipo siempre. `copiar` elige entre `DESCRIPCION`, `PRIORIDAD`, `ETIQUETAS`, `PUNTOS`, `RESPONSABLE`, `VERSIONES`, `COMENTARIOS` y `SUBTAREAS`; si no viene, descripción, prioridad y etiquetas. El clon no hereda el padre del original, salvo el clon de una Subtarea, que conserva su padre. El clon nace como un alta (clave nueva, estado inicial del tablero de destino, informante = quien clona). Los comentarios copiados conservan autor, fecha y canal; las subtareas se clonan con la misma selección como hijas del clon, en el tablero de destino. `VERSIONES` empieza a copiar con F5. Original y clon quedan vinculados (relación `CLONA`: clonada en / clonada de) y cada uno muestra el estado del otro; el clon deja una fila `CLONAR` en su historial.
+- Clonar (`POST /tarea/{uuid}/clonar`, `tableroUuid` y `copiar`): a cualquier tablero del mismo proyecto (si no, `TABLERO_DE_OTRO_PROYECTO`). Título y tipo siempre. `copiar` elige entre `DESCRIPCION`, `PRIORIDAD`, `ETIQUETAS`, `PUNTOS`, `RESPONSABLE`, `VERSIONES`, `COMENTARIOS` y `SUBTAREAS`; si no viene, descripción, prioridad y etiquetas. El clon no hereda el padre del original, salvo el clon de una Subtarea, que conserva su padre. El clon nace como un alta (clave nueva, estado inicial del tablero de destino, informante = quien clona). Los comentarios copiados conservan autor, fecha y canal; las subtareas se clonan con la misma selección como hijas del clon, en el tablero de destino. `VERSIONES` asigna el clon a las versiones sin publicar del original. Original y clon quedan vinculados (relación `CLONA`: clonada en / clonada de) y cada uno muestra el estado del otro; el clon deja una fila `CLONAR` en su historial.
 - Archivar (`POST /tarea/{uuid}/archivar`): la tarea y sus hijas vigentes, en todos los niveles, pasan a status -1 con el mismo id de operación (`shr_operacion_archivo`). Cada una deja su fila `ARCHIVAR` en el historial con la clave de la tarea raíz. Lo archivado no se mueve, no se edita y no sirve como padre (`RELACION_NO_ENCONTRADA`).
 - Restaurar (`POST /tarea/{uuid}/restaurar`): vuelve lo que se archivó en esa misma operación; lo archivado antes por separado queda archivado. Si el padre sigue archivado responde `PADRE_ARCHIVADO` ("Restaurá primero SHI-12."). Restaurar es una operación nueva y deja filas `RESTAURAR`.
 - Nada se borra: no hay `/borrar`. Todas las tablas `shr_` tienen `id_operacion_archivo`.
@@ -72,6 +72,16 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - `POST /sprint/{uuid}/archivar`: el activo no se archiva (`SPRINT_ACTIVO_NO_SE_ARCHIVA`); las tareas de uno planificado vuelven al backlog; las de uno cerrado quedan registradas en él.
 - Cada movimiento de tarea deja una fila `EDITAR` (campo `sprint`) en su historial; el sprint registra sus cambios de estado.
 - Seed: Sprint 1 del proyecto Shiro, planificado.
+
+## Versiones (`Version`)
+
+- Son del proyecto. ABM en `/version` (nombre). Leer exige `VER` en el proyecto, cambiar `EDITAR` y archivar o restaurar `ARCHIVAR`.
+- `POST /version/{uuid}/asignar` y `/quitar`: tareas vigentes del mismo proyecto (`TAREA_DE_OTRO_PROYECTO`); una tarea puede estar en varias versiones y la tarea muestra sus `versiones`.
+- `POST /version/{uuid}/publicar` con la fecha que elige quien publica (hoy si no viene). Una versión publicada no cambia: no se edita, no cambian sus tareas y su changelog queda guardado (`VERSION_PUBLICADA`).
+- `GET /version/{uuid}/changelog` responde Markdown: título, fecha de publicación (o "Sin publicar.") y las tareas terminadas agrupadas por tipo, en el orden de los tipos.
+- `POST /version/{uuid}/archivar` y `/restaurar`.
+- Clonar con `VERSIONES` asigna el clon a las versiones sin publicar del original.
+- Seed: versión 1.0 del proyecto Shiro, sin publicar.
 
 ## Comentarios (`Comentario`)
 

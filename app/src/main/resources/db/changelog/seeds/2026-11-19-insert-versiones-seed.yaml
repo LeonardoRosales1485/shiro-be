@@ -1,0 +1,20 @@
+# Seeds de versiones (T5.3): version 1.0 del proyecto Shiro, sin publicar.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-versiones-seed-1
+      author: shiro
+      comment: "Crea la version 1.0 del proyecto Shiro"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_version WHERE uuid = 'b7000000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_version
+            columns:
+              - column: {name: uuid, value: b7000000-0000-4000-8000-000000000001}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: nombre, value: "1.0"}
+              - column: {name: estado, value: SIN_PUBLICAR}
+      rollback:
+        - delete: {tableName: shr_version, where: "uuid = 'b7000000-0000-4000-8000-000000000001'"}

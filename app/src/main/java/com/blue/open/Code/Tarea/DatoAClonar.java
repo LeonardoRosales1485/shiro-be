@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Datos opcionales que se copian al clonar una tarea (adenda 1 del DAF). Titulo y tipo se copian siempre.
- * VERSIONES se acepta desde ya y empieza a copiar cuando existan las versiones (F5).
+ * VERSIONES asigna el clon a las versiones sin publicar del original.
  */
 public enum DatoAClonar {
     DESCRIPCION,
