@@ -52,10 +52,25 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Restaurar (`POST /tarea/{uuid}/restaurar`): vuelve lo que se archivó en esa misma operación; lo archivado antes por separado queda archivado. Si el padre sigue archivado responde `PADRE_ARCHIVADO` ("Restaurá primero SHI-12."). Restaurar es una operación nueva y deja filas `RESTAURAR`.
 - Nada se borra: no hay `/borrar`. Todas las tablas `shr_` tienen `id_operacion_archivo`.
 
+## Comentarios (`Comentario`)
+
+- ABM de `/comentario` sin borrar. El listado de una tarea es `POST /comentario/paginar` filtrado por `tareaUuid`.
+- El autor es quien comenta, el canal el del request y la fecha, ahora. Los copiados al clonar o importados conservan autor y fecha originales.
+- Solo el autor edita su comentario (si no, 403 `SIN_PERMISO`); al editar solo cambia el cuerpo (Markdown, hasta 20000 caracteres).
+- Cada comentario deja una fila `COMENTAR` en el historial de la tarea.
+
+## Relaciones (`Relacion`)
+
+- `POST /relacion/crear` con origen, destino y tipo: `BLOQUEA`, `RELACIONA` o `DUPLICA`. `CLONA` solo la crea clonar (`TIPO_DE_RELACION_NO_PERMITIDO`).
+- Se guarda un sentido y se lee desde las dos tareas con `GET /tarea/{uuid}/relaciones`: bloquea / bloqueada por, se relaciona con, duplica / duplicada por, clonada en / clonada de, con el estado de la otra tarea.
+- Una tarea no se relaciona consigo misma (`RELACION_CONSIGO_MISMA`) y la misma relación no se repite en ningún sentido (`RELACION_YA_EXISTE`). Se pueden relacionar tareas de proyectos distintos.
+- Si una de las tareas se archiva, el vínculo queda y la muestra archivada. `POST /relacion/{uuid}/archivar` la saca de las dos tareas.
+- Crear y archivar dejan una fila `RELACIONAR` en el historial de las dos tareas.
+
 ## Historial (`Historial`)
 
 - Toda escritura deja su fila en `shr_historial` en la misma transacción: entidad, uuid, tipo de acción, campo, valor anterior y nuevo, usuario, canal (`WEB`, `MCP` o `IMPORTACION`) y fecha. El usuario de la aplicación solo puede insertar y leer en esa tabla.
-- Acciones: `CREAR` (valor nuevo: la clave o el prefijo), `EDITAR` (una fila por campo cambiado), `MOVER` (campo `estado`), `CREAR_SUBTAREA` (en el historial del padre, valor nuevo: la clave de la subtarea). `ARCHIVAR` y `RESTAURAR` (con su operación). `COMENTAR`, `RELACIONAR` y `CLONAR` llegan con T1.9 y T1.10.
+- Acciones: `CREAR` (valor nuevo: la clave o el prefijo), `EDITAR` (una fila por campo cambiado), `MOVER` (campo `estado`), `CREAR_SUBTAREA` (en el historial del padre, valor nuevo: la clave de la subtarea). `ARCHIVAR` y `RESTAURAR` (con su operación). `COMENTAR` y `RELACIONAR`. `CLONAR` llega con T1.10.
 - Campos que sigue la tarea: título, descripción, tipo, prioridad, puntos, vencimiento, responsable, informante, padre y etiquetas. El proyecto: nombre y descripción.
 - `GET /tarea/{uuid}/historial` responde lo más nuevo primero; `?canal=MCP` filtra por canal. Sirve también para tareas archivadas.
 - El canal lo marca el filtro de `/mcp` (T3.1) en el atributo `shiro.canal` del request; sin marca es `WEB`.

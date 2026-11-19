@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.13"
+  version: "1.0.14"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -47,11 +47,14 @@ info:
     | `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |
     | `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |
     | `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |
+    | `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |
     | `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |
+    | `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |
     | `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |
     | `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |
     | `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |
     | `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |
+    | `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |
     | `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |
     | `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |
     | `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |
@@ -62,16 +65,439 @@ servers:
 - url: "/api"
 tags:
 - name: "AccessToken"
+- name: "Comentario"
 - name: "Configuracion"
 - name: "JwtLogin"
 - name: "Permiso"
 - name: "Proyecto"
+- name: "Relacion"
 - name: "Rol"
 - name: "Tarea"
 - name: "TipoTablero"
 - name: "TipoTarea"
 - name: "Usuario"
 paths:
+  /comentario/guardar:
+    post:
+      tags:
+      - "Comentario"
+      operationId: "ComentarioController.guardar"
+      summary: "Comenta una tarea, o edita el cuerpo de un comentario propio"
+      description: |-
+        **Caso de uso:** CU-COM-03
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-COM-03"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComentarioDTO"
+            examples:
+              guardar-cuerpo-invalido:
+                summary: "Guardar cuerpo invalido (SYSADMIN)"
+                value:
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              guardar-alta:
+                summary: "Guardar alta (SYSADMIN)"
+                value:
+                  cuerpo: "Revisé el **tablero**: está bien."
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              lista-los-comentarios-de-una-tarea:
+                summary: "Lista los comentarios de una tarea (ADMIN)"
+                value:
+                  cuerpo: "Uno"
+                  tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              lista-los-comentarios-de-una-tarea-2:
+                summary: "Lista los comentarios de una tarea (2) (ADMIN)"
+                value:
+                  cuerpo: "Dos"
+                  tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              otro-usuario-no-edita-el-comentario:
+                summary: "Otro usuario no edita el comentario (SYSADMIN)"
+                value:
+                  cuerpo: "Del super admin"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              otro-usuario-no-edita-el-comentario-2:
+                summary: "Otro usuario no edita el comentario (2) (ADMIN)"
+                value:
+                  cuerpo: "Editado por otro"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              tarea-inexistente-rechazada:
+                summary: "Tarea inexistente rechazada (ADMIN)"
+                value:
+                  cuerpo: "Hola"
+                  tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              comentar-guarda-autor-canal-y-fecha-y-queda-en-el-historial:
+                summary: "Comentar guarda autor canal y fecha y queda en el historial (ADMIN)"
+                value:
+                  cuerpo: "Lo tomo yo"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              el-autor-edita-su-comentario:
+                summary: "El autor edita su comentario (ADMIN)"
+                value:
+                  cuerpo: "Primera versión"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+              el-autor-edita-su-comentario-2:
+                summary: "El autor edita su comentario (2) (ADMIN)"
+                value:
+                  cuerpo: "Segunda versión"
+                  tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComentarioDTO"
+              examples:
+                guardar-alta:
+                  summary: "Guardar alta (SYSADMIN)"
+                  value:
+                    autorNombre: "Sysadmin Pruebas"
+                    autorUuid: "90000000-0000-4000-8000-000000000012"
+                    canal: "WEB"
+                    cuerpo: "Revisé el **tablero**: está bien."
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                lista-los-comentarios-de-una-tarea:
+                  summary: "Lista los comentarios de una tarea (ADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Uno"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                lista-los-comentarios-de-una-tarea-2:
+                  summary: "Lista los comentarios de una tarea (2) (ADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Dos"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                otro-usuario-no-edita-el-comentario:
+                  summary: "Otro usuario no edita el comentario (SYSADMIN)"
+                  value:
+                    autorNombre: "Sysadmin Pruebas"
+                    autorUuid: "90000000-0000-4000-8000-000000000012"
+                    canal: "WEB"
+                    cuerpo: "Del super admin"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                comentar-guarda-autor-canal-y-fecha-y-queda-en-el-historial:
+                  summary: "Comentar guarda autor canal y fecha y queda en el historial (ADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Lo tomo yo"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-autor-edita-su-comentario:
+                  summary: "El autor edita su comentario (ADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Primera versión"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-autor-edita-su-comentario-2:
+                  summary: "El autor edita su comentario (2) (ADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Segunda versión"
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `FORMULARIO_INVALIDO`, `RELACION_NO_ENCONTRADA`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                guardar-cuerpo-invalido:
+                  summary: "Guardar cuerpo invalido (SYSADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Escribí el comentario"
+                      nombre: "cuerpo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tarea-inexistente-rechazada:
+                  summary: "Tarea inexistente rechazada (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "tareaUuid"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                sin-cuerpo-rechazado:
+                  summary: "Sin cuerpo rechazado (ADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Escribí el comentario"
+                      nombre: "cuerpo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                otro-usuario-no-edita-el-comentario-2:
+                  summary: "Otro usuario no edita el comentario (2) (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el autor edita su comentario."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /comentario/paginar:
+    post:
+      tags:
+      - "Comentario"
+      operationId: "ComentarioController.paginar"
+      summary: "Lista comentarios con filtros y orden, por ejemplo los de una tarea"
+      description: |-
+        **Caso de uso:** CU-COM-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-COM-02"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PedidoDePaginado"
+            examples:
+              paginar:
+                summary: "Paginar (SYSADMIN)"
+                value:
+                  pagina: 1
+                  tamano: 5
+              lista-los-comentarios-de-una-tarea:
+                summary: "Lista los comentarios de una tarea (ADMIN)"
+                value:
+                  filtros:
+                  - - campo: "tareaUuid"
+                      operacion: "="
+                      valor: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  ordenes:
+                  - campo: "fecha"
+                    direccion: "asc"
+                  pagina: 1
+                  tamano: 10
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pagina_ComentarioDTO_"
+              examples:
+                paginar:
+                  summary: "Paginar (SYSADMIN)"
+                  value:
+                    cantidadDeElementos: 1
+                    contenido:
+                    - autorNombre: "Usuario Demo"
+                      autorUuid: "90000000-0000-4000-8000-000000000002"
+                      canal: "WEB"
+                      cuerpo: "Arranco con las columnas del tablero principal."
+                      fecha: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                      uuid: "b4000000-0000-4000-8000-000000000001"
+                    numero: 0
+                    primera: true
+                    tamano: 5
+                    totalDeElementos: 1
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+                lista-los-comentarios-de-una-tarea:
+                  summary: "Lista los comentarios de una tarea (ADMIN)"
+                  value:
+                    cantidadDeElementos: 2
+                    contenido:
+                    - autorNombre: "Usuario Demo"
+                      autorUuid: "90000000-0000-4000-8000-000000000002"
+                      canal: "WEB"
+                      cuerpo: "Uno"
+                      fecha: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - autorNombre: "Usuario Demo"
+                      autorUuid: "90000000-0000-4000-8000-000000000002"
+                      canal: "WEB"
+                      cuerpo: "Dos"
+                      fecha: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    numero: 0
+                    primera: true
+                    tamano: 10
+                    totalDeElementos: 2
+                    totalDePaginas: 1
+                    ultima: true
+                    vacia: false
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /comentario/uuid/{uuid}:
+    get:
+      tags:
+      - "Comentario"
+      operationId: "ComentarioController.obtenerPorUuid"
+      summary: "Obtiene un comentario"
+      description: |-
+        **Caso de uso:** CU-COM-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-COM-01"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del comentario"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComentarioDTO"
+              examples:
+                obtener-por-uuid:
+                  summary: "Obtener por uuid (SYSADMIN)"
+                  value:
+                    autorNombre: "Usuario Demo"
+                    autorUuid: "90000000-0000-4000-8000-000000000002"
+                    canal: "WEB"
+                    cuerpo: "Arranco con las columnas del tablero principal."
+                    fecha: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    tareaUuid: "b3000000-0000-4000-8000-000000000001"
+                    uuid: "b4000000-0000-4000-8000-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                obtener-uuid-inexistente:
+                  summary: "Obtener uuid inexistente (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
   /configuracion/guardar:
     post:
       tags:
@@ -1277,6 +1703,266 @@ paths:
               examples:
                 obtener-uuid-inexistente:
                   summary: "Obtener uuid inexistente (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /relacion/crear:
+    post:
+      tags:
+      - "Relacion"
+      operationId: "RelacionController.crear"
+      summary: "Relaciona dos tareas: bloquea, se relaciona con o duplica"
+      description: |-
+        **Caso de uso:** CU-REL-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-REL-01"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelacionCrearRequestDTO"
+            examples:
+              una-tarea-no-se-relaciona-consigo-misma:
+                summary: "Una tarea no se relaciona consigo misma (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  tipo: "RELACIONA"
+              la-relacion-se-lee-desde-las-dos-tareas:
+                summary: "La relacion se lee desde las dos tareas (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  tipo: "BLOQUEA"
+              la-misma-relacion-no-se-repite-en-ningun-sentido:
+                summary: "La misma relacion no se repite en ningun sentido (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  tipo: "RELACIONA"
+              la-relacion-de-clon-solo-la-crea-clonar:
+                summary: "La relacion de clon solo la crea clonar (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  tipo: "CLONA"
+              sin-tipo-rechazado:
+                summary: "Sin tipo rechazado (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+              con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
+                summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
+                value:
+                  destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  tipo: "DUPLICA"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelacionDTO"
+              examples:
+                la-relacion-se-lee-desde-las-dos-tareas:
+                  summary: "La relacion se lee desde las dos tareas (ADMIN)"
+                  value:
+                    destinoClave: "SHI-3"
+                    destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    origenClave: "SHI-2"
+                    origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: 0
+                    tipo: "BLOQUEA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                la-misma-relacion-no-se-repite-en-ningun-sentido:
+                  summary: "La misma relacion no se repite en ningun sentido (ADMIN)"
+                  value:
+                    destinoClave: "SHI-3"
+                    destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    origenClave: "SHI-2"
+                    origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: 0
+                    tipo: "RELACIONA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
+                  summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
+                  value:
+                    destinoClave: "SHI-2"
+                    destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    origenClave: "SHI-3"
+                    origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: 0
+                    tipo: "DUPLICA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+        "400":
+          description: "Errores: `FORMULARIO_INVALIDO`, `RELACION_CONSIGO_MISMA`, `RELACION_NO_ENCONTRADA`, `RELACION_YA_EXISTE`, `TIPO_DE_RELACION_NO_PERMITIDO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-tarea-no-se-relaciona-consigo-misma:
+                  summary: "Una tarea no se relaciona consigo misma (ADMIN)"
+                  value:
+                    codigo: "RELACION_CONSIGO_MISMA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una tarea no se relaciona consigo misma."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                la-misma-relacion-no-se-repite-en-ningun-sentido-2:
+                  summary: "La misma relacion no se repite en ningun sentido (2) (ADMIN)"
+                  value:
+                    codigo: "RELACION_YA_EXISTE"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Esas tareas ya tienen esa relación."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                la-misma-relacion-no-se-repite-en-ningun-sentido-3:
+                  summary: "La misma relacion no se repite en ningun sentido (3) (ADMIN)"
+                  value:
+                    codigo: "RELACION_YA_EXISTE"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Esas tareas ya tienen esa relación."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tarea-inexistente-rechazada:
+                  summary: "Tarea inexistente rechazada (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "destinoUuid"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                la-relacion-de-clon-solo-la-crea-clonar:
+                  summary: "La relacion de clon solo la crea clonar (ADMIN)"
+                  value:
+                    codigo: "TIPO_DE_RELACION_NO_PERMITIDO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La relación de clon se crea al clonar la tarea."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                sin-tipo-rechazado:
+                  summary: "Sin tipo rechazado (ADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Elegí el tipo de relación"
+                      nombre: "tipo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /relacion/{uuid}/archivar:
+    post:
+      tags:
+      - "Relacion"
+      operationId: "RelacionController.archivar"
+      summary: "Archiva una relación entre tareas"
+      description: |-
+        **Caso de uso:** CU-REL-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-REL-02"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la relación"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelacionDTO"
+              examples:
+                la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial:
+                  summary: "La relacion archivada deja de leerse y queda en el historial (ADMIN)"
+                  value:
+                    destinoClave: "SHI-3"
+                    destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    origenClave: "SHI-2"
+                    origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: -1
+                    tipo: "BLOQUEA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                archivar-dos-veces-rechazado:
+                  summary: "Archivar dos veces rechazado (ADMIN)"
+                  value:
+                    destinoClave: "SHI-3"
+                    destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    origenClave: "SHI-2"
+                    origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    status: -1
+                    tipo: "RELACIONA"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                archivar-dos-veces-rechazado-2:
+                  summary: "Archivar dos veces rechazado (2) (ADMIN)"
                   value:
                     codigo: "REGISTRO_NO_ENCONTRADO"
                     errores: []
@@ -2881,7 +3567,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 33"
+                      titulo: "Alta concurrente 29"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -2906,7 +3592,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 17"
+                      titulo: "Alta concurrente 49"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -3076,6 +3762,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
+                  summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
+                  value:
+                    clave: "SHI-3"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: -1
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Duplicada"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
                 archivar-dos-veces-rechazado:
                   summary: "Archivar dos veces rechazado (ADMIN)"
                   value:
@@ -3241,6 +3955,75 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorialDTO"
               examples:
+                comentar-guarda-autor-canal-y-fecha-y-queda-en-el-historial:
+                  summary: "Comentar guarda autor canal y fecha y queda en el historial (ADMIN)"
+                  value:
+                  - accion: "COMENTAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "Lo tomo yo"
+                la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial:
+                  summary: "La relacion archivada deja de leerse y queda en el historial (ADMIN)"
+                  value:
+                  - accion: "RELACIONAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: "bloquea SHI-3"
+                    valorNuevo: null
+                  - accion: "RELACIONAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "bloquea SHI-3"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                la-relacion-se-lee-desde-las-dos-tareas:
+                  summary: "La relacion se lee desde las dos tareas (ADMIN)"
+                  value:
+                  - accion: "RELACIONAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "bloqueada por SHI-2"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-3"
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
                   value:
@@ -3769,6 +4552,110 @@ paths:
                     traceId: "0000000000000000"
                 restaurar-devuelve-solo-lo-de-esa-operacion-2:
                   summary: "Restaurar devuelve solo lo de esa operacion (2) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /tarea/{uuid}/relaciones:
+    get:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.relaciones"
+      summary: "Relaciones de una tarea vistas desde ella, con el estado de la otra tarea"
+      description: |-
+        **Caso de uso:** CU-TAR-08
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-08"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la tarea"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TareaRelacionDTO"
+              examples:
+                la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial:
+                  summary: "La relacion archivada deja de leerse y queda en el historial (ADMIN)"
+                  value: []
+                la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial-2:
+                  summary: "La relacion archivada deja de leerse y queda en el historial (2) (ADMIN)"
+                  value: []
+                la-relacion-se-lee-desde-las-dos-tareas:
+                  summary: "La relacion se lee desde las dos tareas (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    status: 0
+                    tareaArchivada: false
+                    tareaClave: "SHI-3"
+                    tareaEstadoNombre: "Por hacer"
+                    tareaTitulo: "Publicar la versión"
+                    tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vinculo: "BLOQUEA"
+                la-relacion-se-lee-desde-las-dos-tareas-2:
+                  summary: "La relacion se lee desde las dos tareas (2) (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    status: 0
+                    tareaArchivada: false
+                    tareaClave: "SHI-2"
+                    tareaEstadoNombre: "Por hacer"
+                    tareaTitulo: "Migrar la base"
+                    tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vinculo: "BLOQUEADA_POR"
+                con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
+                  summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    status: 0
+                    tareaArchivada: true
+                    tareaClave: "SHI-3"
+                    tareaEstadoNombre: "Por hacer"
+                    tareaTitulo: "Duplicada"
+                    tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vinculo: "DUPLICADA_POR"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                relaciones-de-una-tarea-inexistente:
+                  summary: "Relaciones de una tarea inexistente (ADMIN)"
                   value:
                     codigo: "REGISTRO_NO_ENCONTRADO"
                     errores: []
@@ -5501,6 +6388,57 @@ components:
       anyOf:
       - type: "null"
       - $ref: "#/components/schemas/CanalDeCambio"
+    ComentarioDTO:
+      type: "object"
+      properties:
+        autorNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del autor. Solo lectura"
+        autorUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del autor: quien escribió el comentario. Solo lectura"
+        canal:
+          $ref: "#/components/schemas/CanalDeCambio-nullable"
+          description: "Canal por el que se escribió: WEB, MCP o IMPORTACION. Solo lectura"
+        cuerpo:
+          type: "string"
+          description: "Cuerpo del comentario en Markdown"
+          minLength: 1
+          maxLength: 20000
+        fecha:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha del comentario; en los copiados al clonar o importados, la original. Solo lectura"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tareaUuid:
+          type: "string"
+          description: "Uuid de la tarea comentada. No cambia al editar el comentario"
+          minLength: 1
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "cuerpo"
+      - "tareaUuid"
+      additionalProperties: false
     ConfiguracionDTO:
       type: "object"
       properties:
@@ -5748,6 +6686,40 @@ components:
           - "string"
           - "null"
           description: "asc o desc"
+      additionalProperties: false
+    Pagina_ComentarioDTO_:
+      type: "object"
+      description: "Página de resultados"
+      properties:
+        contenido:
+          type: "array"
+          description: "Registros de la página"
+          items:
+            $ref: "#/components/schemas/ComentarioDTO"
+        totalDeElementos:
+          type: "integer"
+          description: "Total de registros que cumplen los filtros"
+        totalDePaginas:
+          type: "integer"
+          description: "Total de páginas"
+        tamano:
+          type: "integer"
+          description: "Tamaño de la página"
+        numero:
+          type: "integer"
+          description: "Número de página (desde 0)"
+        cantidadDeElementos:
+          type: "integer"
+          description: "Registros en esta página"
+        primera:
+          type: "boolean"
+          description: "Es la primera página"
+        ultima:
+          type: "boolean"
+          description: "Es la última página"
+        vacia:
+          type: "boolean"
+          description: "La página no tiene registros"
       additionalProperties: false
     Pagina_PermisoDTO_:
       type: "object"
@@ -6050,6 +7022,82 @@ components:
       required:
       - "nombre"
       - "prefijo"
+      additionalProperties: false
+    RelacionCrearRequestDTO:
+      type: "object"
+      properties:
+        destinoUuid:
+          type: "string"
+          description: "Uuid de la tarea destino (la bloqueada, duplicada o relacionada)"
+          minLength: 1
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        origenUuid:
+          type: "string"
+          description: "Uuid de la tarea origen (la que bloquea, duplica o se relaciona)"
+          minLength: 1
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tipo:
+          $ref: "#/components/schemas/TipoDeRelacion"
+          description: "Tipo: BLOQUEA, RELACIONA o DUPLICA. CLONA solo la crea clonar"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "destinoUuid"
+      - "origenUuid"
+      - "tipo"
+      additionalProperties: false
+    RelacionDTO:
+      type: "object"
+      properties:
+        destinoClave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la tarea destino"
+        destinoUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid de la tarea destino"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        origenClave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la tarea origen"
+        origenUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid de la tarea origen"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tipo:
+          $ref: "#/components/schemas/TipoDeRelacion-nullable"
+          description: "Tipo guardado: BLOQUEA, RELACIONA, DUPLICA o CLONA (de origen a destino)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
     RolDTO:
       type: "object"
@@ -6369,6 +7417,62 @@ components:
       required:
       - "estadoUuid"
       additionalProperties: false
+    TareaRelacionDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tareaArchivada:
+          type: "boolean"
+          description: "Si la otra tarea está archivada: el vínculo queda y la muestra archivada"
+        tareaClave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la otra tarea"
+        tareaEstadoNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Estado actual de la otra tarea (en un clon, el estado del original o del clon)"
+        tareaTitulo:
+          type:
+          - "string"
+          - "null"
+          description: "Título de la otra tarea"
+        tareaUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid de la otra tarea"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+        vinculo:
+          $ref: "#/components/schemas/VinculoDeTarea-nullable"
+          description: "Cómo ve esta tarea la relación: BLOQUEA, BLOQUEADA_POR, RELACIONA, DUPLICA, DUPLICADA_POR, CLONADA_EN o CLONADA_DE"
+      additionalProperties: false
+    TipoDeRelacion:
+      type: "string"
+      enum:
+      - "BLOQUEA"
+      - "RELACIONA"
+      - "DUPLICA"
+      - "CLONA"
+    TipoDeRelacion-nullable:
+      anyOf:
+      - type: "null"
+      - $ref: "#/components/schemas/TipoDeRelacion"
     TipoTableroDTO:
       type: "object"
       properties:
@@ -6501,6 +7605,20 @@ components:
       - "contrasena"
       - "nombreDeUsuario"
       additionalProperties: false
+    VinculoDeTarea:
+      type: "string"
+      enum:
+      - "BLOQUEA"
+      - "BLOQUEADA_POR"
+      - "RELACIONA"
+      - "DUPLICA"
+      - "DUPLICADA_POR"
+      - "CLONADA_EN"
+      - "CLONADA_DE"
+    VinculoDeTarea-nullable:
+      anyOf:
+      - type: "null"
+      - $ref: "#/components/schemas/VinculoDeTarea"
   securitySchemes:
     bearer:
       type: "http"
@@ -6677,11 +7795,21 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No existe el registro"
   cuando: "El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado"
   origen: "CodigoDeErrorCrud"
+- codigo: "RELACION_CONSIGO_MISMA"
+  status: 400
+  mensajePorDefecto: "Una tarea no se relaciona consigo misma."
+  cuando: "Al relacionar tareas se eligió la misma tarea como origen y destino"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "RELACION_NO_ENCONTRADA"
   status: 400
   mensajePorDefecto: "No existe el registro relacionado indicado"
   cuando: "Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo"
   origen: "CodigoDeErrorCrud"
+- codigo: "RELACION_YA_EXISTE"
+  status: 400
+  mensajePorDefecto: "Esas tareas ya tienen esa relación."
+  cuando: "Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "SERVICIO_DE_MAIL_NO_DISPONIBLE"
   status: 500
   mensajePorDefecto: "No se pueden enviar emails"
@@ -6701,6 +7829,11 @@ x-catalogo-de-errores:
   status: 409
   mensajePorDefecto: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
   cuando: "Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "TIPO_DE_RELACION_NO_PERMITIDO"
+  status: 400
+  mensajePorDefecto: "La relación de clon se crea al clonar la tarea."
+  cuando: "Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "TIPO_DE_TAREA_INEXISTENTE"
   status: 400

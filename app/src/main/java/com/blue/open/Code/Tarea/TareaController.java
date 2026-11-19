@@ -5,6 +5,7 @@ import com.blue.open.Code.Historial.HistorialDTO;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaArchivarUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaHistorialUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
+import com.blue.open.Code.Tarea.CasosDeUso.TareaRelacionesUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaRestaurarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
@@ -44,6 +45,8 @@ public class TareaController {
     private final TareaArchivarUseCase archivarUseCase;
 
     private final TareaRestaurarUseCase restaurarUseCase;
+
+    private final TareaRelacionesUseCase relacionesUseCase;
 
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
@@ -100,5 +103,13 @@ public class TareaController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> restaurar(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Relaciones de una tarea vistas desde ella. Responde la lista de TareaRelacionDTO
+    @GetMapping("/{uuid}/relaciones")
+    @Contrato(casoDeUso = "CU-TAR-08", resumen = "Relaciones de una tarea vistas desde ella, con el estado de la otra tarea",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<TareaRelacionDTO>> relaciones(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(relacionesUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

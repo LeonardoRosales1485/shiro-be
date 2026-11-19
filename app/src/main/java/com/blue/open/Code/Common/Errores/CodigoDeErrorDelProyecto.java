@@ -36,6 +36,12 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     FECHA_DE_LECTURA_OBLIGATORIA(HttpStatus.BAD_REQUEST, "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."),
     @Descripcion("Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave)")
     PADRE_ARCHIVADO(HttpStatus.BAD_REQUEST, "Restaurá primero la tarea padre."),
+    @Descripcion("Al relacionar tareas se eligió la misma tarea como origen y destino")
+    RELACION_CONSIGO_MISMA(HttpStatus.BAD_REQUEST, "Una tarea no se relaciona consigo misma."),
+    @Descripcion("Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido")
+    RELACION_YA_EXISTE(HttpStatus.BAD_REQUEST, "Esas tareas ya tienen esa relación."),
+    @Descripcion("Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea")
+    TIPO_DE_RELACION_NO_PERMITIDO(HttpStatus.BAD_REQUEST, "La relación de clon se crea al clonar la tarea."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

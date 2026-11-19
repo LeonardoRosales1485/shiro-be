@@ -1,0 +1,107 @@
+# Relaciones entre tareas y comentarios (T1.9).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-relaciones-y-comentarios-1
+      author: shiro
+      comment: "Crea shr_relacion: un sentido guardado, de origen a destino"
+      changes:
+        - createTable:
+            tableName: shr_relacion
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_origen, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: id_destino, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: tipo, type: VARCHAR(10), constraints: {nullable: false}}
+              - column: {name: id_operacion_archivo, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_relacion
+            baseColumnNames: id_origen
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_relacion_origen
+        - addForeignKeyConstraint:
+            baseTableName: shr_relacion
+            baseColumnNames: id_destino
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_relacion_destino
+        - addForeignKeyConstraint:
+            baseTableName: shr_relacion
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_relacion_operacion_archivo
+        - sql:
+            comment: "Tipo acotado y sin relacion de una tarea consigo misma"
+            sql: "ALTER TABLE shr_relacion ADD CONSTRAINT ck_shr_relacion_tipo CHECK (tipo IN ('BLOQUEA', 'RELACIONA', 'DUPLICA', 'CLONA')); ALTER TABLE shr_relacion ADD CONSTRAINT ck_shr_relacion_distintas CHECK (id_origen <> id_destino)"
+        - createIndex:
+            tableName: shr_relacion
+            indexName: ix_shr_relacion_origen
+            columns:
+              - column: {name: id_origen}
+        - createIndex:
+            tableName: shr_relacion
+            indexName: ix_shr_relacion_destino
+            columns:
+              - column: {name: id_destino}
+      rollback:
+        - dropTable:
+            tableName: shr_relacion
+
+  - changeSet:
+      id: 2026-11-18-relaciones-y-comentarios-2
+      author: shiro
+      comment: "Crea shr_comentario"
+      changes:
+        - createTable:
+            tableName: shr_comentario
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_tarea, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: id_autor, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: cuerpo, type: TEXT, constraints: {nullable: false}}
+              - column: {name: canal, type: VARCHAR(15), constraints: {nullable: false}}
+              - column: {name: fecha, type: TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: id_operacion_archivo, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_comentario
+            baseColumnNames: id_tarea
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_comentario_tarea
+        - addForeignKeyConstraint:
+            baseTableName: shr_comentario
+            baseColumnNames: id_autor
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_comentario_autor
+        - addForeignKeyConstraint:
+            baseTableName: shr_comentario
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_comentario_operacion_archivo
+        - createIndex:
+            tableName: shr_comentario
+            indexName: ix_shr_comentario_tarea
+            columns:
+              - column: {name: id_tarea}
+      rollback:
+        - dropTable:
+            tableName: shr_comentario

@@ -79,7 +79,7 @@ class ComentarioGuardarContratoTest extends PruebaDeContrato {
         guardar(ADMIN, nuevo(tarea, "Uno")).esperar(200);
         guardar(ADMIN, nuevo(tarea, "Dos")).esperar(200);
 
-        JsonNode pagina = como(ADMIN).post("/comentario/paginar").json(Map.of("pagina", 0, "tamano", 10,
+        JsonNode pagina = como(ADMIN).post("/comentario/paginar").json(Map.of("pagina", 1, "tamano", 10,
                 "filtros", List.of(List.of(Map.of("campo", "tareaUuid", "operacion", "=", "valor", tarea))),
                 "ordenes", List.of(Map.of("campo", "fecha", "direccion", "asc")))).ejecutar().esperar(200).json();
 
