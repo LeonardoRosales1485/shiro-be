@@ -47,3 +47,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-cierre-de-sprint-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-19-insert-uso-de-tokens-seed.yaml
+      relativeToChangelogFile: true
