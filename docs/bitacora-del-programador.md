@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-F6 en curso: T6.1 y T6.2 hechas (con las resoluciones del 19/11); sigue T6.3
+F6 en curso: T6.1 a T6.3 hechas; siguen T6.4 a T6.6
 
 ## Cierre de F4
 
@@ -83,6 +83,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 19/11/2026 | T6.3 | Front: «Backlog y sprints» (/proyecto/{prefijo}/backlog): sprint activo con avance en puntos y tareas por tablero, planificados (iniciar solo si no hay activo), crear sprint eligiendo tareas del backlog, cerrar mandando lo pendiente a un planificado o al backlog, sacar tareas, backlog con menú para pasar a un sprint, subir al principio o bajar al final, y sprints cerrados con sus tareas y archivar. «Versiones» (/proyecto/{prefijo}/versiones): lista, detalle con cantidades por tipo y hechas, changelog para copiar, agregar tareas (por defecto las terminadas, filtro por tablero), quitar, publicar con fecha y archivar. Sección Planificación en el menú. Backend: GET /version/{uuid}/tareas (CU-VER-10). Propuestas 46 a 48 | shiro-be: prueba en rojo (a673dfe), verify 514 pruebas, cobertura 94,1%, versión 1.0.41. shiro-fe: pruebas en rojo (dceb753), 67 en verde, lint, tipos, build, 0 duplicados, capturas contra la API simulada, versión 0.0.4 |
 | 19/11/2026 | Resoluciones T6.2 | Propuestas 42 a 45 resueltas: GET /proyecto/{uuid}/usuarios (CU-PRY-06, VER) con super admin, Administradores y quienes ven el proyecto o alguno de sus tableros por reglas propias o de grupo, en cuatro consultas; el front lo usa para que cualquier usuario del proyecto elija responsable. Descripción y comentarios en Markdown con marked y DOMPurify (sin HTML peligroso), con «Escribir» y «Vista previa» al editar. Clonar solo a los otros tableros del proyecto. Desde una épica se agregan Historias | shiro-be: prueba de contrato en rojo (9bdf2f3), verify 511 pruebas, cobertura 94,1%, versión 1.0.39. shiro-fe: pruebas en rojo (13f2d08), 50 en verde, lint, tipos, build, 0 duplicados, npm audit sin vulnerabilidades, versión 0.0.3 |
 | 19/11/2026 | T6.2 | Front: detalle de tarea en /proyecto/{prefijo}/tarea/{clave} (las tarjetas del tablero son enlaces): descripción, subtareas con «x de n hechas» y alta rápida, relaciones con su vínculo y quitar, comentarios (con la marca vía MCP) e historial con filtro de MCP, panel de detalles con mover de estado y «Asignármela», edición con la fecha leída (409 conserva lo escrito y ofrece recargar), clonar eligiendo tablero y datos (y el destino del clon de una subtarea), relacionar buscando por texto y archivar con confirmación. Decisiones propuestas 42 a 45 en adendas-propuestas.md | shiro-fe: pruebas en rojo (9e607bf) y luego 44 en verde, lint, tipos, build y 0 duplicados; capturas contra la API simulada. Versión del front 0.0.2 |
 | 19/11/2026 | T4.1 Jira real | ImportacionJiraRealTest corrió en otra sesión con las cuatro variables JIRA_PRUEBA_* y JDK 25 instalado a mano: conectar, catálogo, mapeo (primer tablero, estados y tipos creados) y ejecución contra el Jira real. Pasó: estado TERMINADA, 0 fallas, tareas creadas con clave J-PRB-n. La prueba no imprime las cifras del resumen si pasa | 1 prueba, 0 fallos, 0 errores (informe de la otra sesión, sobre el commit b681ae7) |

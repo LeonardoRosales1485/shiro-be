@@ -57,5 +57,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 49 | 2026-11-19 | 10:25 | 10:34 | 9 min | Build | CI del PR Merge fase 1 con 3 fallos (gitleaks y OSV-Scanner) | Excepción de gitleaks para los tokens de ejemplo de los seeds; CI en verde y PR mergeado; versión 1.0.37 |
 | 50 | 2026-11-19 | 11:14 | 11:27 | 13 min | Build | T6.2 en el front: detalle de tarea, clonar, relacionar, comentarios, historial y archivar | Pruebas en rojo (9e607bf) y luego 44 en verde, lint, tipos, build, 0 duplicados; versión del front 0.0.2 |
 | 51 | 2026-11-19 | 12:48 | 12:57 | 9 min | Build | Resoluciones de las propuestas 42 a 45 de T6.2: usuarios del proyecto eligen responsable, Markdown con vista previa, clonar solo en el proyecto e historias desde la épica | Backend: GET /proyecto/{uuid}/usuarios con prueba en rojo antes, verify 511 pruebas, versión 1.0.39. Front: pruebas en rojo antes, 50 en verde, versión 0.0.3 |
+| 52 | 2026-11-19 | 13:02 | 13:13 | 11 min | Build | T6.3 en el front: backlog y sprints, y versiones con changelog | Backend: GET /version/{uuid}/tareas con prueba en rojo antes, verify 514 pruebas, versión 1.0.41. Front: pruebas en rojo (dceb753), 67 en verde, versión 0.0.4 |
 
-**Total acumulado medido:** 726 min
+**Total acumulado medido:** 737 min
