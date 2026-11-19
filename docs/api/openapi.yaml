@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.10"
+  version: "1.0.11"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -686,6 +686,17 @@ paths:
                   descripcion: "Trámites en línea"
                   nombre: "Portal de Trámites"
                   prefijo: "PTR"
+              crear-y-editar-dejan-su-fila-en-el-historial:
+                summary: "Crear y editar dejan su fila en el historial (SYSADMIN)"
+                value:
+                  nombre: "Historial"
+                  prefijo: "HIS"
+              crear-y-editar-dejan-su-fila-en-el-historial-2:
+                summary: "Crear y editar dejan su fila en el historial (2) (SYSADMIN)"
+                value:
+                  nombre: "Historial editado"
+                  prefijo: "HIS"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               al-crear-se-generan-los-cuatro-tableros:
                 summary: "Al crear se generan los cuatro tableros (SYSADMIN)"
                 value:
@@ -784,6 +795,62 @@ paths:
                       tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                crear-y-editar-dejan-su-fila-en-el-historial:
+                  summary: "Crear y editar dejan su fila en el historial (SYSADMIN)"
+                  value:
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Historial"
+                    prefijo: "HIS"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "PRINCIPAL"
+                      tipoTableroNombre: "Principal"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "QA"
+                      tipoTableroNombre: "QA"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "ANALISIS"
+                      tipoTableroNombre: "Análisis"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                crear-y-editar-dejan-su-fila-en-el-historial-2:
+                  summary: "Crear y editar dejan su fila en el historial (2) (SYSADMIN)"
+                  value:
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Historial editado"
+                    prefijo: "HIS"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "PRINCIPAL"
+                      tipoTableroNombre: "Principal"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "QA"
+                      tipoTableroNombre: "QA"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "ANALISIS"
+                      tipoTableroNombre: "Análisis"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 al-crear-se-generan-los-cuatro-tableros:
                   summary: "Al crear se generan los cuatro tableros (SYSADMIN)"
                   value:
@@ -2010,6 +2077,20 @@ paths:
                 value:
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   titulo: "Sin tipo"
+              cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
+                summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Borrador"
+              cada-escritura-deja-su-fila-con-usuario-canal-y-accion-2:
+                summary: "Cada escritura deja su fila con usuario canal y accion (2) (ADMIN)"
+                value:
+                  prioridad: "ALTA"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Definitivo"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               subtarea-de-una-subtarea-rechazada:
                 summary: "Subtarea de una subtarea rechazada (SYSADMIN)"
                 value:
@@ -2277,6 +2358,60 @@ paths:
                     tableroUuid: "b2000000-0000-4000-8000-000000000001"
                     tipoCodigo: "BUG"
                     tipoNombre: "Bug"
+                    titulo: "Definitivo"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
+                  summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Borrador"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                cada-escritura-deja-su-fila-con-usuario-canal-y-accion-2:
+                  summary: "Cada escritura deja su fila con usuario canal y accion (2) (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "ALTA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
                     titulo: "Definitivo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
@@ -2559,7 +2694,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 15"
+                      titulo: "Alta concurrente 23"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -2583,7 +2718,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 9"
+                      titulo: "Alta concurrente 16"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -2696,6 +2831,150 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+  /tarea/{uuid}/historial:
+    get:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.historial"
+      summary: "Historial de cambios de una tarea, opcionalmente de un solo canal"
+      description: |-
+        **Caso de uso:** CU-TAR-05
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-05"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la tarea"
+        schema:
+          type: "string"
+      - name: "canal"
+        in: "query"
+        required: false
+        description: "Canal: WEB, MCP o IMPORTACION. Vacío para todos"
+        schema:
+          type: "string"
+          enum:
+          - "WEB"
+          - "MCP"
+          - "IMPORTACION"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/HistorialDTO"
+              examples:
+                el-alta-de-una-subtarea-queda-en-el-historial-del-padre:
+                  summary: "El alta de una subtarea queda en el historial del padre (ADMIN)"
+                  value:
+                  - accion: "CREAR_SUBTAREA"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "SHI-3"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
+                  summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+                  value:
+                  - accion: "MOVER"
+                    campo: "estado"
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: "Por hacer"
+                    valorNuevo: "En curso"
+                  - accion: "EDITAR"
+                    campo: "prioridad"
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: "MEDIA"
+                    valorNuevo: "ALTA"
+                  - accion: "EDITAR"
+                    campo: "titulo"
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    valorAnterior: "Borrador"
+                    valorNuevo: "Definitivo"
+                se-filtra-por-canal:
+                  summary: "Se filtra por canal (ADMIN)"
+                  value:
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                se-filtra-por-canal-2:
+                  summary: "Se filtra por canal (2) (ADMIN)"
+                  value: []
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                tarea-inexistente-rechazada:
+                  summary: "Tarea inexistente rechazada (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/mover:
     post:
       tags:
@@ -2723,6 +3002,10 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaMoverRequestDTO"
             examples:
+              cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
+                summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+                value:
+                  estadoUuid: "a2000000-0000-4000-8000-000000000012"
               sin-estado-rechazado:
                 summary: "Sin estado rechazado (ADMIN)"
                 value: {}
@@ -2734,10 +3017,6 @@ paths:
                 summary: "Pasa de cualquier estado a cualquier otro (2) (ADMIN)"
                 value:
                   estadoUuid: "a2000000-0000-4000-8000-000000000011"
-              tarea-inexistente-rechazada:
-                summary: "Tarea inexistente rechazada (ADMIN)"
-                value:
-                  estadoUuid: "a2000000-0000-4000-8000-000000000012"
               estado-de-otro-tablero-rechazado:
                 summary: "Estado de otro tablero rechazado (ADMIN)"
                 value:
@@ -2754,6 +3033,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
+                  summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "ALTA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Definitivo"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
                 pasa-de-cualquier-estado-a-cualquier-otro:
                   summary: "Pasa de cualquier estado a cualquier otro (ADMIN)"
                   value:
@@ -4475,6 +4781,32 @@ components:
       required:
       - "nombre"
       additionalProperties: false
+    AccionDeHistorial:
+      type: "string"
+      enum:
+      - "CREAR"
+      - "EDITAR"
+      - "MOVER"
+      - "CREAR_SUBTAREA"
+      - "ARCHIVAR"
+      - "RESTAURAR"
+      - "COMENTAR"
+      - "RELACIONAR"
+      - "CLONAR"
+    AccionDeHistorial-nullable:
+      anyOf:
+      - type: "null"
+      - $ref: "#/components/schemas/AccionDeHistorial"
+    CanalDeCambio:
+      type: "string"
+      enum:
+      - "WEB"
+      - "MCP"
+      - "IMPORTACION"
+    CanalDeCambio-nullable:
+      anyOf:
+      - type: "null"
+      - $ref: "#/components/schemas/CanalDeCambio"
     ConfiguracionDTO:
       type: "object"
       properties:
@@ -4638,6 +4970,56 @@ components:
           - "string"
           - "null"
           description: "Valor como texto; se convierte al tipo del atributo. En in/not in es una lista JSON"
+      additionalProperties: false
+    HistorialDTO:
+      type: "object"
+      properties:
+        accion:
+          $ref: "#/components/schemas/AccionDeHistorial-nullable"
+          description: "Tipo de acción: CREAR, EDITAR, MOVER, CREAR_SUBTAREA, ARCHIVAR, RESTAURAR, COMENTAR, RELACIONAR o CLONAR"
+        campo:
+          type:
+          - "string"
+          - "null"
+          description: "Campo que cambió (titulo, prioridad, estado, ...). Vacío en las acciones que no son de un campo"
+        canal:
+          $ref: "#/components/schemas/CanalDeCambio-nullable"
+          description: "Canal del cambio: WEB, MCP o IMPORTACION. El front muestra los de MCP como «Usuario (vía MCP)»"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        usuarioNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del usuario que hizo el cambio"
+        usuarioUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del usuario que hizo el cambio"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+        valorAnterior:
+          type:
+          - "string"
+          - "null"
+          description: "Valor anterior, como texto. Vacío si no tenía"
+        valorNuevo:
+          type:
+          - "string"
+          - "null"
+          description: "Valor nuevo, como texto. En CREAR es la clave; en CREAR_SUBTAREA, la clave de la subtarea"
       additionalProperties: false
     JwtTokenDTO:
       type: "object"

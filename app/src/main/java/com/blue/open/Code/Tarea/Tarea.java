@@ -25,7 +25,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tarea de un tablero (seccion 4 del DAF y Spec 3). Pertenece a un Proyecto y a un Tablero, que no cambia; tiene un
@@ -109,6 +111,10 @@ public class Tarea extends EntidadConBorradoLogico {
     // despues de guardar la tarea, porque una tarea nueva necesita su id antes
     @Transient
     private List<String> etiquetasPedidas = new ArrayList<>();
+
+    // Valores de la tarea antes de editarla, para el historial. No se persiste: lo completa TareaService
+    @Transient
+    private Map<String, String> valoresAnteriores = new LinkedHashMap<>();
 
     /*
      * Asigna el numero y la clave de una tarea nueva. Recibe el prefijo del proyecto y el numero que dio su contador

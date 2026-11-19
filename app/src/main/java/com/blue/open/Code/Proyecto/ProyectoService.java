@@ -1,6 +1,9 @@
 package com.blue.open.Code.Proyecto;
 
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
+import com.blue.open.Code.Historial.AccionDeHistorial;
+import com.blue.open.Code.Historial.Historial;
+import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.Tablero.TableroRepository;
 import com.blue.open.Code.TipoTablero.TipoTablero;
@@ -10,7 +13,9 @@ import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Service del ABM de proyectos sobre AbstractService. Aplica las reglas del prefijo (unico entre todos los proyectos,
@@ -29,6 +34,8 @@ public class ProyectoService extends AbstractService<Proyecto, ProyectoDTO, Proy
 
     private final TableroRepository tableroRepository;
 
+    private final RegistradorDeHistorial historial;
+
     /*
      * Valida el prefijo antes de aplicar el DTO y lo deja en mayusculas. Alta: el prefijo no puede usarlo otro
      * proyecto, vigente o archivado. Edicion: el prefijo no cambia. Lanza PREFIJO_DE_PROYECTO_EN_USO o
@@ -46,22 +53,36 @@ public class ProyectoService extends AbstractService<Proyecto, ProyectoDTO, Proy
                     "El prefijo " + prefijo + " ya lo usa otro proyecto. Elegí otro.",
                     "ProyectoService | hookGuardarAplicarDto | prefijo en uso: " + prefijo);
         }
+        if (!esAlta)
+            modelo.setValoresAnteriores(valoresDelHistorial(modelo));
         Proyecto aplicado = super.hookGuardarAplicarDto(dto, modelo);
         aplicado.setPrefijo(prefijo);
         return aplicado;
     }
 
-    // Guarda el proyecto y, si es un alta, crea un tablero por cada tipo de tablero vigente, en orden de pestana
+    // Guarda el proyecto y escribe su historial; si es un alta, crea un tablero por cada tipo de tablero vigente
     @Override
     protected Proyecto hookGuardarEnBase(Proyecto modelo) {
         boolean esAlta = modelo.getId() == null;
         Proyecto guardado = super.hookGuardarEnBase(modelo);
         if (!esAlta) {
+            historial.registrarCambios(Historial.PROYECTO, guardado.getUuid(), modelo.getValoresAnteriores(),
+                    valoresDelHistorial(guardado));
             return guardado;
         }
+        historial.registrar(Historial.PROYECTO, guardado.getUuid(), AccionDeHistorial.CREAR, null, null,
+                guardado.getPrefijo());
         for (TipoTablero tipo : tipoTableroRepository.findByStatusOrderByOrden(0)) {
             tableroRepository.save(new Tablero(guardado, tipo));
         }
         return guardado;
+    }
+
+    // Valores del proyecto que sigue el historial, como texto y en orden fijo
+    private static Map<String, String> valoresDelHistorial(Proyecto proyecto) {
+        Map<String, String> valores = new LinkedHashMap<>();
+        valores.put("nombre", proyecto.getNombre());
+        valores.put("descripcion", proyecto.getDescripcion());
+        return valores;
     }
 }

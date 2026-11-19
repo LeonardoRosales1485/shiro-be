@@ -3,6 +3,9 @@ package com.blue.open.Code.Tarea;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Estado.EstadoRepository;
+import com.blue.open.Code.Historial.AccionDeHistorial;
+import com.blue.open.Code.Historial.Historial;
+import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
 import com.blue.open.Code.Tablero.Tablero;
@@ -18,8 +21,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -48,6 +53,8 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final TareaRepository tareaRepository;
 
+    private final RegistradorDeHistorial historial;
+
     /*
      * Aplica el DTO con las reglas de la tarea. Recibe el DTO validado y la tarea (nueva o vigente). Resuelve el tipo
      * por codigo (TIPO_DE_TAREA_INEXISTENTE), rechaza cambiar el tablero (TABLERO_DE_TAREA_NO_SE_CAMBIA), ignora el
@@ -64,6 +71,8 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         TipoTarea tipo = tipoTareaRepository.findFirstByCodigoAndStatus(dto.getTipoCodigo(), VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorDelProyecto.TIPO_DE_TAREA_INEXISTENTE,
                         "TareaService | hookGuardarAplicarDto | tipo " + dto.getTipoCodigo()));
+        if (!esAlta)
+            modelo.setValoresAnteriores(valoresDelHistorial(modelo, textosVigentes(modelo)));
         Proyecto proyectoActual = modelo.getProyecto();
         Estado estadoActual = modelo.getEstado();
         Usuario informanteActual = modelo.getInformante();
@@ -107,6 +116,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
      */
     @Override
     protected Tarea hookGuardarEnBase(Tarea modelo) {
+        boolean esAlta = modelo.getId() == null;
         Tarea guardada = super.hookGuardarEnBase(modelo);
         Set<String> pedidas = new LinkedHashSet<>(modelo.getEtiquetasPedidas());
         for (TareaEtiqueta etiqueta : tareaEtiquetaRepository.findByTareaAndStatus(guardada, VIGENTE)) {
@@ -122,7 +132,47 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
             nueva.setIdUsuarioDeCreacion(usuarioActual.getIdUsuarioActual());
             tareaEtiquetaRepository.save(nueva);
         }
+        registrarEnElHistorial(guardada, esAlta);
         return guardada;
+    }
+
+    /*
+     * Escribe el historial del guardado en la misma transaccion. Alta: CREAR con la clave y, si tiene padre,
+     * CREAR_SUBTAREA en el historial del padre (adenda 3 del DAF). Edicion: una fila EDITAR por campo cambiado.
+     */
+    private void registrarEnElHistorial(Tarea tarea, boolean esAlta) {
+        if (!esAlta) {
+            List<String> etiquetas = tarea.getEtiquetasPedidas().stream().sorted().toList();
+            historial.registrarCambios(Historial.TAREA, tarea.getUuid(), tarea.getValoresAnteriores(),
+                    valoresDelHistorial(tarea, etiquetas));
+            return;
+        }
+        historial.registrar(Historial.TAREA, tarea.getUuid(), AccionDeHistorial.CREAR, null, null, tarea.getClave());
+        if (tarea.getPadre() != null)
+            historial.registrar(Historial.TAREA, tarea.getPadre().getUuid(), AccionDeHistorial.CREAR_SUBTAREA, null,
+                    null, tarea.getClave());
+    }
+
+    // Valores de la tarea que sigue el historial, como texto y en orden fijo. Recibe las etiquetas ya ordenadas
+    private static Map<String, String> valoresDelHistorial(Tarea tarea, List<String> etiquetas) {
+        Map<String, String> valores = new LinkedHashMap<>();
+        valores.put("titulo", tarea.getTitulo());
+        valores.put("descripcion", tarea.getDescripcion());
+        valores.put("tipo", tarea.getTipo() == null ? null : tarea.getTipo().getNombre());
+        valores.put("prioridad", tarea.getPrioridad() == null ? null : tarea.getPrioridad().name());
+        valores.put("puntos", tarea.getPuntos() == null ? null : tarea.getPuntos().toString());
+        valores.put("vencimiento", tarea.getVencimiento() == null ? null : tarea.getVencimiento().toString());
+        valores.put("responsable", tarea.getResponsable() == null ? null : tarea.getResponsable().getNombre());
+        valores.put("informante", tarea.getInformante() == null ? null : tarea.getInformante().getNombre());
+        valores.put("padre", tarea.getPadre() == null ? null : tarea.getPadre().getClave());
+        valores.put("etiquetas", etiquetas.isEmpty() ? null : String.join(", ", etiquetas));
+        return valores;
+    }
+
+    // Textos de las etiquetas vigentes de una tarea guardada, en orden alfabetico
+    private List<String> textosVigentes(Tarea tarea) {
+        return tareaEtiquetaRepository.findByTareaAndStatus(tarea, VIGENTE).stream().map(TareaEtiqueta::getTexto)
+                .sorted().toList();
     }
 
     /*

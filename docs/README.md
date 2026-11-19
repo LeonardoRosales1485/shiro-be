@@ -49,6 +49,14 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).
 - Nada se borra: no hay `/borrar`; archivar y restaurar llegan en T1.8.
 
+## Historial (`Historial`)
+
+- Toda escritura deja su fila en `shr_historial` en la misma transacción: entidad, uuid, tipo de acción, campo, valor anterior y nuevo, usuario, canal (`WEB`, `MCP` o `IMPORTACION`) y fecha. El usuario de la aplicación solo puede insertar y leer en esa tabla.
+- Acciones: `CREAR` (valor nuevo: la clave o el prefijo), `EDITAR` (una fila por campo cambiado), `MOVER` (campo `estado`), `CREAR_SUBTAREA` (en el historial del padre, valor nuevo: la clave de la subtarea). `ARCHIVAR`, `RESTAURAR`, `COMENTAR`, `RELACIONAR` y `CLONAR` llegan con T1.8 a T1.10.
+- Campos que sigue la tarea: título, descripción, tipo, prioridad, puntos, vencimiento, responsable, informante, padre y etiquetas. El proyecto: nombre y descripción.
+- `GET /tarea/{uuid}/historial` responde lo más nuevo primero; `?canal=MCP` filtra por canal. Sirve también para tareas archivadas.
+- El canal lo marca el filtro de `/mcp` (T3.1) en el atributo `shiro.canal` del request; sin marca es `WEB`.
+
 ## Roles y permisos
 
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.

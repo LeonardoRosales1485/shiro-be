@@ -7,13 +7,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Proyecto de Shiro: unidad de trabajo con su tablero principal, sus sub-tableros, sprints y versiones (glosario del
@@ -41,6 +44,10 @@ public class Proyecto extends EntidadConBorradoLogico {
     // de fila; puede tener saltos (adenda 2 del DAF)
     @Setter(AccessLevel.NONE)
     private Long ultimoNumero = 0L;
+
+    // Valores del proyecto antes de editarlo, para el historial. No se persiste: lo completa ProyectoService
+    @Transient
+    private Map<String, String> valoresAnteriores = new LinkedHashMap<>();
 
     // Tableros del proyecto: uno por tipo de tablero
     @OneToMany(mappedBy = "proyecto", fetch = FetchType.LAZY)

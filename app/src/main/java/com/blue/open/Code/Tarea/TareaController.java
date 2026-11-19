@@ -1,5 +1,8 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.Common.Canal.CanalDeCambio;
+import com.blue.open.Code.Historial.HistorialDTO;
+import com.blue.open.Code.Tarea.CasosDeUso.TareaHistorialUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
@@ -14,7 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Endpoints de tareas: ABM (receta de core-crud/docs/receta-controller.md) sin borrar, porque nada se borra
@@ -30,6 +36,8 @@ public class TareaController {
     private final TareaService service;
 
     private final TareaMoverUseCase moverUseCase;
+
+    private final TareaHistorialUseCase historialUseCase;
 
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
@@ -60,5 +68,15 @@ public class TareaController {
     public ResponseEntity<TareaDTO> mover(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid,
             @Valid @RequestBody TareaMoverRequestDTO dto) {
         return new ResponseEntity<>(moverUseCase.ejecutar(uuid, dto), HttpStatus.OK);
+    }
+
+    // Historial de cambios de una tarea, el mas nuevo primero. Responde la lista de HistorialDTO
+    @GetMapping("/{uuid}/historial")
+    @Contrato(casoDeUso = "CU-TAR-05", resumen = "Historial de cambios de una tarea, opcionalmente de un solo canal",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<HistorialDTO>> historial(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid,
+            @Descripcion("Canal: WEB, MCP o IMPORTACION. Vacío para todos")
+            @RequestParam(value = "canal", required = false) CanalDeCambio canal) {
+        return new ResponseEntity<>(historialUseCase.ejecutar(uuid, canal), HttpStatus.OK);
     }
 }
