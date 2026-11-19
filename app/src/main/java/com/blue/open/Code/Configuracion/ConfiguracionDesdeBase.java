@@ -21,10 +21,13 @@ public class ConfiguracionDesdeBase implements ProveedorDeConfiguracion {
 
     private final ConfiguracionRepository repository;
 
-    // Fuera de la transaccion del llamador: si la lectura falla devuelve el valor por defecto sin
-    // dejar esa transaccion marcada como rollback-only (la trazabilidad consulta DEBUG en cualquier punto)
+    // Dentro de la transaccion del llamador, si hay una: TraceDeEjecucionAspect consulta DEBUG en cada metodo de un
+    // Controller o Service. Con NOT_SUPPORTED (como venia del template) cada llamada a un Service dentro de una
+    // transaccion pedia una segunda conexion al pool; con 10 transacciones abiertas a la vez el pool se agotaba y
+    // quedaban trabadas (T1.3, 50 altas concurrentes de tareas). Si la lectura falla devuelve el valor por defecto;
+    // un error de la base en esa lectura invalida la transaccion del llamador, que de todos modos no podria seguir
     @Override
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public String getValor(String clave, String porDefecto) {
         try {
             return repository.buscarValorPorClave(clave).orElse(porDefecto);
