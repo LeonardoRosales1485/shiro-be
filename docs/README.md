@@ -85,6 +85,8 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Clonar con `VERSIONES` asigna el clon a las versiones sin publicar del original.
 - Seed: versión 1.0 del proyecto Shiro, sin publicar.
 
+- Tareas de una versión (`GET /version/{uuid}/tareas`, con `VER`): las vigentes asignadas, terminadas o no, con su tipo, tablero y estado, por orden de tipo y número. Las usa el detalle de versiones del front (T6.3).
+
 ## Búsqueda
 
 - `POST /tarea/paginar` con el parámetro `texto` (en `parametros`) es la búsqueda de tareas: texto en español sobre la clave, el título y la descripción (con raíces: "tablero" encuentra "tableros"), o la clave exacta, combinable con los filtros. Respeta los permisos como cualquier listado. Usa una columna `tsvector` generada con índice GIN.
