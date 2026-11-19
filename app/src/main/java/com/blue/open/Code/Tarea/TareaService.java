@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,6 +56,14 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final RegistradorDeHistorial historial;
 
+    // Busca la tarea a editar con su fila bloqueada. Vacio si es un alta (sin uuid)
+    @Override
+    protected Optional<Tarea> hookGuardarBuscarExistente(TareaDTO dto) {
+        if (dto.getUuid() == null || dto.getUuid().isEmpty())
+            return Optional.empty();
+        return tareaRepository.bloquearVigentePorUuid(dto.getUuid());
+    }
+
     /*
      * Aplica el DTO con las reglas de la tarea. Recibe el DTO validado y la tarea (nueva o vigente). Resuelve el tipo
      * por codigo (TIPO_DE_TAREA_INEXISTENTE), rechaza cambiar el tablero (TABLERO_DE_TAREA_NO_SE_CAMBIA), ignora el
@@ -64,6 +73,8 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     @Override
     protected Tarea hookGuardarAplicarDto(TareaDTO dto, Tarea modelo) {
         boolean esAlta = modelo.getId() == null;
+        if (!esAlta)
+            validarFechaLeida(dto, modelo);
         if (!esAlta && !modelo.getTablero().getUuid().equals(dto.getTableroUuid()))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TABLERO_DE_TAREA_NO_SE_CAMBIA,
                     "TareaService | hookGuardarAplicarDto | tarea " + modelo.getClave() + " | tablero pedido "
@@ -173,6 +184,22 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     private List<String> textosVigentes(Tarea tarea) {
         return tareaEtiquetaRepository.findByTareaAndStatus(tarea, VIGENTE).stream().map(TareaEtiqueta::getTexto)
                 .sorted().toList();
+    }
+
+    /*
+     * Control de edicion simultanea (Spec 7): la fecha leida tiene que coincidir con la de la tarea, al milisegundo
+     * (el JSON lleva milisegundos y la base, microsegundos). Despues deja en el DTO la fecha de la base, para que la
+     * copia del DTO no la cambie. Lanza FECHA_DE_LECTURA_OBLIGATORIA o TAREA_MODIFICADA.
+     */
+    private static void validarFechaLeida(TareaDTO dto, Tarea modelo) {
+        if (dto.getFechaDeActualizacion() == null)
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.FECHA_DE_LECTURA_OBLIGATORIA,
+                    "TareaService | validarFechaLeida | tarea " + modelo.getClave());
+        if (dto.getFechaDeActualizacion().getTime() != modelo.getFechaDeActualizacion().getTime())
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_MODIFICADA,
+                    "TareaService | validarFechaLeida | tarea " + modelo.getClave() + " | leida "
+                            + dto.getFechaDeActualizacion() + " | actual " + modelo.getFechaDeActualizacion());
+        dto.setFechaDeActualizacion(modelo.getFechaDeActualizacion());
     }
 
     /*

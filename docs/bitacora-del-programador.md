@@ -6,12 +6,13 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F1 en curso.** T1.1 a T1.6 cerradas (versión 1.0.11). Sigue T1.7 (control de edición simultánea, 409). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F1 en curso.** T1.1 a T1.7 cerradas (versión 1.0.12). Sigue T1.8 (archivar y restaurar). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Avances
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T1.7 | TareaDTO con fechaDeActualizacion. Al editar es obligatoria (FECHA_DE_LECTURA_OBLIGATORIA) y si no coincide al milisegundo con la de la base responde 409 TAREA_MODIFICADA. La tarea a editar se lee con SELECT … FOR UPDATE, así dos guardados simultáneos con la misma fecha no pasan los dos. Mover también cambia la fecha. Las pruebas de edición existentes mandan la fecha leída | 809c877 (rojo) y verde en el commit siguiente. ./mvnw verify: 276 pruebas, 0 fallas, 11 omitidas; cobertura 92,7%. Versión 1.0.12 |
 | 18/11/2026 | T1.6 | shr_historial (hereda de EntidadBase: sin status; solo INSERT para shiro_app). RegistradorDeHistorial escribe en la transacción del llamador con usuario de la sesión y canal del request (CanalDeLaPeticion: atributo shiro.canal, WEB por defecto; el filtro de /mcp lo marca en T3.1). Acciones CREAR, EDITAR por campo, MOVER y CREAR_SUBTAREA en el padre; tarea y proyecto. GET /tarea/{uuid}/historial con filtro ?canal. PermisosDeBaseDeDatosTest ahora prueba sobre la shr_historial real | 313c3fb (rojo) y verde en el commit siguiente. ./mvnw verify: 272 pruebas, 0 fallas, 11 omitidas; cobertura 92,4%. Versión 1.0.11 |
 | 18/11/2026 | T1.5 | POST /tarea/{uuid}/mover con estadoUuid (TareaMoverUseCase). Cualquier estado del tablero de la tarea; un estado de otro tablero responde ESTADO_DE_OTRO_TABLERO. La ruta sigue la regla /{uuid}/{caso-de-uso} de controllers-y-endpoints.md (la spec decía POST /mover) | e232d79 (rojo) y verde en el commit siguiente. ./mvnw verify: 267 pruebas, 0 fallas, 11 omitidas; cobertura 90,5%. Versión 1.0.10 |
 | 18/11/2026 | T1.4 | Tarea padre (id_padre) con hijas vigentes en la respuesta. El padre es del mismo proyecto (PADRE_DE_OTRO_PROYECTO) y de un tipo de nivel menor; al editar, el tipo nuevo no puede igualar o superar el nivel de sus hijas (JERARQUIA_DE_TAREA_INVALIDA). Decisión propia por no estar en el DAF ni en la spec: el padre puede estar en otro tablero del mismo proyecto y una Subtarea puede no tener padre. EscenarioDeTarea para preparar datos por los endpoints. El tablero no editable ya quedó cubierto en T1.3 | 74f34e8 (rojo) y verde en el commit siguiente. ./mvnw verify: 261 pruebas, 0 fallas, 11 omitidas; cobertura 90,1%. Versión 1.0.9 |

@@ -42,6 +42,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - La tarea nace en el estado inicial de su tablero, con prioridad `MEDIA` y con quien la crea como informante (si no se indica otro).
 - Clave: prefijo del proyecto y número (`SHI-123`). Es única en el proyecto y puede tener saltos. La da el contador del proyecto (`ultimo_numero`), que se bloquea por fila al crear: 50 altas simultáneas reciben 50 claves distintas.
 - Al editar no cambian la clave, el proyecto, el estado (se cambia con mover, T1.5) ni el tablero: mandar otro tablero responde `TABLERO_DE_TAREA_NO_SE_CAMBIA` (para llevarla a otro tablero se clona, T1.10).
+- Edición simultánea: al editar se manda `fechaDeActualizacion`, la que se leyó (si falta, `FECHA_DE_LECTURA_OBLIGATORIA`). Si la tarea cambió desde entonces (otra edición, un movimiento), responde 409 `TAREA_MODIFICADA`: hay que recargar y volver a intentar. La fila de la tarea se bloquea mientras se compara, así dos guardados simultáneos con la misma fecha no pasan los dos.
 - Mover (`POST /tarea/{uuid}/mover`, `estadoUuid`): pasa de cualquier estado a cualquier otro de su tablero (las transiciones estrictas quedan para después de la v1). Un estado de otro tablero responde `ESTADO_DE_OTRO_TABLERO`.
 - Tipo inexistente: `TIPO_DE_TAREA_INEXISTENTE`. Tablero inexistente: `RELACION_NO_ENCONTRADA`.
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).

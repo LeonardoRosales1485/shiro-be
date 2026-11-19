@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class TareaDTO extends EntidadBaseDTO {
+
+    @Descripcion("Fecha de la última modificación. Al editar es obligatoria: se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
+    private Timestamp fechaDeActualizacion;
 
     @Descripcion("Clave de la tarea (SHI-123): prefijo del proyecto y número. Única; puede tener saltos. Solo lectura")
     private String clave;

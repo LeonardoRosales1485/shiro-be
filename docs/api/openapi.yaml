@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.11"
+  version: "1.0.12"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -29,6 +29,7 @@ info:
     | `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |
     | `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |
     | `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |
+    | `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |
     | `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |
     | `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |
     | `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |
@@ -49,6 +50,7 @@ info:
     | `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |
     | `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |
     | `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |
+    | `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |
     | `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |
     | `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |
     | `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |
@@ -2001,9 +2003,41 @@ paths:
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "TAREA"
                   titulo: "Configurar el pipeline de integración"
+              dos-guardados-con-la-misma-fecha-leida:
+                summary: "Dos guardados con la misma fecha leida (ADMIN)"
+                value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Primera edición"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              dos-guardados-con-la-misma-fecha-leida-2:
+                summary: "Dos guardados con la misma fecha leida (2) (ADMIN)"
+                value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Segunda edición"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              mover-tambien-cambia-la-fecha:
+                summary: "Mover tambien cambia la fecha (ADMIN)"
+                value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Edición vieja"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              editar-sin-fecha-leida-rechazado:
+                summary: "Editar sin fecha leida rechazado (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Sin fecha"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               el-tablero-no-se-cambia:
                 summary: "El tablero no se cambia (ADMIN)"
                 value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                   tableroUuid: "b2000000-0000-4000-8000-000000000002"
                   tipoCodigo: "TAREA"
                   titulo: "Mover de tablero"
@@ -2067,6 +2101,7 @@ paths:
                   etiquetas:
                   - texto: "b"
                   - texto: "c"
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                   prioridad: "BAJA"
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "BUG"
@@ -2086,6 +2121,7 @@ paths:
               cada-escritura-deja-su-fila-con-usuario-canal-y-accion-2:
                 summary: "Cada escritura deja su fila con usuario canal y accion (2) (ADMIN)"
                 value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                   prioridad: "ALTA"
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "TAREA"
@@ -2129,6 +2165,7 @@ paths:
               cambiar-el-tipo-no-puede-romper-la-jerarquia-de-sus-hijas:
                 summary: "Cambiar el tipo no puede romper la jerarquia de sus hijas (SYSADMIN)"
                 value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "SUBTAREA"
                   titulo: "Historia"
@@ -2156,6 +2193,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
@@ -2175,6 +2213,90 @@ paths:
                     titulo: "Configurar el pipeline de integración"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                dos-guardados-con-la-misma-fecha-leida:
+                  summary: "Dos guardados con la misma fecha leida (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Primera edición"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                con-la-fecha-nueva-se-puede-volver-a-editar:
+                  summary: "Con la fecha nueva se puede volver a editar (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Primera edición"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                con-la-fecha-nueva-se-puede-volver-a-editar-2:
+                  summary: "Con la fecha nueva se puede volver a editar (2) (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Segunda edición"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
                 cada-tarea-recibe-una-clave-distinta-del-proyecto:
                   summary: "Cada tarea recibe una clave distinta del proyecto (ADMIN)"
                   value:
@@ -2183,6 +2305,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2210,6 +2333,7 @@ paths:
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2237,6 +2361,7 @@ paths:
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2272,6 +2397,7 @@ paths:
                       status: 0
                       texto: "jira"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2307,6 +2433,7 @@ paths:
                       status: 0
                       texto: "b"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2342,6 +2469,7 @@ paths:
                       status: 0
                       texto: "c"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2369,6 +2497,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2396,6 +2525,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -2423,6 +2553,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
@@ -2450,6 +2581,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
@@ -2470,7 +2602,7 @@ paths:
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
         "400":
-          description: "Errores: `FORMULARIO_INVALIDO`, `JERARQUIA_DE_TAREA_INVALIDA`, `PADRE_DE_OTRO_PROYECTO`, `RELACION_NO_ENCONTRADA`, `TABLERO_DE_TAREA_NO_SE_CAMBIA`, `TIPO_DE_TAREA_INEXISTENTE`"
+          description: "Errores: `FECHA_DE_LECTURA_OBLIGATORIA`, `FORMULARIO_INVALIDO`, `JERARQUIA_DE_TAREA_INVALIDA`, `PADRE_DE_OTRO_PROYECTO`, `RELACION_NO_ENCONTRADA`, `TABLERO_DE_TAREA_NO_SE_CAMBIA`, `TIPO_DE_TAREA_INEXISTENTE`"
           content:
             application/json:
               schema:
@@ -2485,6 +2617,15 @@ paths:
                       nombre: "titulo"
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                editar-sin-fecha-leida-rechazado:
+                  summary: "Editar sin fecha leida rechazado (ADMIN)"
+                  value:
+                    codigo: "FECHA_DE_LECTURA_OBLIGATORIA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 el-tablero-no-se-cambia:
@@ -2610,6 +2751,31 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "409":
+          description: "Errores: `TAREA_MODIFICADA`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                dos-guardados-con-la-misma-fecha-leida-2:
+                  summary: "Dos guardados con la misma fecha leida (2) (ADMIN)"
+                  value:
+                    codigo: "TAREA_MODIFICADA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
+                    status: "409 CONFLICT"
+                    traceId: "0000000000000000"
+                mover-tambien-cambia-la-fecha:
+                  summary: "Mover tambien cambia la fecha (ADMIN)"
+                  value:
+                    codigo: "TAREA_MODIFICADA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
+                    status: "409 CONFLICT"
+                    traceId: "0000000000000000"
   /tarea/paginar:
     post:
       tags:
@@ -2654,6 +2820,7 @@ paths:
                       estadoNombre: "Por hacer"
                       estadoUuid: "a2000000-0000-4000-8000-000000000011"
                       etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       hijas: []
                       informanteNombre: "Usuario Demo"
@@ -2678,6 +2845,7 @@ paths:
                       estadoNombre: "Por hacer"
                       estadoUuid: "a2000000-0000-4000-8000-000000000011"
                       etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       hijas: []
                       informanteNombre: "Sysadmin Pruebas"
@@ -2694,7 +2862,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 23"
+                      titulo: "Alta concurrente 49"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -2702,6 +2870,7 @@ paths:
                       estadoNombre: "Por hacer"
                       estadoUuid: "a2000000-0000-4000-8000-000000000011"
                       etiquetas: []
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       hijas: []
                       informanteNombre: "Sysadmin Pruebas"
@@ -2718,7 +2887,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 16"
+                      titulo: "Alta concurrente 44"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -2780,6 +2949,35 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                    vencimiento: null
+                el-tablero-no-se-cambia:
+                  summary: "El tablero no se cambia (ADMIN)"
+                  value:
+                    clave: "SHI-1"
+                    descripcion: "Primera tarea de ejemplo del proyecto."
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -3002,8 +3200,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaMoverRequestDTO"
             examples:
-              cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
-                summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
+              mover-tambien-cambia-la-fecha:
+                summary: "Mover tambien cambia la fecha (ADMIN)"
                 value:
                   estadoUuid: "a2000000-0000-4000-8000-000000000012"
               sin-estado-rechazado:
@@ -3033,6 +3231,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                mover-tambien-cambia-la-fecha:
+                  summary: "Mover tambien cambia la fecha (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Original"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
                   value:
@@ -3041,6 +3267,7 @@ paths:
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -3068,6 +3295,7 @@ paths:
                     estadoNombre: "Hecho"
                     estadoUuid: "a2000000-0000-4000-8000-000000000015"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
@@ -3095,6 +3323,7 @@ paths:
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
@@ -3122,6 +3351,7 @@ paths:
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
                     etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas: []
                     informanteNombre: "Usuario Demo"
@@ -5476,6 +5706,13 @@ components:
           items:
             $ref: "#/components/schemas/TareaEtiquetaDTO"
             description: "Etiquetas de la tarea, en orden alfabético. Al guardar reemplaza la lista completa: las que no vienen se quitan"
+        fechaDeActualizacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha de la última modificación. Al editar es obligatoria: se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
         fechaDeCreacion:
           type:
           - "string"
@@ -5886,6 +6123,11 @@ x-catalogo-de-errores:
   mensajePorDefecto: "El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala."
   cuando: "Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona"
   origen: "CodigoDeErrorDelProyecto"
+- codigo: "FECHA_DE_LECTURA_OBLIGATORIA"
+  status: 400
+  mensajePorDefecto: "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."
+  cuando: "Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "FORMULARIO_INVALIDO"
   status: 400
   mensajePorDefecto: "Error en el formulario"
@@ -5985,6 +6227,11 @@ x-catalogo-de-errores:
   status: 400
   mensajePorDefecto: "Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala."
   cuando: "Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "TAREA_MODIFICADA"
+  status: 409
+  mensajePorDefecto: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
+  cuando: "Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "TIPO_DE_TAREA_INEXISTENTE"
   status: 400
