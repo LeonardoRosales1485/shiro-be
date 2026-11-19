@@ -15,7 +15,7 @@ import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.TipoTarea.TipoTareaRepository;
 import com.blue.open.Code.Usuario.Usuario;
-import com.blue.open.Code.Usuario.UsuarioRepository;
+import com.blue.open.Code.Usuario.UsuarioDeLaSesion;
 import com.blue.open.Core.Crud.AbstractService;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.DTO.ParametroDePaginado;
@@ -56,7 +56,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final ProyectoRepository proyectoRepository;
 
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioDeLaSesion usuarioDeLaSesion;
 
     private final TareaEtiquetaRepository tareaEtiquetaRepository;
 
@@ -138,7 +138,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         aplicada.setPrioridad(dto.getPrioridad() != null ? dto.getPrioridad()
                 : esAlta ? PrioridadDeTarea.MEDIA : prioridadActual);
         if (aplicada.getInformante() == null)
-            aplicada.setInformante(esAlta ? usuarioDeLaSesion() : informanteActual);
+            aplicada.setInformante(esAlta ? usuarioDeLaSesion.obtener() : informanteActual);
         aplicada.setEtiquetasPedidas(textosDeEtiquetas(dto));
         validarJerarquia(aplicada, esAlta);
         if (!esAlta)
@@ -272,16 +272,6 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         if (mayuscula)
             articulo = Character.toUpperCase(articulo.charAt(0)) + articulo.substring(1);
         return articulo + " " + tipo.getNombre();
-    }
-
-    // Usuario de la sesion, que es el informante de una tarea nueva. Lanza NO_AUTENTICADO si no hay sesion
-    private Usuario usuarioDeLaSesion() {
-        Long id = usuarioActual.getIdUsuarioActual();
-        if (id == null)
-            throw new ExcepcionDeApi(CodigoDeErrorKernel.NO_AUTENTICADO, "TareaService | usuarioDeLaSesion | sin sesion");
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorKernel.NO_AUTENTICADO,
-                        "TareaService | usuarioDeLaSesion | no existe el usuario de la sesion"));
     }
 
     // Textos de las etiquetas del DTO, sin espacios en los extremos y sin repetir, en el orden recibido
