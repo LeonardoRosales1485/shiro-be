@@ -28,15 +28,15 @@ public final class JiraSimulado implements AutoCloseable {
 
     public static final String TABLERO_QA = "12";
 
-    private static final String ISSUES_DESARROLLO = "{\"startAt\":0,\"maxResults\":50,\"total\":4,\"issues\":["
-            + issue("10001", "JSIM-1", "Importador", "10000", "1", "Medium", null, null)
-            + "," + issue("10002", "JSIM-2", "Importar sprints", "10001", "3", "High", "JSIM-1", "demo@example.local")
-            + "," + issue("10003", "JSIM-4", "El token no se revoca", "10003", "1", "Highest", null, "nadie@example.com")
-            + "," + issue("10004", "JSIM-7", "Mapear estados", "10004", "3", "Low", "JSIM-2", null)
+    private static final String INCIDENCIAS_DESARROLLO = "{\"startAt\":0,\"maxResults\":50,\"total\":4,\"issues\":["
+            + incidencia("10001", "JSIM-1", "Importador", "10000", "1", "Medium", null, null)
+            + "," + incidencia("10002", "JSIM-2", "Importar sprints", "10001", "3", "High", "JSIM-1", "demo@example.local")
+            + "," + incidencia("10003", "JSIM-4", "El token no se revoca", "10003", "1", "Highest", null, "nadie@example.com")
+            + "," + incidencia("10004", "JSIM-7", "Mapear estados", "10004", "3", "Low", "JSIM-2", null)
             + "]}";
 
-    private static final String ISSUES_QA = "{\"startAt\":0,\"maxResults\":50,\"total\":1,\"issues\":["
-            + issue("10005", "JSIM-9", "Probar la importación", "10002", "21", "Medium", null, null) + "]}";
+    private static final String INCIDENCIAS_QA = "{\"startAt\":0,\"maxResults\":50,\"total\":1,\"issues\":["
+            + incidencia("10005", "JSIM-9", "Probar la importación", "10002", "21", "Medium", null, null) + "]}";
 
     private final HttpServer servidor;
 
@@ -82,8 +82,8 @@ public final class JiraSimulado implements AutoCloseable {
                     + "{\"id\":\"10004\",\"name\":\"Sub-task\",\"hierarchyLevel\":-1}]";
             case "/rest/api/3/user/assignable/search" -> "[{\"accountId\":\"acc-demo@example.local\",\"displayName\":\"Demo\",\"emailAddress\":\"demo@example.local\"},"
                     + "{\"accountId\":\"acc-nadie@example.com\",\"displayName\":\"Nadie Pérez\",\"emailAddress\":\"nadie@example.com\"}]";
-            case "/rest/agile/1.0/board/11/issue" -> ISSUES_DESARROLLO;
-            case "/rest/agile/1.0/board/12/issue" -> ISSUES_QA;
+            case "/rest/agile/1.0/board/11/issue" -> INCIDENCIAS_DESARROLLO;
+            case "/rest/agile/1.0/board/12/issue" -> INCIDENCIAS_QA;
             case "/rest/agile/1.0/board/11/sprint" -> "{\"values\":[{\"id\":5,\"name\":\"Sprint simulado\",\"state\":\"active\","
                     + "\"startDate\":\"2026-11-01T10:00:00.000Z\",\"endDate\":\"2026-11-14T10:00:00.000Z\"},"
                     + "{\"id\":6,\"name\":\"Sprint sin fechas\",\"state\":\"future\"}]}";
@@ -103,7 +103,7 @@ public final class JiraSimulado implements AutoCloseable {
         enviar(intercambio, 200, cuerpo);
     }
 
-    private static String issue(String id, String clave, String titulo, String tipo, String estado, String prioridad,
+    private static String incidencia(String id, String clave, String titulo, String tipo, String estado, String prioridad,
             String padre, String responsable) {
         return "{\"id\":\"" + id + "\",\"key\":\"" + clave + "\",\"fields\":{\"summary\":\"" + titulo + "\","
                 + "\"issuetype\":{\"id\":\"" + tipo + "\"},\"status\":{\"id\":\"" + estado + "\"},"
