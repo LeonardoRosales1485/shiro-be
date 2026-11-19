@@ -55,6 +55,9 @@ revise y se agreguen a los documentos. Cada una dice qué documento afecta.
 | 46 | 19/11/2026 | T6.3 | Prototipo "Sprint cerrado" | El sprint cerrado muestra sus fechas y las tareas que quedaron en él (las terminadas), pero no quién lo cerró ni cuántas pasaron a otro sprint o volvieron al backlog con su estado al cerrar: el backend no guarda esos datos del cierre | Para mostrarlo haría falta guardar el cierre (usuario, fecha y destino de cada tarea). A decidir |
 | 47 | 19/11/2026 | T6.3 | Prototipo "Versiones" | La lista de versiones no muestra la cantidad de tareas de cada una (se ve en el detalle, con `GET /version/{uuid}/tareas`, CU-VER-10, nuevo en T6.3). Tampoco dice quién publicó una versión | Contarlas en la lista pide un pedido por versión o un campo nuevo en `VersionDTO`. A decidir |
 | 48 | 19/11/2026 | T6.3 | Prototipo "Backlog" | El backlog muestra todas sus tareas sin paginar y el orden se cambia con «Subir al principio» y «Bajar al final» (sin arrastrar). Archivar una tarea se hace desde su detalle | Con cientos de tareas convendrá paginar o arrastrar; se puede sumar después sin cambiar el backend |
+| 49 | 19/11/2026 | T6.4 | Prototipo "Archivados" | Archivados muestra nombre, proyecto, fecha y quién archivó, pero no la columna «Incluye» (cuántas subtareas o historias se archivaron junto con el elemento), ni «Ver» un archivado ni el detalle de qué se restaura y qué queda archivado antes de confirmar | Contar lo arrastrado y ver un archivado piden endpoints nuevos (leer por operación de archivo). A decidir |
+| 50 | 19/11/2026 | T6.4 | Prototipo "Tokens MCP" | La lista de tokens no tiene «Último uso» y los revocados no aparecen (el Core lista solo los vigentes) | El último uso lo tendría que registrar el filtro de MCP en cada pedido. A decidir |
+| 51 | 19/11/2026 | T6.4 | Prototipo "Búsqueda" | La búsqueda no ofrece filtrar «Sin sprint» ni varios valores a la vez en un filtro, y el responsable, el sprint y la versión aparecen recién al elegir un proyecto (sus listas son por proyecto) | Se puede sumar después sin cambiar el backend |
 
 ## Resoluciones del arquitecto (19/11/2026)
 
@@ -81,3 +84,11 @@ Otras resoluciones: el front pregunta si el usuario es administrador con `GET /u
 | 43 (descripción sin Markdown) | Se dibuja como Markdown con `marked` 18.1.3 y `DOMPurify` 3.4.17 (sin HTML peligroso; los enlaces abren en otra pestaña). También los comentarios. La edición tiene «Escribir» y «Vista previa» |
 | 44 (clonar a los otros tableros) | Aprobada: solo se clona dentro del mismo proyecto, a sus otros tableros |
 | 45 (épica sin agregar hijas desde el detalle) | Desde el detalle de una épica se agregan hijas, solo Historias (sección «Historias de la épica»). Desde una historia, tarea o bug se agregan subtareas |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.3 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 46 (sprint cerrado sin datos del cierre) | Se guardan: el sprint registra quién lo cerró y cuándo (`shr_sprint.id_usuario_cierre` y `fecha_de_cierre`) y `shr_sprint_cierre_tarea` guarda, por cada tarea, su estado y puntos al cerrar, si estaba terminada y su destino (terminada, backlog u otro sprint). `GET /sprint/{uuid}/cierre` (CU-SPR-09) y `cerradoPorNombre`/`fechaDeCierre` en `SprintDTO`. El front muestra el sprint cerrado como el prototipo |
+| 47 (versiones sin cantidad de tareas ni quién publicó) | `VersionDTO` trae `cantidadDeTareas` y `publicadaPorNombre` (`shr_version.id_usuario_publicacion`). La lista muestra la cantidad y el detalle, quién publicó |
+| 48 (backlog sin paginar ni arrastrar) | Aprobada tal como está |

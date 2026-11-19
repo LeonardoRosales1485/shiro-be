@@ -87,10 +87,15 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 
 - Tareas de una versión (`GET /version/{uuid}/tareas`, con `VER`): las vigentes asignadas, terminadas o no, con su tipo, tablero y estado, por orden de tipo y número. Las usa el detalle de versiones del front (T6.3).
 
+- Cierre de un sprint (`GET /sprint/{uuid}/cierre`, con `VER`): quién lo cerró, cuándo y, por cada tarea que tenía, su estado y puntos al cerrar y su destino (`TERMINADA`, `BACKLOG` o `SPRINT` con el nombre del sprint). Restaurar un sprint archivado: `POST /sprint/{uuid}/restaurar` (con `EDITAR`), vuelve con el estado que tenía.
+- `VersionDTO` trae `cantidadDeTareas` (vigentes) y `publicadaPorNombre`.
+
 ## Búsqueda
 
 - `POST /tarea/paginar` con el parámetro `texto` (en `parametros`) es la búsqueda de tareas: texto en español sobre la clave, el título y la descripción (con raíces: "tablero" encuentra "tableros"), o la clave exacta, combinable con los filtros. Respeta los permisos como cualquier listado. Usa una columna `tsvector` generada con índice GIN.
 - `POST /archivo/paginar` busca lo archivado de cualquier tipo (tareas, proyectos, sprints, versiones y usuarios), con filtro por tipo y texto: aparece lo que el usuario puede archivar (el tablero de la tarea o el proyecto); los usuarios, solo para administradores. Lo más reciente primero. Cada elemento se restaura en el endpoint de su tipo.
+
+- Parámetros de `/tarea/paginar` además de `texto`: `version` (uuid: las tareas asignadas a esa versión) y `etiqueta` (las que tienen esa etiqueta, sin distinguir mayúsculas). Los archivados (`/archivo/paginar`) traen `archivadoPorNombre`.
 
 ## Comentarios (`Comentario`)
 
