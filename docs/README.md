@@ -101,6 +101,9 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 ## MCP
 
 - Servidor MCP sin estado en `/api/mcp` (Streamable HTTP). Exige `Authorization: Bearer <token de acceso personal>` (protocolo `tokens`): sin token, con un JWT o con un token revocado o de un usuario archivado responde 401 antes de llegar a las herramientas (`FiltroDeMcp`). Los cambios hechos por MCP quedan en el historial con canal `MCP`.
+- Herramientas (T3.2): `listar_proyectos`, `ver_tablero`, `buscar_tareas`, `obtener_tarea`, `ver_historial`, `crear_tarea`, `editar_tarea`, `mover_tarea`, `clonar_tarea`, `comentar_tarea` y `relacionar_tareas`. Cada una llama al mismo servicio que la API (mismos permisos, validaciones e historial). Las tareas se identifican por clave (`SHI-123`), los proyectos por prefijo, los tableros por código, los estados por nombre y los usuarios por nombre de usuario, sin distinguir mayúsculas. Responden `{resumen, datos}`; las listas vienen de a 50. Los errores llegan como error de la herramienta con el mensaje para el usuario ("No tenés permiso para editar en el tablero.").
+- `crear_tarea` pide el proyecto además de tipo y título (el tablero es PRINCIPAL si no se indica). `editar_tarea` cambia solo los datos que se mandan.
+- `ver_backlog` y `buscar_archivados` llegan con los sprints y la búsqueda de archivados (F5).
 
 ## Configuraciones (`Configuracion`)
 

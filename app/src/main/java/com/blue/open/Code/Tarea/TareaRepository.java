@@ -37,6 +37,9 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Tareas archivadas por la operacion recibida
     List<Tarea> findByIdOperacionArchivoAndStatus(Long idOperacionArchivo, Integer status);
 
+    // Tarea por clave (SHI-123) en cualquier status: asi la nombran la gente y los agentes
+    Optional<Tarea> findFirstByClave(String clave);
+
     // Tarea por uuid en cualquier status (vigente o archivada)
     Optional<Tarea> findFirstByUuid(String uuid);
 

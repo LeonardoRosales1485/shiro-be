@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F3 en curso.** F2 terminada; T3.1 cerrada (versión 1.0.22). Sigue T3.2 (herramientas de consulta y de tareas). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F3 en curso.** T3.1 y T3.2 cerradas (versión 1.0.23). Sigue T3.3 (archivo y administración con confirmar). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Cierre de F2
 
@@ -51,6 +51,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T3.2 | Herramientas MCP de consulta y de tareas (HerramientasMcpDeProyecto y HerramientasMcpDeTarea, en la carpeta de su entidad): listar_proyectos, ver_tablero, buscar_tareas, obtener_tarea, ver_historial, crear_tarea, editar_tarea, mover_tarea, clonar_tarea, comentar_tarea y relacionar_tareas. Llaman a los mismos servicios y casos de uso que la API; ReferenciasDeMcp traduce clave, prefijo, tablero, estado y usuario. Respuesta {resumen, datos}. Prueba de punta a punta con el cliente MCP oficial: historial con canal MCP y errores de permiso. La implementación se escribió antes que la prueba por error: se sacó, se commiteó la prueba en rojo y se volvió a poner. ver_backlog y buscar_archivados quedan para F5. Decisiones 17 y 18 | 1662730 (rojo) y verde en el commit siguiente. ./mvnw verify: 390 pruebas, 0 fallas, 23 omitidas. Versión 1.0.23 |
 | 18/11/2026 | T3.1 | FiltroDeMcp (servlet, solo /mcp): exige Bearer con token de acceso, autentica con AuthTokenConSha256Service, rechaza JWT, token revocado o de usuario archivado con 401 y el cuerpo de error de la API, y marca el request con canal MCP. McpEcoTest usa token. Guía local actualizada. Decisión 16 en docs/adendas-propuestas.md | 0813921 (rojo) y verde en el commit siguiente. ./mvnw verify: 387 pruebas, 0 fallas, 23 omitidas. Versión 1.0.22 |
 | 18/11/2026 | T2.5 | Usuarios y grupos para super admin y Administradores. ProteccionDeAdministradores: un Administrador no toca al super admin ni a otros Administradores ni a los grupos SYSADMIN y ADMIN. GET y POST /usuario/{uuid}/grupos (Core 4.0.0 monoempresa no lo trae). /borrar reemplazado por archivar y restaurar usuario (desactiva tokens, conserva responsable, nadie se archiva a sí mismo) y archivar grupo (los del sistema no). Nombre de grupo único. UsuarioService y RolService reemplazan los controles de permisos del Core (que exigían permisos que ADMIN no tiene). Decisiones 11 a 15 en docs/adendas-propuestas.md | 57cdc5a (rojo) y verde en el commit siguiente. ./mvnw verify: 383 pruebas, 0 fallas, 23 omitidas; cobertura 94,6%. Versión 1.0.21 |
 | 18/11/2026 | T2.4 | ResolutorDePermisosDeRecurso aplicado en todos los servicios y casos de uso de F1: VER para leer (uuid, historial, relaciones, comentarios), EDITAR para crear, editar, mover, comentar y relacionar, ARCHIVAR para archivar y restaurar tareas y proyectos, VER y EDITAR para clonar. Los paginados de proyectos, tareas y comentarios se restringen a lo visible con una condición JPQL (un proyecto se ve si se ve él o alguno de sus tableros). Archivar y restaurar proyectos pasa a exigir ARCHIVAR en el proyecto. Decisiones 9 y 10 en docs/adendas-propuestas.md | 04ec343 (rojo) y verde en el commit siguiente. ./mvnw verify: 371 pruebas, 0 fallas, 17 omitidas; cobertura 94,4%. Versión 1.0.20 |
