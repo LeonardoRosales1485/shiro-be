@@ -50,5 +50,11 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 42 | 2026-11-19 | 08:45 | 09:14 | 29 min | Build | Resoluciones A y B del 19/11: clon de subtarea, claves J-PREFIJO-n, solo Atlassian, estados y tipos creados en el mapeo, usuarios importados, duración de sprint, grupos de la sesión, tema oscuro y etiqueta del ingreso; /auditar | Resoluciones en back y front con pruebas en rojo antes; auditoría con 30 bloqueantes y 4 advertencias |
 | 43 | 2026-11-19 | 09:15 | 09:18 | 3 min | Consulta | Pregunta sobre crear tokens de Jira para la prueba real | Explicadas las variables JIRA_PRUEBA_* en la configuración del entorno |
 | 44 | 2026-11-19 | 09:21 | 09:47 | 26 min | Build | Corrección de los hallazgos de /auditar con las decisiones del usuario, nueva auditoría y prueba del importador contra el Jira real (se omite sin las variables) | verify verde, 6 bloqueantes nuevos del criterio MCP corregidos, push; versión 1.0.35 |
+| 45 | 2026-11-19 | 10:05 | 10:11 | 6 min | Consulta | Pedido de un prompt para la prueba de Jira (interrumpido) y aviso de merge y de la prueba en otro chat | Sin cambios |
+| 46 | 2026-11-19 | 10:11 | 10:12 | 1 min | Consulta | Qué procede en F6 y cuánto falta del plan | Resumen: 11 de 45 tareas pendientes, 5 de F6 a cargo del agente |
+| 47 | 2026-11-19 | 10:13 | 10:14 | 1 min | Docs | Prompt de contexto para el agente que hace el deploy en el servidor de la empresa | Prompt entregado, sin secretos |
+| 48 | 2026-11-19 | 10:17 | 10:17 | 0 min | Consulta | Resultado de la prueba del importador contra el Jira real en otra sesión | T4.1 cerrada en la bitácora; aviso de que develop de shiro-be no tenía el merge |
+| 49 | 2026-11-19 | 10:25 | 10:34 | 9 min | Build | CI del PR Merge fase 1 con 3 fallos (gitleaks y OSV-Scanner) | Excepción de gitleaks para los tokens de ejemplo de los seeds; CI en verde y PR mergeado; versión 1.0.37 |
+| 50 | 2026-11-19 | 11:14 | 11:27 | 13 min | Build | T6.2 en el front: detalle de tarea, clonar, relacionar, comentarios, historial y archivar | Pruebas en rojo (9e607bf) y luego 44 en verde, lint, tipos, build, 0 duplicados; versión del front 0.0.2 |
 
-**Total acumulado medido:** 687 min
+**Total acumulado medido:** 717 min

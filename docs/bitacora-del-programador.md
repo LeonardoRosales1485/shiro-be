@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-F6 en curso: T6.1 hecho; siguen T6.2 a T6.6
+F6 en curso: T6.1 y T6.2 hechas; siguen T6.3 a T6.6
 
 ## Cierre de F4
 
@@ -83,6 +83,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 19/11/2026 | T6.2 | Front: detalle de tarea en /proyecto/{prefijo}/tarea/{clave} (las tarjetas del tablero son enlaces): descripción, subtareas con «x de n hechas» y alta rápida, relaciones con su vínculo y quitar, comentarios (con la marca vía MCP) e historial con filtro de MCP, panel de detalles con mover de estado y «Asignármela», edición con la fecha leída (409 conserva lo escrito y ofrece recargar), clonar eligiendo tablero y datos (y el destino del clon de una subtarea), relacionar buscando por texto y archivar con confirmación. Decisiones propuestas 42 a 45 en adendas-propuestas.md | shiro-fe: pruebas en rojo (9e607bf) y luego 44 en verde, lint, tipos, build y 0 duplicados; capturas contra la API simulada. Versión del front 0.0.2 |
 | 19/11/2026 | T4.1 Jira real | ImportacionJiraRealTest corrió en otra sesión con las cuatro variables JIRA_PRUEBA_* y JDK 25 instalado a mano: conectar, catálogo, mapeo (primer tablero, estados y tipos creados) y ejecución contra el Jira real. Pasó: estado TERMINADA, 0 fallas, tareas creadas con clave J-PRB-n. La prueba no imprime las cifras del resumen si pasa | 1 prueba, 0 fallos, 0 errores (informe de la otra sesión, sobre el commit b681ae7) |
 | 19/11/2026 | Task 25 Jira real | Sesión nueva para correr ImportacionJiraRealTest: ve JIRA_PRUEBA_URL, CORREO y TOKEN, pero falta JIRA_PRUEBA_CLAVE, así que la prueba no corrió. En ese contenedor tampoco está el JDK 25 en /opt/jdk25 (en esta sesión se instaló a mano) | Informe de la sesión hija, sin valores de las variables |
 | 19/11/2026 | Auditoría | Corregidos los 34 hallazgos de /auditar con las decisiones del usuario: SHIRO_CIFRADO_FRASE fuera de deploy.yml, groupId com.blue.open, códigos de la plantilla quitados, criterio de herramientas MCP, traducciones, archivado unificado en ArchivadoDeEntidad, excepciones BD-04, seeds y pruebas de códigos de error. La re-auditoría encontró que el criterio MCP contradecía la adenda 19 y se alineó. Prueba del importador contra el Jira real agregada (se omite sin JIRA_PRUEBA_*) | verify verde (más de 500 pruebas), commits 80f02d8 a 9699825, versión 1.0.35 |
