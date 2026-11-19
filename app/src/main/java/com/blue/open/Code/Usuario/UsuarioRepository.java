@@ -48,4 +48,16 @@ public interface UsuarioRepository extends EntidadRepositoryBorradoLogico<Usuari
     // Ids de los usuarios vigentes del grupo del super admin o de Administradores, que acceden a todo
     @Query("SELECT ur.idUsuario FROM UsuarioRol ur JOIN ur.rol r WHERE ur.status = 0 AND r.status = 0 AND r.nombre IN :grupos")
     List<Long> idsDeLosGrupos(@Param("grupos") Collection<String> grupos);
+
+    // Usuarios vigentes y archivados para la administracion, por nombre (CU-USR-26). Sin los temporales
+    @Query("SELECT new com.blue.open.Code.Usuario.UsuarioAdministracionResponseDTO(u.uuid, u.nombre, u.nombreDeUsuario, u.email, "
+            + "CASE WHEN u.contrasena IS NULL THEN false ELSE true END, CASE WHEN u.status = -1 THEN true ELSE false END) "
+            + "FROM Usuario u WHERE u.status IN (0, -1) ORDER BY LOWER(COALESCE(u.nombre, u.nombreDeUsuario))")
+    List<UsuarioAdministracionResponseDTO> paraAdministrar();
+
+    // Grupos vigentes asignados a cada usuario, por nombre de grupo (CU-USR-26)
+    @Query("SELECT new com.blue.open.Code.Usuario.GrupoAsignado(u.uuid, r.uuid, r.nombre, ur.fechaDeCreacion) "
+            + "FROM UsuarioRol ur JOIN ur.rol r, Usuario u WHERE u.id = ur.idUsuario AND ur.status = 0 AND r.status = 0 "
+            + "ORDER BY r.nombre")
+    List<GrupoAsignado> gruposAsignados();
 }

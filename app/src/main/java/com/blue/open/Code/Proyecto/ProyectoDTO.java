@@ -36,6 +36,9 @@ public class ProyectoDTO extends EntidadBaseDTO {
     @Size(max = 2000, message = "La descripción tiene como máximo 2000 caracteres")
     private String descripcion;
 
+    @Descripcion("Cantidad de tareas vigentes del proyecto. Solo lectura")
+    private Integer cantidadDeTareas;
+
     @Descripcion("Tableros del proyecto, uno por tipo, en orden de pestaña. Solo lectura: se crean con el proyecto")
     @Coleccion("tableros")
     private List<TableroDTO> tableros;
