@@ -45,5 +45,10 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 37 | 2026-11-19 | 00:12 | 01:05 | 53 min | Build | Adenda 4 (DAF) y ajustes de F1; F2 completa (T2.1 a T2.5); F3 T3.1 a T3.3. Primer tramo del turno: el turno sigue con F5 y F4 | F2 terminada, F3 salvo T3.4; push en cada tarea |
 | 38 | 2026-11-19 | 01:05 | 01:51 | 46 min | Build | Segundo tramo del turno: F3 T3.4 dejada pendiente, F5 completa (T5.1 a T5.5) y F4 completa contra un Jira simulado (T4.1 a T4.4), sin esperar aprobación | F5 y F4 terminadas, verify verde (469 pruebas), push en cada tarea; versión 1.0.30 |
 | 39 | 2026-11-19 | 01:52 | 04:36 | 164 min | Build | T6.1 (front: ingreso, menú, tablero, crear tarea y proyecto) y prueba del filtro por tablero en el backend. Incluye una pausa por el límite de uso y un reinicio del worker, que no se pudieron medir aparte | T6.1 terminada; front y back en verde, push en los dos repositorios; versión 1.0.31 |
+| 40 | 2026-11-19 | 06:53 | 08:22 | 89 min | Docs | Actualizar en Claude Docs el DAF, el plan, la bitácora y el diseño técnico con las adendas como propuestas | Adendas 5 y 6 en el DAF, plan y bitácora al día, adenda técnica |
+| 41 | 2026-11-19 | 08:22 | 08:23 | 1 min | Docs | Lista numerada de decisiones pendientes del usuario y de las tomadas por el agente | Lista A1 a A14 y B1 a B55 entregada |
+| 42 | 2026-11-19 | 08:45 | 09:14 | 29 min | Build | Resoluciones A y B del 19/11: clon de subtarea, claves J-PREFIJO-n, solo Atlassian, estados y tipos creados en el mapeo, usuarios importados, duración de sprint, grupos de la sesión, tema oscuro y etiqueta del ingreso; /auditar | Resoluciones en back y front con pruebas en rojo antes; auditoría con 30 bloqueantes y 4 advertencias |
+| 43 | 2026-11-19 | 09:15 | 09:18 | 3 min | Consulta | Pregunta sobre crear tokens de Jira para la prueba real | Explicadas las variables JIRA_PRUEBA_* en la configuración del entorno |
+| 44 | 2026-11-19 | 09:21 | 09:47 | 26 min | Build | Corrección de los hallazgos de /auditar con las decisiones del usuario, nueva auditoría y prueba del importador contra el Jira real (se omite sin las variables) | verify verde, 6 bloqueantes nuevos del criterio MCP corregidos, push; versión 1.0.35 |
 
-**Total acumulado medido:** 539 min
+**Total acumulado medido:** 687 min
