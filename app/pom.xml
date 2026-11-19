@@ -16,7 +16,7 @@
          fuente: Maven la escribe en app-version.properties y de ahi la leen /info y el header API-Version -->
     <groupId>com.blue.open</groupId>
     <artifactId>open-data-proyect</artifactId>
-    <version>1.0.44</version>
+    <version>1.0.45</version>
     <name>open-data-proyect</name>
     <description>BackEnd de Open Data</description>
 
