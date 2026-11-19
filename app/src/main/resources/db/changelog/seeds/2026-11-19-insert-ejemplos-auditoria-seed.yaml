@@ -1,0 +1,86 @@
+# Seeds de ejemplo que faltaban (auditoria del 19/11, BD-04): la tarea SHI-2 con una etiqueta, asignada a la version
+# 1.0 y bloqueando a SHI-1; un mapeo de Jira de ejemplo; y una importacion en curso para ver ese estado en la
+# pantalla de importaciones.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-ejemplos-auditoria-seed-1
+      author: shiro
+      comment: "Crea la tarea SHI-2 con su etiqueta, su version y una relacion con SHI-1"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000002'"}
+      changes:
+        - insert:
+            tableName: shr_tarea
+            columns:
+              - column: {name: uuid, value: b3000000-0000-4000-8000-000000000002}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: id_tablero, valueComputed: "(SELECT id FROM shr_tablero WHERE uuid = 'b2000000-0000-4000-8000-000000000001')"}
+              - column: {name: numero, valueNumeric: 2}
+              - column: {name: clave, value: SHI-2}
+              - column: {name: id_tipo_tarea, valueComputed: "(SELECT id FROM shr_tipo_tarea WHERE codigo = 'HISTORIA')"}
+              - column: {name: id_estado, valueComputed: "(SELECT id FROM shr_estado WHERE uuid = 'a2000000-0000-4000-8000-000000000011')"}
+              - column: {name: titulo, value: "Importar los proyectos de Jira"}
+              - column: {name: descripcion, value: "Tarea de ejemplo con etiqueta, versión y relación."}
+              - column: {name: id_informante, valueComputed: "(SELECT id FROM auth_usuarios WHERE uuid = '90000000-0000-4000-8000-000000000002')"}
+              - column: {name: prioridad, value: ALTA}
+        - sql:
+            comment: "El contador del proyecto Shiro queda en 2"
+            sql: UPDATE shr_proyecto SET ultimo_numero = 2 WHERE prefijo = 'SHI' AND ultimo_numero < 2
+        - insert:
+            tableName: shr_tarea_etiqueta
+            columns:
+              - column: {name: uuid, value: b3100000-0000-4000-8000-000000000001}
+              - column: {name: id_tarea, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000002')"}
+              - column: {name: texto, value: "jira"}
+        - insert:
+            tableName: shr_tarea_version
+            columns:
+              - column: {name: uuid, value: b7100000-0000-4000-8000-000000000001}
+              - column: {name: id_tarea, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000002')"}
+              - column: {name: id_version, valueComputed: "(SELECT id FROM shr_version WHERE uuid = 'b7000000-0000-4000-8000-000000000001')"}
+        - insert:
+            tableName: shr_relacion
+            columns:
+              - column: {name: uuid, value: b4100000-0000-4000-8000-000000000001}
+              - column: {name: id_origen, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000002')"}
+              - column: {name: id_destino, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000001')"}
+              - column: {name: tipo, value: BLOQUEA}
+      rollback:
+        - delete: {tableName: shr_relacion, where: "uuid = 'b4100000-0000-4000-8000-000000000001'"}
+        - delete: {tableName: shr_tarea_version, where: "uuid = 'b7100000-0000-4000-8000-000000000001'"}
+        - delete: {tableName: shr_tarea_etiqueta, where: "uuid = 'b3100000-0000-4000-8000-000000000001'"}
+        - delete: {tableName: shr_tarea, where: "uuid = 'b3000000-0000-4000-8000-000000000002'"}
+
+  - changeSet:
+      id: 2026-11-19-insert-ejemplos-auditoria-seed-2
+      author: shiro
+      comment: "Mapeo de Jira de ejemplo e importacion en curso"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_importacion WHERE uuid = 'b8000000-0000-4000-8000-000000000002'"}
+      changes:
+        - insert:
+            tableName: shr_mapeo_jira
+            columns:
+              - column: {name: uuid, value: b8100000-0000-4000-8000-000000000001}
+              - column: {name: tipo_entidad, value: TAREA}
+              - column: {name: id_jira, value: "ejemplo-EJ-1"}
+              - column: {name: uuid_shiro, value: b3000000-0000-4000-8000-000000000002}
+        - insert:
+            tableName: shr_importacion
+            columns:
+              - column: {name: uuid, value: b8000000-0000-4000-8000-000000000002}
+              - column: {name: url_jira, value: "https://ejemplo.atlassian.net"}
+              - column: {name: correo, value: "importador@example.local"}
+              - column: {name: token_cifrado, value: "ejemplo-no-descifrable"}
+              - column: {name: clave_proyecto_jira, value: "EJD"}
+              - column: {name: prefijo, value: "EJD"}
+              - column: {name: nombre_proyecto_jira, value: "Proyecto de ejemplo en curso"}
+              - column: {name: estado, value: EN_CURSO}
+              - column: {name: mapeo, value: '{"tableros":{},"estados":{},"tipos":{},"duracionDeSprintEnDias":14}'}
+      rollback:
+        - delete: {tableName: shr_importacion, where: "uuid = 'b8000000-0000-4000-8000-000000000002'"}
+        - delete: {tableName: shr_mapeo_jira, where: "uuid = 'b8100000-0000-4000-8000-000000000001'"}
