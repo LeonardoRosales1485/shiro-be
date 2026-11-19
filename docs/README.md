@@ -25,6 +25,7 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - `prefijo`: de 2 a 6 letras, se guarda en mayúsculas. No se repite entre proyectos, tampoco con uno archivado (queda reservado), y no se cambia después de crear el proyecto (adenda 3 del DAF).
 - Al crear un proyecto se generan sus cuatro tableros: Principal, QA, Análisis y Diseño.
 - Archivar (`POST /proyecto/{uuid}/archivar`, con `ARCHIVAR` en el proyecto) arrastra todo lo que hay dentro: tableros, tareas en todos los niveles, comentarios y relaciones, con el mismo id de operación. Restaurar (`POST /proyecto/{uuid}/restaurar`) devuelve lo de esa operación; lo archivado antes por separado queda archivado (adenda 4 del DAF).
+- Usuarios del proyecto (`GET /proyecto/{uuid}/usuarios`, con `VER`): el super admin, los Administradores y quienes ven el proyecto o alguno de sus tableros por sus reglas o las de sus grupos, por nombre de usuario. Cualquier usuario del proyecto elige de esta lista al responsable de una tarea (resolución de la propuesta 42).
 - Nada se borra: no hay `/borrar`.
 
 ## Tableros, estados y tipos de tarea
@@ -52,6 +53,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Edición simultánea: al editar se manda `fechaDeActualizacion`, la que se leyó (si falta, `FECHA_DE_LECTURA_OBLIGATORIA`). Si la tarea cambió desde entonces (otra edición, un movimiento), responde 409 `TAREA_MODIFICADA`: hay que recargar y volver a intentar. La fila de la tarea se bloquea mientras se compara, así dos guardados simultáneos con la misma fecha no pasan los dos.
 - Mover (`POST /tarea/{uuid}/mover`, `estadoUuid`): pasa de cualquier estado a cualquier otro de su tablero (las transiciones estrictas quedan para después de la v1). Un estado de otro tablero responde `ESTADO_DE_OTRO_TABLERO`.
 - Tipo inexistente: `TIPO_DE_TAREA_INEXISTENTE`. Tablero inexistente: `RELACION_NO_ENCONTRADA`.
+- La descripción y los comentarios se escriben en Markdown; el front los dibuja sin HTML peligroso (resolución de la propuesta 43). Desde el detalle de una épica se agregan Historias y desde una historia, tarea o bug, Subtareas (propuesta 45).
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).
 - Jerarquía (`padreUuid`): Épica, después Historia, Tarea o Bug, después Subtarea. El padre es del mismo proyecto (si no, `PADRE_DE_OTRO_PROYECTO`) y de un tipo de nivel menor; al editar, el tipo nuevo tiene que seguir siendo de nivel menor que el de sus hijas. Si no, `JERARQUIA_DE_TAREA_INVALIDA`. La tarea responde sus `hijas` vigentes. El padre puede estar en cualquier tablero del mismo proyecto. Una Subtarea tiene siempre padre: al crearla, al editarla y al cambiarle el tipo (adenda 4 del DAF).
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).

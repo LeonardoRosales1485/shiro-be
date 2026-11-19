@@ -69,3 +69,12 @@ Aprobadas tal como están: 2 a 21, 23 a 31 y 37 a 40, y las decisiones de la imp
 
 Otras resoluciones: el front pregunta si el usuario es administrador con `GET /usuario/sesion/grupos` (A12, adenda en el diseño técnico); el ingreso dice «Usuario» (el backend recibe el nombre de usuario); el tema por defecto es oscuro; el front se versiona desde 0.0.1, +0.0.1 en cada push.
 
+
+## Resoluciones del arquitecto sobre las propuestas de T6.2 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 42 (responsable: solo administradores eligen a otra persona) | Cualquier usuario del proyecto elige al responsable, sea administrador o no. Nuevo `GET /proyecto/{uuid}/usuarios` (CU-PRY-06, exige `VER`): el super admin, los Administradores y quienes ven el proyecto o alguno de sus tableros por sus reglas o las de sus grupos. El front lo usa en la edición para todos y mantiene «Asignármela» |
+| 43 (descripción sin Markdown) | Se dibuja como Markdown con `marked` 18.1.3 y `DOMPurify` 3.4.17 (sin HTML peligroso; los enlaces abren en otra pestaña). También los comentarios. La edición tiene «Escribir» y «Vista previa» |
+| 44 (clonar a los otros tableros) | Aprobada: solo se clona dentro del mismo proyecto, a sus otros tableros |
+| 45 (épica sin agregar hijas desde el detalle) | Desde el detalle de una épica se agregan hijas, solo Historias (sección «Historias de la épica»). Desde una historia, tarea o bug se agregan subtareas |
