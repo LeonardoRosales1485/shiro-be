@@ -60,9 +60,9 @@ public final class EscenarioDeAutorizacion {
                 .preparacion().ejecutar().esperar(200).json().get("uuid").asString();
     }
 
-    // Elimina el rol recibido (DELETE /rol/borrar/{uuid})
+    // Archiva el rol recibido (POST /rol/{uuid}/archivar)
     public void eliminarRol(String uuid) {
-        como.apply(SYSADMIN).delete("/rol/borrar/{uuid}", uuid).preparacion().ejecutar()
+        como.apply(SYSADMIN).post("/rol/{uuid}/archivar", uuid).preparacion().ejecutar()
                 .esperar(200);
     }
 }
