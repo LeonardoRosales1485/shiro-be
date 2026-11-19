@@ -115,8 +115,8 @@ public class HerramientasMcpDeArchivo {
                 return new RespuestaDeHerramienta("Archivado el proyecto " + archivado.getPrefijo(), archivado);
             }
             default -> {
-                Usuario usuario = referencias.usuario(identificador);
                 exigirAdministrador();
+                Usuario usuario = referencias.usuario(identificador);
                 proteccion.exigirQuePuedaAdministrar(usuario);
                 if (!Confirmacion.confirmada(confirmar))
                     return Confirmacion.vistaPrevia("Se archivaría el usuario " + usuario.getNombreDeUsuario()
