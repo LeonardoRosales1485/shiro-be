@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,6 +23,17 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Tarea t WHERE t.uuid = :uuid AND t.status = 0")
     Optional<Tarea> bloquearVigentePorUuid(@Param("uuid") String uuid);
+
+    // Tarea archivada con su fila bloqueada, para restaurarla
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT t FROM Tarea t WHERE t.uuid = :uuid AND t.status = -1")
+    Optional<Tarea> bloquearArchivadaPorUuid(@Param("uuid") String uuid);
+
+    // Hijas con el status recibido de cualquiera de las tareas: un nivel de la cascada, en una sola consulta
+    List<Tarea> findByPadreInAndStatus(List<Tarea> padres, Integer status);
+
+    // Tareas archivadas por la operacion recibida
+    List<Tarea> findByIdOperacionArchivoAndStatus(Long idOperacionArchivo, Integer status);
 
     // Si existe una tarea con el uuid, en cualquier status
     boolean existsByUuid(String uuid);

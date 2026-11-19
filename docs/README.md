@@ -48,12 +48,14 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).
 - Jerarquía (`padreUuid`): Épica, después Historia, Tarea o Bug, después Subtarea. El padre es del mismo proyecto (si no, `PADRE_DE_OTRO_PROYECTO`) y de un tipo de nivel menor; al editar, el tipo nuevo tiene que seguir siendo de nivel menor que el de sus hijas. Si no, `JERARQUIA_DE_TAREA_INVALIDA`. La tarea responde sus `hijas` vigentes. El padre puede estar en otro tablero del mismo proyecto y una Subtarea puede no tener padre (la spec no lo exige).
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).
-- Nada se borra: no hay `/borrar`; archivar y restaurar llegan en T1.8.
+- Archivar (`POST /tarea/{uuid}/archivar`): la tarea y sus hijas vigentes, en todos los niveles, pasan a status -1 con el mismo id de operación (`shr_operacion_archivo`). Cada una deja su fila `ARCHIVAR` en el historial con la clave de la tarea raíz. Lo archivado no se mueve, no se edita y no sirve como padre (`RELACION_NO_ENCONTRADA`).
+- Restaurar (`POST /tarea/{uuid}/restaurar`): vuelve lo que se archivó en esa misma operación; lo archivado antes por separado queda archivado. Si el padre sigue archivado responde `PADRE_ARCHIVADO` ("Restaurá primero SHI-12."). Restaurar es una operación nueva y deja filas `RESTAURAR`.
+- Nada se borra: no hay `/borrar`. Todas las tablas `shr_` tienen `id_operacion_archivo`.
 
 ## Historial (`Historial`)
 
 - Toda escritura deja su fila en `shr_historial` en la misma transacción: entidad, uuid, tipo de acción, campo, valor anterior y nuevo, usuario, canal (`WEB`, `MCP` o `IMPORTACION`) y fecha. El usuario de la aplicación solo puede insertar y leer en esa tabla.
-- Acciones: `CREAR` (valor nuevo: la clave o el prefijo), `EDITAR` (una fila por campo cambiado), `MOVER` (campo `estado`), `CREAR_SUBTAREA` (en el historial del padre, valor nuevo: la clave de la subtarea). `ARCHIVAR`, `RESTAURAR`, `COMENTAR`, `RELACIONAR` y `CLONAR` llegan con T1.8 a T1.10.
+- Acciones: `CREAR` (valor nuevo: la clave o el prefijo), `EDITAR` (una fila por campo cambiado), `MOVER` (campo `estado`), `CREAR_SUBTAREA` (en el historial del padre, valor nuevo: la clave de la subtarea). `ARCHIVAR` y `RESTAURAR` (con su operación). `COMENTAR`, `RELACIONAR` y `CLONAR` llegan con T1.9 y T1.10.
 - Campos que sigue la tarea: título, descripción, tipo, prioridad, puntos, vencimiento, responsable, informante, padre y etiquetas. El proyecto: nombre y descripción.
 - `GET /tarea/{uuid}/historial` responde lo más nuevo primero; `?canal=MCP` filtra por canal. Sirve también para tareas archivadas.
 - El canal lo marca el filtro de `/mcp` (T3.1) en el atributo `shiro.canal` del request; sin marca es `WEB`.

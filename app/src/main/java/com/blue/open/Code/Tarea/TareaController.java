@@ -2,8 +2,10 @@ package com.blue.open.Code.Tarea;
 
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Historial.HistorialDTO;
+import com.blue.open.Code.Tarea.CasosDeUso.TareaArchivarUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaHistorialUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
+import com.blue.open.Code.Tarea.CasosDeUso.TareaRestaurarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -23,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Endpoints de tareas: ABM (receta de core-crud/docs/receta-controller.md) sin borrar, porque nada se borra
- * (archivar y restaurar llegan en T1.8). Por ahora alcanza con sesion; los permisos por proyecto (ver, editar)
+ * Endpoints de tareas: ABM (receta de core-crud/docs/receta-controller.md) sin borrar, porque nada se borra: se
+ * archiva y se restaura. Por ahora alcanza con sesion; los permisos por proyecto (ver, editar)
  * llegan en F2 (T2.4).
  * Dependencias externas: la base de datos.
  */
@@ -38,6 +40,10 @@ public class TareaController {
     private final TareaMoverUseCase moverUseCase;
 
     private final TareaHistorialUseCase historialUseCase;
+
+    private final TareaArchivarUseCase archivarUseCase;
+
+    private final TareaRestaurarUseCase restaurarUseCase;
 
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
@@ -78,5 +84,21 @@ public class TareaController {
             @Descripcion("Canal: WEB, MCP o IMPORTACION. Vacío para todos")
             @RequestParam(value = "canal", required = false) CanalDeCambio canal) {
         return new ResponseEntity<>(historialUseCase.ejecutar(uuid, canal), HttpStatus.OK);
+    }
+
+    // Archiva una tarea y sus hijas en todos los niveles. Responde la tarea archivada
+    @PostMapping("/{uuid}/archivar")
+    @Contrato(casoDeUso = "CU-TAR-06", resumen = "Archiva una tarea y, en cascada, sus hijas en todos los niveles",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<TareaDTO> archivar(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Restaura una tarea archivada con lo que se archivo en su misma operacion. Responde la tarea restaurada
+    @PostMapping("/{uuid}/restaurar")
+    @Contrato(casoDeUso = "CU-TAR-07", resumen = "Restaura una tarea archivada con lo que se archivó en su misma operación",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<TareaDTO> restaurar(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

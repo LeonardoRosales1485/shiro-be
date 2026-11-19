@@ -34,6 +34,8 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     TAREA_MODIFICADA(HttpStatus.CONFLICT, "La tarea cambió mientras la editabas. Recargá y volvé a intentar."),
     @Descripcion("Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó")
     FECHA_DE_LECTURA_OBLIGATORIA(HttpStatus.BAD_REQUEST, "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."),
+    @Descripcion("Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave)")
+    PADRE_ARCHIVADO(HttpStatus.BAD_REQUEST, "Restaurá primero la tarea padre."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

@@ -6,12 +6,13 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F1 en curso.** T1.1 a T1.7 cerradas (versión 1.0.12). Sigue T1.8 (archivar y restaurar). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F1 en curso.** T1.1 a T1.8 cerradas (versión 1.0.13). Sigue T1.9 (relaciones y comentarios). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Avances
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T1.8 | shr_operacion_archivo (ARCHIVAR/RESTAURAR, entidad raíz) e id_operacion_archivo en todas las tablas shr_ con status; FK del historial a su operación. POST /tarea/{uuid}/archivar: la tarea y sus hijas vigentes en todos los niveles (una consulta por nivel) con la misma operación y fila ARCHIVAR cada una. POST /tarea/{uuid}/restaurar: vuelve solo lo de esa operación; con el padre archivado responde PADRE_ARCHIVADO («Restaurá primero SHI-n.»). Tarea.archivar/restaurar con tests unitarios (el Core no permite volver de -1 a 0). Queda pendiente archivar y restaurar proyectos: la spec los lista pero no define la cascada (ver pendientes) | dfb1d9a (rojo) y verde en el commit siguiente. ./mvnw verify: 285 pruebas, 0 fallas, 11 omitidas; cobertura 93,6%. Versión 1.0.13 |
 | 18/11/2026 | T1.7 | TareaDTO con fechaDeActualizacion. Al editar es obligatoria (FECHA_DE_LECTURA_OBLIGATORIA) y si no coincide al milisegundo con la de la base responde 409 TAREA_MODIFICADA. La tarea a editar se lee con SELECT … FOR UPDATE, así dos guardados simultáneos con la misma fecha no pasan los dos. Mover también cambia la fecha. Las pruebas de edición existentes mandan la fecha leída | 809c877 (rojo) y verde en el commit siguiente. ./mvnw verify: 276 pruebas, 0 fallas, 11 omitidas; cobertura 92,7%. Versión 1.0.12 |
 | 18/11/2026 | T1.6 | shr_historial (hereda de EntidadBase: sin status; solo INSERT para shiro_app). RegistradorDeHistorial escribe en la transacción del llamador con usuario de la sesión y canal del request (CanalDeLaPeticion: atributo shiro.canal, WEB por defecto; el filtro de /mcp lo marca en T3.1). Acciones CREAR, EDITAR por campo, MOVER y CREAR_SUBTAREA en el padre; tarea y proyecto. GET /tarea/{uuid}/historial con filtro ?canal. PermisosDeBaseDeDatosTest ahora prueba sobre la shr_historial real | 313c3fb (rojo) y verde en el commit siguiente. ./mvnw verify: 272 pruebas, 0 fallas, 11 omitidas; cobertura 92,4%. Versión 1.0.11 |
 | 18/11/2026 | T1.5 | POST /tarea/{uuid}/mover con estadoUuid (TareaMoverUseCase). Cualquier estado del tablero de la tarea; un estado de otro tablero responde ESTADO_DE_OTRO_TABLERO. La ruta sigue la regla /{uuid}/{caso-de-uso} de controllers-y-endpoints.md (la spec decía POST /mover) | e232d79 (rojo) y verde en el commit siguiente. ./mvnw verify: 267 pruebas, 0 fallas, 11 omitidas; cobertura 90,5%. Versión 1.0.10 |
@@ -45,6 +46,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Pendientes y bloqueos
 
+- [ ] Archivar y restaurar proyectos (Spec 3 los lista; plan F1 no los verifica). Definir con el arquitecto qué arrastra archivar un proyecto: ¿sus tareas con la misma operación, o solo el proyecto (que deja de verse con todo lo suyo)? Se implementa cuando se decida, con el permiso ARCHIVAR de F2
 - [ ] Protección de la rama `develop` con los checks de T0.6 (la configura el arquitecto en GitHub)
 - [ ] Credenciales de un proyecto de Jira de prueba (F4)
 - [ ] Client id de Google (F2)

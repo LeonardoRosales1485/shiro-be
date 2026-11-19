@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.12"
+  version: "1.0.13"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -38,6 +38,7 @@ info:
     | `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |
     | `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |
     | `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |
+    | `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |
     | `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |
     | `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |
     | `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |
@@ -1992,6 +1993,13 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaDTO"
             examples:
+              una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
+                summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
+                value:
+                  padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "SUBTAREA"
+                  titulo: "Subtarea"
               guardar-cuerpo-invalido:
                 summary: "Guardar cuerpo invalido (SYSADMIN)"
                 value:
@@ -2608,6 +2616,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
+                  summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "padreUuid"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 guardar-cuerpo-invalido:
                   summary: "Guardar cuerpo invalido (SYSADMIN)"
                   value:
@@ -2862,7 +2881,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 49"
+                      titulo: "Alta concurrente 33"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -2887,7 +2906,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 44"
+                      titulo: "Alta concurrente 17"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -3029,6 +3048,159 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+  /tarea/{uuid}/archivar:
+    post:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.archivar"
+      summary: "Archiva una tarea y, en cascada, sus hijas en todos los niveles"
+      description: |-
+        **Caso de uso:** CU-TAR-06
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-06"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la tarea"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TareaDTO"
+              examples:
+                archivar-dos-veces-rechazado:
+                  summary: "Archivar dos veces rechazado (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: -1
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Tarea"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: -1
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "EPICA"
+                    tipoNombre: "Épica"
+                    titulo: "Épica"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
+                  summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: -1
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "HISTORIA"
+                    tipoNombre: "Historia"
+                    titulo: "Historia"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                archivar-dos-veces-rechazado-2:
+                  summary: "Archivar dos veces rechazado (2) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tarea-inexistente-rechazada:
+                  summary: "Tarea inexistente rechazada (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
   /tarea/{uuid}/historial:
     get:
       tags:
@@ -3069,6 +3241,95 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorialDTO"
               examples:
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
+                  value:
+                  - accion: "ARCHIVAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                  - accion: "CREAR_SUBTAREA"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-3"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-2:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (2) (ADMIN)"
+                  value:
+                  - accion: "ARCHIVAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                  - accion: "CREAR_SUBTAREA"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-4"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    valorAnterior: null
+                    valorNuevo: "SHI-3"
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-3:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (3) (ADMIN)"
+                  value:
+                  - accion: "ARCHIVAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                  - accion: "CREAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Sysadmin Pruebas"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000012"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-4"
                 el-alta-de-una-subtarea-queda-en-el-historial-del-padre:
                   summary: "El alta de una subtarea queda en el historial del padre (ADMIN)"
                   value:
@@ -3141,6 +3402,39 @@ paths:
                 se-filtra-por-canal-2:
                   summary: "Se filtra por canal (2) (ADMIN)"
                   value: []
+                restaurar-devuelve-solo-lo-de-esa-operacion:
+                  summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
+                  value:
+                  - accion: "MOVER"
+                    campo: "estado"
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    valorAnterior: "Por hacer"
+                    valorNuevo: "En curso"
+                  - accion: "RESTAURAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
+                  - accion: "ARCHIVAR"
+                    campo: null
+                    canal: "WEB"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    status: 0
+                    usuarioNombre: "Usuario Demo"
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    valorAnterior: null
+                    valorNuevo: "SHI-2"
         "400":
           description: "Errores: `REGISTRO_NO_ENCONTRADO`"
           content:
@@ -3200,8 +3494,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaMoverRequestDTO"
             examples:
-              mover-tambien-cambia-la-fecha:
-                summary: "Mover tambien cambia la fecha (ADMIN)"
+              archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
+                summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
                 value:
                   estadoUuid: "a2000000-0000-4000-8000-000000000012"
               sin-estado-rechazado:
@@ -3371,6 +3665,34 @@ paths:
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
                     vencimiento: null
+                restaurar-devuelve-solo-lo-de-esa-operacion:
+                  summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
+                  value:
+                    clave: "SHI-4"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: "SHI-2"
+                    padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "SUBTAREA"
+                    tipoNombre: "Subtarea"
+                    titulo: "Con la historia"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vencimiento: null
         "400":
           description: "Errores: `ESTADO_DE_OTRO_TABLERO`, `FORMULARIO_INVALIDO`, `REGISTRO_NO_ENCONTRADO`, `RELACION_NO_ENCONTRADA`"
           content:
@@ -3378,6 +3700,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-2:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (2) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-3:
+                  summary: "Archivar una epica archiva sus hijas en todos los niveles (3) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 sin-estado-rechazado:
                   summary: "Sin estado rechazado (ADMIN)"
                   value:
@@ -3416,6 +3765,121 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                restaurar-devuelve-solo-lo-de-esa-operacion-2:
+                  summary: "Restaurar devuelve solo lo de esa operacion (2) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /tarea/{uuid}/restaurar:
+    post:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.restaurar"
+      summary: "Restaura una tarea archivada con lo que se archivó en su misma operación"
+      description: |-
+        **Caso de uso:** CU-TAR-07
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-07"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la tarea"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TareaDTO"
+              examples:
+                restaurar-devuelve-solo-lo-de-esa-operacion:
+                  summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas:
+                    - clave: "SHI-4"
+                      estadoNombre: "Por hacer"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoCodigo: "SUBTAREA"
+                      titulo: "Con la historia"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "HISTORIA"
+                    tipoNombre: "Historia"
+                    titulo: "Historia"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    vencimiento: null
+        "400":
+          description: "Errores: `PADRE_ARCHIVADO`, `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                subtarea-con-el-padre-archivado-rechazada:
+                  summary: "Subtarea con el padre archivado rechazada (ADMIN)"
+                  value:
+                    codigo: "PADRE_ARCHIVADO"
+                    datos:
+                      padreClave: "SHI-2"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Restaurá primero SHI-2."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                una-tarea-vigente-no-se-restaura:
+                  summary: "Una tarea vigente no se restaura (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
@@ -6168,6 +6632,11 @@ x-catalogo-de-errores:
   mensajePorDefecto: "Origen no permitido"
   cuando: "El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre"
   origen: "CodigoDeErrorIdentity"
+- codigo: "PADRE_ARCHIVADO"
+  status: 400
+  mensajePorDefecto: "Restaurá primero la tarea padre."
+  cuando: "Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave)"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "PADRE_DE_OTRO_PROYECTO"
   status: 400
   mensajePorDefecto: "La tarea padre tiene que ser del mismo proyecto."

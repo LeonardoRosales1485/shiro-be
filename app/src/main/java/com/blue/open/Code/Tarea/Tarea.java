@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -103,6 +104,11 @@ public class Tarea extends EntidadConBorradoLogico {
     @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY)
     private List<Tarea> hijas = new ArrayList<>();
 
+    // Operacion de archivo que archivo la tarea (shr_operacion_archivo); null si esta vigente. Solo la cambian
+    // archivar y restaurar
+    @Setter(AccessLevel.NONE)
+    private Long idOperacionArchivo;
+
     // Etiquetas de la tarea; las quitadas quedan con status -1
     @OneToMany(mappedBy = "tarea", fetch = FetchType.LAZY)
     private List<TareaEtiqueta> etiquetas = new ArrayList<>();
@@ -127,5 +133,34 @@ public class Tarea extends EntidadConBorradoLogico {
                     "Tarea | numerar | la tarea " + this.clave + " ya tiene clave");
         this.numero = numero;
         this.clave = prefijo + "-" + numero;
+    }
+
+    /*
+     * Archiva la tarea (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
+     * Invariante: solo se archiva una tarea vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO (lo filtra antes
+     * el caso de uso).
+     */
+    public void archivar(Long idUsuario, Long idOperacion) {
+        if (this.status == null || this.status != 0)
+            throw new ExcepcionDeApi(CodigoDeErrorKernel.ERROR_INTERNO,
+                    "Tarea | archivar | la tarea " + this.clave + " no esta vigente (status " + this.status + ")");
+        this.status = -1;
+        this.fechaDeBorrado = new Timestamp(System.currentTimeMillis());
+        this.idUsuarioDeBorrado = idUsuario;
+        this.idOperacionArchivo = idOperacion;
+    }
+
+    /*
+     * Restaura la tarea archivada (status 0) y limpia los datos de borrado y la operacion. Invariante: solo se
+     * restaura una tarea archivada; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void restaurar() {
+        if (this.status == null || this.status != -1)
+            throw new ExcepcionDeApi(CodigoDeErrorKernel.ERROR_INTERNO,
+                    "Tarea | restaurar | la tarea " + this.clave + " no esta archivada (status " + this.status + ")");
+        this.status = 0;
+        this.fechaDeBorrado = null;
+        this.idUsuarioDeBorrado = null;
+        this.idOperacionArchivo = null;
     }
 }
