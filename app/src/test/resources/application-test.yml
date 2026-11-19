@@ -95,3 +95,6 @@ shiro:
     frase: frase-de-cifrado-solo-para-pruebas
   importacion:
     sincronica: true
+  # El Jira simulado de las pruebas corre en 127.0.0.1 por http; en servidor solo se aceptan sitios https de Atlassian
+  jira:
+    hosts-de-prueba: 127.0.0.1

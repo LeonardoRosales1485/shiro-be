@@ -48,9 +48,13 @@ public final class EscenarioDeImportacion {
         this.jira = jira;
     }
 
-    // Cuerpo de POST /importacion/conectar con las credenciales del Jira simulado y la clave recibida
+    // Prefijo de Shiro con que se importa el proyecto simulado: las claves quedan J-SIM-n
+    public static final String PREFIJO = "SIM";
+
+    // Cuerpo de POST /importacion/conectar con las credenciales del Jira simulado, la clave y el prefijo SIM
     public Map<String, Object> credenciales(String clave) {
-        return Map.of("url", jira.url(), "correo", JiraSimulado.CORREO, "token", JiraSimulado.TOKEN, "claveProyecto", clave);
+        return Map.of("url", jira.url(), "correo", JiraSimulado.CORREO, "token", JiraSimulado.TOKEN, "claveProyecto", clave,
+                "prefijo", PREFIJO);
     }
 
     // POST /importacion/conectar
@@ -72,7 +76,8 @@ public final class EscenarioDeImportacion {
                                         Map.of("idJira", "3", "estadoUuid", HECHO))),
                         Map.of("idJira", JiraSimulado.TABLERO_QA, "tipoTableroUuid", TIPO_TABLERO_QA,
                                 "estados", List.of(Map.of("idJira", "21", "estadoUuid", POR_PROBAR)))),
-                "tipos", tipos.entrySet().stream().map(t -> Map.of("idJira", t.getKey(), "tipoTareaUuid", t.getValue())).toList());
+                "tipos", tipos.entrySet().stream().map(t -> Map.of("idJira", t.getKey(), "tipoTareaUuid", t.getValue())).toList(),
+                "duracionDeSprintEnDias", 14);
     }
 
     // POST /importacion/{uuid}/mapeo

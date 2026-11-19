@@ -18,8 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * CU-IMP-01 y CU-IMP-02: conectar con Jira y leer su catalogo (T4.1 del plan, Spec 6 y Spec 7). El administrador
  * manda la URL, el correo y el token de Jira (se guardan cifrados y nunca vuelven) y la clave del proyecto; Shiro
- * responde los tableros, estados, tipos y usuarios de Jira, con el usuario de Shiro que tiene el mismo correo. La
- * clave de Jira va a ser el prefijo del proyecto: si no sirve como prefijo o ya la usa otro proyecto, se corta.
+ * responde los tableros, estados (con si cuentan como terminados), tipos (con su nivel en Shiro) y usuarios de Jira, con
+ * el usuario de Shiro que tiene el mismo correo. El administrador elige el prefijo del proyecto en Shiro (resolucion A3
+ * del 19/11): si ya lo usa otro proyecto, se corta. Solo se aceptan sitios https de Atlassian (resolucion A4).
  */
 class ImportacionConectarContratoTest extends PruebaDeContrato {
 
@@ -50,7 +51,10 @@ class ImportacionConectarContratoTest extends PruebaDeContrato {
         assertEquals(2, catalogo.get("tableros").size());
         assertEquals("Desarrollo", catalogo.get("tableros").get(0).get("nombre").asString());
         assertEquals(3, catalogo.get("estados").size());
+        assertTrue(catalogo.get("estados").get(1).get("terminado").asBoolean());
         assertEquals(5, catalogo.get("tipos").size());
+        assertEquals(1, catalogo.get("tipos").get(0).get("nivel").asInt());
+        assertEquals(3, catalogo.get("tipos").get(4).get("nivel").asInt());
         JsonNode usuarios = catalogo.get("usuarios");
         assertEquals("demo@example.local", usuarios.get(0).get("correo").asString());
         assertFalse(usuarios.get(0).get("usuarioUuid").isNull());
@@ -61,6 +65,7 @@ class ImportacionConectarContratoTest extends PruebaDeContrato {
                 .ejecutar().esperar(200).json();
         assertEquals("CONECTADA", importacion.get("estado").asString());
         assertEquals("JSIM", importacion.get("claveProyectoJira").asString());
+        assertEquals("SIM", importacion.get("prefijo").asString());
         assertFalse(importacion.toString().contains(JiraSimulado.TOKEN));
     }
 
@@ -96,16 +101,29 @@ class ImportacionConectarContratoTest extends PruebaDeContrato {
     }
 
     @Test
-    void laClaveNoSirveComoPrefijo() {
-        escenario.conectar(escenario.credenciales("JS1M")).esperarError(400, "CLAVE_DE_JIRA_NO_ES_PREFIJO");
+    void elPrefijoTieneDeDosASeisLetras() {
+        Map<String, Object> cuerpo = new HashMap<>(escenario.credenciales("JSIM"));
+        cuerpo.put("prefijo", "S1");
+
+        escenario.conectar(cuerpo).esperarError(400, "FORMULARIO_INVALIDO");
     }
 
     @Test
-    void laClaveYaLaUsaOtroProyecto() {
-        como("SYSADMIN").post("/proyecto/guardar").json(Map.of("nombre", "Ya existe", "prefijo", "JSIM"))
+    void elPrefijoYaLoUsaOtroProyecto() {
+        como("SYSADMIN").post("/proyecto/guardar").json(Map.of("nombre", "Ya existe", "prefijo", "SIM"))
                 .preparacion().ejecutar().esperar(200);
 
         escenario.conectar(escenario.credenciales("JSIM")).esperarError(400, "PREFIJO_DE_PROYECTO_EN_USO");
+    }
+
+    @Test
+    void soloSitiosDeAtlassian() {
+        Map<String, Object> cuerpo = new HashMap<>(escenario.credenciales("JSIM"));
+        cuerpo.put("url", "https://jira.example.com");
+        escenario.conectar(cuerpo).esperarError(400, "JIRA_URL_NO_PERMITIDA");
+
+        cuerpo.put("url", "http://empresa.atlassian.net");
+        escenario.conectar(cuerpo).esperarError(400, "JIRA_URL_NO_PERMITIDA");
     }
 
     @Test

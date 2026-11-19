@@ -12,7 +12,7 @@ import java.util.Base64;
 /**
  * Jira simulado para las pruebas del importador: un servidor HTTP local que responde como la API de Jira Cloud un
  * proyecto JSIM con dos tableros (Desarrollo y QA), estados, tipos, dos usuarios (uno existe en Shiro), cinco tareas
- * (una epica, una historia, un bug, una subtarea y una tarea de QA), comentarios, un sprint activo y una version
+ * (una epica, una historia, un bug, una subtarea y una tarea de QA), comentarios, un sprint activo, uno futuro sin fechas y una version
  * publicada. Exige autenticacion basic con el correo y el token de prueba.
  */
 public final class JiraSimulado implements AutoCloseable {
@@ -74,19 +74,26 @@ public final class JiraSimulado implements AutoCloseable {
             case "/rest/agile/1.0/board" -> "{\"values\":[{\"id\":11,\"name\":\"Desarrollo\",\"type\":\"scrum\"},"
                     + "{\"id\":12,\"name\":\"QA\",\"type\":\"kanban\"}]}";
             case "/rest/api/3/project/JSIM/statuses" -> "[{\"id\":\"10001\",\"name\":\"Story\",\"statuses\":["
-                    + "{\"id\":\"1\",\"name\":\"To Do\"},{\"id\":\"3\",\"name\":\"Done\"},{\"id\":\"21\",\"name\":\"Testing\"}]}]";
-            case "/rest/api/3/issuetype/project" -> "[{\"id\":\"10000\",\"name\":\"Epic\"},{\"id\":\"10001\",\"name\":\"Story\"},"
-                    + "{\"id\":\"10002\",\"name\":\"Task\"},{\"id\":\"10003\",\"name\":\"Bug\"},{\"id\":\"10004\",\"name\":\"Sub-task\"}]";
-            case "/rest/api/3/user/assignable/search" -> "[{\"accountId\":\"a1\",\"displayName\":\"Demo\",\"emailAddress\":\"demo@example.local\"},"
-                    + "{\"accountId\":\"a2\",\"displayName\":\"Nadie\",\"emailAddress\":\"nadie@example.com\"}]";
+                    + "{\"id\":\"1\",\"name\":\"To Do\",\"statusCategory\":{\"key\":\"new\"}},"
+                    + "{\"id\":\"3\",\"name\":\"Done\",\"statusCategory\":{\"key\":\"done\"}},"
+                    + "{\"id\":\"21\",\"name\":\"Testing\",\"statusCategory\":{\"key\":\"indeterminate\"}}]}]";
+            case "/rest/api/3/issuetype/project" -> "[{\"id\":\"10000\",\"name\":\"Epic\",\"hierarchyLevel\":1},{\"id\":\"10001\",\"name\":\"Story\",\"hierarchyLevel\":0},"
+                    + "{\"id\":\"10002\",\"name\":\"Task\",\"hierarchyLevel\":0},{\"id\":\"10003\",\"name\":\"Bug\",\"hierarchyLevel\":0},"
+                    + "{\"id\":\"10004\",\"name\":\"Sub-task\",\"hierarchyLevel\":-1}]";
+            case "/rest/api/3/user/assignable/search" -> "[{\"accountId\":\"acc-demo@example.local\",\"displayName\":\"Demo\",\"emailAddress\":\"demo@example.local\"},"
+                    + "{\"accountId\":\"acc-nadie@example.com\",\"displayName\":\"Nadie Pérez\",\"emailAddress\":\"nadie@example.com\"}]";
             case "/rest/agile/1.0/board/11/issue" -> ISSUES_DESARROLLO;
             case "/rest/agile/1.0/board/12/issue" -> ISSUES_QA;
             case "/rest/agile/1.0/board/11/sprint" -> "{\"values\":[{\"id\":5,\"name\":\"Sprint simulado\",\"state\":\"active\","
-                    + "\"startDate\":\"2026-11-01T10:00:00.000Z\",\"endDate\":\"2026-11-14T10:00:00.000Z\"}]}";
+                    + "\"startDate\":\"2026-11-01T10:00:00.000Z\",\"endDate\":\"2026-11-14T10:00:00.000Z\"},"
+                    + "{\"id\":6,\"name\":\"Sprint sin fechas\",\"state\":\"future\"}]}";
             case "/rest/agile/1.0/board/12/sprint" -> "{\"values\":[]}";
             case "/rest/api/3/project/JSIM/versions" -> "[{\"id\":\"700\",\"name\":\"0.9\",\"released\":true,\"releaseDate\":\"2026-10-30\"}]";
             case "/rest/api/3/issue/JSIM-2/comment" -> "{\"comments\":[{\"id\":\"9001\",\"author\":{\"emailAddress\":\"demo@example.local\","
                     + "\"displayName\":\"Demo\"},\"created\":\"2026-11-02T12:30:00.000-0300\",\"body\":" + adf("Empiezo por los sprints") + "}]}";
+            case "/rest/api/3/issue/JSIM-4/comment" -> "{\"comments\":[{\"id\":\"9002\",\"author\":{\"accountId\":\"acc-nadie@example.com\","
+                    + "\"emailAddress\":\"nadie@example.com\",\"displayName\":\"Nadie Pérez\"},\"created\":\"2026-11-03T09:00:00.000-0300\",\"body\":"
+                    + adf("Lo reproduzco siempre") + "}]}";
             default -> ruta.startsWith("/rest/api/3/issue/") && ruta.endsWith("/comment") ? "{\"comments\":[]}" : null;
         };
         if (cuerpo == null) {
@@ -103,9 +110,14 @@ public final class JiraSimulado implements AutoCloseable {
                 + "\"priority\":{\"name\":\"" + prioridad + "\"},\"labels\":[\"importada\"],"
                 + "\"description\":" + adf("Descripción de " + clave) + ","
                 + (padre == null ? "" : "\"parent\":{\"key\":\"" + padre + "\"},")
-                + (responsable == null ? "" : "\"assignee\":{\"emailAddress\":\"" + responsable + "\"},")
+                + (responsable == null ? "" : "\"assignee\":{\"accountId\":\"acc-" + responsable + "\",\"emailAddress\":\"" + responsable + "\",\"displayName\":\"" + nombre(responsable) + "\"},")
                 + "\"fixVersions\":" + ("JSIM-2".equals(clave) ? "[{\"id\":\"700\"}]" : "[]") + ","
                 + "\"sprint\":" + ("JSIM-2".equals(clave) || "JSIM-4".equals(clave) ? "{\"id\":5}" : "null") + "}}";
+    }
+
+    // Nombre visible de un correo de prueba (nadie@example.com es Nadie Pérez)
+    private static String nombre(String correo) {
+        return correo.startsWith("nadie") ? "Nadie Pérez" : "Demo";
     }
 
     private static String adf(String texto) {
