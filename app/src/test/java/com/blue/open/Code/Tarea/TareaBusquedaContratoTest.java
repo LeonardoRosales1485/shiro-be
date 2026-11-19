@@ -50,6 +50,19 @@ class TareaBusquedaContratoTest extends PruebaDeContrato {
     }
 
     @Test
+    void filtraPorTableroComoElFront() {
+        String enQa = escenario.crear(TareasDeSeed.TABLERO_QA, "TAREA", "Probar el tablero desde el front").get("clave").asString();
+        Map<String, Object> pedido = Map.of("pagina", 1, "tamano", 500, "filtros", List.of(List.of(
+                Map.of("campo", "tablero.uuid", "operacion", "=", "valor", TareasDeSeed.TABLERO_QA))),
+                "ordenes", List.of(Map.of("campo", "numero", "direccion", "asc")));
+
+        List<String> claves = claves(como(ADMIN).post("/tarea/paginar").json(pedido).ejecutar().esperar(200).json().get("contenido"));
+
+        assertTrue(claves.contains(enQa));
+        assertFalse(claves.contains(TareasDeSeed.SHI_1_CLAVE));
+    }
+
+    @Test
     void respetaLosPermisos() {
         String sinPermisos = authJwtService.jwtFirmado(new EscenarioDeUsuario(this::como).crearUuid("buscador"));
 
