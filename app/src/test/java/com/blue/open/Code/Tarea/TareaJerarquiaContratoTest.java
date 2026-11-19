@@ -85,6 +85,7 @@ class TareaJerarquiaContratoTest extends PruebaDeContrato {
 
         Map<String, Object> edicion = EscenarioDeTarea.rapida(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Historia");
         edicion.put("uuid", historia.get("uuid").asString());
+        edicion.put("fechaDeActualizacion", historia.get("fechaDeActualizacion").asString());
 
         guardar(edicion).esperarError(400, "JERARQUIA_DE_TAREA_INVALIDA");
     }

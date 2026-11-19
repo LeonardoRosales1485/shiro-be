@@ -34,6 +34,7 @@ class TareaHistorialContratoTest extends PruebaDeContrato {
         Map<String, Object> edicion = EscenarioDeTarea.rapida(TareasDeSeed.TABLERO_PRINCIPAL, "TAREA", "Definitivo");
         edicion.put("uuid", uuid);
         edicion.put("prioridad", "ALTA");
+        edicion.put("fechaDeActualizacion", tarea.get("fechaDeActualizacion").asString());
         como(ADMIN).post("/tarea/guardar").json(edicion).ejecutar().esperar(200);
         como(ADMIN).post("/tarea/{uuid}/mover", uuid).json(Map.of("estadoUuid", EN_CURSO)).ejecutar().esperar(200);
 

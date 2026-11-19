@@ -100,6 +100,7 @@ class TareaGuardarContratoTest extends PruebaDeContrato {
 
         Map<String, Object> edicion = conEtiquetas(rapida(TareasDeSeed.TABLERO_PRINCIPAL, "BUG", "Definitivo"), "b", "c");
         edicion.put("uuid", creada.get("uuid").asString());
+        edicion.put("fechaDeActualizacion", creada.get("fechaDeActualizacion").asString());
         edicion.put("prioridad", "BAJA");
         JsonNode editada = guardar(ADMIN, edicion).esperar(200).json();
 
@@ -115,6 +116,8 @@ class TareaGuardarContratoTest extends PruebaDeContrato {
     void elTableroNoSeCambia() {
         Map<String, Object> edicion = rapida(TareasDeSeed.TABLERO_QA, "TAREA", "Mover de tablero");
         edicion.put("uuid", TareasDeSeed.SHI_1);
+        edicion.put("fechaDeActualizacion", como(ADMIN).get("/tarea/uuid/{uuid}", TareasDeSeed.SHI_1).ejecutar()
+                .esperar(200).json().get("fechaDeActualizacion").asString());
 
         JsonNode error = guardar(ADMIN, edicion).esperarError(400, "TABLERO_DE_TAREA_NO_SE_CAMBIA").json();
 
