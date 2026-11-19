@@ -6,6 +6,7 @@ import com.blue.open.Code.Sprint.CasosDeUso.SprintCerrarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintCierreUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintIniciarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintQuitarUseCase;
+import com.blue.open.Code.Sprint.CasosDeUso.SprintRestaurarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -44,6 +45,8 @@ public class SprintController {
     private final SprintArchivarUseCase archivarUseCase;
 
     private final SprintCierreUseCase cierreUseCase;
+
+    private final SprintRestaurarUseCase restaurarUseCase;
 
     // Obtiene un sprint. Responde el SprintDTO
     @GetMapping("/uuid/{uuid}")
@@ -113,5 +116,12 @@ public class SprintController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintCierreResponseDTO> cierre(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(cierreUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Restaura un sprint archivado. Responde el sprint restaurado
+    @PostMapping("/{uuid}/restaurar")
+    @Contrato(casoDeUso = "CU-SPR-10", resumen = "Restaura un sprint archivado con el estado que tenía (exige EDITAR)", permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<SprintDTO> restaurar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

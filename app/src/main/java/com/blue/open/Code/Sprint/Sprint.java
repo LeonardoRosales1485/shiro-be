@@ -83,6 +83,15 @@ public class Sprint extends EntidadConBorradoLogico {
     }
 
     /*
+     * Restaura el sprint archivado (status 0) y limpia los datos de borrado y la operacion. Invariante: solo se
+     * restaura uno archivado; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void restaurar() {
+        ArchivadoDeEntidad.restaurar(this, "Sprint " + getUuid());
+        this.idOperacionArchivo = null;
+    }
+
+    /*
      * Archiva la entidad (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
      * Invariante: solo se archiva una vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
      */
