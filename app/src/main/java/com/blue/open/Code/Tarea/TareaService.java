@@ -73,15 +73,24 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     }
 
     // El listado trae solo las tareas de los tableros que el usuario ve. Con el parametro "texto" es la busqueda:
-    // texto en español sobre clave, titulo y descripcion, o la clave exacta (T5.4)
+    // texto en español sobre clave, titulo y descripcion, o la clave exacta (T5.4). Con "version" (uuid) deja las
+    // asignadas a esa version y con "etiqueta" las que la tienen, sin distinguir mayusculas (T6.4)
     @Override
     protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
         permisos.restringirATablerosVisibles(pedido, "t.tablero.id");
-        ParametroDePaginado texto = pedido.getParametroPorNombre("texto");
-        if (texto != null && texto.getValor() != null && !texto.getValor().isBlank()) {
-            List<Long> ids = tareaRepository.idsPorTexto(texto.getValor().trim());
+        String texto = valorDe(pedido, "texto");
+        if (texto != null) {
+            List<Long> ids = tareaRepository.idsPorTexto(texto);
             pedido.agregarCondicion("t.id IN :idsDeBusqueda", Map.of("idsDeBusqueda", ids.isEmpty() ? List.of(-1L) : ids));
         }
+        String version = valorDe(pedido, "version");
+        if (version != null)
+            pedido.agregarCondicion("EXISTS (SELECT 1 FROM TareaVersion tv WHERE tv.tarea = t AND tv.status = 0 "
+                    + "AND tv.version.uuid = :versionBuscada)", Map.of("versionBuscada", version));
+        String etiqueta = valorDe(pedido, "etiqueta");
+        if (etiqueta != null)
+            pedido.agregarCondicion("EXISTS (SELECT 1 FROM TareaEtiqueta te WHERE te.tarea = t AND te.status = 0 "
+                    + "AND LOWER(te.texto) = LOWER(:etiquetaBuscada))", Map.of("etiquetaBuscada", etiqueta));
         return super.hookPaginarAntesDeConsultar(pedido);
     }
 
@@ -272,6 +281,12 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         if (mayuscula)
             articulo = Character.toUpperCase(articulo.charAt(0)) + articulo.substring(1);
         return articulo + " " + tipo.getNombre();
+    }
+
+    // Valor de un parametro del pedido sin espacios en los extremos, o null si no vino o esta vacio
+    private static String valorDe(PedidoDePaginado pedido, String nombre) {
+        ParametroDePaginado parametro = pedido.getParametroPorNombre(nombre);
+        return parametro == null || parametro.getValor() == null || parametro.getValor().isBlank() ? null : parametro.getValor().trim();
     }
 
     // Textos de las etiquetas del DTO, sin espacios en los extremos y sin repetir, en el orden recibido
