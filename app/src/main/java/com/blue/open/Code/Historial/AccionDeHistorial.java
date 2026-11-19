@@ -12,5 +12,6 @@ public enum AccionDeHistorial {
     RESTAURAR,
     COMENTAR,
     RELACIONAR,
-    CLONAR
+    CLONAR,
+    ORDENAR_BACKLOG
 }

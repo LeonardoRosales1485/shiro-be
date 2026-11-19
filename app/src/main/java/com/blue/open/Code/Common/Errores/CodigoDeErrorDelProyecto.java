@@ -64,6 +64,8 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     GRUPO_REPETIDO(HttpStatus.BAD_REQUEST, "Ya hay un grupo con ese nombre."),
     @Descripcion("Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva")
     GRUPO_DEL_SISTEMA(HttpStatus.BAD_REQUEST, "Los grupos del sistema no se archivan."),
+    @Descripcion("Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea)")
+    TAREA_FUERA_DEL_BACKLOG(HttpStatus.BAD_REQUEST, "Una de las tareas no está en el backlog del proyecto."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

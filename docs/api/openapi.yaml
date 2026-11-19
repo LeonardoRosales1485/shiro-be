@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.24"
+  version: "1.0.25"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -62,6 +62,7 @@ info:
     | `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |
     | `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |
     | `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |
+    | `TAREA_FUERA_DEL_BACKLOG` | 400 | Una de las tareas no está en el backlog del proyecto. | Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea) |
     | `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |
     | `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |
     | `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |
@@ -76,6 +77,7 @@ servers:
 - url: "/api"
 tags:
 - name: "AccessToken"
+- name: "Backlog"
 - name: "Comentario"
 - name: "Configuracion"
 - name: "JwtLogin"
@@ -89,6 +91,409 @@ tags:
 - name: "TipoTarea"
 - name: "Usuario"
 paths:
+  /backlog/ordenar:
+    post:
+      tags:
+      - "Backlog"
+      operationId: "BacklogController.ordenar"
+      summary: "Ordena el backlog de un proyecto (un único orden para todos)"
+      description: |-
+        **Caso de uso:** CU-BKL-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-BKL-02"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TareaOrdenarBacklogRequestDTO"
+            examples:
+              sin-editar-el-proyecto-no-se-ordena:
+                summary: "Sin editar el proyecto no se ordena (CLIENTE)"
+                value:
+                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                  tareas:
+                  - "b3000000-0000-4000-8000-000000000001"
+              el-orden-se-conserva-entre-usuarios:
+                summary: "El orden se conserva entre usuarios (ADMIN)"
+                value:
+                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                  tareas:
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+              una-tarea-de-otro-proyecto-no-se-ordena:
+                summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
+                value:
+                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                  tareas:
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TareaDeBacklogDTO"
+              examples:
+                el-orden-se-conserva-entre-usuarios:
+                  summary: "El orden se conserva entre usuarios (ADMIN)"
+                  value:
+                  - clave: "SHI-4"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+        "400":
+          description: "Errores: `TAREA_FUERA_DEL_BACKLOG`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-tarea-de-otro-proyecto-no-se-ordena:
+                  summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
+                  value:
+                    codigo: "TAREA_FUERA_DEL_BACKLOG"
+                    datos:
+                      tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una de las tareas no está en el backlog del proyecto."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-editar-el-proyecto-no-se-ordena:
+                  summary: "Sin editar el proyecto no se ordena (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el proyecto."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /backlog/proyecto/{uuid}:
+    get:
+      tags:
+      - "Backlog"
+      operationId: "BacklogController.backlog"
+      summary: "Backlog de un proyecto: tareas sin sprint de todos los tableros, en su orden único"
+      description: |-
+        **Caso de uso:** CU-BKL-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-BKL-01"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del proyecto"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TareaDeBacklogDTO"
+              examples:
+                el-orden-se-conserva-entre-usuarios:
+                  summary: "El orden se conserva entre usuarios (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por probar"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tipoCodigo: "BUG"
+                    titulo: "Segunda del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                el-orden-se-conserva-entre-usuarios-2:
+                  summary: "El orden se conserva entre usuarios (2) (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por probar"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tipoCodigo: "BUG"
+                    titulo: "Segunda del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                el-orden-se-conserva-entre-usuarios-3:
+                  summary: "El orden se conserva entre usuarios (3) (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por probar"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tipoCodigo: "BUG"
+                    titulo: "Segunda del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                el-orden-se-conserva-entre-usuarios-4:
+                  summary: "El orden se conserva entre usuarios (4) (ADMIN)"
+                  value:
+                  - clave: "SHI-4"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                el-orden-se-conserva-entre-usuarios-5:
+                  summary: "El orden se conserva entre usuarios (5) (CLIENTE)"
+                  value:
+                  - clave: "SHI-4"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                sin-epicas-ni-subtareas:
+                  summary: "Sin epicas ni subtareas (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Historia en el backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                proyecto-inexistente:
+                  summary: "Proyecto inexistente (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
   /comentario/guardar:
     post:
       tags:
@@ -4757,7 +5162,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 0"
+                      titulo: "Alta concurrente 35"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -4782,7 +5187,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 25"
+                      titulo: "Alta concurrente 39"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -7595,23 +8000,23 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjQ2NDB9.MF2Gzmu9gP7GQrQRCvohE8ug_rzd6jq_KxvA3r-C0ahfpLvF0I9WsZnh6PHw9w1sRizw2wURFR-dOK_fiEEHO_A_H3ENVQXKKbirpd2QlztwLKWJJ8QoLR3m45FkMen9pa9zXAvn7M5QB5vqdpEBKGL5pX73LRV8C6HEwz_ApfAKCfKZ4yLjLs8ZyZKMC6bfnWU4yHIJ849yMu5u40K7gKLjnWhc4p8nfyDSoxBvWh73wThWU8kFixGjh-uT9s6LllehsIqx3w5AIb4TU9Hb3Fiz6MamMLzt-JLtat7fqmxq1RQ8uSnQvdgcnOsxYl1oJF5IlofYrmfSmxDZnFHw2A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjQ5NTZ9.Z1YdXUXNAVHrJojYjbFGWedHWrSSDLb5yynoDnVqnMo_-zYyjAWeTrKwzIAwIoHQB--9zVzIidysvyBdpMt4SL4JJlKAGkuA-N7Fyi_agfztLlPO84AWigrG8QHrHFPFNL_P8CHN41z1Og3fJ7rIlBrmjL_ejMC2Dr-_iXakbNobFAlvkwVXU3gG6LqmuUbdJ8DWMlGFmz5BBLqOQEyMlcRZVtRMkH-YJ2-a81boNfMF238PmCuMH2baijaP_bVSh7ouwU1GvmqhlDfroaHipOlJ9JiiJGbJyvtnWezWW5hs0X5gQD47mm1VFNhhD3U__BL32xui8GV09Ohf1xEL4Q"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY0NjQwfQ.currHrTU1NSMBTvG_pzWS486tHES0GfSQCINYv32IE_0tabrJ_uigtMaOXat6tp2igsXUlpX-7JoqNXgOiQYuoSEM3PkjU_uhUPCXQL8umjsajP4LqHM3ULsSunFaZK-jUapAqkBweqKUk2KIgieNLThG43hSV0gaFb-Mpox0wvcFeo2HaRbdAoJMxkn_0SYIraa2zr6vPmte3TGAAw0JtetYiVMKIqQNj_lGZZaFIPYVSr_o5OPMHDBjjIAiihmjfQ3ajbM-D17pA-iY0NQiN7nkOJgkmflwiKG5HknhAToaJQrFBEx9fgdn7ddZoBPJKuHluk0YE6Jqpar-574MA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY0OTU2fQ.bs5Q8ovDho1kkb8b5JgC8KdMDeWIWBzLRea5T2O9d1Av8TiD7IfVTDKjaz7W8KigsV-1Lgz4_i_5Htp0Hzz56qxzm03Q2Pbaqn1nkoT-3QFOpCwXE6TUVSUw9X_kn-E7RXYIjNArtHzu9LOZZOzklfZDLifnuB0hRmcm0mCUNHJQtjrL7ZPrlKk7Sdqc5xYqGUma0ppeQGYEC5s-T9obZZLmJZqwS5kGd_k_PJMMLSGa4-Mst9xLEUthFAX37ZvkQYrMsftwYckTQkA7iQ0PmDEP2QPKTEeWAbBpMbzn7yOf5BzLHN5jFjqPG_KKmqCDk34wixroL9z6eYPkZxSfXQ"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY0NjQwfQ.KtnHRIZGLUYxESGchM1smNmKY0gZV6n1BdFeDA2AuyL-BWGzhGj_5YpFohPMXI1rgW7TWP58BxXuKHIjOT4PYlE3Z0kPRuMtu2k9rYdeOI01HYFsV7roGbPuTVxtYKmSM-t0YhtxrhnG2rjdEPiiZA0GoSyxRjsTWxk66kaJGXuSfFPXSoeMd6vn9KCZ1wVceERmvqAdgMeEGXrH4nWKADrhTQK5Mu_DTiUssDL3Q6TM9gcBypgFSmiLj8cf-TlcsaLY9aOg2EQCFQF-zLUT4PV_W-R9VqXHwBGG1V55MZwXfYVc276ptpMdX2JYpQr9g0sMbqPtQpE9lzIWvHm9qA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY0OTU3fQ.a5KVjU7DDQGzgWwPJym08qQgcH8C-7FQVtAjliie9T_Kmn9pO1Hwmzpa3mnro3gd-pLcFJ0bw5BM0FNmQVyNO17ZRqh_ITIJEH-OrdZFi9sseI8saU0oaugwsYV79AhQsNFINMXpGStfK67yhFLVVzuDF3eu6GTk5632bRMiz_Ri0z9bOsWJsRGsjrKpz_xG3KR4HCyInXdNXSkzbuAeCFNkCPkz2DLe0sg7wbhguTCF1ZyjuXTukhcmlJogmsH28KSz5tcmvXz-0N3Bz_BheJwpR5xZum3jlfoowBKcq30CL_X6SJU70cIVhEXQlMnz6Rqq0KCosp2jOqr4uH9Sxg"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjQ2NDB9.rew8AXtVl1AQGF9CMdxER6VlVNAuWvqqNZKfmI1etbw45aUgph3QukWjJ23_TAjw_5jusserEJk2Su_C7PlEcV5UpUz9Okm76Mav_rAjDP2JNXRWXIIMSJIn6TpSH8VOWRq7lasM3i3gSJeB6SHCWlHsegd4u3_t7d8_uR4mhunYmiOv4o7qtg03XZkyHeXdfcBkUln684zvY8tvWDX6cocjaINxIBwgAZk44S2LSGjg2qm90OwgEv8u6S1pqiUh-z28EsYH172KVfdrxVXUyVu54UWfhq-3vLOqJzkmhnO-2XUOziYnDLkjaUnyt_4MKCSM_D7xMYSukX9Auqg9yA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjQ5NTd9.SqlK-DDdfoYCdYkgp5N3qz0KUG5voK9mp1WLfug7K3Z1jJckSP6zOBXyW5H1NM41b6g6Ou8Qry_1KLQXd7yXEtUR92metHuoefd9a0N8LbYpXQJqNS3RUX1JMAUw3rcR9CibNLbU5iDKd1LARjP-BUosKGwfDCcca_UBYzyWoZjXhVFkK3xDgSGsGbOQt9eA2lvL50bDjb9WXvpQ-uD0fk9pfDI-hFImfJM3WWATOZlJeWsZHkuEVD_a7z6IULUY5maVsh0KhfmLKHodANcZOp7-o9y9akf67pGO9r21lPtBen1_6TobUM8QEEOpMy9cZZcaXPSzRrwnckImK3scHQ"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjQ2NDB9.quDPTRSZoff8IDjcL4Y484u_2IrFXhzvaxMmeEp0YXqr2U9hgA6hdrNMs7obI0EHFlH1-Xf0xk-7-jOtN-8WdAjh9V3rAr2ZIGNgzdmTYKhOENZfiIjB-3eSbKZN_BV0zqHdB4mZZGPhzswYKvc2spbSWwy-c_4sgjIOsi1L6NyzjvCz7NpNkAO19hYz3B6U823iJXvKgAwLcvtkRnu48p__B2WQA1u0AExfCUGl7jsogHZ7xiwPJ2JLDPiiBsKn_9nw3RbKjcSLo_oNW_uKCyJOeV6nF9lBhmPfkplcEoLrR5ThrgKTMEDqFJNhCUKe7mR92dIHebh7f6qJ7NcWpA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjQ5NTd9.Y1_iKEgbwX2SG99rxZNJVNl2KvnhYUVP4MQVkbjKA6wcpO2qYtE8hftYqc16wBh2TLkOmnw9GMBjt2kQExetuPpvT4yM7KlRLhC1OCnNHJzGPw8pqcjv4yO1njpRvnCpD6Y3Luk4cDT4Pe1aa8s9b36tjs9gTh4Koj3rRLqXActh4OpFdxFLOw8KSyW7Qk5SgqkD2sMBjEFfpkRM9q-9qE6aCJBOiUYqWncjN4gC0VsROAb-Zc8t-I4iTbwDCEfPMC1MepSsxtlmAdWfxOVeE17CSK2493Q262O8BaCvVnxa9YrVu7lB2_SXf1egJUCSURR4MTnoNKTyLnUS3Zszcg"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -8858,6 +9263,7 @@ components:
       - "COMENTAR"
       - "RELACIONAR"
       - "CLONAR"
+      - "ORDENAR_BACKLOG"
     AccionDeHistorial-nullable:
       anyOf:
       - type: "null"
@@ -10005,6 +10411,63 @@ components:
       - "tipoCodigo"
       - "titulo"
       additionalProperties: false
+    TareaDeBacklogDTO:
+      type: "object"
+      properties:
+        clave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la tarea"
+        estadoNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del estado actual"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        prioridad:
+          $ref: "#/components/schemas/PrioridadDeTarea-nullable"
+          description: "Prioridad de la tarea"
+        puntos:
+          type:
+          - "integer"
+          - "null"
+          description: "Estimación en puntos. Vacía si no está estimada"
+        responsableNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del responsable. Vacío si no está asignada"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tableroCodigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código del tablero: PRINCIPAL, QA, ANALISIS o DISENO"
+        tipoCodigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código del tipo: HISTORIA, TAREA o BUG"
+        titulo:
+          type:
+          - "string"
+          - "null"
+          description: "Título de la tarea"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     TareaEtiquetaDTO:
       type: "object"
       properties:
@@ -10094,6 +10557,38 @@ components:
           description: "Identificador público del registro. El id interno nunca se expone"
       required:
       - "estadoUuid"
+      additionalProperties: false
+    TareaOrdenarBacklogRequestDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        proyectoUuid:
+          type: "string"
+          description: "Uuid del proyecto"
+          minLength: 1
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tareas:
+          description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
+          type: "array"
+          items:
+            type: "string"
+            description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "proyectoUuid"
+      - "tareas"
       additionalProperties: false
     TareaRelacionDTO:
       type: "object"
@@ -10609,6 +11104,11 @@ x-catalogo-de-errores:
   status: 400
   mensajePorDefecto: "Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala."
   cuando: "Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "TAREA_FUERA_DEL_BACKLOG"
+  status: 400
+  mensajePorDefecto: "Una de las tareas no está en el backlog del proyecto."
+  cuando: "Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea)"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "TAREA_MODIFICADA"
   status: 409

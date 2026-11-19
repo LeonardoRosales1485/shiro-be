@@ -60,6 +60,11 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Restaurar (`POST /tarea/{uuid}/restaurar`): vuelve lo que se archivó en esa misma operación; lo archivado antes por separado queda archivado. Si el padre sigue archivado responde `PADRE_ARCHIVADO` ("Restaurá primero SHI-12."). Restaurar es una operación nueva y deja filas `RESTAURAR`.
 - Nada se borra: no hay `/borrar`. Todas las tablas `shr_` tienen `id_operacion_archivo`.
 
+## Backlog
+
+- `GET /backlog/proyecto/{uuid}` (exige `VER` en el proyecto): las tareas vigentes del proyecto de todos los tableros, sin épicas ni subtareas (y sin sprint, desde T5.2), en un único orden, el mismo para todos. Las que nadie ordenó todavía van al final, por número.
+- `POST /backlog/ordenar` (exige `EDITAR` en el proyecto): las tareas recibidas van primero, en ese orden; las demás quedan después en su orden anterior. Una tarea que no está en el backlog responde `TAREA_FUERA_DEL_BACKLOG`. Deja una fila `ORDENAR_BACKLOG` en el historial del proyecto.
+
 ## Comentarios (`Comentario`)
 
 - ABM de `/comentario` sin borrar. El listado de una tarea es `POST /comentario/paginar` filtrado por `tareaUuid`.

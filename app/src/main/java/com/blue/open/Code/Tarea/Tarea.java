@@ -104,6 +104,10 @@ public class Tarea extends EntidadConBorradoLogico {
     @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY)
     private List<Tarea> hijas = new ArrayList<>();
 
+    // Posicion en el backlog del proyecto (un unico orden para todos); null hasta que alguien lo ordena: va al
+    // final, por numero. Lo cambia el caso de uso de ordenar el backlog
+    private Long ordenBacklog;
+
     // Operacion de archivo que archivo la tarea (shr_operacion_archivo); null si esta vigente. Solo la cambian
     // archivar y restaurar
     @Setter(AccessLevel.NONE)
