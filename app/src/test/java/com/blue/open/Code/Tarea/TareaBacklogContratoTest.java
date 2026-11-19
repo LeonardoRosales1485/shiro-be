@@ -11,10 +11,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-BKL-01 y CU-BKL-02: backlog del proyecto (GET /backlog/proyecto/{uuid}) y su orden (POST /backlog/ordenar).
- * T5.1 del plan y seccion 4 del DAF: el backlog tiene las tareas sin sprint de todos los tableros (sin epicas ni
+ * T5.1 del plan y seccion 4 del DAF: el backlog tiene las tareas sin sprint de todos los tableros (todos los tipos: epicas, historias, tareas, bugs y subtareas, resolucion B21 del 19/11; antes sin epicas ni
  * subtareas) con un unico orden, el mismo para todos. Leer exige VER en el proyecto y ordenar, EDITAR.
  */
 class TareaBacklogContratoTest extends PruebaDeContrato {
@@ -40,18 +41,18 @@ class TareaBacklogContratoTest extends PruebaDeContrato {
     }
 
     @Test
-    void sinEpicasNiSubtareas() {
-        JsonNode epica = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "EPICA", "Épica fuera del backlog");
+    void tieneTodosLosTipos() {
+        JsonNode epica = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "EPICA", "Épica en el backlog");
         JsonNode historia = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia en el backlog",
                 epica.get("uuid").asString());
-        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea fuera",
+        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea en el backlog",
                 historia.get("uuid").asString());
 
         List<String> claves = claves(backlog(ADMIN));
 
-        assertFalse(claves.contains(clave(epica)));
-        assertFalse(claves.contains(clave(subtarea)));
-        assertEquals(true, claves.contains(clave(historia)));
+        assertTrue(claves.contains(clave(epica)));
+        assertTrue(claves.contains(clave(subtarea)));
+        assertTrue(claves.contains(clave(historia)));
     }
 
     @Test

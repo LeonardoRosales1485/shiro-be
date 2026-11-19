@@ -104,13 +104,40 @@ class TareaClonarContratoTest extends PruebaDeContrato {
     }
 
     @Test
-    void elClonDeUnaSubtareaConservaElPadre() {
-        JsonNode historia = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia");
-        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea", uuid(historia));
+    void elClonDeUnaSubtareaPideSuDestino() {
+        JsonNode subtarea = subtareaDeUnaHistoria();
 
-        JsonNode clon = clonar(uuid(subtarea), TareasDeSeed.TABLERO_QA, null).esperar(200).json();
+        clonarSubtarea(uuid(subtarea), null, null).esperarError(400, "CLON_DE_SUBTAREA_SIN_DESTINO");
+        clonarSubtarea(uuid(subtarea), "TAREA", uuid(subtarea)).esperarError(400, "CLON_DE_SUBTAREA_SIN_DESTINO");
+    }
 
-        assertEquals(historia.get("clave").asString(), clon.get("padreClave").asString());
+    @Test
+    void elClonDeUnaSubtareaPuedeSerUnaTareaPropia() {
+        JsonNode subtarea = subtareaDeUnaHistoria();
+
+        JsonNode clon = clonarSubtarea(uuid(subtarea), "BUG", null).esperar(200).json();
+
+        assertEquals("BUG", clon.get("tipoCodigo").asString());
+        assertTrue(clon.get("padreUuid").isNull());
+    }
+
+    @Test
+    void elClonDeUnaSubtareaPuedeColgarDeOtraTarea() {
+        JsonNode subtarea = subtareaDeUnaHistoria();
+        JsonNode otra = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "TAREA", "Otra tarea");
+
+        JsonNode clon = clonarSubtarea(uuid(subtarea), null, uuid(otra)).esperar(200).json();
+
+        assertEquals("SUBTAREA", clon.get("tipoCodigo").asString());
+        assertEquals(otra.get("clave").asString(), clon.get("padreClave").asString());
+    }
+
+    @Test
+    void comoTareaPropiaSoloHistoriaTareaOBug() {
+        JsonNode subtarea = subtareaDeUnaHistoria();
+
+        clonarSubtarea(uuid(subtarea), "EPICA", null).esperarError(400, "TIPO_DE_CLON_INVALIDO");
+        clonarSubtarea(uuid(subtarea), "SUBTAREA", null).esperarError(400, "TIPO_DE_CLON_INVALIDO");
     }
 
     @Test
@@ -162,6 +189,21 @@ class TareaClonarContratoTest extends PruebaDeContrato {
     }
 
     // POST /tarea/{uuid}/clonar como Administrador; copiar null usa la seleccion por defecto
+    // Subtarea nueva, hija de una historia nueva, en el tablero principal
+    private JsonNode subtareaDeUnaHistoria() {
+        JsonNode historia = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia");
+        return escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea", uuid(historia));
+    }
+
+    // Clona una subtarea al tablero QA como tarea propia (tipo) o como subtarea de otra tarea (padre)
+    private Respuesta clonarSubtarea(String uuid, String tipoCodigo, String padreUuid) {
+        Map<String, Object> cuerpo = new HashMap<>();
+        cuerpo.put("tableroUuid", TareasDeSeed.TABLERO_QA);
+        cuerpo.put("tipoCodigo", tipoCodigo);
+        cuerpo.put("padreUuid", padreUuid);
+        return como(ADMIN).post("/tarea/{uuid}/clonar", uuid).json(cuerpo).ejecutar();
+    }
+
     private Respuesta clonar(String uuid, String tableroUuid, List<String> copiar) {
         Map<String, Object> cuerpo = new HashMap<>();
         cuerpo.put("tableroUuid", tableroUuid);
