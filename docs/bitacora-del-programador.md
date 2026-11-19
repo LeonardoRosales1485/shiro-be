@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F1 terminada, falta la aprobación del arquitecto.** T1.1 a T1.10 cerradas (versión 1.0.15). Ver «Cierre de F1» más abajo. Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F2 en curso.** F1 aprobada con la adenda 4 (versión 1.0.16). Sigue T2.1 (tokens con hash). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Cierre de F1
 
@@ -37,6 +37,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | Adenda 4 | Adenda 4 del DAF con lo que propuse en F1 y el arquitecto resolvió. Ajustes: una Subtarea tiene siempre padre (alta, edición, cambio de tipo) y el clon de una Subtarea conserva su padre (excepción derivada, a confirmar); relaciones solo dentro del proyecto (RELACION_ENTRE_PROYECTOS); POST /proyecto/{uuid}/archivar y /restaurar (SYSADMIN y ADMIN) con todo lo que contiene el proyecto (tableros, tareas, comentarios y relaciones) en la misma operación, con un UPDATE por tabla; restaurar devuelve solo lo de esa operación | ab52703 (rojo) y verde en el commit siguiente. ./mvnw verify: 326 pruebas, 0 fallas, 14 omitidas; cobertura 95,0%. Versión 1.0.16 |
 | 18/11/2026 | T1.10 | POST /tarea/{uuid}/clonar con tablero de destino (del mismo proyecto: TABLERO_DE_OTRO_PROYECTO) y lista copiar (por defecto descripción, prioridad y etiquetas). El clon se crea con TareaService.guardar (clave, estado inicial, historial CREAR); comentarios copiados con autor, fecha y canal originales; subtareas clonadas con la misma selección como hijas del clon, en todos los niveles. Relación CLONA con VinculadorDeTareas (el clon muestra el estado del original y viceversa) y fila CLONAR en el clon. VERSIONES se acepta y copia desde F5. Decisión propia: el clon no hereda el padre del original y las subtareas se clonan en todos los niveles | c42c6d0 (rojo) y verde en el commit siguiente. ./mvnw verify: 318 pruebas, 0 fallas, 14 omitidas; cobertura 95,1%. Versión 1.0.15 |
 | 18/11/2026 | T1.9 | shr_relacion y shr_comentario. Comentarios: ABM de /comentario sin borrar; autor = sesión, canal del request, fecha propia (los copiados conservan la original); solo el autor edita (SIN_PERMISO); fila COMENTAR en el historial. Relaciones: POST /relacion/crear (BLOQUEA, RELACIONA, DUPLICA; CLONA solo al clonar), POST /relacion/{uuid}/archivar y GET /tarea/{uuid}/relaciones con el sentido de cada tarea y el estado de la otra (proyección con CASE). VinculadorDeTareas crea la relación y su fila RELACIONAR en las dos tareas; lo reutiliza clonar. Decisiones propias: la ruta es /relacion/crear (la spec decía guardar, pero una relación no se edita), se permiten relaciones entre proyectos y solo el autor edita un comentario | 81158db (rojo) y verde en el commit siguiente. ./mvnw verify: 310 pruebas, 0 fallas, 14 omitidas; cobertura 94,7%. Versión 1.0.14 |
 | 18/11/2026 | T1.8 | shr_operacion_archivo (ARCHIVAR/RESTAURAR, entidad raíz) e id_operacion_archivo en todas las tablas shr_ con status; FK del historial a su operación. POST /tarea/{uuid}/archivar: la tarea y sus hijas vigentes en todos los niveles (una consulta por nivel) con la misma operación y fila ARCHIVAR cada una. POST /tarea/{uuid}/restaurar: vuelve solo lo de esa operación; con el padre archivado responde PADRE_ARCHIVADO («Restaurá primero SHI-n.»). Tarea.archivar/restaurar con tests unitarios (el Core no permite volver de -1 a 0). Queda pendiente archivar y restaurar proyectos: la spec los lista pero no define la cascada (ver pendientes) | dfb1d9a (rojo) y verde en el commit siguiente. ./mvnw verify: 285 pruebas, 0 fallas, 11 omitidas; cobertura 93,6%. Versión 1.0.13 |
@@ -60,6 +61,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Decisión | Quién la aprobó |
 | --- | --- | --- |
+| 19/11/2026 | F1 aprobada. Adenda 4 del DAF: archivar un proyecto arrastra todo; Subtarea siempre con padre; padre en cualquier tablero del proyecto; relaciones solo dentro del proyecto; cada autor edita solo sus comentarios; /relacion/crear; rutas /{uuid}/{caso}; el clon no hereda el padre y clona subtareas en todos los niveles | Arquitecto |
 | 18/11/2026 | La bitácora pasa a `shiro-be/docs/bitacora-del-programador.md`. Seguir sin esperar aprobación hasta T1.10; detenerse solo ante un bloqueo fuerte para las tareas siguientes | Arquitecto |
 | 18/11/2026 | Vencimiento de la tarea como fecha sin hora (`LocalDate`, `aaaa-mm-dd`) | Arquitecto |
 | 18/11/2026 | Autorización vigente para usar Claude Docs (leer y editar DAF, spec, plan y bitácora) sin pedir confirmación en cada caso | Arquitecto |
@@ -73,7 +75,7 @@ Para decidir antes o durante F2:
 
 ## Pendientes y bloqueos
 
-- [ ] Archivar y restaurar proyectos (Spec 3 los lista; plan F1 no los verifica). Definir con el arquitecto qué arrastra archivar un proyecto: ¿sus tareas con la misma operación, o solo el proyecto (que deja de verse con todo lo suyo)? Se implementa cuando se decida, con el permiso ARCHIVAR de F2
+- [x] Archivar y restaurar proyectos: resuelto en la adenda 4 (arrastra todo) e implementado (Spec 3 los lista; plan F1 no los verifica). Definir con el arquitecto qué arrastra archivar un proyecto: ¿sus tareas con la misma operación, o solo el proyecto (que deja de verse con todo lo suyo)? Se implementa cuando se decida, con el permiso ARCHIVAR de F2
 - [ ] Protección de la rama `develop` con los checks de T0.6 (la configura el arquitecto en GitHub)
 - [ ] Credenciales de un proyecto de Jira de prueba (F4)
 - [ ] Client id de Google (F2)

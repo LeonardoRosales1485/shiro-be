@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.15</title>
+    <title>API de Open Data 1.0.16</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,8 +1868,8 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.15",
-    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
+    "version" : "1.0.16",
+    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
   },
   "servers" : [ {
     "url" : "/api"
@@ -4032,6 +4032,261 @@
         }
       }
     },
+    "/proyecto/{uuid}/archivar" : {
+      "post" : {
+        "tags" : [ "Proyecto" ],
+        "operationId" : "ProyectoController.archivar",
+        "summary" : "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones",
+        "description" : "**Caso de uso:** CU-PRY-04\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-PRY-04",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid del proyecto",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProyectoDTO"
+                },
+                "examples" : {
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Archivable",
+                      "prefijo" : "ARV",
+                      "status" : -1,
+                      "tableros" : [ ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `REGISTRO_NO_ENCONTRADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "un-proyecto-vigente-no-se-restaura-y-uno-archivado-no-se-archiva-dos-veces" : {
+                    "summary" : "Un proyecto vigente no se restaura y uno archivado no se archiva dos veces (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/proyecto/{uuid}/restaurar" : {
+      "post" : {
+        "tags" : [ "Proyecto" ],
+        "operationId" : "ProyectoController.restaurar",
+        "summary" : "Restaura un proyecto archivado con lo que se archivó junto con él",
+        "description" : "**Caso de uso:** CU-PRY-05\n\n**Permiso:** `SYSADMIN, ADMIN`",
+        "x-caso-de-uso" : "CU-PRY-05",
+        "x-permiso" : "SYSADMIN, ADMIN",
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "uuid",
+          "in" : "path",
+          "required" : true,
+          "description" : "Uuid del proyecto",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProyectoDTO"
+                },
+                "examples" : {
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                    "value" : {
+                      "descripcion" : null,
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombre" : "Archivable",
+                      "prefijo" : "ARV",
+                      "status" : 0,
+                      "tableros" : [ {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "PRINCIPAL",
+                        "tipoTableroNombre" : "Principal",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000001",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "QA",
+                        "tipoTableroNombre" : "QA",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000002",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      }, {
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoTableroCodigo" : "ANALISIS",
+                        "tipoTableroNombre" : "Análisis",
+                        "tipoTableroUuid" : "a1000000-0000-4000-8000-000000000003",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      } ],
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `REGISTRO_NO_ENCONTRADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "un-proyecto-vigente-no-se-restaura-y-uno-archivado-no-se-archiva-dos-veces" : {
+                    "summary" : "Un proyecto vigente no se restaura y uno archivado no se archiva dos veces (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-autenticacion" : {
+                    "summary" : "Sin autenticación",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Usuario no identificado",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `SIN_PERMISO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-permiso" : {
+                    "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/relacion/crear" : {
       "post" : {
         "tags" : [ "Relacion" ],
@@ -4155,7 +4410,7 @@
             }
           },
           "400" : {
-            "description" : "Errores: `FORMULARIO_INVALIDO`, `RELACION_CONSIGO_MISMA`, `RELACION_NO_ENCONTRADA`, `RELACION_YA_EXISTE`, `TIPO_DE_RELACION_NO_PERMITIDO`",
+            "description" : "Errores: `FORMULARIO_INVALIDO`, `RELACION_CONSIGO_MISMA`, `RELACION_ENTRE_PROYECTOS`, `RELACION_NO_ENCONTRADA`, `RELACION_YA_EXISTE`, `TIPO_DE_RELACION_NO_PERMITIDO`",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -4191,6 +4446,17 @@
                       "errores" : [ ],
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
                       "mensajeParaUsuario" : "Esas tareas ya tienen esa relación.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "tareas-de-proyectos-distintos-no-se-relacionan" : {
+                    "summary" : "Tareas de proyectos distintos no se relacionan (ADMIN)",
+                    "value" : {
+                      "codigo" : "RELACION_ENTRE_PROYECTOS",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Solo se relacionan tareas del mismo proyecto.",
                       "status" : "400 BAD_REQUEST",
                       "traceId" : "0000000000000000"
                     }
@@ -5263,6 +5529,14 @@
                 "$ref" : "#/components/schemas/TareaDTO"
               },
               "examples" : {
+                "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                  "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                  "value" : {
+                    "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                    "tipoCodigo" : "TAREA",
+                    "titulo" : "Nueva"
+                  }
+                },
                 "una-subtarea-no-se-crea-dentro-de-un-padre-archivado" : {
                   "summary" : "Una subtarea no se crea dentro de un padre archivado (ADMIN)",
                   "value" : {
@@ -5485,6 +5759,14 @@
                     "titulo" : "Mapear estados"
                   }
                 },
+                "una-subtarea-sin-padre-rechazada" : {
+                  "summary" : "Una subtarea sin padre rechazada (SYSADMIN)",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                    "tipoCodigo" : "SUBTAREA",
+                    "titulo" : "Suelta"
+                  }
+                },
                 "padre-de-otro-proyecto-rechazado" : {
                   "summary" : "Padre de otro proyecto rechazado (SYSADMIN)",
                   "value" : {
@@ -5501,6 +5783,16 @@
                     "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
                     "tipoCodigo" : "SUBTAREA",
                     "titulo" : "Historia",
+                    "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  }
+                },
+                "una-subtarea-no-queda-sin-padre-al-editar" : {
+                  "summary" : "Una subtarea no queda sin padre al editar (SYSADMIN)",
+                  "value" : {
+                    "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                    "tipoCodigo" : "SUBTAREA",
+                    "titulo" : "Sin padre",
                     "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                   }
                 },
@@ -5988,6 +6280,20 @@
                   "$ref" : "#/components/schemas/ErrorResponseDTO"
                 },
                 "examples" : {
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                    "value" : {
+                      "codigo" : "RELACION_NO_ENCONTRADA",
+                      "datos" : {
+                        "campo" : "tableroUuid"
+                      },
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro relacionado indicado",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
                   "una-subtarea-no-se-crea-dentro-de-un-padre-archivado" : {
                     "summary" : "Una subtarea no se crea dentro de un padre archivado (ADMIN)",
                     "value" : {
@@ -6113,6 +6419,17 @@
                       "traceId" : "0000000000000000"
                     }
                   },
+                  "una-subtarea-sin-padre-rechazada" : {
+                    "summary" : "Una subtarea sin padre rechazada (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "JERARQUIA_DE_TAREA_INVALIDA",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Una Subtarea necesita una tarea padre.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
                   "padre-de-otro-proyecto-rechazado" : {
                     "summary" : "Padre de otro proyecto rechazado (SYSADMIN)",
                     "value" : {
@@ -6144,7 +6461,18 @@
                       "codigo" : "JERARQUIA_DE_TAREA_INVALIDA",
                       "errores" : [ ],
                       "fechaHora" : "2026-01-01T12:00:00.000-03:00",
-                      "mensajeParaUsuario" : "La tarea tiene hijas que no pueden ir dentro de una Subtarea.",
+                      "mensajeParaUsuario" : "Una Subtarea necesita una tarea padre.",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "una-subtarea-no-queda-sin-padre-al-editar" : {
+                    "summary" : "Una subtarea no queda sin padre al editar (SYSADMIN)",
+                    "value" : {
+                      "codigo" : "JERARQUIA_DE_TAREA_INVALIDA",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Una Subtarea necesita una tarea padre.",
                       "status" : "400 BAD_REQUEST",
                       "traceId" : "0000000000000000"
                     }
@@ -6316,7 +6644,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 0",
+                        "titulo" : "Alta concurrente 5",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
                         "vencimiento" : null
                       }, {
@@ -6342,7 +6670,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 18",
+                        "titulo" : "Alta concurrente 40",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
                         "vencimiento" : null
                       } ],
@@ -6765,6 +7093,12 @@
                 "$ref" : "#/components/schemas/TareaClonarRequestDTO"
               },
               "examples" : {
+                "el-clon-de-una-historia-no-hereda-el-padre" : {
+                  "summary" : "El clon de una historia no hereda el padre (ADMIN)",
+                  "value" : {
+                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001"
+                  }
+                },
                 "con-lo-minimo" : {
                   "summary" : "Con lo minimo (ADMIN)",
                   "value" : {
@@ -6776,8 +7110,8 @@
                   "summary" : "Sin tablero rechazado (ADMIN)",
                   "value" : { }
                 },
-                "con-la-seleccion-por-defecto" : {
-                  "summary" : "Con la seleccion por defecto (ADMIN)",
+                "el-clon-de-una-subtarea-conserva-el-padre" : {
+                  "summary" : "El clon de una subtarea conserva el padre (ADMIN)",
                   "value" : {
                     "tableroUuid" : "b2000000-0000-4000-8000-000000000002"
                   }
@@ -6786,12 +7120,6 @@
                   "summary" : "Tablero de otro proyecto rechazado (ADMIN)",
                   "value" : {
                     "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  }
-                },
-                "el-clon-muestra-el-estado-del-original-y-viceversa" : {
-                  "summary" : "El clon muestra el estado del original y viceversa (ADMIN)",
-                  "value" : {
-                    "tableroUuid" : "b2000000-0000-4000-8000-000000000001"
                   }
                 },
                 "con-todo" : {
@@ -6814,6 +7142,36 @@
                   "$ref" : "#/components/schemas/TareaDTO"
                 },
                 "examples" : {
+                  "el-clon-de-una-historia-no-hereda-el-padre" : {
+                    "summary" : "El clon de una historia no hereda el padre (ADMIN)",
+                    "value" : {
+                      "clave" : "SHI-4",
+                      "descripcion" : null,
+                      "estadoNombre" : "Por hacer",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000011",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "b1000000-0000-4000-8000-000000000001",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "b2000000-0000-4000-8000-000000000001",
+                      "tipoCodigo" : "HISTORIA",
+                      "tipoNombre" : "Historia",
+                      "titulo" : "Historia",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "vencimiento" : null
+                    }
+                  },
                   "con-lo-minimo" : {
                     "summary" : "Con lo minimo (ADMIN)",
                     "value" : {
@@ -6841,6 +7199,36 @@
                       "tipoNombre" : "Historia",
                       "titulo" : "Importar sprints",
                       "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "vencimiento" : null
+                    }
+                  },
+                  "el-clon-de-una-subtarea-conserva-el-padre" : {
+                    "summary" : "El clon de una subtarea conserva el padre (ADMIN)",
+                    "value" : {
+                      "clave" : "SHI-4",
+                      "descripcion" : null,
+                      "estadoNombre" : "Por probar",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000021",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : "SHI-2",
+                      "padreUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "b1000000-0000-4000-8000-000000000001",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "QA",
+                      "tableroUuid" : "b2000000-0000-4000-8000-000000000002",
+                      "tipoCodigo" : "SUBTAREA",
+                      "tipoNombre" : "Subtarea",
+                      "titulo" : "Subtarea",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                       "vencimiento" : null
                     }
                   },
@@ -7508,8 +7896,8 @@
                 "$ref" : "#/components/schemas/TareaMoverRequestDTO"
               },
               "examples" : {
-                "archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles" : {
-                  "summary" : "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)",
+                "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                  "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
                   "value" : {
                     "estadoUuid" : "a2000000-0000-4000-8000-000000000012"
                   }
@@ -7555,6 +7943,104 @@
                   "$ref" : "#/components/schemas/TareaDTO"
                 },
                 "examples" : {
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-4" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (4) (ADMIN)",
+                    "value" : {
+                      "clave" : "ARV-1",
+                      "descripcion" : null,
+                      "estadoNombre" : "En curso",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000012",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ {
+                        "clave" : "ARV-2",
+                        "estadoNombre" : "Por hacer",
+                        "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                        "status" : 0,
+                        "tipoCodigo" : "SUBTAREA",
+                        "titulo" : "Subtarea",
+                        "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      } ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+                      "tipoCodigo" : "HISTORIA",
+                      "tipoNombre" : "Historia",
+                      "titulo" : "Historia",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
+                      "vencimiento" : null
+                    }
+                  },
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-5" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (5) (ADMIN)",
+                    "value" : {
+                      "clave" : "ARV-2",
+                      "descripcion" : null,
+                      "estadoNombre" : "En curso",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000012",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : "ARV-1",
+                      "padreUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+                      "tipoCodigo" : "SUBTAREA",
+                      "tipoNombre" : "Subtarea",
+                      "titulo" : "Subtarea",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
+                      "vencimiento" : null
+                    }
+                  },
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-6" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (6) (ADMIN)",
+                    "value" : {
+                      "clave" : "ARV-3",
+                      "descripcion" : null,
+                      "estadoNombre" : "En curso",
+                      "estadoUuid" : "a2000000-0000-4000-8000-000000000012",
+                      "etiquetas" : [ ],
+                      "fechaDeActualizacion" : "2026-01-01T12:00:00.000-03:00",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "hijas" : [ ],
+                      "informanteNombre" : "Usuario Demo",
+                      "informanteUuid" : "90000000-0000-4000-8000-000000000002",
+                      "padreClave" : null,
+                      "padreUuid" : null,
+                      "prioridad" : "MEDIA",
+                      "proyectoUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "puntos" : null,
+                      "responsableNombre" : null,
+                      "responsableUuid" : null,
+                      "status" : 0,
+                      "tableroCodigo" : "PRINCIPAL",
+                      "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+                      "tipoCodigo" : "TAREA",
+                      "tipoNombre" : "Tarea",
+                      "titulo" : "Otra",
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+                      "vencimiento" : null
+                    }
+                  },
                   "el-clon-muestra-el-estado-del-original-y-viceversa" : {
                     "summary" : "El clon muestra el estado del original y viceversa (ADMIN)",
                     "value" : {
@@ -7777,6 +8263,50 @@
                   "$ref" : "#/components/schemas/ErrorResponseDTO"
                 },
                 "examples" : {
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-2" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (2) (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-3" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (3) (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "archivar-arrastra-todo-y-restaurar-lo-devuelve-7" : {
+                    "summary" : "Archivar arrastra todo y restaurar lo devuelve (7) (ADMIN)",
+                    "value" : {
+                      "codigo" : "REGISTRO_NO_ENCONTRADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No existe el registro",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
                   "archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles" : {
                     "summary" : "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)",
                     "value" : {
@@ -11788,6 +12318,12 @@
     "status" : 400,
     "mensajePorDefecto" : "Una tarea no se relaciona consigo misma.",
     "cuando" : "Al relacionar tareas se eligió la misma tarea como origen y destino",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "RELACION_ENTRE_PROYECTOS",
+    "status" : 400,
+    "mensajePorDefecto" : "Solo se relacionan tareas del mismo proyecto.",
+    "cuando" : "Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto",
     "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "RELACION_NO_ENCONTRADA",

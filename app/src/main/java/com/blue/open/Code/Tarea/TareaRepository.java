@@ -1,12 +1,14 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
-
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +42,25 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
 
     // Si la tarea tiene alguna hija vigente cuyo tipo tiene nivel menor o igual al recibido
     boolean existsByPadreAndStatusAndTipoNivelLessThanEqual(Tarea padre, Integer status, Integer nivel);
+
+    // Uuids de las tareas vigentes del proyecto (para el historial de archivar el proyecto)
+    @Query("SELECT t.uuid FROM Tarea t WHERE t.proyecto = :proyecto AND t.status = 0")
+    List<String> uuidsVigentesDeProyecto(@Param("proyecto") Proyecto proyecto);
+
+    // Uuids de las tareas archivadas por la operacion (para el historial de restaurar)
+    @Query("SELECT t.uuid FROM Tarea t WHERE t.idOperacionArchivo = :operacion AND t.status = -1")
+    List<String> uuidsArchivadosPorOperacion(@Param("operacion") Long operacion);
+
+    // Archiva en un solo UPDATE las tareas vigentes del proyecto, en todos los niveles, con la operacion recibida (archivar un proyecto)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Tarea x SET x.status = -1, x.fechaDeBorrado = :fecha, x.idUsuarioDeBorrado = :usuario, x.idOperacionArchivo = :operacion, x.fechaDeActualizacion = :fecha "
+            + "WHERE x.status = 0 AND x.proyecto = :proyecto")
+    int archivarDeProyecto(@Param("proyecto") Proyecto proyecto, @Param("operacion") Long operacion,
+            @Param("usuario") Long usuario, @Param("fecha") Timestamp fecha);
+
+    // Restaura en un solo UPDATE lo que archivo la operacion recibida (restaurar un proyecto)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Tarea x SET x.status = 0, x.fechaDeBorrado = NULL, x.idUsuarioDeBorrado = NULL, x.idOperacionArchivo = NULL, x.fechaDeActualizacion = :fecha, x.idUsuarioDeActualizacion = :usuario WHERE x.idOperacionArchivo = :operacion AND x.status = -1")
+    int restaurarPorOperacion(@Param("operacion") Long operacion, @Param("usuario") Long usuario,
+            @Param("fecha") Timestamp fecha);
 }

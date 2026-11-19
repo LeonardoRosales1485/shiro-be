@@ -35,6 +35,9 @@ public class Tablero extends EntidadConBorradoLogico {
     private TipoTablero tipoTablero;
 
     // Tablero nuevo de un proyecto, del tipo recibido
+    // Operacion de archivo que archivo el tablero (al archivar su proyecto); null si esta vigente
+    private Long idOperacionArchivo;
+
     public Tablero(Proyecto proyecto, TipoTablero tipoTablero) {
         this.proyecto = proyecto;
         this.tipoTablero = tipoTablero;

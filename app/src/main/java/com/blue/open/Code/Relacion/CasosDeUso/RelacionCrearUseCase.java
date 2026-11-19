@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Caso de uso: relaciona dos tareas vigentes (T1.9). No se relaciona una tarea consigo misma, la misma relacion no
+ * Caso de uso: relaciona dos tareas vigentes del mismo proyecto (T1.9 y adenda 4 del DAF). No se relaciona una tarea consigo misma, la misma relacion no
  * se repite en ningun sentido y CLONA solo la crea clonar. Deja la fila RELACIONAR en el historial de las dos.
  * Dependencias externas: la base de datos.
  * Recibe: RelacionCrearRequestDTO. Responde: RelacionDTO. Lanza RELACION_NO_ENCONTRADA, RELACION_CONSIGO_MISMA,
- * RELACION_YA_EXISTE o TIPO_DE_RELACION_NO_PERMITIDO.
+ * RELACION_ENTRE_PROYECTOS, RELACION_YA_EXISTE o TIPO_DE_RELACION_NO_PERMITIDO.
  */
 @Service
 @RequiredArgsConstructor
@@ -47,6 +47,9 @@ public class RelacionCrearUseCase {
         if (origen.getId().equals(destino.getId()))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.RELACION_CONSIGO_MISMA,
                     "RelacionCrearUseCase | ejecutar | tarea " + origen.getClave());
+        if (!origen.getProyecto().getId().equals(destino.getProyecto().getId()))
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.RELACION_ENTRE_PROYECTOS,
+                    "RelacionCrearUseCase | ejecutar | " + origen.getClave() + " y " + destino.getClave());
         if (relacionRepository.existsByOrigenAndDestinoAndTipoAndStatus(origen, destino, dto.getTipo(), VIGENTE)
                 || relacionRepository.existsByOrigenAndDestinoAndTipoAndStatus(destino, origen, dto.getTipo(), VIGENTE))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.RELACION_YA_EXISTE,

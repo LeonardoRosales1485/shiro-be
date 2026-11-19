@@ -45,6 +45,10 @@ public class Proyecto extends EntidadConBorradoLogico {
     @Setter(AccessLevel.NONE)
     private Long ultimoNumero = 0L;
 
+    // Operacion de archivo que archivo el proyecto; null si esta vigente. Solo la cambian archivar y restaurar
+    @Setter(AccessLevel.NONE)
+    private Long idOperacionArchivo;
+
     // Valores del proyecto antes de editarlo, para el historial. No se persiste: lo completa ProyectoService
     @Transient
     private Map<String, String> valoresAnteriores = new LinkedHashMap<>();

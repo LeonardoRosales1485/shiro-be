@@ -44,6 +44,8 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     TIPO_DE_RELACION_NO_PERMITIDO(HttpStatus.BAD_REQUEST, "La relación de clon se crea al clonar la tarea."),
     @Descripcion("Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto")
     TABLERO_DE_OTRO_PROYECTO(HttpStatus.BAD_REQUEST, "El tablero de destino tiene que ser del mismo proyecto."),
+    @Descripcion("Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto")
+    RELACION_ENTRE_PROYECTOS(HttpStatus.BAD_REQUEST, "Solo se relacionan tareas del mismo proyecto."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

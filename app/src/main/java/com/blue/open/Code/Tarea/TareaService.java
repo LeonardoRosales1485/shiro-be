@@ -42,6 +42,9 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private static final int ELIMINADO = -1;
 
+    // Codigo del tipo que siempre tiene padre (adenda 4 del DAF)
+    private static final String SUBTAREA = "SUBTAREA";
+
     private final TipoTareaRepository tipoTareaRepository;
 
     private final EstadoRepository estadoRepository;
@@ -203,13 +206,17 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     }
 
     /*
-     * Valida la jerarquia (Spec 7): el padre es otra tarea del mismo proyecto, de un tipo de nivel menor; al editar,
+     * Valida la jerarquia (Spec 7 y adenda 4 del DAF): una Subtarea tiene padre; el padre es otra tarea del mismo proyecto, de un tipo de nivel menor; al editar,
      * ninguna hija vigente queda con un nivel menor o igual al del tipo nuevo. Lanza JERARQUIA_DE_TAREA_INVALIDA o
      * PADRE_DE_OTRO_PROYECTO.
      */
     private void validarJerarquia(Tarea tarea, boolean esAlta) {
         TipoTarea tipo = tarea.getTipo();
         Tarea padre = tarea.getPadre();
+        if (padre == null && SUBTAREA.equals(tipo.getCodigo()))
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JERARQUIA_DE_TAREA_INVALIDA,
+                    "Una Subtarea necesita una tarea padre.",
+                    "TareaService | validarJerarquia | subtarea sin padre " + tarea.getClave());
         if (padre != null) {
             Long idProyecto = esAlta ? tarea.getTablero().getProyecto().getId() : tarea.getProyecto().getId();
             if (!padre.getProyecto().getId().equals(idProyecto))

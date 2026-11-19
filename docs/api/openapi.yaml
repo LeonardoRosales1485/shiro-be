@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.15"
+  version: "1.0.16"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -48,6 +48,7 @@ info:
     | `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |
     | `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |
     | `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |
+    | `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |
     | `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |
     | `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |
     | `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |
@@ -1727,6 +1728,198 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+  /proyecto/{uuid}/archivar:
+    post:
+      tags:
+      - "Proyecto"
+      operationId: "ProyectoController.archivar"
+      summary: "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones"
+      description: |-
+        **Caso de uso:** CU-PRY-04
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-PRY-04"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del proyecto"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProyectoDTO"
+              examples:
+                archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+                  value:
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Archivable"
+                    prefijo: "ARV"
+                    status: -1
+                    tableros: []
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                un-proyecto-vigente-no-se-restaura-y-uno-archivado-no-se-archiva-dos-veces:
+                  summary: "Un proyecto vigente no se restaura y uno archivado no se archiva dos veces (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /proyecto/{uuid}/restaurar:
+    post:
+      tags:
+      - "Proyecto"
+      operationId: "ProyectoController.restaurar"
+      summary: "Restaura un proyecto archivado con lo que se archivó junto con él"
+      description: |-
+        **Caso de uso:** CU-PRY-05
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-PRY-05"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del proyecto"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProyectoDTO"
+              examples:
+                archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+                  value:
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Archivable"
+                    prefijo: "ARV"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "PRINCIPAL"
+                      tipoTableroNombre: "Principal"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "QA"
+                      tipoTableroNombre: "QA"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "ANALISIS"
+                      tipoTableroNombre: "Análisis"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                un-proyecto-vigente-no-se-restaura-y-uno-archivado-no-se-archiva-dos-veces:
+                  summary: "Un proyecto vigente no se restaura y uno archivado no se archiva dos veces (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /relacion/crear:
     post:
       tags:
@@ -1825,7 +2018,7 @@ paths:
                     tipo: "DUPLICA"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
         "400":
-          description: "Errores: `FORMULARIO_INVALIDO`, `RELACION_CONSIGO_MISMA`, `RELACION_NO_ENCONTRADA`, `RELACION_YA_EXISTE`, `TIPO_DE_RELACION_NO_PERMITIDO`"
+          description: "Errores: `FORMULARIO_INVALIDO`, `RELACION_CONSIGO_MISMA`, `RELACION_ENTRE_PROYECTOS`, `RELACION_NO_ENCONTRADA`, `RELACION_YA_EXISTE`, `TIPO_DE_RELACION_NO_PERMITIDO`"
           content:
             application/json:
               schema:
@@ -1856,6 +2049,15 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Esas tareas ya tienen esa relación."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tareas-de-proyectos-distintos-no-se-relacionan:
+                  summary: "Tareas de proyectos distintos no se relacionan (ADMIN)"
+                  value:
+                    codigo: "RELACION_ENTRE_PROYECTOS"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo se relacionan tareas del mismo proyecto."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 tarea-inexistente-rechazada:
@@ -2680,6 +2882,12 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaDTO"
             examples:
+              archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+                value:
+                  tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Nueva"
               una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
                 summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
                 value:
@@ -2850,6 +3058,12 @@ paths:
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "SUBTAREA"
                   titulo: "Mapear estados"
+              una-subtarea-sin-padre-rechazada:
+                summary: "Una subtarea sin padre rechazada (SYSADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "SUBTAREA"
+                  titulo: "Suelta"
               padre-de-otro-proyecto-rechazado:
                 summary: "Padre de otro proyecto rechazado (SYSADMIN)"
                 value:
@@ -2864,6 +3078,14 @@ paths:
                   tableroUuid: "b2000000-0000-4000-8000-000000000001"
                   tipoCodigo: "SUBTAREA"
                   titulo: "Historia"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              una-subtarea-no-queda-sin-padre-al-editar:
+                summary: "Una subtarea no queda sin padre al editar (SYSADMIN)"
+                value:
+                  fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "SUBTAREA"
+                  titulo: "Sin padre"
                   uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               epica-con-padre-rechazada:
                 summary: "Epica con padre rechazada (SYSADMIN)"
@@ -3303,6 +3525,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "tableroUuid"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
                   summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
                   value:
@@ -3403,6 +3636,15 @@ paths:
                     mensajeParaUsuario: "Un Bug no puede ir dentro de una Historia."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
+                una-subtarea-sin-padre-rechazada:
+                  summary: "Una subtarea sin padre rechazada (SYSADMIN)"
+                  value:
+                    codigo: "JERARQUIA_DE_TAREA_INVALIDA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una Subtarea necesita una tarea padre."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 padre-de-otro-proyecto-rechazado:
                   summary: "Padre de otro proyecto rechazado (SYSADMIN)"
                   value:
@@ -3429,7 +3671,16 @@ paths:
                     codigo: "JERARQUIA_DE_TAREA_INVALIDA"
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "La tarea tiene hijas que no pueden ir dentro de una Subtarea."
+                    mensajeParaUsuario: "Una Subtarea necesita una tarea padre."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                una-subtarea-no-queda-sin-padre-al-editar:
+                  summary: "Una subtarea no queda sin padre al editar (SYSADMIN)"
+                  value:
+                    codigo: "JERARQUIA_DE_TAREA_INVALIDA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una Subtarea necesita una tarea padre."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 epica-con-padre-rechazada:
@@ -3568,7 +3819,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 0"
+                      titulo: "Alta concurrente 5"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -3593,7 +3844,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 18"
+                      titulo: "Alta concurrente 40"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -3943,6 +4194,10 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaClonarRequestDTO"
             examples:
+              el-clon-de-una-historia-no-hereda-el-padre:
+                summary: "El clon de una historia no hereda el padre (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
               con-lo-minimo:
                 summary: "Con lo minimo (ADMIN)"
                 value:
@@ -3951,18 +4206,14 @@ paths:
               sin-tablero-rechazado:
                 summary: "Sin tablero rechazado (ADMIN)"
                 value: {}
-              con-la-seleccion-por-defecto:
-                summary: "Con la seleccion por defecto (ADMIN)"
+              el-clon-de-una-subtarea-conserva-el-padre:
+                summary: "El clon de una subtarea conserva el padre (ADMIN)"
                 value:
                   tableroUuid: "b2000000-0000-4000-8000-000000000002"
               tablero-de-otro-proyecto-rechazado:
                 summary: "Tablero de otro proyecto rechazado (ADMIN)"
                 value:
                   tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-              el-clon-muestra-el-estado-del-original-y-viceversa:
-                summary: "El clon muestra el estado del original y viceversa (ADMIN)"
-                value:
-                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
               con-todo:
                 summary: "Con todo (ADMIN)"
                 value:
@@ -3979,6 +4230,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                el-clon-de-una-historia-no-hereda-el-padre:
+                  summary: "El clon de una historia no hereda el padre (ADMIN)"
+                  value:
+                    clave: "SHI-4"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "HISTORIA"
+                    tipoNombre: "Historia"
+                    titulo: "Historia"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
                 con-lo-minimo:
                   summary: "Con lo minimo (ADMIN)"
                   value:
@@ -4006,6 +4285,34 @@ paths:
                     tipoNombre: "Historia"
                     titulo: "Importar sprints"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                el-clon-de-una-subtarea-conserva-el-padre:
+                  summary: "El clon de una subtarea conserva el padre (ADMIN)"
+                  value:
+                    clave: "SHI-4"
+                    descripcion: null
+                    estadoNombre: "Por probar"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000021"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: "SHI-2"
+                    padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                    tipoCodigo: "SUBTAREA"
+                    tipoNombre: "Subtarea"
+                    titulo: "Subtarea"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
                 con-la-seleccion-por-defecto:
                   summary: "Con la seleccion por defecto (ADMIN)"
@@ -4572,8 +4879,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TareaMoverRequestDTO"
             examples:
-              archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
-                summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
+              archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
                 value:
                   estadoUuid: "a2000000-0000-4000-8000-000000000012"
               sin-estado-rechazado:
@@ -4603,6 +4910,97 @@ paths:
               schema:
                 $ref: "#/components/schemas/TareaDTO"
               examples:
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-4:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (4) (ADMIN)"
+                  value:
+                    clave: "ARV-1"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas:
+                    - clave: "ARV-2"
+                      estadoNombre: "Por hacer"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoCodigo: "SUBTAREA"
+                      titulo: "Subtarea"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    tipoCodigo: "HISTORIA"
+                    tipoNombre: "Historia"
+                    titulo: "Historia"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    vencimiento: null
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-5:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (5) (ADMIN)"
+                  value:
+                    clave: "ARV-2"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: "ARV-1"
+                    padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    tipoCodigo: "SUBTAREA"
+                    tipoNombre: "Subtarea"
+                    titulo: "Subtarea"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    vencimiento: null
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-6:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (6) (ADMIN)"
+                  value:
+                    clave: "ARV-3"
+                    descripcion: null
+                    estadoNombre: "En curso"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000012"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Otra"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    vencimiento: null
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
                   value:
@@ -4806,6 +5204,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                archivar-arrastra-todo-y-restaurar-lo-devuelve:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-2:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (2) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-3:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (3) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-arrastra-todo-y-restaurar-lo-devuelve-7:
+                  summary: "Archivar arrastra todo y restaurar lo devuelve (7) (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
                   value:
@@ -8190,6 +8624,11 @@ x-catalogo-de-errores:
   status: 400
   mensajePorDefecto: "Una tarea no se relaciona consigo misma."
   cuando: "Al relacionar tareas se eligió la misma tarea como origen y destino"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "RELACION_ENTRE_PROYECTOS"
+  status: 400
+  mensajePorDefecto: "Solo se relacionan tareas del mismo proyecto."
+  cuando: "Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "RELACION_NO_ENCONTRADA"
   status: 400

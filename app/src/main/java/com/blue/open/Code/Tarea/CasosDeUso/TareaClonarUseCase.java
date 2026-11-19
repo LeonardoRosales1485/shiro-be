@@ -36,7 +36,7 @@ import java.util.Set;
  * siempre; el resto segun la seleccion (por defecto descripcion, prioridad y etiquetas). El clon nace como cualquier
  * alta (TareaService.guardar: clave nueva, estado inicial del tablero de destino, informante = quien clona). Los
  * comentarios copiados conservan autor, fecha y canal; las subtareas se clonan, con la misma seleccion, como hijas
- * del clon en el tablero de destino. El original y el clon quedan vinculados con una relacion CLONA, que muestra el
+ * del clon en el tablero de destino. El clon no hereda el padre, salvo el de una Subtarea. El original y el clon quedan vinculados con una relacion CLONA, que muestra el
  * estado del otro, y el clon deja una fila CLONAR en su historial.
  * Dependencias externas: la base de datos.
  * Recibe: uuid de la tarea y TareaClonarRequestDTO. Responde: TareaDTO del clon. Lanza REGISTRO_NO_ENCONTRADO,
@@ -47,6 +47,8 @@ import java.util.Set;
 public class TareaClonarUseCase {
 
     private static final int VIGENTE = 0;
+
+    private static final int NIVEL_SUBTAREA = 3;
 
     private final TareaRepository tareaRepository;
 
@@ -78,7 +80,9 @@ public class TareaClonarUseCase {
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TABLERO_DE_OTRO_PROYECTO,
                     "TareaClonarUseCase | ejecutar | tarea " + original.getClave() + " | tablero " + destino.getUuid());
         Set<DatoAClonar> copiar = Set.copyOf(dto.getCopiar() == null ? DatoAClonar.POR_DEFECTO : dto.getCopiar());
-        Tarea clon = clonar(original, destino, copiar, null);
+        // El clon no hereda el padre, salvo una Subtarea, que no puede quedar sin padre (adenda 4 del DAF)
+        String padreUuid = original.getTipo().getNivel() == NIVEL_SUBTAREA ? original.getPadre().getUuid() : null;
+        Tarea clon = clonar(original, destino, copiar, padreUuid);
         vinculador.vincular(original, clon, TipoDeRelacion.CLONA);
         historial.registrar(Historial.TAREA, clon.getUuid(), AccionDeHistorial.CLONAR, null, null, original.getClave());
         return proyector.porUuid(Tarea.class, clon.getUuid(), TareaDTO.class)
