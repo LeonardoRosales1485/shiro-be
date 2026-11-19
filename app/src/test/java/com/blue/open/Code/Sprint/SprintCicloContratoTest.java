@@ -164,7 +164,7 @@ class SprintCicloContratoTest extends PruebaDeContrato {
     // Uuids de las tareas del backlog del proyecto
     private List<String> backlog(String proyecto) {
         List<String> uuids = new ArrayList<>();
-        como(ADMIN).get("/backlog/proyecto/{uuid}", proyecto).preparacion().ejecutar().esperar(200).json()
+        como(ADMIN).get("/proyecto/{uuid}/backlog", proyecto).preparacion().ejecutar().esperar(200).json()
                 .forEach(tarea -> uuids.add(tarea.get("uuid").asString()));
         return uuids;
     }
