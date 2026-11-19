@@ -30,10 +30,7 @@ public class VersionRestaurarUseCase {
     @Transactional
     public VersionDTO ejecutar(String uuid) {
         Version version = tareasDeVersion.version(uuid, -1, NivelDePermiso.ARCHIVAR);
-        version.setStatus(0);
-        version.setFechaDeBorrado(null);
-        version.setIdUsuarioDeBorrado(null);
-        version.setIdOperacionArchivo(null);
+        version.restaurar();
         versionRepository.save(version);
         historial.registrar(Historial.VERSION, uuid, AccionDeHistorial.RESTAURAR, null, null, version.getNombre());
         return tareasDeVersion.proyectar(uuid);

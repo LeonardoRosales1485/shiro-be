@@ -1,5 +1,6 @@
 package com.blue.open.Code.Version;
 
+import com.blue.open.Code.Common.Archivado.ArchivadoDeEntidad;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Core.Kernel.Entidad.EntidadConBorradoLogico;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,5 +47,24 @@ public class Version extends EntidadConBorradoLogico {
     private String changelog;
 
     // Operacion de archivo que la archivo; null si esta vigente
+    @Setter(AccessLevel.NONE)
     private Long idOperacionArchivo;
+
+    /*
+     * Archiva la entidad (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
+     * Invariante: solo se archiva una vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void archivar(Long idUsuario, Long idOperacion) {
+        ArchivadoDeEntidad.archivar(this, idUsuario, "Version " + getUuid());
+        this.idOperacionArchivo = idOperacion;
+    }
+
+    /*
+     * Restaura la entidad archivada (status 0) y limpia los datos de borrado y la operacion. Invariante: solo se
+     * restaura una archivada; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void restaurar() {
+        ArchivadoDeEntidad.restaurar(this, "Version " + getUuid());
+        this.idOperacionArchivo = null;
+    }
 }

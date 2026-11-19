@@ -1,5 +1,6 @@
 package com.blue.open.Code.Relacion;
 
+import com.blue.open.Code.Common.Archivado.ArchivadoDeEntidad;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Core.Kernel.Entidad.EntidadConBorradoLogico;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +38,7 @@ public class Relacion extends EntidadConBorradoLogico {
     private TipoDeRelacion tipo;
 
     // Operacion de archivo que la archivo; null si esta vigente
+    @Setter(AccessLevel.NONE)
     private Long idOperacionArchivo;
 
     // Crea una relacion vigente del tipo recibido, de origen a destino
@@ -43,5 +46,14 @@ public class Relacion extends EntidadConBorradoLogico {
         this.origen = origen;
         this.destino = destino;
         this.tipo = tipo;
+    }
+
+    /*
+     * Archiva la entidad (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
+     * Invariante: solo se archiva una vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void archivar(Long idUsuario, Long idOperacion) {
+        ArchivadoDeEntidad.archivar(this, idUsuario, "Relacion " + getUuid());
+        this.idOperacionArchivo = idOperacion;
     }
 }

@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 
 /**
  * Caso de uso: archiva una regla de permiso vigente, con su operacion de archivo. Deja de aplicarse en el request
@@ -47,10 +46,7 @@ public class ReglaPermisoArchivarUseCase {
         Long usuario = usuarioActual.getIdUsuarioActual();
         Long operacion = operaciones.save(new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR,
                 Historial.REGLA_PERMISO, uuid, usuario)).getId();
-        regla.setStatus(-1);
-        regla.setFechaDeBorrado(new Timestamp(System.currentTimeMillis()));
-        regla.setIdUsuarioDeBorrado(usuario);
-        regla.setIdOperacionArchivo(operacion);
+        regla.archivar(usuario, operacion);
         repository.save(regla);
         historial.registrar(Historial.REGLA_PERMISO, uuid, AccionDeHistorial.ARCHIVAR, null, null, null, operacion);
         return proyector.porUuid(ReglaPermiso.class, uuid, ReglaPermisoDTO.class)

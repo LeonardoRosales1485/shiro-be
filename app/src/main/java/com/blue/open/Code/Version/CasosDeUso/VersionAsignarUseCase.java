@@ -1,15 +1,14 @@
 package com.blue.open.Code.Version.CasosDeUso;
 
-import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Version.TareaVersion;
 import com.blue.open.Code.Version.TareaVersionRepository;
 import com.blue.open.Code.Version.TareasDeVersion;
-import com.blue.open.Code.Version.Version;
 import com.blue.open.Code.Version.VersionDTO;
 import com.blue.open.Code.Version.VersionTareasRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  * Caso de uso: asigna tareas del proyecto a una version sin publicar (T5.3). Una tarea puede estar en varias
@@ -28,13 +27,11 @@ public class VersionAsignarUseCase {
 
     @Transactional
     public VersionDTO ejecutar(String uuid, VersionTareasRequestDTO dto) {
-        Version version = tareasDeVersion.sinPublicar(uuid);
-        for (Tarea tarea : tareasDeVersion.tareasDelProyecto(version, dto.getTareas())) {
-            if (tareaVersionRepository.findFirstByTareaAndVersionAndStatus(tarea, version, 0).isEmpty()) {
+        return tareasDeVersion.aplicarATareas(uuid, dto.getTareas(), (version, tarea, asignacion) -> {
+            if (asignacion == null) {
                 tareaVersionRepository.save(new TareaVersion(tarea, version));
                 tareasDeVersion.registrar(tarea, null, version.getNombre());
             }
-        }
-        return tareasDeVersion.proyectar(uuid);
+        });
     }
 }

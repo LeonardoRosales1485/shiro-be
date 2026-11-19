@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 
 /**
  * Caso de uso: archiva una relacion vigente (T1.9), con su operacion de archivo. Deja de leerse desde las dos
@@ -54,10 +53,7 @@ public class RelacionArchivarUseCase {
         Long idUsuario = usuarioActual.getIdUsuarioActual();
         OperacionDeArchivo operacion = operacionRepository.save(
                 new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR, RELACION, uuid, idUsuario));
-        relacion.setStatus(-1);
-        relacion.setFechaDeBorrado(new Timestamp(System.currentTimeMillis()));
-        relacion.setIdUsuarioDeBorrado(idUsuario);
-        relacion.setIdOperacionArchivo(operacion.getId());
+        relacion.archivar(idUsuario, operacion.getId());
         relacionRepository.save(relacion);
         historial.registrar(Historial.TAREA, relacion.getOrigen().getUuid(), AccionDeHistorial.RELACIONAR, null,
                 relacion.getTipo().vinculo(true).con(relacion.getDestino().getClave()), null, operacion.getId());

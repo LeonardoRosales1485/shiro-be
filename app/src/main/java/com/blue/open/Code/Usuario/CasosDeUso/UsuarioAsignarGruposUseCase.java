@@ -61,7 +61,7 @@ public class UsuarioAsignarGruposUseCase {
         if (nuevos.size() != pedidos.size())
             throw new ExcepcionDeApi(CodigoDeErrorCrud.RELACION_NO_ENCONTRADA,
                     "UsuarioAsignarGruposUseCase | ejecutar | algun grupo no existe").conDato("campo", "grupos");
-        List<UsuarioRol> actuales = usuarioRolRepository.findAllByIdUsuarioAndStatus(usuario.getId(), 0);
+        List<UsuarioRol> actuales = grupoRepository.asignacionesVigentesConGrupo(usuario.getId());
         String anteriores = nombres(actuales.stream().map(UsuarioRol::getRol).toList());
         Long actual = usuarioActual.getIdUsuarioActual();
         Set<String> conservados = new HashSet<>();

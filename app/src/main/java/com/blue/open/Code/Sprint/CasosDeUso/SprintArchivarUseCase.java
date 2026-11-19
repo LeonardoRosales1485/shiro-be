@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 
 /**
  * Caso de uso: archiva un sprint (T5.2 y Spec 7). Un sprint activo no se archiva: se cierra primero. Las tareas de un
@@ -51,16 +50,13 @@ public class SprintArchivarUseCase {
         if (sprint.getEstado() == EstadoDeSprint.ACTIVO)
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_ACTIVO_NO_SE_ARCHIVA, "SprintArchivarUseCase | " + uuid);
         if (sprint.getEstado() == EstadoDeSprint.PLANIFICADO) {
-            for (Tarea tarea : tareaRepository.findBySprintAndStatus(sprint, 0)) {
+            for (Tarea tarea : tareaRepository.vigentesDelSprint(sprint)) {
                 tareasDeSprint.mover(tarea, null);
             }
         }
         Long usuario = usuarioActual.getIdUsuarioActual();
         Long operacion = operaciones.save(new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR, Historial.SPRINT, uuid, usuario)).getId();
-        sprint.setStatus(-1);
-        sprint.setFechaDeBorrado(new Timestamp(System.currentTimeMillis()));
-        sprint.setIdUsuarioDeBorrado(usuario);
-        sprint.setIdOperacionArchivo(operacion);
+        sprint.archivar(usuario, operacion);
         sprintRepository.save(sprint);
         historial.registrar(Historial.SPRINT, uuid, AccionDeHistorial.ARCHIVAR, null, null, sprint.getNombre(), operacion);
         return tareasDeSprint.proyectar(uuid);

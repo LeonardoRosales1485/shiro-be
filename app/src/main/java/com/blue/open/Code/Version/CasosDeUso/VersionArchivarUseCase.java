@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 
 /**
  * Caso de uso: archiva una version (T5.3), con su operacion de archivo. Exige ARCHIVAR en el proyecto.
@@ -42,10 +41,7 @@ public class VersionArchivarUseCase {
         Version version = tareasDeVersion.version(uuid, 0, NivelDePermiso.ARCHIVAR);
         Long usuario = usuarioActual.getIdUsuarioActual();
         Long operacion = operaciones.save(new OperacionDeArchivo(TipoDeOperacionDeArchivo.ARCHIVAR, Historial.VERSION, uuid, usuario)).getId();
-        version.setStatus(-1);
-        version.setFechaDeBorrado(new Timestamp(System.currentTimeMillis()));
-        version.setIdUsuarioDeBorrado(usuario);
-        version.setIdOperacionArchivo(operacion);
+        version.archivar(usuario, operacion);
         versionRepository.save(version);
         historial.registrar(Historial.VERSION, uuid, AccionDeHistorial.ARCHIVAR, null, null, version.getNombre(), operacion);
         return tareasDeVersion.proyectar(uuid);

@@ -1,5 +1,6 @@
 package com.blue.open.Code.Sprint;
 
+import com.blue.open.Code.Common.Archivado.ArchivadoDeEntidad;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Core.Kernel.Entidad.EntidadConBorradoLogico;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,9 +49,19 @@ public class Sprint extends EntidadConBorradoLogico {
     private EstadoDeSprint estado = EstadoDeSprint.PLANIFICADO;
 
     // Operacion de archivo que lo archivo; null si esta vigente
+    @Setter(AccessLevel.NONE)
     private Long idOperacionArchivo;
 
     // Valores antes de editarlo, para el historial. No se persiste: lo completa SprintService
     @Transient
     private Map<String, String> valoresAnteriores = new LinkedHashMap<>();
+
+    /*
+     * Archiva la entidad (status -1) como parte de la operacion recibida, con el usuario y la fecha de borrado.
+     * Invariante: solo se archiva una vigente; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
+     */
+    public void archivar(Long idUsuario, Long idOperacion) {
+        ArchivadoDeEntidad.archivar(this, idUsuario, "Sprint " + getUuid());
+        this.idOperacionArchivo = idOperacion;
+    }
 }
