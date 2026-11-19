@@ -35,7 +35,7 @@ import java.util.Set;
 
 /**
  * Importa las tareas, subtareas y comentarios de Jira de una ejecucion (Spec 6, T4.3), dentro de la transaccion de
- * ImportadorDeJira. Trae los issues de los tableros mapeados, descarta (como falla) los de tipo o estado sin mapear y
+ * ImportadorDeJira. Trae los incidencias de los tableros mapeados, descarta (como falla) los de tipo o estado sin mapear y
  * las subtareas sin padre importado. Cada tarea nueva toma el numero del contador del proyecto y la clave
  * J-PREFIJO-numero de Jira (resolucion A3). Responsables y autores se resuelven con UsuariosDeJira (B34). Una tarea
  * ya importada se actualiza y no cambia de tablero; un comentario ya importado no se vuelve a traer.
@@ -67,79 +67,79 @@ public class ImportadorDeTareas {
 
     // Importa las tareas y sus comentarios. Lo que no se puede importar queda en las fallas del resumen
     public void importar(ContextoDeImportacion contexto) {
-        Map<String, IssueAImportar> aceptadas = aceptar(contexto, traer(contexto));
-        usuariosDeJira.precargar(contexto, aceptadas.values().stream().map(a -> a.issue().responsable()).toList());
-        Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.TAREA, aceptadas.values().stream().map(a -> a.issue().id()).toList());
+        Map<String, IncidenciaAImportar> aceptadas = aceptar(contexto, traer(contexto));
+        usuariosDeJira.precargar(contexto, aceptadas.values().stream().map(a -> a.incidencia().responsable()).toList());
+        Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.TAREA, aceptadas.values().stream().map(a -> a.incidencia().id()).toList());
         Map<String, Tarea> existentes = new HashMap<>();
         if (!yaImportadas.isEmpty())
             tareaRepository.buscarParaImportar(yaImportadas.values()).forEach(tarea -> existentes.put(tarea.getUuid(), tarea));
         Map<String, String> sufijos = sufijosDeClave(contexto, aceptadas.values(), yaImportadas.keySet());
         Map<String, Tarea> porClave = new LinkedHashMap<>();
-        for (IssueAImportar aceptada : aceptadas.values()) {
-            Tarea existente = existentes.get(yaImportadas.get(aceptada.issue().id()));
-            porClave.put(aceptada.issue().clave(), guardar(contexto, aceptada, existente, sufijos.get(aceptada.issue().clave())));
+        for (IncidenciaAImportar aceptada : aceptadas.values()) {
+            Tarea existente = existentes.get(yaImportadas.get(aceptada.incidencia().id()));
+            porClave.put(aceptada.incidencia().clave(), guardar(contexto, aceptada, existente, sufijos.get(aceptada.incidencia().clave())));
         }
         padres(contexto, aceptadas, porClave);
         etiquetasYVersiones(contexto, aceptadas, porClave);
         comentarios(contexto, porClave);
     }
 
-    // Issues de los tableros mapeados, por clave y sin repetir (un issue en dos tableros va al primero del mapeo)
-    private Map<String, IssueAImportar> traer(ContextoDeImportacion contexto) {
-        Map<String, IssueAImportar> issues = new LinkedHashMap<>();
+    // Incidencias de los tableros mapeados, por clave y sin repetir (un incidencia en dos tableros va al primero del mapeo)
+    private Map<String, IncidenciaAImportar> traer(ContextoDeImportacion contexto) {
+        Map<String, IncidenciaAImportar> incidencias = new LinkedHashMap<>();
         for (String tablero : contexto.getTableros().keySet())
-            for (DatosDeJira.Issue issue : jira.issues(contexto.getCredenciales(), tablero, contexto.getClaveDeJira()))
-                issues.putIfAbsent(issue.clave(), new IssueAImportar(issue, tablero, null, null));
-        return issues;
+            for (DatosDeJira.Incidencia incidencia : jira.incidencias(contexto.getCredenciales(), tablero, contexto.getClaveDeJira()))
+                incidencias.putIfAbsent(incidencia.clave(), new IncidenciaAImportar(incidencia, tablero, null, null));
+        return incidencias;
     }
 
     /*
-     * Issues que se pueden importar, con su tipo y estado de Shiro, de nivel menor a mayor: el tipo y el estado (en
+     * Incidencias que se pueden importar, con su tipo y estado de Shiro, de nivel menor a mayor: el tipo y el estado (en
      * su tablero) tienen que estar mapeados, y una subtarea necesita un padre aceptado de nivel menor. A una tarea que
      * no es subtarea se le quita un padre invalido, con una advertencia.
      */
-    private Map<String, IssueAImportar> aceptar(ContextoDeImportacion contexto, Map<String, IssueAImportar> issues) {
+    private Map<String, IncidenciaAImportar> aceptar(ContextoDeImportacion contexto, Map<String, IncidenciaAImportar> incidencias) {
         ResumenDeImportacion resumen = contexto.getResumen();
-        List<IssueAImportar> conTipo = new ArrayList<>();
-        for (IssueAImportar candidata : issues.values()) {
-            DatosDeJira.Issue issue = candidata.issue();
-            TipoTarea tipo = contexto.getTipos().get(issue.tipoId());
-            Estado estado = contexto.getEstados().getOrDefault(candidata.tablero(), Map.of()).get(issue.estadoId());
+        List<IncidenciaAImportar> conTipo = new ArrayList<>();
+        for (IncidenciaAImportar candidata : incidencias.values()) {
+            DatosDeJira.Incidencia incidencia = candidata.incidencia();
+            TipoTarea tipo = contexto.getTipos().get(incidencia.tipoId());
+            Estado estado = contexto.getEstados().getOrDefault(candidata.tablero(), Map.of()).get(incidencia.estadoId());
             if (tipo == null)
-                resumen.fallo(issue.clave(), "Su tipo de Jira (id " + issue.tipoId() + ") no está mapeado.");
+                resumen.fallo(incidencia.clave(), "Su tipo de Jira (id " + incidencia.tipoId() + ") no está mapeado.");
             else if (estado == null)
-                resumen.fallo(issue.clave(), "Su estado de Jira (id " + issue.estadoId() + ") no está mapeado en su tablero.");
+                resumen.fallo(incidencia.clave(), "Su estado de Jira (id " + incidencia.estadoId() + ") no está mapeado en su tablero.");
             else
-                conTipo.add(new IssueAImportar(issue, candidata.tablero(), tipo, estado));
+                conTipo.add(new IncidenciaAImportar(incidencia, candidata.tablero(), tipo, estado));
         }
         conTipo.sort(Comparator.comparing(candidata -> candidata.tipo().getNivel()));
-        Map<String, IssueAImportar> aceptadas = new LinkedHashMap<>();
-        for (IssueAImportar candidata : conTipo) {
-            String padre = candidata.issue().padreClave();
+        Map<String, IncidenciaAImportar> aceptadas = new LinkedHashMap<>();
+        for (IncidenciaAImportar candidata : conTipo) {
+            String padre = candidata.incidencia().padreClave();
             boolean padreValido = padre != null && aceptadas.containsKey(padre)
                     && aceptadas.get(padre).tipo().getNivel() < candidata.tipo().getNivel();
             if (SUBTAREA.equals(candidata.tipo().getCodigo()) && !padreValido) {
-                resumen.fallo(candidata.issue().clave(), "Es una subtarea y su padre no se importa.");
+                resumen.fallo(candidata.incidencia().clave(), "Es una subtarea y su padre no se importa.");
                 continue;
             }
             if (padre != null && !padreValido)
-                resumen.advertir(candidata.issue().clave(), "Su padre en Jira (" + padre + ") no se importa o no es de un nivel mayor: quedó sin padre.");
-            aceptadas.put(candidata.issue().clave(), padreValido ? candidata : candidata.sinPadre());
+                resumen.advertir(candidata.incidencia().clave(), "Su padre en Jira (" + padre + ") no se importa o no es de un nivel mayor: quedó sin padre.");
+            aceptadas.put(candidata.incidencia().clave(), padreValido ? candidata : candidata.sinPadre());
         }
         return aceptadas;
     }
 
     /*
      * Sufijo de la clave J-PREFIJO-sufijo de cada tarea nueva (resolucion A3 del 19/11): el numero de su clave de Jira
-     * (JSIM-7 queda J-SIM-7). Si esa clave ya la usa otra tarea, o dos issues dan el mismo numero (uno movido de otro
+     * (JSIM-7 queda J-SIM-7). Si esa clave ya la usa otra tarea, o dos incidencias dan el mismo numero (uno movido de otro
      * proyecto de Jira), el sufijo es la clave de Jira entera (J-SIM-OLD-7), con una advertencia.
      */
-    private Map<String, String> sufijosDeClave(ContextoDeImportacion contexto, Iterable<IssueAImportar> aceptadas, Set<String> idsYaImportados) {
+    private Map<String, String> sufijosDeClave(ContextoDeImportacion contexto, Iterable<IncidenciaAImportar> aceptadas, Set<String> idsYaImportados) {
         String inicio = "J-" + contexto.getProyecto().getPrefijo() + "-";
         Map<String, String> sufijos = new LinkedHashMap<>();
-        for (IssueAImportar aceptada : aceptadas)
-            if (!idsYaImportados.contains(aceptada.issue().id())) {
-                String clave = aceptada.issue().clave();
+        for (IncidenciaAImportar aceptada : aceptadas)
+            if (!idsYaImportados.contains(aceptada.incidencia().id())) {
+                String clave = aceptada.incidencia().clave();
                 sufijos.put(clave, clave.substring(clave.lastIndexOf('-') + 1));
             }
         Set<String> enUso = sufijos.isEmpty() ? Set.of()
@@ -154,9 +154,9 @@ public class ImportadorDeTareas {
         return sufijos;
     }
 
-    // Crea o actualiza la tarea de un issue aceptado y escribe su historial. Responde la tarea guardada
-    private Tarea guardar(ContextoDeImportacion contexto, IssueAImportar aceptada, Tarea existente, String sufijoDeClave) {
-        DatosDeJira.Issue issue = aceptada.issue();
+    // Crea o actualiza la tarea de un incidencia aceptado y escribe su historial. Responde la tarea guardada
+    private Tarea guardar(ContextoDeImportacion contexto, IncidenciaAImportar aceptada, Tarea existente, String sufijoDeClave) {
+        DatosDeJira.Incidencia incidencia = aceptada.incidencia();
         boolean nueva = existente == null;
         Tarea tarea = nueva ? new Tarea() : existente;
         Map<String, String> antes = nueva ? Map.of() : valores(tarea);
@@ -167,21 +167,21 @@ public class ImportadorDeTareas {
             tarea.setIdUsuarioDeCreacion(contexto.idUsuario());
             tarea.numerarImportada(contexto.getProyecto().getPrefijo(), contexto.getProyecto().siguienteNumero(), sufijoDeClave);
         }
-        tarea.setTitulo(issue.titulo().length() > LARGO_DEL_TITULO ? issue.titulo().substring(0, LARGO_DEL_TITULO) : issue.titulo());
-        tarea.setDescripcion(issue.descripcion());
+        tarea.setTitulo(incidencia.titulo().length() > LARGO_DEL_TITULO ? incidencia.titulo().substring(0, LARGO_DEL_TITULO) : incidencia.titulo());
+        tarea.setDescripcion(incidencia.descripcion());
         tarea.setTipo(aceptada.tipo());
         if (nueva || Objects.equals(aceptada.estado().getTipoTablero().getId(), tarea.getTablero().getTipoTablero().getId()))
             tarea.setEstado(aceptada.estado());
         else
-            contexto.getResumen().advertir(issue.clave(), "Ya estaba importada en otro tablero: conservó su estado.");
-        tarea.setPrioridad(prioridad(issue.prioridad()));
-        tarea.setResponsable(usuariosDeJira.resolver(contexto, issue.responsable()));
-        tarea.setSprint(issue.sprintId() == null ? null : contexto.getSprints().get(issue.sprintId()));
+            contexto.getResumen().advertir(incidencia.clave(), "Ya estaba importada en otro tablero: conservó su estado.");
+        tarea.setPrioridad(prioridad(incidencia.prioridad()));
+        tarea.setResponsable(usuariosDeJira.resolver(contexto, incidencia.responsable()));
+        tarea.setSprint(incidencia.sprintId() == null ? null : contexto.getSprints().get(incidencia.sprintId()));
         tarea.setIdUsuarioDeActualizacion(contexto.idUsuario());
         Tarea guardada = tareaRepository.save(tarea);
         if (nueva) {
             registrar(contexto, guardada.getUuid(), AccionDeHistorial.CREAR, null, null, guardada.getClave());
-            mapeos.registrar(TipoDeEntidadJira.TAREA, issue.id(), guardada.getUuid(), contexto.idUsuario());
+            mapeos.registrar(TipoDeEntidadJira.TAREA, incidencia.id(), guardada.getUuid(), contexto.idUsuario());
         } else {
             valores(guardada).forEach((campo, nuevo) -> {
                 if (!Objects.equals(antes.get(campo), nuevo))
@@ -193,10 +193,10 @@ public class ImportadorDeTareas {
     }
 
     // Asigna el padre de Jira a cada tarea que lo tiene (ya validado en aceptar) y registra el cambio
-    private void padres(ContextoDeImportacion contexto, Map<String, IssueAImportar> aceptadas, Map<String, Tarea> porClave) {
-        for (IssueAImportar aceptada : aceptadas.values()) {
-            Tarea tarea = porClave.get(aceptada.issue().clave());
-            Tarea padre = aceptada.issue().padreClave() == null ? null : porClave.get(aceptada.issue().padreClave());
+    private void padres(ContextoDeImportacion contexto, Map<String, IncidenciaAImportar> aceptadas, Map<String, Tarea> porClave) {
+        for (IncidenciaAImportar aceptada : aceptadas.values()) {
+            Tarea tarea = porClave.get(aceptada.incidencia().clave());
+            Tarea padre = aceptada.incidencia().padreClave() == null ? null : porClave.get(aceptada.incidencia().padreClave());
             String anterior = tarea.getPadre() == null ? null : tarea.getPadre().getClave();
             String nuevo = padre == null ? null : padre.getClave();
             if (Objects.equals(anterior, nuevo))
@@ -210,16 +210,16 @@ public class ImportadorDeTareas {
     }
 
     // Sincroniza las etiquetas (las que ya no estan quedan con status -1) y agrega las versiones de Jira que falten
-    private void etiquetasYVersiones(ContextoDeImportacion contexto, Map<String, IssueAImportar> aceptadas, Map<String, Tarea> porClave) {
+    private void etiquetasYVersiones(ContextoDeImportacion contexto, Map<String, IncidenciaAImportar> aceptadas, Map<String, Tarea> porClave) {
         Map<Long, List<TareaEtiqueta>> etiquetas = new HashMap<>();
         etiquetaRepository.findByTareaInAndStatus(porClave.values(), 0)
                 .forEach(etiqueta -> etiquetas.computeIfAbsent(etiqueta.getTarea().getId(), id -> new ArrayList<>()).add(etiqueta));
         Map<Long, Set<Long>> versiones = new HashMap<>();
         tareaVersionRepository.findByTareaInAndStatus(porClave.values(), 0)
                 .forEach(asignacion -> versiones.computeIfAbsent(asignacion.getTarea().getId(), id -> new HashSet<>()).add(asignacion.getVersion().getId()));
-        for (IssueAImportar aceptada : aceptadas.values()) {
-            Tarea tarea = porClave.get(aceptada.issue().clave());
-            Set<String> pedidas = new LinkedHashSet<>(aceptada.issue().etiquetas().stream().map(String::trim).filter(texto -> !texto.isEmpty()).toList());
+        for (IncidenciaAImportar aceptada : aceptadas.values()) {
+            Tarea tarea = porClave.get(aceptada.incidencia().clave());
+            Set<String> pedidas = new LinkedHashSet<>(aceptada.incidencia().etiquetas().stream().map(String::trim).filter(texto -> !texto.isEmpty()).toList());
             for (TareaEtiqueta actual : etiquetas.getOrDefault(tarea.getId(), List.of())) {
                 if (!pedidas.remove(actual.getTexto())) {
                     actual.setStatus(-1);
@@ -231,7 +231,7 @@ public class ImportadorDeTareas {
                 etiqueta.setIdUsuarioDeCreacion(contexto.idUsuario());
                 etiquetaRepository.save(etiqueta);
             }
-            for (String idVersion : aceptada.issue().versionIds()) {
+            for (String idVersion : aceptada.incidencia().versionIds()) {
                 Version version = contexto.getVersiones().get(idVersion);
                 if (version != null && versiones.computeIfAbsent(tarea.getId(), id -> new HashSet<>()).add(version.getId())) {
                     TareaVersion asignacion = new TareaVersion(tarea, version);
@@ -301,14 +301,14 @@ public class ImportadorDeTareas {
     }
 
     /**
-     * Un issue de Jira con el tablero de Jira del que vino y, una vez aceptado, su tipo y estado de Shiro.
+     * Un incidencia de Jira con el tablero de Jira del que vino y, una vez aceptado, su tipo y estado de Shiro.
      */
-    private record IssueAImportar(DatosDeJira.Issue issue, String tablero, TipoTarea tipo, Estado estado) {
+    private record IncidenciaAImportar(DatosDeJira.Incidencia incidencia, String tablero, TipoTarea tipo, Estado estado) {
 
-        // El mismo issue sin padre (su padre no se importa o no es de un nivel mayor)
-        IssueAImportar sinPadre() {
-            DatosDeJira.Issue i = issue;
-            return new IssueAImportar(new DatosDeJira.Issue(i.id(), i.clave(), i.titulo(), i.descripcion(), i.tipoId(), i.estadoId(),
+        // El mismo incidencia sin padre (su padre no se importa o no es de un nivel mayor)
+        IncidenciaAImportar sinPadre() {
+            DatosDeJira.Incidencia i = incidencia;
+            return new IncidenciaAImportar(new DatosDeJira.Incidencia(i.id(), i.clave(), i.titulo(), i.descripcion(), i.tipoId(), i.estadoId(),
                     i.prioridad(), null, i.responsable(), i.etiquetas(), i.sprintId(), i.versionIds()), tablero, tipo, estado);
         }
     }

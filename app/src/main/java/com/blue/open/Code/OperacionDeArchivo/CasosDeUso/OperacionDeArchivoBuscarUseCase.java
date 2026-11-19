@@ -1,6 +1,10 @@
-package com.blue.open.Code.OperacionDeArchivo;
+package com.blue.open.Code.OperacionDeArchivo.CasosDeUso;
 
 import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
+import com.blue.open.Code.OperacionDeArchivo.ElementoArchivado;
+import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoBuscarRequestDTO;
+import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoBuscarResponseDTO;
+import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoRepository;
 import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Core.Kernel.DTO.Pagina;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +22,18 @@ import java.util.Locale;
  * archivados, solo para administradores. Filtra por tipo y texto, ordena por fecha de borrado (lo mas reciente
  * primero) y pagina.
  * Dependencias externas: la base de datos.
- * Recibe: ArchivoPaginarRequestDTO. Responde: una pagina de ArchivadoDTO.
+ * Recibe: OperacionDeArchivoBuscarRequestDTO. Responde: una pagina de OperacionDeArchivoBuscarResponseDTO.
  */
 @Service
 @RequiredArgsConstructor
-public class ArchivoBuscarUseCase {
+public class OperacionDeArchivoBuscarUseCase {
 
     private final OperacionDeArchivoRepository repository;
 
     private final ResolutorDePermisosDeRecurso permisos;
 
     @Transactional(readOnly = true)
-    public Pagina<ArchivadoDTO> ejecutar(ArchivoPaginarRequestDTO dto) {
+    public Pagina<OperacionDeArchivoBuscarResponseDTO> ejecutar(OperacionDeArchivoBuscarRequestDTO dto) {
         String tipo = dto.getTipo() == null || dto.getTipo().isBlank() ? null : dto.getTipo().trim().toUpperCase(Locale.ROOT);
         String texto = dto.getTexto() == null ? "" : dto.getTexto().trim().toLowerCase(Locale.ROOT);
         List<ElementoArchivado> candidatos = new ArrayList<>();
@@ -43,11 +47,11 @@ public class ArchivoBuscarUseCase {
             candidatos.addAll(repository.versionesArchivadas());
         if ((tipo == null || tipo.equals("USUARIO")) && permisos.esAdministrador())
             candidatos.addAll(repository.usuariosArchivados());
-        List<ArchivadoDTO> visibles = candidatos.stream()
+        List<OperacionDeArchivoBuscarResponseDTO> visibles = candidatos.stream()
                 .filter(elemento -> elemento.nombre().toLowerCase(Locale.ROOT).contains(texto))
                 .filter(this::puedeVer)
                 .sorted(Comparator.comparing(ElementoArchivado::fechaDeBorrado, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(ArchivadoDTO::new)
+                .map(OperacionDeArchivoBuscarResponseDTO::new)
                 .toList();
         int desde = Math.min((dto.getPagina() - 1) * dto.getTamano(), visibles.size());
         int hasta = Math.min(desde + dto.getTamano(), visibles.size());

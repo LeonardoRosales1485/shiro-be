@@ -15,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Pasos que comparten los casos de uso del ciclo de un sprint (T5.2): buscar el sprint con su permiso, validar las
@@ -54,9 +57,12 @@ public class TareasDeSprint {
 
     // Tareas vigentes del proyecto del sprint, de cualquier tipo. Lanza TAREA_FUERA_DEL_BACKLOG si alguna no lo es
     public List<Tarea> tareasDelProyecto(Sprint sprint, List<String> uuids) {
+        Map<String, Tarea> porUuid = new HashMap<>();
+        if (!uuids.isEmpty())
+            tareaRepository.vigentesConSprint(uuids).forEach(tarea -> porUuid.put(tarea.getUuid(), tarea));
         List<Tarea> tareas = new ArrayList<>();
         for (String uuid : uuids) {
-            Tarea tarea = tareaRepository.findFirstByUuidAndStatus(uuid, 0)
+            Tarea tarea = Optional.ofNullable(porUuid.get(uuid))
                     .filter(t -> t.getProyecto().getId().equals(sprint.getProyecto().getId()))
                     .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_FUERA_DEL_BACKLOG,
                             "TareasDeSprint | tarea " + uuid).conDato("tareaUuid", uuid));

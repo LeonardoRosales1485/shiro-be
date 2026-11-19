@@ -30,7 +30,7 @@ public class VerificadorDeTokenDeGoogle {
 
     // Client id OAuth de Shiro en Google; vacio deshabilita el ingreso con Google
     @Value("${shiro.google.client-id:}")
-    private String clientId;
+    private String idDeCliente;
 
     // Dominio de Google Workspace permitido (claim hd); vacio deshabilita el ingreso con Google
     @Value("${shiro.google.dominio:}")
@@ -42,7 +42,7 @@ public class VerificadorDeTokenDeGoogle {
      * DOMINIO_DE_GOOGLE_NO_PERMITIDO si la cuenta no es del dominio configurado.
      */
     public IdentidadDeGoogle verificar(String idToken) {
-        if (clientId == null || clientId.isBlank() || dominio == null || dominio.isBlank())
+        if (idDeCliente == null || idDeCliente.isBlank() || dominio == null || dominio.isBlank())
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.GOOGLE_NO_CONFIGURADO,
                     "VerificadorDeTokenDeGoogle | verificar | falta shiro.google.client-id o shiro.google.dominio");
         Claims claims = validarFirma(idToken);
@@ -58,7 +58,7 @@ public class VerificadorDeTokenDeGoogle {
     // Verifica firma, audiencia y vencimiento con jjwt. Lanza TOKEN_DE_GOOGLE_INVALIDO si algo no verifica
     private Claims validarFirma(String idToken) {
         try {
-            return Jwts.parserBuilder().requireAudience(clientId).setSigningKeyResolver(new SigningKeyResolverAdapter() {
+            return Jwts.parserBuilder().requireAudience(idDeCliente).setSigningKeyResolver(new SigningKeyResolverAdapter() {
                 @Override
                 public Key resolveSigningKey(JwsHeader encabezado, Claims claims) {
                     return claves.clave(encabezado.getKeyId())

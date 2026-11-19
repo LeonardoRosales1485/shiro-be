@@ -1,4 +1,4 @@
-package com.blue.open.Code.Usuario;
+package com.blue.open.Code.Common.Autenticacion;
 
 import com.blue.open.Core.Protocolo.ApiKey.AuthTokenService;
 import org.springframework.beans.factory.config.BeanDefinition;

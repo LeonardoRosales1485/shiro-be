@@ -3,6 +3,7 @@ package com.blue.open.Code.Sprint;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,4 +19,7 @@ public interface SprintRepository extends EntidadRepositoryBorradoLogico<Sprint>
 
     // Sprint del proyecto en el estado recibido (para el activo: hay uno como mucho)
     Optional<Sprint> findFirstByProyectoAndEstadoAndStatus(Proyecto proyecto, EstadoDeSprint estado, Integer status);
+
+    // Sprints del proyecto con el status recibido (el importador los resuelve en memoria)
+    List<Sprint> findByProyectoAndStatus(Proyecto proyecto, Integer status);
 }

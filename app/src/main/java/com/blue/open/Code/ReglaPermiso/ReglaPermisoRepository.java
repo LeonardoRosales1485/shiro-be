@@ -1,10 +1,6 @@
 package com.blue.open.Code.ReglaPermiso;
 
 import com.blue.open.Code.Autorizacion.ReglaEvaluable;
-import com.blue.open.Code.Proyecto.Proyecto;
-import com.blue.open.Code.Tablero.Tablero;
-import com.blue.open.Code.Usuario.Usuario;
-import com.blue.open.Core.Identity.Entidad.Rol;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,9 +22,13 @@ public interface ReglaPermisoRepository extends EntidadRepositoryBorradoLogico<R
             + "(SELECT ur.rol.id FROM UsuarioRol ur WHERE ur.idUsuario = :usuario AND ur.status = 0))")
     List<ReglaEvaluable> reglasDelUsuario(@Param("usuario") Long usuario);
 
-    // Si ya hay otra regla vigente con el mismo sujeto, recurso y nivel (id distinto del recibido; -1 en un alta)
-    boolean existsByRolAndUsuarioAndProyectoAndTableroAndNivelAndStatusAndIdNot(Rol rol, Usuario usuario,
-            Proyecto proyecto, Tablero tablero, NivelDePermiso nivel, Integer status, Long id);
+    // Si ya hay otra regla vigente con el mismo sujeto, recurso y nivel. Recibe los ids de grupo, usuario, proyecto y
+    // tablero (-1 si la regla no tiene ese dato) y el id de la regla que se guarda (-1 en un alta)
+    @Query("SELECT COUNT(r) > 0 FROM ReglaPermiso r LEFT JOIN r.rol ro LEFT JOIN r.usuario us LEFT JOIN r.proyecto pr "
+            + "LEFT JOIN r.tablero tb WHERE r.status = 0 AND r.id <> :id AND r.nivel = :nivel AND COALESCE(ro.id, -1) = :rol "
+            + "AND COALESCE(us.id, -1) = :usuario AND COALESCE(pr.id, -1) = :proyecto AND COALESCE(tb.id, -1) = :tablero")
+    boolean existeOtraIgual(@Param("rol") Long rol, @Param("usuario") Long usuario, @Param("proyecto") Long proyecto,
+            @Param("tablero") Long tablero, @Param("nivel") NivelDePermiso nivel, @Param("id") Long id);
 
     // Regla por uuid con el status recibido
     Optional<ReglaPermiso> findFirstByUuidAndStatus(String uuid, Integer status);

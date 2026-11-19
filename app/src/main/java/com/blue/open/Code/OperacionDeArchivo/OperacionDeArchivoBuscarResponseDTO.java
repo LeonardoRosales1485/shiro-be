@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ArchivadoDTO extends EntidadBaseDTO {
+public class OperacionDeArchivoBuscarResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO")
     private String tipo;
@@ -32,7 +32,7 @@ public class ArchivadoDTO extends EntidadBaseDTO {
     private Timestamp fechaDeBorrado;
 
     // Arma el DTO a partir del elemento archivado
-    public ArchivadoDTO(ElementoArchivado elemento) {
+    public OperacionDeArchivoBuscarResponseDTO(ElementoArchivado elemento) {
         setUuid(elemento.uuid());
         setStatus(-1);
         this.tipo = elemento.tipo();

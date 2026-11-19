@@ -1,8 +1,9 @@
-package com.blue.open.Code.Tarea;
+package com.blue.open.Code.Proyecto;
 
 import com.blue.open.Code.Common.Mcp.RespuestaDeHerramienta;
-import com.blue.open.Code.Tarea.CasosDeUso.TareaBacklogUseCase;
-import com.blue.open.Code.Tarea.CasosDeUso.TareaOrdenarBacklogUseCase;
+import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoBacklogUseCase;
+import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoOrdenarBacklogUseCase;
+import com.blue.open.Code.Tarea.ReferenciasDeMcp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
@@ -22,14 +23,14 @@ public class HerramientasMcpDeBacklog {
 
     private final ReferenciasDeMcp referencias;
 
-    private final TareaBacklogUseCase backlogUseCase;
+    private final ProyectoBacklogUseCase backlogUseCase;
 
-    private final TareaOrdenarBacklogUseCase ordenarUseCase;
+    private final ProyectoOrdenarBacklogUseCase ordenarUseCase;
 
     // Backlog del proyecto en su orden unico
     @McpTool(name = "ver_backlog", description = "Muestra el backlog de un proyecto: las tareas sin sprint de todos los tipos, en su orden único.")
     public RespuestaDeHerramienta verBacklog(@McpToolParam(description = "Prefijo del proyecto", required = true) String proyecto) {
-        List<TareaDeBacklogDTO> backlog = backlogUseCase.ejecutar(referencias.proyecto(proyecto).getUuid());
+        List<ProyectoBacklogResponseDTO> backlog = backlogUseCase.ejecutar(referencias.proyecto(proyecto).getUuid());
         return new RespuestaDeHerramienta(backlog.size() + " tareas en el backlog de " + proyecto.toUpperCase(), backlog);
     }
 
@@ -39,10 +40,9 @@ public class HerramientasMcpDeBacklog {
     public RespuestaDeHerramienta ordenarBacklog(
             @McpToolParam(description = "Prefijo del proyecto", required = true) String proyecto,
             @McpToolParam(description = "Claves de las tareas en el orden nuevo", required = true) List<String> tareas) {
-        TareaOrdenarBacklogRequestDTO pedido = new TareaOrdenarBacklogRequestDTO();
-        pedido.setProyectoUuid(referencias.proyecto(proyecto).getUuid());
-        pedido.setTareas(tareas.stream().map(clave -> referencias.tarea(clave).getUuid()).toList());
-        List<TareaDeBacklogDTO> backlog = ordenarUseCase.ejecutar(pedido);
+        ProyectoOrdenarBacklogRequestDTO pedido = new ProyectoOrdenarBacklogRequestDTO();
+        pedido.setTareas(referencias.uuidsDeTareas(tareas));
+        List<ProyectoBacklogResponseDTO> backlog = ordenarUseCase.ejecutar(referencias.proyecto(proyecto).getUuid(), pedido);
         return new RespuestaDeHerramienta("Backlog de " + proyecto.toUpperCase() + " ordenado", backlog);
     }
 }

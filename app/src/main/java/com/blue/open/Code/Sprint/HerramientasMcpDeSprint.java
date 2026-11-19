@@ -102,7 +102,7 @@ public class HerramientasMcpDeSprint {
         pedido.setSprintDestinoUuid(aOtroSprint ? sprint(proyecto, sprintDestino).getUuid() : null);
         if (!Confirmacion.confirmada(confirmar)) {
             tareasDeSprint.sprint(sprint.getUuid());
-            List<Tarea> tareas = tareaRepository.findBySprintAndStatus(sprint, 0);
+            List<Tarea> tareas = tareaRepository.vigentesDelSprint(sprint);
             long terminadas = tareas.stream().filter(t -> t.getEstado().isTerminado()).count();
             return Confirmacion.vistaPrevia("Se cerraría el sprint " + sprint.getNombre() + ": " + terminadas
                     + " tareas terminadas quedan en el sprint y " + (tareas.size() - terminadas) + " sin terminar van "
@@ -121,7 +121,7 @@ public class HerramientasMcpDeSprint {
     // Pedido de tareas a partir de sus claves
     private SprintTareasRequestDTO pedido(List<String> claves) {
         SprintTareasRequestDTO pedido = new SprintTareasRequestDTO();
-        pedido.setTareas(claves == null ? List.of() : claves.stream().map(clave -> referencias.tarea(clave).getUuid()).toList());
+        pedido.setTareas(referencias.uuidsDeTareas(claves));
         return pedido;
     }
 }

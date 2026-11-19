@@ -1,5 +1,6 @@
 package com.blue.open.Code.OperacionDeArchivo;
 
+import com.blue.open.Code.OperacionDeArchivo.CasosDeUso.OperacionDeArchivoBuscarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.DTO.Pagina;
 import jakarta.validation.Valid;
@@ -20,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ArchivoController {
 
-    private final ArchivoBuscarUseCase buscarUseCase;
+    private final OperacionDeArchivoBuscarUseCase buscarUseCase;
 
-    // Busca lo archivado que el usuario puede archivar y restaurar. Responde una pagina de ArchivadoDTO
+    // Busca lo archivado que el usuario puede archivar y restaurar. Responde una pagina de OperacionDeArchivoBuscarResponseDTO
     @PostMapping("/paginar")
     @Contrato(casoDeUso = "CU-ARC-01", resumen = "Busca lo archivado de cualquier tipo sobre lo que el usuario tiene permiso de archivo",
             permiso = Contrato.AUTENTICADO)
-    public ResponseEntity<Pagina<ArchivadoDTO>> paginar(@Valid @RequestBody ArchivoPaginarRequestDTO dto) {
+    public ResponseEntity<Pagina<OperacionDeArchivoBuscarResponseDTO>> paginar(@Valid @RequestBody OperacionDeArchivoBuscarRequestDTO dto) {
         return new ResponseEntity<>(buscarUseCase.ejecutar(dto), HttpStatus.OK);
     }
 }

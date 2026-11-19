@@ -128,11 +128,13 @@ public class ResolutorDePermisosDeRecurso {
         return delUsuario;
     }
 
+    // Lee un atributo cacheado en el request actual; null si no hay request o no esta
     private static Object atributo(String nombre) {
         RequestAttributes atributos = RequestContextHolder.getRequestAttributes();
         return atributos == null ? null : atributos.getAttribute(nombre, RequestAttributes.SCOPE_REQUEST);
     }
 
+    // Cachea un valor en el request actual, para no repetir consultas en el mismo request
     private static void guardar(String nombre, Object valor) {
         RequestAttributes atributos = RequestContextHolder.getRequestAttributes();
         if (atributos != null) {

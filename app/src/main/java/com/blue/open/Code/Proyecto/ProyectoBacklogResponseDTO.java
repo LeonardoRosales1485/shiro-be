@@ -1,5 +1,6 @@
-package com.blue.open.Code.Tarea;
+package com.blue.open.Code.Proyecto;
 
+import com.blue.open.Code.Tarea.PrioridadDeTarea;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.EntidadBaseDTO;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class TareaDeBacklogDTO extends EntidadBaseDTO {
+public class ProyectoBacklogResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Clave de la tarea")
     private String clave;
@@ -39,7 +40,7 @@ public class TareaDeBacklogDTO extends EntidadBaseDTO {
     private String responsableNombre;
 
     // Constructor de la proyeccion (TareaRepository.backlogDe)
-    public TareaDeBacklogDTO(String uuid, String clave, String titulo, String tipoCodigo, String estadoNombre,
+    public ProyectoBacklogResponseDTO(String uuid, String clave, String titulo, String tipoCodigo, String estadoNombre,
             String tableroCodigo, PrioridadDeTarea prioridad, Integer puntos, String responsableNombre) {
         setUuid(uuid);
         this.clave = clave;

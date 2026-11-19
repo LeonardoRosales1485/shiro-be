@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.32"
+  version: "1.0.33"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -25,12 +25,9 @@ info:
     | `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |
     | `CREDENCIAL_NO_DESCIFRABLE` | 400 | Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira. | Al ejecutar una importación, el token de Jira guardado no se puede descifrar (cambió la frase de cifrado del servidor): hay que volver a conectar |
     | `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |
-    | `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |
     | `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |
     | `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |
     | `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |
-    | `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |
-    | `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |
     | `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |
     | `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |
     | `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |
@@ -99,7 +96,6 @@ servers:
 tags:
 - name: "AccessToken"
 - name: "Archivo"
-- name: "Backlog"
 - name: "Comentario"
 - name: "Configuracion"
 - name: "Importacion"
@@ -135,7 +131,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ArchivoPaginarRequestDTO"
+              $ref: "#/components/schemas/OperacionDeArchivoBuscarRequestDTO"
             examples:
               solo-aparecen-los-elementos-con-archivar-sobre-su-recurso:
                 summary: "Solo aparecen los elementos con archivar sobre su recurso (CLIENTE)"
@@ -172,7 +168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pagina_ArchivadoDTO_"
+                $ref: "#/components/schemas/Pagina_OperacionDeArchivoBuscarResponseDTO_"
               examples:
                 solo-aparecen-los-elementos-con-archivar-sobre-su-recurso:
                   summary: "Solo aparecen los elementos con archivar sobre su recurso (CLIENTE)"
@@ -205,7 +201,7 @@ paths:
                     contenido:
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
-                      nombre: "SHI-6 Archivada en Shiro"
+                      nombre: "SHI-7 Archivada en Shiro"
                       proyectoPrefijo: "SHI"
                       status: -1
                       tipo: "TAREA"
@@ -243,7 +239,7 @@ paths:
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
-                      nombre: "SHI-6 Tarea archivada para buscar"
+                      nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
                       tipo: "TAREA"
@@ -269,7 +265,7 @@ paths:
                     contenido:
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
-                      nombre: "SHI-6 Tarea archivada para buscar"
+                      nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
                       tipo: "TAREA"
@@ -295,7 +291,7 @@ paths:
                     contenido:
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
-                      nombre: "SHI-6 Tarea archivada para buscar"
+                      nombre: "SHI-7 Tarea archivada para buscar"
                       proyectoPrefijo: "SHI"
                       status: -1
                       tipo: "TAREA"
@@ -326,420 +322,6 @@ paths:
                     totalDePaginas: 2
                     ultima: true
                     vacia: false
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-  /backlog/ordenar:
-    post:
-      tags:
-      - "Backlog"
-      operationId: "BacklogController.ordenar"
-      summary: "Ordena el backlog de un proyecto (un único orden para todos)"
-      description: |-
-        **Caso de uso:** CU-BKL-02
-
-        **Requiere sesión:** sin rol ni permiso puntual.
-      x-caso-de-uso: "CU-BKL-02"
-      security:
-      - bearer: []
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TareaOrdenarBacklogRequestDTO"
-            examples:
-              sin-editar-el-proyecto-no-se-ordena:
-                summary: "Sin editar el proyecto no se ordena (CLIENTE)"
-                value:
-                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
-                  tareas:
-                  - "b3000000-0000-4000-8000-000000000001"
-              el-orden-se-conserva-entre-usuarios:
-                summary: "El orden se conserva entre usuarios (ADMIN)"
-                value:
-                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
-                  tareas:
-                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-              una-tarea-de-otro-proyecto-no-se-ordena:
-                summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
-                value:
-                  proyectoUuid: "b1000000-0000-4000-8000-000000000001"
-                  tareas:
-                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/TareaDeBacklogDTO"
-              examples:
-                el-orden-se-conserva-entre-usuarios:
-                  summary: "El orden se conserva entre usuarios (ADMIN)"
-                  value:
-                  - clave: "SHI-4"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "HISTORIA"
-                    titulo: "Tercera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-        "400":
-          description: "Errores: `TAREA_FUERA_DEL_BACKLOG`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                una-tarea-de-otro-proyecto-no-se-ordena:
-                  summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
-                  value:
-                    codigo: "TAREA_FUERA_DEL_BACKLOG"
-                    datos:
-                      tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Una de las tareas no está en el backlog del proyecto."
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-editar-el-proyecto-no-se-ordena:
-                  summary: "Sin editar el proyecto no se ordena (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tenés permiso para editar en el proyecto."
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
-  /backlog/proyecto/{uuid}:
-    get:
-      tags:
-      - "Backlog"
-      operationId: "BacklogController.backlog"
-      summary: "Backlog de un proyecto: tareas sin sprint de todos los tableros, en su orden único"
-      description: |-
-        **Caso de uso:** CU-BKL-01
-
-        **Requiere sesión:** sin rol ni permiso puntual.
-      x-caso-de-uso: "CU-BKL-01"
-      security:
-      - bearer: []
-      parameters:
-      - name: "uuid"
-        in: "path"
-        required: true
-        description: "Uuid del proyecto"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/TareaDeBacklogDTO"
-              examples:
-                tiene-todos-los-tipos:
-                  summary: "Tiene todos los tipos (ADMIN)"
-                  value:
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "EPICA"
-                    titulo: "Épica en el backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-3"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "HISTORIA"
-                    titulo: "Historia en el backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                el-orden-se-conserva-entre-usuarios:
-                  summary: "El orden se conserva entre usuarios (ADMIN)"
-                  value:
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-3"
-                    estadoNombre: "Por probar"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "QA"
-                    tipoCodigo: "BUG"
-                    titulo: "Segunda del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                el-orden-se-conserva-entre-usuarios-2:
-                  summary: "El orden se conserva entre usuarios (2) (ADMIN)"
-                  value:
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-3"
-                    estadoNombre: "Por probar"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "QA"
-                    tipoCodigo: "BUG"
-                    titulo: "Segunda del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                el-orden-se-conserva-entre-usuarios-3:
-                  summary: "El orden se conserva entre usuarios (3) (ADMIN)"
-                  value:
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-3"
-                    estadoNombre: "Por probar"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "QA"
-                    tipoCodigo: "BUG"
-                    titulo: "Segunda del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                el-orden-se-conserva-entre-usuarios-4:
-                  summary: "El orden se conserva entre usuarios (4) (ADMIN)"
-                  value:
-                  - clave: "SHI-4"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "HISTORIA"
-                    titulo: "Tercera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-                el-orden-se-conserva-entre-usuarios-5:
-                  summary: "El orden se conserva entre usuarios (5) (CLIENTE)"
-                  value:
-                  - clave: "SHI-4"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "HISTORIA"
-                    titulo: "Tercera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                  - clave: "SHI-2"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Primera del backlog"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                  - clave: "SHI-1"
-                    estadoNombre: "Por hacer"
-                    fechaDeCreacion: null
-                    prioridad: "MEDIA"
-                    puntos: null
-                    responsableNombre: null
-                    status: 0
-                    tableroCodigo: "PRINCIPAL"
-                    tipoCodigo: "TAREA"
-                    titulo: "Definir el tablero principal de Shiro"
-                    uuid: "b3000000-0000-4000-8000-000000000001"
-        "400":
-          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                proyecto-inexistente:
-                  summary: "Proyecto inexistente (ADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe el registro"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:
@@ -1629,7 +1211,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39669"
+                  url: "http://127.0.0.1:36015"
               solo-sitios-de-atlassian:
                 summary: "Solo sitios de atlassian (SYSADMIN)"
                 value:
@@ -1665,7 +1247,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "otro-token"
-                  url: "http://127.0.0.1:39669"
+                  url: "http://127.0.0.1:36015"
               proyecto-inexistente-en-jira:
                 summary: "Proyecto inexistente en jira (SYSADMIN)"
                 value:
@@ -1673,7 +1255,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39669"
+                  url: "http://127.0.0.1:36015"
               el-prefijo-tiene-de-dos-a-seis-letras:
                 summary: "El prefijo tiene de dos a seis letras (SYSADMIN)"
                 value:
@@ -1681,7 +1263,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "S1"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39669"
+                  url: "http://127.0.0.1:36015"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -1689,7 +1271,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:46637"
               un-proyecto-ya-importado-no-cambia-de-prefijo-2:
                 summary: "Un proyecto ya importado no cambia de prefijo (2) (SYSADMIN)"
                 value:
@@ -1697,7 +1279,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "OTRO"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:38579"
+                  url: "http://127.0.0.1:46637"
       responses:
         "200":
           description: "OK"
@@ -3186,7 +2768,7 @@ paths:
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
         "503":
-          description: "Errores: `JIRA_NO_DISPONIBLE`"
+          description: "Errores: `CIFRADO_NO_CONFIGURADO`, `JIRA_NO_DISPONIBLE`"
           content:
             application/json:
               schema:
@@ -3199,6 +2781,15 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Jira no responde. Revisá la URL o volvé a intentar en unos minutos."
+                    status: "503 SERVICE_UNAVAILABLE"
+                    traceId: "0000000000000000"
+                sin-frase-de-cifrado:
+                  summary: "Sin frase de cifrado (SYSADMIN)"
+                  value:
+                    codigo: "CIFRADO_NO_CONFIGURADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "El importador de Jira no está habilitado en este servidor."
                     status: "503 SERVICE_UNAVAILABLE"
                     traceId: "0000000000000000"
   /importacion/paginar:
@@ -3239,7 +2830,7 @@ paths:
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - claveProyectoJira: "EJ"
                       correo: "importador@example.local"
@@ -3253,10 +2844,22 @@ paths:
                       status: 0
                       urlJira: "https://ejemplo.atlassian.net"
                       uuid: "b8000000-0000-4000-8000-000000000001"
+                    - claveProyectoJira: "EJD"
+                      correo: "importador@example.local"
+                      estado: "EN_CURSO"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      mapeo: "{\"tableros\":{},\"estados\":{},\"tipos\":{},\"duracionDeSprintEnDias\":14}"
+                      nombreProyectoJira: "Proyecto de ejemplo en curso"
+                      prefijo: "EJD"
+                      proyectoUuid: null
+                      resumen: null
+                      status: 0
+                      urlJira: "https://ejemplo.atlassian.net"
+                      uuid: "b8000000-0000-4000-8000-000000000002"
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 1
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -3334,7 +2937,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39669"
+                    urlJira: "http://127.0.0.1:36015"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
@@ -3508,6 +3111,22 @@ paths:
                       usuarioUuid: null
                       uuid: null
                     uuid: null
+        "400":
+          description: "Errores: `CREDENCIAL_NO_DESCIFRABLE`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                credenciales-que-ya-no-se-descifran:
+                  summary: "Credenciales que ya no se descifran (SYSADMIN)"
+                  value:
+                    codigo: "CREDENCIAL_NO_DESCIFRABLE"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Las credenciales de Jira guardadas ya no sirven. Volvé a conectar con Jira."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:
@@ -3576,13 +3195,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f3b4-fe09-745e-b725-b02cc100ddab\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f3b4-fe11-7c27-89cf-ced15bc7807e\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f3d0-de51-7ac4-8519-682bcc86fdc5\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f3d0-de57-70cf-8fb1-47b596c17121\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3597,7 +3216,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3612,7 +3231,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3627,7 +3246,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -3642,7 +3261,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -3657,7 +3276,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -3672,7 +3291,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -3687,7 +3306,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -3702,7 +3321,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica-2:
                   summary: "Reimportar no duplica (2) (SYSADMIN)"
@@ -3717,7 +3336,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
           description: "Errores: `IMPORTACION_SIN_MAPEO`, `REGISTRO_NO_ENCONTRADO`"
@@ -3775,6 +3394,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+        "409":
+          description: "Errores: `IMPORTACION_EN_CURSO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-importacion-en-curso-no-se-ejecuta-ni-se-mapea:
+                  summary: "Una importacion en curso no se ejecuta ni se mapea (SYSADMIN)"
+                  value:
+                    codigo: "IMPORTACION_EN_CURSO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La importación está en curso. Esperá a que termine."
+                    status: "409 CONFLICT"
                     traceId: "0000000000000000"
   /importacion/{uuid}/mapeo:
     post:
@@ -3860,12 +3495,12 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
               un-tipo-sin-mapear-queda-en-las-fallas:
                 summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
                 value:
@@ -3918,12 +3553,12 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
                   - idJira: "10002"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
       responses:
         "200":
           description: "OK"
@@ -3939,13 +3574,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f3b4-fe09-745e-b725-b02cc100ddab\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f3b4-fe11-7c27-89cf-ced15bc7807e\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f3d0-de51-7ac4-8519-682bcc86fdc5\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f3d0-de57-70cf-8fb1-47b596c17121\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -3960,7 +3595,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -3975,7 +3610,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -3990,7 +3625,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -4005,7 +3640,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 mapear-deja-la-importacion-lista:
                   summary: "Mapear deja la importacion lista (SYSADMIN)"
@@ -4020,7 +3655,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -4035,7 +3670,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -4050,7 +3685,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -4065,7 +3700,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -4080,7 +3715,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:38579"
+                    urlJira: "http://127.0.0.1:46637"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
         "400":
           description: "Errores: `FORMULARIO_INVALIDO`, `MAPEO_DE_JIRA_INVALIDO`"
@@ -4158,6 +3793,22 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+        "409":
+          description: "Errores: `IMPORTACION_EN_CURSO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-importacion-en-curso-no-se-ejecuta-ni-se-mapea:
+                  summary: "Una importacion en curso no se ejecuta ni se mapea (SYSADMIN)"
+                  value:
+                    codigo: "IMPORTACION_EN_CURSO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La importación está en curso. Esperá a que termine."
+                    status: "409 CONFLICT"
                     traceId: "0000000000000000"
   /permiso/paginar:
     post:
@@ -5136,7 +4787,7 @@ paths:
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
-                    descripcion: "Importado de Jira (http://127.0.0.1:38579)"
+                    descripcion: "Importado de Jira (http://127.0.0.1:46637)"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Proyecto simulado"
                     prefijo: "SIM"
@@ -5321,6 +4972,423 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tenés permiso para archivar en el proyecto."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /proyecto/{uuid}/backlog:
+    get:
+      tags:
+      - "Proyecto"
+      operationId: "ProyectoController.backlog"
+      summary: "Backlog de un proyecto: tareas sin sprint de todos los tableros y tipos, en su orden único"
+      description: |-
+        **Caso de uso:** CU-BKL-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-BKL-01"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del proyecto"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ProyectoBacklogResponseDTO"
+              examples:
+                tiene-todos-los-tipos:
+                  summary: "Tiene todos los tipos (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "ALTA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Importar los proyectos de Jira"
+                    uuid: "b3000000-0000-4000-8000-000000000002"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "EPICA"
+                    titulo: "Épica en el backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-orden-se-conserva-entre-usuarios:
+                  summary: "El orden se conserva entre usuarios (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "ALTA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Importar los proyectos de Jira"
+                    uuid: "b3000000-0000-4000-8000-000000000002"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-orden-se-conserva-entre-usuarios-2:
+                  summary: "El orden se conserva entre usuarios (2) (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "ALTA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Importar los proyectos de Jira"
+                    uuid: "b3000000-0000-4000-8000-000000000002"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-orden-se-conserva-entre-usuarios-3:
+                  summary: "El orden se conserva entre usuarios (3) (ADMIN)"
+                  value:
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                  - clave: "SHI-2"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "ALTA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Importar los proyectos de Jira"
+                    uuid: "b3000000-0000-4000-8000-000000000002"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-orden-se-conserva-entre-usuarios-4:
+                  summary: "El orden se conserva entre usuarios (4) (ADMIN)"
+                  value:
+                  - clave: "SHI-5"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                el-orden-se-conserva-entre-usuarios-5:
+                  summary: "El orden se conserva entre usuarios (5) (CLIENTE)"
+                  value:
+                  - clave: "SHI-5"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                proyecto-inexistente:
+                  summary: "Proyecto inexistente (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /proyecto/{uuid}/ordenar-backlog:
+    post:
+      tags:
+      - "Proyecto"
+      operationId: "ProyectoController.ordenarBacklog"
+      summary: "Ordena el backlog de un proyecto (un único orden para todos)"
+      description: |-
+        **Caso de uso:** CU-BKL-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-BKL-02"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del proyecto"
+        schema:
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProyectoOrdenarBacklogRequestDTO"
+            examples:
+              sin-editar-el-proyecto-no-se-ordena:
+                summary: "Sin editar el proyecto no se ordena (CLIENTE)"
+                value:
+                  tareas:
+                  - "b3000000-0000-4000-8000-000000000001"
+              el-orden-se-conserva-entre-usuarios:
+                summary: "El orden se conserva entre usuarios (ADMIN)"
+                value:
+                  tareas:
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+              una-tarea-de-otro-proyecto-no-se-ordena:
+                summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
+                value:
+                  tareas:
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ProyectoBacklogResponseDTO"
+              examples:
+                el-orden-se-conserva-entre-usuarios:
+                  summary: "El orden se conserva entre usuarios (ADMIN)"
+                  value:
+                  - clave: "SHI-5"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "HISTORIA"
+                    titulo: "Tercera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  - clave: "SHI-3"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Primera del backlog"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                  - clave: "SHI-1"
+                    estadoNombre: "Por hacer"
+                    fechaDeCreacion: null
+                    prioridad: "MEDIA"
+                    puntos: null
+                    responsableNombre: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tipoCodigo: "TAREA"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+        "400":
+          description: "Errores: `TAREA_FUERA_DEL_BACKLOG`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                una-tarea-de-otro-proyecto-no-se-ordena:
+                  summary: "Una tarea de otro proyecto no se ordena (ADMIN)"
+                  value:
+                    codigo: "TAREA_FUERA_DEL_BACKLOG"
+                    datos:
+                      tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una de las tareas no está en el backlog del proyecto."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-editar-el-proyecto-no-se-ordena:
+                  summary: "Sin editar el proyecto no se ordena (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tenés permiso para editar en el proyecto."
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
   /proyecto/{uuid}/restaurar:
@@ -6033,10 +6101,10 @@ paths:
                 la-relacion-se-lee-desde-las-dos-tareas:
                   summary: "La relacion se lee desde las dos tareas (ADMIN)"
                   value:
-                    destinoClave: "SHI-3"
+                    destinoClave: "SHI-4"
                     destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    origenClave: "SHI-2"
+                    origenClave: "SHI-3"
                     origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: 0
                     tipo: "BLOQUEA"
@@ -6044,10 +6112,10 @@ paths:
                 la-misma-relacion-no-se-repite-en-ningun-sentido:
                   summary: "La misma relacion no se repite en ningun sentido (ADMIN)"
                   value:
-                    destinoClave: "SHI-3"
+                    destinoClave: "SHI-4"
                     destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    origenClave: "SHI-2"
+                    origenClave: "SHI-3"
                     origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: 0
                     tipo: "RELACIONA"
@@ -6055,10 +6123,10 @@ paths:
                 con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
                   summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
                   value:
-                    destinoClave: "SHI-2"
+                    destinoClave: "SHI-3"
                     destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    origenClave: "SHI-3"
+                    origenClave: "SHI-4"
                     origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: 0
                     tipo: "DUPLICA"
@@ -6200,10 +6268,10 @@ paths:
                 la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial:
                   summary: "La relacion archivada deja de leerse y queda en el historial (ADMIN)"
                   value:
-                    destinoClave: "SHI-3"
+                    destinoClave: "SHI-4"
                     destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    origenClave: "SHI-2"
+                    origenClave: "SHI-3"
                     origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: -1
                     tipo: "BLOQUEA"
@@ -6211,10 +6279,10 @@ paths:
                 archivar-dos-veces-rechazado:
                   summary: "Archivar dos veces rechazado (ADMIN)"
                   value:
-                    destinoClave: "SHI-3"
+                    destinoClave: "SHI-4"
                     destinoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    origenClave: "SHI-2"
+                    origenClave: "SHI-3"
                     origenUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: -1
                     tipo: "RELACIONA"
@@ -6997,6 +7065,13 @@ paths:
                   inicio: "2026-12-01"
                   nombre: "Sin permiso"
                   proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+              reglas-del-ciclo-de-vida:
+                summary: "Reglas del ciclo de vida (ADMIN)"
+                value:
+                  fin: "2026-12-14"
+                  inicio: "2026-12-01"
+                  nombre: "Activo"
+                  proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               crear-asignar-iniciar-y-cerrar-al-backlog:
                 summary: "Crear asignar iniciar y cerrar al backlog (ADMIN)"
                 value:
@@ -7017,13 +7092,6 @@ paths:
                   fin: "2026-12-14"
                   inicio: "2026-12-01"
                   nombre: "Segundo"
-                  proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-              un-sprint-activo-no-se-archiva-y-uno-planificado-devuelve-sus-tareas:
-                summary: "Un sprint activo no se archiva y uno planificado devuelve sus tareas (ADMIN)"
-                value:
-                  fin: "2026-12-14"
-                  inicio: "2026-12-01"
-                  nombre: "Activo"
                   proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
               un-sprint-activo-no-se-archiva-y-uno-planificado-devuelve-sus-tareas-2:
                 summary: "Un sprint activo no se archiva y uno planificado devuelve sus tareas (2) (ADMIN)"
@@ -7084,6 +7152,18 @@ paths:
                     inicio: "2026-12-01"
                     nombre: "Sprint"
                     proyectoPrefijo: "SPE"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                reglas-del-ciclo-de-vida:
+                  summary: "Reglas del ciclo de vida (ADMIN)"
+                  value:
+                    estado: "PLANIFICADO"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fin: "2026-12-14"
+                    inicio: "2026-12-01"
+                    nombre: "Activo"
+                    proyectoPrefijo: "SPF"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
@@ -7586,7 +7666,7 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
         "400":
-          description: "Errores: `TAREA_FUERA_DEL_BACKLOG`"
+          description: "Errores: `SPRINT_CERRADO`, `TAREA_FUERA_DEL_BACKLOG`"
           content:
             application/json:
               schema:
@@ -7601,6 +7681,15 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Una de las tareas no está en el backlog del proyecto."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                reglas-del-ciclo-de-vida:
+                  summary: "Reglas del ciclo de vida (ADMIN)"
+                  value:
+                    codigo: "SPRINT_CERRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "El sprint está cerrado: no se le asignan ni quitan tareas."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
@@ -7675,6 +7764,18 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                reglas-del-ciclo-de-vida-2:
+                  summary: "Reglas del ciclo de vida (2) (ADMIN)"
+                  value:
+                    estado: "CERRADO"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fin: "2026-12-14"
+                    inicio: "2026-12-01"
+                    nombre: "Activo"
+                    proyectoPrefijo: "SPF"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 crear-asignar-iniciar-y-cerrar-al-backlog:
                   summary: "Crear asignar iniciar y cerrar al backlog (ADMIN)"
                   value:
@@ -7688,7 +7789,7 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
-          description: "Errores: `SPRINT_NO_ACTIVO`"
+          description: "Errores: `SPRINT_DESTINO_INVALIDO`, `SPRINT_NO_ACTIVO`"
           content:
             application/json:
               schema:
@@ -7701,6 +7802,15 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Solo se cierra el sprint activo."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                reglas-del-ciclo-de-vida:
+                  summary: "Reglas del ciclo de vida (ADMIN)"
+                  value:
+                    codigo: "SPRINT_DESTINO_INVALIDO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "El sprint de destino tiene que ser un sprint planificado del mismo proyecto."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
@@ -7759,6 +7869,18 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                reglas-del-ciclo-de-vida:
+                  summary: "Reglas del ciclo de vida (ADMIN)"
+                  value:
+                    estado: "ACTIVO"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    fin: "2026-12-14"
+                    inicio: "2026-12-01"
+                    nombre: "Activo"
+                    proyectoPrefijo: "SPF"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 crear-asignar-iniciar-y-cerrar-al-backlog:
                   summary: "Crear asignar iniciar y cerrar al backlog (ADMIN)"
                   value:
@@ -7796,12 +7918,21 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
-          description: "Errores: `SPRINT_ACTIVO_EXISTENTE`"
+          description: "Errores: `SPRINT_ACTIVO_EXISTENTE`, `SPRINT_NO_PLANIFICADO`"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                reglas-del-ciclo-de-vida-2:
+                  summary: "Reglas del ciclo de vida (2) (ADMIN)"
+                  value:
+                    codigo: "SPRINT_NO_PLANIFICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo se inicia un sprint planificado."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 un-solo-sprint-activo-por-proyecto-2:
                   summary: "Un solo sprint activo por proyecto (2) (ADMIN)"
                   value:
@@ -8202,7 +8333,7 @@ paths:
                 una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero:
                   summary: "Una regla de usuario sobre un tablero habilita solo ese tablero"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -8233,7 +8364,7 @@ paths:
                 guardar-alta:
                   summary: "Guardar alta (SYSADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8264,7 +8395,7 @@ paths:
                 dos-guardados-con-la-misma-fecha-leida:
                   summary: "Dos guardados con la misma fecha leida (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8295,7 +8426,7 @@ paths:
                 con-la-fecha-nueva-se-puede-volver-a-editar:
                   summary: "Con la fecha nueva se puede volver a editar (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8326,7 +8457,7 @@ paths:
                 con-la-fecha-nueva-se-puede-volver-a-editar-2:
                   summary: "Con la fecha nueva se puede volver a editar (2) (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8357,7 +8488,7 @@ paths:
                 cada-tarea-recibe-una-clave-distinta-del-proyecto:
                   summary: "Cada tarea recibe una clave distinta del proyecto (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8388,7 +8519,7 @@ paths:
                 cada-tarea-recibe-una-clave-distinta-del-proyecto-2:
                   summary: "Cada tarea recibe una clave distinta del proyecto (2) (ADMIN)"
                   value:
-                    clave: "SHI-3"
+                    clave: "SHI-4"
                     descripcion: null
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -8419,7 +8550,7 @@ paths:
                 crea-en-modo-rapido-solo-con-tipo-y-titulo:
                   summary: "Crea en modo rapido solo con tipo y titulo (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -8450,7 +8581,7 @@ paths:
                 crea-con-todos-los-datos:
                   summary: "Crea con todos los datos (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: "Trae los **sprints** y sus fechas."
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8489,7 +8620,7 @@ paths:
                 editar-cambia-los-campos-y-conserva-clave-estado-y-tablero:
                   summary: "Editar cambia los campos y conserva clave estado y tablero (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8528,7 +8659,7 @@ paths:
                 editar-cambia-los-campos-y-conserva-clave-estado-y-tablero-2:
                   summary: "Editar cambia los campos y conserva clave estado y tablero (2) (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8567,7 +8698,7 @@ paths:
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8598,7 +8729,7 @@ paths:
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion-2:
                   summary: "Cada escritura deja su fila con usuario canal y accion (2) (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8629,7 +8760,7 @@ paths:
                 una-historia-dentro-de-una-epica-y-una-subtarea-dentro-de-la-historia:
                   summary: "Una historia dentro de una epica y una subtarea dentro de la historia (SYSADMIN)"
                   value:
-                    clave: "SHI-3"
+                    clave: "SHI-4"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8639,7 +8770,7 @@ paths:
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
                     informanteUuid: "90000000-0000-4000-8000-000000000012"
-                    padreClave: "SHI-2"
+                    padreClave: "SHI-3"
                     padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     prioridad: "MEDIA"
                     proyectoUuid: "b1000000-0000-4000-8000-000000000001"
@@ -8660,7 +8791,7 @@ paths:
                 una-historia-dentro-de-una-epica-y-una-subtarea-dentro-de-la-historia-2:
                   summary: "Una historia dentro de una epica y una subtarea dentro de la historia (2) (SYSADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -8670,7 +8801,7 @@ paths:
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
                     informanteUuid: "90000000-0000-4000-8000-000000000012"
-                    padreClave: "SHI-3"
+                    padreClave: "SHI-4"
                     padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     prioridad: "MEDIA"
                     proyectoUuid: "b1000000-0000-4000-8000-000000000001"
@@ -9035,7 +9166,7 @@ paths:
                 el-grupo-cliente-ve-el-proyecto-shiro-pero-no-edita:
                   summary: "El grupo cliente ve el proyecto shiro pero no edita (CLIENTE)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - clave: "SHI-1"
                       descripcion: "Primera tarea de ejemplo del proyecto."
@@ -9065,10 +9196,48 @@ paths:
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
                       versiones: []
+                    - clave: "SHI-2"
+                      descripcion: "Tarea de ejemplo con etiqueta, versión y relación."
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        texto: "jira"
+                        uuid: "b3100000-0000-4000-8000-000000000001"
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Usuario Demo"
+                      informanteUuid: "90000000-0000-4000-8000-000000000002"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "ALTA"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                      tipoCodigo: "HISTORIA"
+                      tipoNombre: "Historia"
+                      titulo: "Importar los proyectos de Jira"
+                      uuid: "b3000000-0000-4000-8000-000000000002"
+                      vencimiento: null
+                      versiones:
+                      - estado: "SIN_PUBLICAR"
+                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        nombre: "1.0"
+                        status: 0
+                        uuid: "b7100000-0000-4000-8000-000000000001"
+                        versionUuid: "b7000000-0000-4000-8000-000000000001"
                     numero: 0
                     primera: true
                     tamano: 50
-                    totalDeElementos: 1
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -9089,7 +9258,7 @@ paths:
                   value:
                     cantidadDeElementos: 1
                     contenido:
-                    - clave: "SHI-2"
+                    - clave: "SHI-3"
                       descripcion: null
                       estadoNombre: "Por probar"
                       estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -9261,7 +9430,7 @@ paths:
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
                       versiones: []
-                    - clave: "SHI-2"
+                    - clave: "SHI-3"
                       descripcion: "Hay que traer los tableros con sus columnas."
                       estadoNombre: "Por hacer"
                       estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9299,9 +9468,47 @@ paths:
                 busca-en-espanol-por-titulo-y-descripcion-2:
                   summary: "Busca en espanol por titulo y descripcion (2) (ADMIN)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - clave: "SHI-2"
+                      descripcion: "Tarea de ejemplo con etiqueta, versión y relación."
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        texto: "jira"
+                        uuid: "b3100000-0000-4000-8000-000000000001"
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Usuario Demo"
+                      informanteUuid: "90000000-0000-4000-8000-000000000002"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "ALTA"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                      tipoCodigo: "HISTORIA"
+                      tipoNombre: "Historia"
+                      titulo: "Importar los proyectos de Jira"
+                      uuid: "b3000000-0000-4000-8000-000000000002"
+                      vencimiento: null
+                      versiones:
+                      - estado: "SIN_PUBLICAR"
+                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        nombre: "1.0"
+                        status: 0
+                        uuid: "b7100000-0000-4000-8000-000000000001"
+                        versionUuid: "b7000000-0000-4000-8000-000000000001"
+                    - clave: "SHI-3"
                       descripcion: "Hay que traer los tableros con sus columnas."
                       estadoNombre: "Por hacer"
                       estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9332,7 +9539,7 @@ paths:
                     numero: 0
                     primera: true
                     tamano: 50
-                    totalDeElementos: 1
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -9381,6 +9588,44 @@ paths:
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
                       versiones: []
+                    - clave: "SHI-2"
+                      descripcion: "Tarea de ejemplo con etiqueta, versión y relación."
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        texto: "jira"
+                        uuid: "b3100000-0000-4000-8000-000000000001"
+                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      hijas: []
+                      informanteNombre: "Usuario Demo"
+                      informanteUuid: "90000000-0000-4000-8000-000000000002"
+                      padreClave: null
+                      padreUuid: null
+                      prioridad: "ALTA"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      sprintNombre: null
+                      sprintUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                      tipoCodigo: "HISTORIA"
+                      tipoNombre: "Historia"
+                      titulo: "Importar los proyectos de Jira"
+                      uuid: "b3000000-0000-4000-8000-000000000002"
+                      vencimiento: null
+                      versiones:
+                      - estado: "SIN_PUBLICAR"
+                        fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        nombre: "1.0"
+                        status: 0
+                        uuid: "b7100000-0000-4000-8000-000000000001"
+                        versionUuid: "b7000000-0000-4000-8000-000000000001"
                     - clave: "CONC-1"
                       descripcion: null
                       estadoNombre: "Por hacer"
@@ -9405,42 +9650,14 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 11"
+                      titulo: "Alta concurrente 0"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
-                      vencimiento: null
-                      versiones: []
-                    - clave: "CONC-2"
-                      descripcion: null
-                      estadoNombre: "Por hacer"
-                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
-                      etiquetas: []
-                      fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
-                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      hijas: []
-                      informanteNombre: "Sysadmin Pruebas"
-                      informanteUuid: "90000000-0000-4000-8000-000000000012"
-                      padreClave: null
-                      padreUuid: null
-                      prioridad: "MEDIA"
-                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                      puntos: null
-                      responsableNombre: null
-                      responsableUuid: null
-                      sprintNombre: null
-                      sprintUuid: null
-                      status: 0
-                      tableroCodigo: "PRINCIPAL"
-                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                      tipoCodigo: "TAREA"
-                      tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 6"
-                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                       versiones: []
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 51
+                    totalDeElementos: 52
                     totalDePaginas: 11
                     ultima: false
                     vacia: false
@@ -9584,7 +9801,7 @@ paths:
                 archivar-desactiva-los-tokens-y-conserva-el-responsable:
                   summary: "Archivar desactiva los tokens y conserva el responsable (SYSADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9771,7 +9988,7 @@ paths:
                 con-una-tarea-archivada-el-vinculo-queda-y-la-muestra-archivada:
                   summary: "Con una tarea archivada el vinculo queda y la muestra archivada (ADMIN)"
                   value:
-                    clave: "SHI-3"
+                    clave: "SHI-4"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9802,7 +10019,7 @@ paths:
                 archivar-dos-veces-rechazado:
                   summary: "Archivar dos veces rechazado (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9833,7 +10050,7 @@ paths:
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -9864,7 +10081,7 @@ paths:
                 una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
                   summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -10051,7 +10268,7 @@ paths:
                 el-clon-de-una-historia-no-hereda-el-padre:
                   summary: "El clon de una historia no hereda el padre (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -10082,7 +10299,7 @@ paths:
                 con-lo-minimo:
                   summary: "Con lo minimo (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -10113,7 +10330,7 @@ paths:
                 el-clon-de-una-subtarea-puede-colgar-de-otra-tarea:
                   summary: "El clon de una subtarea puede colgar de otra tarea (ADMIN)"
                   value:
-                    clave: "SHI-5"
+                    clave: "SHI-6"
                     descripcion: null
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -10123,7 +10340,7 @@ paths:
                     hijas: []
                     informanteNombre: "Usuario Demo"
                     informanteUuid: "90000000-0000-4000-8000-000000000002"
-                    padreClave: "SHI-4"
+                    padreClave: "SHI-5"
                     padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     prioridad: "MEDIA"
                     proyectoUuid: "b1000000-0000-4000-8000-000000000001"
@@ -10144,7 +10361,7 @@ paths:
                 el-clon-de-una-subtarea-puede-ser-una-tarea-propia:
                   summary: "El clon de una subtarea puede ser una tarea propia (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: null
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -10175,7 +10392,7 @@ paths:
                 con-la-seleccion-por-defecto:
                   summary: "Con la seleccion por defecto (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: "Trae los sprints."
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -10214,7 +10431,7 @@ paths:
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
                   value:
-                    clave: "SHI-3"
+                    clave: "SHI-4"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -10245,7 +10462,7 @@ paths:
                 con-todo:
                   summary: "Con todo (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: "Trae los sprints."
                     estadoNombre: "Por probar"
                     estadoUuid: "a2000000-0000-4000-8000-000000000021"
@@ -10261,7 +10478,7 @@ paths:
                     fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas:
-                    - clave: "SHI-5"
+                    - clave: "SHI-6"
                       estadoNombre: "Por probar"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       status: 0
@@ -10500,7 +10717,7 @@ paths:
                     usuarioNombre: "Usuario Demo"
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    valorAnterior: "bloquea SHI-3"
+                    valorAnterior: "bloquea SHI-4"
                     valorNuevo: null
                   - accion: "RELACIONAR"
                     campo: null
@@ -10511,7 +10728,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "bloquea SHI-3"
+                    valorNuevo: "bloquea SHI-4"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10521,7 +10738,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                 la-relacion-se-lee-desde-las-dos-tareas:
                   summary: "La relacion se lee desde las dos tareas (ADMIN)"
                   value:
@@ -10534,7 +10751,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "bloqueada por SHI-2"
+                    valorNuevo: "bloqueada por SHI-3"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10544,7 +10761,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-3"
+                    valorNuevo: "SHI-4"
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
                   value:
@@ -10557,7 +10774,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                   - accion: "CREAR_SUBTAREA"
                     campo: null
                     canal: "WEB"
@@ -10567,7 +10784,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-3"
+                    valorNuevo: "SHI-4"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10577,7 +10794,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-2:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (2) (ADMIN)"
                   value:
@@ -10590,7 +10807,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                   - accion: "CREAR_SUBTAREA"
                     campo: null
                     canal: "WEB"
@@ -10600,7 +10817,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-4"
+                    valorNuevo: "SHI-5"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10610,7 +10827,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     valorAnterior: null
-                    valorNuevo: "SHI-3"
+                    valorNuevo: "SHI-4"
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles-3:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (3) (ADMIN)"
                   value:
@@ -10623,7 +10840,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10633,7 +10850,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-4"
+                    valorNuevo: "SHI-5"
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
                   value:
@@ -10656,7 +10873,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                   - accion: "RELACIONAR"
                     campo: null
                     canal: "WEB"
@@ -10666,7 +10883,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     valorAnterior: null
-                    valorNuevo: "clonada de SHI-2"
+                    valorNuevo: "clonada de SHI-3"
                 el-alta-de-una-subtarea-queda-en-el-historial-del-padre:
                   summary: "El alta de una subtarea queda en el historial del padre (ADMIN)"
                   value:
@@ -10679,7 +10896,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "SHI-3"
+                    valorNuevo: "SHI-4"
                   - accion: "CREAR"
                     campo: null
                     canal: "WEB"
@@ -10689,7 +10906,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
                   value:
@@ -10735,7 +10952,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000012"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                 se-filtra-por-canal-2:
                   summary: "Se filtra por canal (2) (ADMIN)"
                   value: []
@@ -10761,7 +10978,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
                   - accion: "ARCHIVAR"
                     campo: null
                     canal: "WEB"
@@ -10771,7 +10988,7 @@ paths:
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     valorAnterior: null
-                    valorNuevo: "SHI-2"
+                    valorNuevo: "SHI-3"
         "400":
           description: "Errores: `REGISTRO_NO_ENCONTRADO`"
           content:
@@ -10981,7 +11198,7 @@ paths:
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
                   value:
-                    clave: "SHI-3"
+                    clave: "SHI-4"
                     descripcion: null
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
@@ -11012,7 +11229,7 @@ paths:
                 mover-tambien-cambia-la-fecha:
                   summary: "Mover tambien cambia la fecha (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
@@ -11043,7 +11260,7 @@ paths:
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
@@ -11074,7 +11291,7 @@ paths:
                 pasa-de-cualquier-estado-a-cualquier-otro:
                   summary: "Pasa de cualquier estado a cualquier otro (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Hecho"
                     estadoUuid: "a2000000-0000-4000-8000-000000000015"
@@ -11105,7 +11322,7 @@ paths:
                 pasa-de-cualquier-estado-a-cualquier-otro-2:
                   summary: "Pasa de cualquier estado a cualquier otro (2) (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -11167,7 +11384,7 @@ paths:
                 restaurar-devuelve-solo-lo-de-esa-operacion:
                   summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
                   value:
-                    clave: "SHI-4"
+                    clave: "SHI-5"
                     descripcion: null
                     estadoNombre: "En curso"
                     estadoUuid: "a2000000-0000-4000-8000-000000000012"
@@ -11177,7 +11394,7 @@ paths:
                     hijas: []
                     informanteNombre: "Sysadmin Pruebas"
                     informanteUuid: "90000000-0000-4000-8000-000000000012"
-                    padreClave: "SHI-2"
+                    padreClave: "SHI-3"
                     padreUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     prioridad: "MEDIA"
                     proyectoUuid: "b1000000-0000-4000-8000-000000000001"
@@ -11383,7 +11600,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/TareaRelacionDTO"
+                  $ref: "#/components/schemas/TareaRelacionesResponseDTO"
               examples:
                 la-relacion-archivada-deja-de-leerse-y-queda-en-el-historial:
                   summary: "La relacion archivada deja de leerse y queda en el historial (ADMIN)"
@@ -11397,7 +11614,7 @@ paths:
                   - fechaDeCreacion: null
                     status: 0
                     tareaArchivada: false
-                    tareaClave: "SHI-3"
+                    tareaClave: "SHI-4"
                     tareaEstadoNombre: "Por hacer"
                     tareaTitulo: "Publicar la versión"
                     tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -11409,7 +11626,7 @@ paths:
                   - fechaDeCreacion: null
                     status: 0
                     tareaArchivada: false
-                    tareaClave: "SHI-2"
+                    tareaClave: "SHI-3"
                     tareaEstadoNombre: "Por hacer"
                     tareaTitulo: "Migrar la base"
                     tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -11421,7 +11638,7 @@ paths:
                   - fechaDeCreacion: null
                     status: 0
                     tareaArchivada: true
-                    tareaClave: "SHI-3"
+                    tareaClave: "SHI-4"
                     tareaEstadoNombre: "Por hacer"
                     tareaTitulo: "Duplicada"
                     tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -11433,7 +11650,7 @@ paths:
                   - fechaDeCreacion: null
                     status: 0
                     tareaArchivada: false
-                    tareaClave: "SHI-2"
+                    tareaClave: "SHI-3"
                     tareaEstadoNombre: "Por probar"
                     tareaTitulo: "El token revocado sigue respondiendo"
                     tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -11445,7 +11662,7 @@ paths:
                   - fechaDeCreacion: null
                     status: 0
                     tareaArchivada: false
-                    tareaClave: "SHI-3"
+                    tareaClave: "SHI-4"
                     tareaEstadoNombre: "En curso"
                     tareaTitulo: "El token revocado sigue respondiendo"
                     tareaUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -11530,7 +11747,7 @@ paths:
                 restaurar-devuelve-solo-lo-de-esa-operacion:
                   summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
                   value:
-                    clave: "SHI-2"
+                    clave: "SHI-3"
                     descripcion: null
                     estadoNombre: "Por hacer"
                     estadoUuid: "a2000000-0000-4000-8000-000000000011"
@@ -11538,7 +11755,7 @@ paths:
                     fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     hijas:
-                    - clave: "SHI-4"
+                    - clave: "SHI-5"
                       estadoNombre: "Por hacer"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                       status: 0
@@ -11577,10 +11794,10 @@ paths:
                   value:
                     codigo: "PADRE_ARCHIVADO"
                     datos:
-                      padreClave: "SHI-2"
+                      padreClave: "SHI-3"
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Restaurá primero SHI-2."
+                    mensajeParaUsuario: "Restaurá primero SHI-3."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 una-tarea-vigente-no-se-restaura:
@@ -12625,23 +12842,27 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwOTM2Nzd9.ZRIyGznVpT8f2vDrsL4e60-aABPX4fpnwTwIapapSnwyZyo9botDHGW-OT-hBruNkcLQwpq0wi4sXK166JdgOTjKTx0s8skvSSjG0Aees7lLBEEq7zLbgTEn9Fk-Y8J0r0IOcQsTakhYOjBlUo0GmUvML0Nfbxk1Am3NleMgfgGxm9EzNUzvdlQTWYsha_o32-HotWhTZgwHzBqWzxgkbsR9x1eq-bV_prNDwpFX1oWlXcx_cKXKT4as6q6-_wAbz2GZBFpTvHuciNjVbkJ52YTA851sAwl00lFH6n204GQyB-QmwOekAouOe3xdVRPEL2vu3SwFWZzfoO53oYkW_Q"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwOTU1MDN9.esk654VDuALiRnd1XRj-05DtFP__JBfNPxqEDsAs0kK8S1C8ZFjREfJ1ta3Op643sLPUX1g0hEud54w7s9vTCYw_im-RAe8SppzEUwwH6bysn2oI5kDCxuXJPtxPQPZ_9-tpasRe0g0reAa_IU6JdMvpK8stM2ruo7aRQZ1YnpWk3YQWxy6vlAdOwI2dHtsJRZ6z8uxLdDvGQ7dFa9YOCzOUcIW3L1pZ3mkRZVs2aR8Bmlv-tCTdB5_f-aDQ0hpQmmmE2NTON5ahSRPK-sTLpsjDzACQOS9u7PqU1QE6lKKx6o9rUGmwpZALj8T9ioF2oSR-tbTkBq2wGU2qTUO7TA"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDkzNjc3fQ.rL8JjWsiWWS53psalWMSWfHKXrVNXBCWP3qP3LNc9d4fjfDFA4etqZEBsh--huWFd5nWjxXFHarrG0FUkWKyVONBF6lLJiwpyk6dDIIdpjiViJ71j9uFnKhHYsfej7h8OHRhGK3xUJxzSnPojsbv03gIh0wwOgjqkUvOzmPqIx6FM4c1CZgHgUfuiGkxheaKuKOo9GgeP2TM5HkVO24cJPs4aato52js8GNcR4kLSCs96LwJpYWmr5Oik0Tme4kx3_qTia1uSvqXYGKcZt9N8eFqy22HpjeTL5t5bXI6yNrd4nEZe6SYvkfA2tQsS8Qo-CHTe4fQUWGj3J6NVE4Ljg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDk1NTA0fQ.mYmFIkGEl7Uu25MOYXtjsj-UbqoD8KVR2aD_9QTHPZkSqTY0CS8rul26hZijmY5QDu9RfSMfFjgIpNvifceK-35dz4rpkV3fW31ZoDYPDD0L6p6fEELqgY1by0iGssAgfJLBAoFsVH0LjHOH2mg8ATD659HCoMzllhRgNC7AmsUNk_rRVHbfhuI3mjuGaGTZT-wQ81znWTyTmCtnD1Rp8KBeY6ZH6CFXH_Ebs_ljGphUg4Tnhkumkpo220CnmcWYxq35AUqF1wCu1jU1yNFTqyHq4KT7PUu5zyAbGx8UQB2sDZWckZYXdKf073cL-28Vs1oDTh30D79L1NcZ0_wMIA"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDkzNjc3fQ.JLlUqcjBrwesYESdWxNIFrmSrcpieWO-M0aORy_iCE1K5UE4-nTj7kzx1L8_dYF4_gp0boQBekPnmqo41XUeohy5L-HNQi-PXnCnWWQ6Xmj203EwvS1Xpo_e_gv3rz4KyWciAqG91Ld5O2A_wCL_FkvrYabBtYbW2gwwxAXL4mOhmJCVNZ_XMJQws1txKDI-ViDV_07N0vpf8RhzgzJm7qJ5sI1-CirTws45fYJ6M9HscL2hpLslJt7GNXsWR-oSD5DQr2WgsWWHOBY_18AZ-oc312-MptZzWJIu-ZSLNge48_dQXRL3g4EaIlL-lnZxyk4JfF0jqaxODKrOng1kxQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDk1NTA0fQ.Bnv0UEPZpIlXP9YHCMil2T1TyO0P-h13TmONC8qIWhl-43vurbipZu4Y2m-py2KWmtpKsaEliSeI5G82nKYDuDG_o_2kFTgLNRQofij1lkakMLRDUvG6QQZGdBiYKvUf-Gbzu4Z5_mso4wVXDSlo9GDsijNRFpIpFoFX3JTSH9MQJxjvfRyQwHX0r_8ZPv-S7HXNSgDCB_72yww4kEni7jrpgmCqbImSedU87uv0tMBw_rhr1i-ogwpF2m-s20fyE2mKPG1I5QR3hHHnF4o1RSim4g9TUZycawWyEomqc9oLlvwlZOwg2FP4g1JIuMltaJ1ZAYwQPHSkWF4cRHWGSQ"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwOTM2Nzh9.PfcccmBaR2N-vXyr-4_JBB5bpTb30nvj5iwLXUGhd-6NbG-Qr9vt4cB31lBRtktaV-McRblEax82wNIfbSsg2xl9CBHmj6xQ9bUmMOwsWvdadvFx_hYZSEYN9Ypv6RmlRxOQx5wh5ShP0-hImKZNZKoIsSOgsafydwEC1kF8nYPRlz4iK-O21KQygO3wT3K8hTjAZfVdXCAlyMaSS5f_UJ0Upe_boDr1jpM8piW9SUui82P-uWEafKxVmKHzSrRC0sMtJK2tTMp4ceGJdoYOf0a2dDlBWP-Sz0Nmo4t4ScqBo5yTaUWLnSHu2mwHhh5s_ztCXow0iniTMpr-bEwwKw"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwOTU1MDR9.YgokpOFjY1IsUokT_k4dsEUyPJceaHabOSviQUr197Tf3pLYAx-I4V-zZtBeolXMVNCpvfFelhU5uW8tPJiZoMHpgffI5sITkdVySUCI7AyjV4_Ava3IlnDw7aa5Iu7XTCEYNE6oalND-DUBHMpFfmmsXYNDktrDcATa8w6h_DsR7SRS9wie7r2sNxryKivtx4JrtULWh6BXyKbq-uKsKq3_HMJVHpEj4Y3klDXj7KINfrfTGC4vcpBLzU27mWZj7c2ZbdHHcsZy9_odRISMPYR5dgEiJ46l1BIxToCngsrgaVLBJokqQymJrr-HmfAgavYzx4ZQZpZ5aUzggfFYHQ"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwOTM2Nzh9.IV9ZI21nYL-9UpuzuxSfjmmZwGuUWUo0of6bjpWDzM15jU6xnxwdpovwW61a5uxa_ABYvnuEOl4ESfq9ukZBI0z1nOGiw7j48X1vhldfHN-y3uIDtL3GXwxfWAOcNL3h2dTuRctZ5X3ZD0Ifa9-Dz_dsnO2vpBzKsTucdh3CXZG1inutsfZHqENjk_wACEkCiivDLUwrUJcTt7FoSb_bUrR76m6BBiDnyik4uniEHBReVgPvo4Ys1wcWMqR5vQ3LwvFPBhZ1fmXe3XTHRwNhgDxkLSuuWHgpuK0sWuN5KgYoBk0K9feWUHZUZuNZqbsjjvUSzlG-hwjWFPdCQF8yWg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwOTU1MDR9.N7xiIAorCgnQlBpHcyWBupwgTrb1mSb2tRvsc-9X_0Jv9JnTl4K4o6lrnxZ_WTN6cdxExxttI1O5XjCH-svgrA6K-me1C1a0ZnRy-zmzCBLSzg3epmHofjY1BBtsQW_SkyWhBSKieShFiHDmO0R5FugGSxQ6jJKGAt9tYL6UyJna1h-KGg9U5_Juz1JiHfHUe-svzz-nH3CdaGCeflmtOKJNxKzGFW72RoSI0wlJ5WTSI6QHBSB8mlXikSDb9FqEpGT7QZ7SItjEVKprQeT294XxgPXjNUh4IxciUk_UyAbB9A_Ty7bfw_5wDKLzOxH5exzc2fU0QoKrzQcDeUmBQQ"
+              google-no-responde:
+                summary: "Google no responde"
+                value:
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwOTU1MDR9.nAdY5lvL0K_Rg5ze0a72--ZqhImgjWhWYhKzlyhF3Cnta-000I-W6wQwE3N1gUlhzgHfS1c-YS98_aDDnzyHio8y_lYhrHhn0zZmNNTkq2P2tyV4x4OwoUGApU6XumE14myh51KJbgaGkQVThVPWJS8F-Q__FX_38cth1aXSPPo-WjZP4Jcr_jjVqu6uSgeMJF8tkjrKCIIC8gvTXJzrS1mWlaAnsz-oSpeqobKY1tGjCCb6bXHt5u9V92X4d6nB2hGGtI_H31wGhKP33PEEHKRSY8oEi1xP3GJTZjjePetIMvaJojItUElO8qsVZWGh3XjQtuMMLQLWlvStvv1mzA"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -12726,6 +12947,31 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Solo pueden ingresar cuentas de Google de la organización."
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+        "503":
+          description: "Errores: `GOOGLE_NO_CONFIGURADO`, `GOOGLE_NO_DISPONIBLE`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                google-no-responde:
+                  summary: "Google no responde"
+                  value:
+                    codigo: "GOOGLE_NO_DISPONIBLE"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Google no responde. Volvé a intentar en unos minutos."
+                    status: "503 SERVICE_UNAVAILABLE"
+                    traceId: null
+                sin-configuracion-de-google:
+                  summary: "Sin configuracion de google"
+                  value:
+                    codigo: "GOOGLE_NO_CONFIGURADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña."
+                    status: "503 SERVICE_UNAVAILABLE"
                     traceId: "0000000000000000"
   /usuario/iniciar-sesion:
     post:
@@ -14726,85 +14972,6 @@ components:
       anyOf:
       - type: "null"
       - $ref: "#/components/schemas/AccionDeHistorial"
-    ArchivadoDTO:
-      type: "object"
-      properties:
-        fechaDeBorrado:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Cuándo se archivó"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        nombre:
-          type:
-          - "string"
-          - "null"
-          description: "Nombre visible: clave y título de la tarea, prefijo y nombre del proyecto, nombre del sprint o de la versión, o nombre de usuario"
-        proyectoPrefijo:
-          type:
-          - "string"
-          - "null"
-          description: "Prefijo del proyecto del elemento. Vacío en los usuarios"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        tipo:
-          type:
-          - "string"
-          - "null"
-          description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      additionalProperties: false
-    ArchivoPaginarRequestDTO:
-      type: "object"
-      properties:
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        pagina:
-          type: "integer"
-          description: "Número de página, desde 1"
-          minimum: 1
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        tamano:
-          type: "integer"
-          description: "Elementos por página, de 1 a 200"
-          minimum: 1
-          maximum: 200
-        texto:
-          type:
-          - "string"
-          - "null"
-          description: "Texto a buscar en el nombre visible, sin distinguir mayúsculas. Vacío para todos"
-        tipo:
-          type:
-          - "string"
-          - "null"
-          description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO. Vacío para todos"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      additionalProperties: false
     CanalDeCambio:
       type: "string"
       enum:
@@ -15540,6 +15707,85 @@ components:
       - "VER"
       - "EDITAR"
       - "ARCHIVAR"
+    OperacionDeArchivoBuscarRequestDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        pagina:
+          type: "integer"
+          description: "Número de página, desde 1"
+          minimum: 1
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tamano:
+          type: "integer"
+          description: "Elementos por página, de 1 a 200"
+          minimum: 1
+          maximum: 200
+        texto:
+          type:
+          - "string"
+          - "null"
+          description: "Texto a buscar en el nombre visible, sin distinguir mayúsculas. Vacío para todos"
+        tipo:
+          type:
+          - "string"
+          - "null"
+          description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO. Vacío para todos"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
+    OperacionDeArchivoBuscarResponseDTO:
+      type: "object"
+      properties:
+        fechaDeBorrado:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Cuándo se archivó"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible: clave y título de la tarea, prefijo y nombre del proyecto, nombre del sprint o de la versión, o nombre de usuario"
+        proyectoPrefijo:
+          type:
+          - "string"
+          - "null"
+          description: "Prefijo del proyecto del elemento. Vacío en los usuarios"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tipo:
+          type:
+          - "string"
+          - "null"
+          description: "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     OrdenDePaginado:
       type: "object"
       properties:
@@ -15553,40 +15799,6 @@ components:
           - "string"
           - "null"
           description: "asc o desc"
-      additionalProperties: false
-    Pagina_ArchivadoDTO_:
-      type: "object"
-      description: "Página de resultados"
-      properties:
-        contenido:
-          type: "array"
-          description: "Registros de la página"
-          items:
-            $ref: "#/components/schemas/ArchivadoDTO"
-        totalDeElementos:
-          type: "integer"
-          description: "Total de registros que cumplen los filtros"
-        totalDePaginas:
-          type: "integer"
-          description: "Total de páginas"
-        tamano:
-          type: "integer"
-          description: "Tamaño de la página"
-        numero:
-          type: "integer"
-          description: "Número de página (desde 0)"
-        cantidadDeElementos:
-          type: "integer"
-          description: "Registros en esta página"
-        primera:
-          type: "boolean"
-          description: "Es la primera página"
-        ultima:
-          type: "boolean"
-          description: "Es la última página"
-        vacia:
-          type: "boolean"
-          description: "La página no tiene registros"
       additionalProperties: false
     Pagina_ComentarioDTO_:
       type: "object"
@@ -15631,6 +15843,40 @@ components:
           description: "Registros de la página"
           items:
             $ref: "#/components/schemas/ImportacionDTO"
+        totalDeElementos:
+          type: "integer"
+          description: "Total de registros que cumplen los filtros"
+        totalDePaginas:
+          type: "integer"
+          description: "Total de páginas"
+        tamano:
+          type: "integer"
+          description: "Tamaño de la página"
+        numero:
+          type: "integer"
+          description: "Número de página (desde 0)"
+        cantidadDeElementos:
+          type: "integer"
+          description: "Registros en esta página"
+        primera:
+          type: "boolean"
+          description: "Es la primera página"
+        ultima:
+          type: "boolean"
+          description: "Es la última página"
+        vacia:
+          type: "boolean"
+          description: "La página no tiene registros"
+      additionalProperties: false
+    Pagina_OperacionDeArchivoBuscarResponseDTO_:
+      type: "object"
+      description: "Página de resultados"
+      properties:
+        contenido:
+          type: "array"
+          description: "Registros de la página"
+          items:
+            $ref: "#/components/schemas/OperacionDeArchivoBuscarResponseDTO"
         totalDeElementos:
           type: "integer"
           description: "Total de registros que cumplen los filtros"
@@ -16014,6 +16260,63 @@ components:
       anyOf:
       - type: "null"
       - $ref: "#/components/schemas/PrioridadDeTarea"
+    ProyectoBacklogResponseDTO:
+      type: "object"
+      properties:
+        clave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la tarea"
+        estadoNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del estado actual"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        prioridad:
+          $ref: "#/components/schemas/PrioridadDeTarea-nullable"
+          description: "Prioridad de la tarea"
+        puntos:
+          type:
+          - "integer"
+          - "null"
+          description: "Estimación en puntos. Vacía si no está estimada"
+        responsableNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del responsable. Vacío si no está asignada"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tableroCodigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código del tablero: PRINCIPAL, QA, ANALISIS o DISENO"
+        tipoCodigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código del tipo: HISTORIA, TAREA o BUG"
+        titulo:
+          type:
+          - "string"
+          - "null"
+          description: "Título de la tarea"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     ProyectoDTO:
       type: "object"
       properties:
@@ -16059,6 +16362,33 @@ components:
       required:
       - "nombre"
       - "prefijo"
+      additionalProperties: false
+    ProyectoOrdenarBacklogRequestDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tareas:
+          description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
+          type: "array"
+          items:
+            type: "string"
+            description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "tareas"
       additionalProperties: false
     ReglaPermisoDTO:
       type: "object"
@@ -16611,63 +16941,6 @@ components:
       - "tipoCodigo"
       - "titulo"
       additionalProperties: false
-    TareaDeBacklogDTO:
-      type: "object"
-      properties:
-        clave:
-          type:
-          - "string"
-          - "null"
-          description: "Clave de la tarea"
-        estadoNombre:
-          type:
-          - "string"
-          - "null"
-          description: "Nombre del estado actual"
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        prioridad:
-          $ref: "#/components/schemas/PrioridadDeTarea-nullable"
-          description: "Prioridad de la tarea"
-        puntos:
-          type:
-          - "integer"
-          - "null"
-          description: "Estimación en puntos. Vacía si no está estimada"
-        responsableNombre:
-          type:
-          - "string"
-          - "null"
-          description: "Nombre del responsable. Vacío si no está asignada"
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        tableroCodigo:
-          type:
-          - "string"
-          - "null"
-          description: "Código del tablero: PRINCIPAL, QA, ANALISIS o DISENO"
-        tipoCodigo:
-          type:
-          - "string"
-          - "null"
-          description: "Código del tipo: HISTORIA, TAREA o BUG"
-        titulo:
-          type:
-          - "string"
-          - "null"
-          description: "Título de la tarea"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      additionalProperties: false
     TareaEtiquetaDTO:
       type: "object"
       properties:
@@ -16758,39 +17031,7 @@ components:
       required:
       - "estadoUuid"
       additionalProperties: false
-    TareaOrdenarBacklogRequestDTO:
-      type: "object"
-      properties:
-        fechaDeCreacion:
-          type:
-          - "string"
-          - "null"
-          format: "date-time"
-          description: "Fecha y hora de creación del registro (solo lectura)"
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
-        proyectoUuid:
-          type: "string"
-          description: "Uuid del proyecto"
-          minLength: 1
-        status:
-          type: "integer"
-          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
-        tareas:
-          description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
-          type: "array"
-          items:
-            type: "string"
-            description: "Uuids de las tareas del backlog en el orden nuevo. Las que no vienen quedan después, en su orden anterior"
-        uuid:
-          type:
-          - "string"
-          - "null"
-          description: "Identificador público del registro. El id interno nunca se expone"
-      required:
-      - "proyectoUuid"
-      - "tareas"
-      additionalProperties: false
-    TareaRelacionDTO:
+    TareaRelacionesResponseDTO:
       type: "object"
       properties:
         fechaDeCreacion:
@@ -17313,11 +17554,6 @@ x-catalogo-de-errores:
   mensajePorDefecto: "Error con los datos enviados"
   cuando: "El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo"
   origen: "CodigoDeErrorKernel"
-- codigo: "CUIT_INVALIDO"
-  status: 400
-  mensajePorDefecto: "CUIT inválido"
-  cuando: "Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto)"
-  origen: "CodigoDeErrorDelProyecto"
 - codigo: "DATOS_INCOMPLETOS"
   status: 400
   mensajePorDefecto: "Datos incompletos"
@@ -17332,16 +17568,6 @@ x-catalogo-de-errores:
   status: 403
   mensajePorDefecto: "Solo pueden ingresar cuentas de Google de la organización."
   cuando: "Al ingresar con Google, la cuenta no es del dominio de la organización"
-  origen: "CodigoDeErrorDelProyecto"
-- codigo: "EMAIL_YA_REGISTRADO"
-  status: 400
-  mensajePorDefecto: "Email ya registrado"
-  cuando: "Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación"
-  origen: "CodigoDeErrorDelProyecto"
-- codigo: "ERROR_GENERANDO_EMAIL"
-  status: 500
-  mensajePorDefecto: "Error al generar el email"
-  cuando: "No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "ERROR_INTERNO"
   status: 500

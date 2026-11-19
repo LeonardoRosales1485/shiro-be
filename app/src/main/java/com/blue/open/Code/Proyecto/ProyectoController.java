@@ -1,6 +1,8 @@
 package com.blue.open.Code.Proyecto;
 
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoArchivarUseCase;
+import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoBacklogUseCase;
+import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoOrdenarBacklogUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoRestaurarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Endpoints de proyectos: ABM (receta de core-crud/docs/receta-controller.md) sin borrar, porque nada se borra: se
@@ -33,6 +37,10 @@ public class ProyectoController {
     private final ProyectoArchivarUseCase archivarUseCase;
 
     private final ProyectoRestaurarUseCase restaurarUseCase;
+
+    private final ProyectoBacklogUseCase backlogUseCase;
+
+    private final ProyectoOrdenarBacklogUseCase ordenarBacklogUseCase;
 
     // Obtiene un proyecto con sus tableros. Responde el ProyectoDTO
     @GetMapping("/uuid/{uuid}")
@@ -70,5 +78,21 @@ public class ProyectoController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> restaurar(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Backlog del proyecto en su orden unico. Responde la lista de tareas
+    @GetMapping("/{uuid}/backlog")
+    @Contrato(casoDeUso = "CU-BKL-01", resumen = "Backlog de un proyecto: tareas sin sprint de todos los tableros y tipos, en su orden único",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<ProyectoBacklogResponseDTO>> backlog(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(backlogUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Ordena el backlog del proyecto. Responde el backlog ordenado
+    @PostMapping("/{uuid}/ordenar-backlog")
+    @Contrato(casoDeUso = "CU-BKL-02", resumen = "Ordena el backlog de un proyecto (un único orden para todos)", permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<ProyectoBacklogResponseDTO>> ordenarBacklog(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid,
+            @Valid @RequestBody ProyectoOrdenarBacklogRequestDTO dto) {
+        return new ResponseEntity<>(ordenarBacklogUseCase.ejecutar(uuid, dto), HttpStatus.OK);
     }
 }

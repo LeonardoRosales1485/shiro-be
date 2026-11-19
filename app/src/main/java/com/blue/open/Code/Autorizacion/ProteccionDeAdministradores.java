@@ -49,6 +49,7 @@ public class ProteccionDeAdministradores {
         return GRUPOS_DEL_SISTEMA.contains(grupo.getNombre());
     }
 
+    // Error SIN_PERMISO de la proteccion de administradores, con el detalle para el desarrollador
     private static ExcepcionDeApi sinPermiso(String detalle) {
         return new ExcepcionDeApi(CodigoDeErrorKernel.SIN_PERMISO,
                 "Solo el super admin administra al super admin, a los Administradores y a sus grupos.",

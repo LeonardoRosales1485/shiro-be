@@ -40,7 +40,7 @@ public final class DatosDeJira {
     }
 
     /**
-     * Issue (tarea) de Jira.
+     * Incidencia (tarea) de Jira.
      *
      * @param id          id de Jira
      * @param clave       clave (JSIM-12)
@@ -55,7 +55,7 @@ public final class DatosDeJira {
      * @param sprintId    id del sprint actual o null
      * @param versionIds  ids de las fix versions
      */
-    public record Issue(String id, String clave, String titulo, String descripcion, String tipoId, String estadoId,
+    public record Incidencia(String id, String clave, String titulo, String descripcion, String tipoId, String estadoId,
             String prioridad, String padreClave, Usuario responsable, List<String> etiquetas, String sprintId,
             List<String> versionIds) {
     }
@@ -84,7 +84,7 @@ public final class DatosDeJira {
     }
 
     /**
-     * Comentario de un issue.
+     * Comentario de un incidencia.
      *
      * @param id     id de Jira
      * @param autor  autor

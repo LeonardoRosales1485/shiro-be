@@ -1,5 +1,6 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.Common.Archivado.ArchivadoDeEntidad;
 import com.blue.open.Code.Estado.Estado;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Sprint.Sprint;
@@ -25,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -166,12 +166,7 @@ public class Tarea extends EntidadConBorradoLogico {
      * el caso de uso).
      */
     public void archivar(Long idUsuario, Long idOperacion) {
-        if (this.status == null || this.status != 0)
-            throw new ExcepcionDeApi(CodigoDeErrorKernel.ERROR_INTERNO,
-                    "Tarea | archivar | la tarea " + this.clave + " no esta vigente (status " + this.status + ")");
-        this.status = -1;
-        this.fechaDeBorrado = new Timestamp(System.currentTimeMillis());
-        this.idUsuarioDeBorrado = idUsuario;
+        ArchivadoDeEntidad.archivar(this, idUsuario, "Tarea " + this.clave);
         this.idOperacionArchivo = idOperacion;
     }
 
@@ -180,12 +175,7 @@ public class Tarea extends EntidadConBorradoLogico {
      * restaura una tarea archivada; si no, lanza ExcepcionDeApi con ERROR_INTERNO.
      */
     public void restaurar() {
-        if (this.status == null || this.status != -1)
-            throw new ExcepcionDeApi(CodigoDeErrorKernel.ERROR_INTERNO,
-                    "Tarea | restaurar | la tarea " + this.clave + " no esta archivada (status " + this.status + ")");
-        this.status = 0;
-        this.fechaDeBorrado = null;
-        this.idUsuarioDeBorrado = null;
+        ArchivadoDeEntidad.restaurar(this, "Tarea " + this.clave);
         this.idOperacionArchivo = null;
     }
 }

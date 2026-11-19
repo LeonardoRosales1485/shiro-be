@@ -4,6 +4,7 @@ import com.blue.open.Code.Autorizacion.ProteccionDeAdministradores;
 import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Mcp.Confirmacion;
 import com.blue.open.Code.Common.Mcp.RespuestaDeHerramienta;
+import com.blue.open.Code.OperacionDeArchivo.CasosDeUso.OperacionDeArchivoBuscarUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoArchivarUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoRestaurarUseCase;
 import com.blue.open.Code.Proyecto.Proyecto;
@@ -72,7 +73,7 @@ public class HerramientasMcpDeArchivo {
 
     private final UsuarioRestaurarUseCase restaurarUsuario;
 
-    private final ArchivoBuscarUseCase buscarUseCase;
+    private final OperacionDeArchivoBuscarUseCase buscarUseCase;
 
     // Busca lo archivado sobre lo que el usuario tiene permiso de archivo
     @McpTool(name = "buscar_archivados", description = "Busca lo archivado (TAREA, PROYECTO, SPRINT, VERSION o USUARIO) sobre lo que tenés permiso de archivo, por tipo y texto. 50 por página.")
@@ -80,11 +81,11 @@ public class HerramientasMcpDeArchivo {
             @McpToolParam(description = "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO. Vacío para todos", required = false) String tipo,
             @McpToolParam(description = "Texto a buscar en el nombre", required = false) String texto,
             @McpToolParam(description = "Número de página, desde 1. Por defecto 1", required = false) Integer pagina) {
-        ArchivoPaginarRequestDTO pedido = new ArchivoPaginarRequestDTO();
+        OperacionDeArchivoBuscarRequestDTO pedido = new OperacionDeArchivoBuscarRequestDTO();
         pedido.setTipo(tipo);
         pedido.setTexto(texto);
         pedido.setPagina(pagina == null ? 1 : pagina);
-        Pagina<ArchivadoDTO> archivados = buscarUseCase.ejecutar(pedido);
+        Pagina<OperacionDeArchivoBuscarResponseDTO> archivados = buscarUseCase.ejecutar(pedido);
         return new RespuestaDeHerramienta(archivados.getTotalDeElementos() + " archivados", archivados);
     }
 

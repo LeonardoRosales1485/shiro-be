@@ -91,7 +91,7 @@ public class VersionController {
     @PostMapping("/{uuid}/publicar")
     @Contrato(casoDeUso = "CU-VER-06", resumen = "Publica una versión con la fecha elegida; su changelog queda fijo", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> publicar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid,
-            @RequestBody VersionPublicarRequestDTO dto) {
+            @Valid @RequestBody VersionPublicarRequestDTO dto) {
         return new ResponseEntity<>(publicarUseCase.ejecutar(uuid, dto), HttpStatus.OK);
     }
 

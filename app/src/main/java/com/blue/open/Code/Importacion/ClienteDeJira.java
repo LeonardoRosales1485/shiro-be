@@ -29,7 +29,7 @@ import java.util.Optional;
 
 /**
  * Cliente de la API REST de Jira Cloud (v3 y Agile 1.0) para el importador: lee el proyecto, sus tableros, estados,
- * tipos, usuarios asignables, issues por tablero (paginados), sprints, versiones y comentarios. Autentica con basic
+ * tipos, usuarios asignables, incidencias por tablero (paginados), sprints, versiones y comentarios. Autentica con basic
  * (correo y token de API). Integracion externa: cada llamada va en try/catch; 401 o 403 responde
  * JIRA_CREDENCIALES_INVALIDAS y un error de red o un status inesperado, JIRA_NO_DISPONIBLE. No se comprueba al
  * iniciar porque la URL la elige el administrador en cada importacion.
@@ -68,7 +68,7 @@ public class ClienteDeJira {
         return tableros;
     }
 
-    // Estados del proyecto (de todos sus tipos de issue, sin repetir), en el orden de Jira, con si cuentan como terminados
+    // Estados del proyecto (de todos sus tipos de incidencia, sin repetir), en el orden de Jira, con si cuentan como terminados
     public List<ElementoDeJiraDTO> estados(CredencialesDeJira credenciales, String clave) {
         Map<String, ElementoDeJiraDTO> estados = new LinkedHashMap<>();
         for (JsonNode tipo : obligatorio(credenciales, "/rest/api/3/project/" + codificar(clave) + "/statuses"))
@@ -78,7 +78,7 @@ public class ClienteDeJira {
         return new ArrayList<>(estados.values());
     }
 
-    // Tipos de issue del proyecto, con su nivel en Shiro
+    // Tipos de incidencia del proyecto, con su nivel en Shiro
     public List<ElementoDeJiraDTO> tipos(CredencialesDeJira credenciales, String idProyecto) {
         List<ElementoDeJiraDTO> tipos = new ArrayList<>();
         for (JsonNode tipo : obligatorio(credenciales, "/rest/api/3/issuetype/project?projectId=" + codificar(idProyecto)))
@@ -95,22 +95,22 @@ public class ClienteDeJira {
         return usuarios;
     }
 
-    // Issues del proyecto en un tablero, todas las paginas
-    public List<DatosDeJira.Issue> issues(CredencialesDeJira credenciales, String idTablero, String clave) {
-        List<DatosDeJira.Issue> issues = new ArrayList<>();
+    // Incidencias del proyecto en un tablero, todas las paginas
+    public List<DatosDeJira.Incidencia> incidencias(CredencialesDeJira credenciales, String idTablero, String clave) {
+        List<DatosDeJira.Incidencia> incidencias = new ArrayList<>();
         int desde = 0;
         int total;
         do {
             JsonNode pagina = obligatorio(credenciales, "/rest/agile/1.0/board/" + codificar(idTablero) + "/issue?jql="
                     + codificar("project=" + clave) + "&startAt=" + desde + "&maxResults=" + TAMANO_DE_PAGINA);
             JsonNode lote = pagina.path("issues");
-            lote.forEach(issue -> issues.add(issue(issue)));
+            lote.forEach(incidencia -> incidencias.add(incidencia(incidencia)));
             total = pagina.path("total").asInt(0);
             desde += lote.size();
             if (lote.isEmpty())
                 break;
         } while (desde < total);
-        return issues;
+        return incidencias;
     }
 
     // Sprints de un tablero. Un tablero kanban no tiene sprints: Jira responde 400 y queda vacio
@@ -134,13 +134,13 @@ public class ClienteDeJira {
         return versiones;
     }
 
-    // Comentarios de un issue, todas las paginas
-    public List<DatosDeJira.Comentario> comentarios(CredencialesDeJira credenciales, String claveIssue) {
+    // Comentarios de un incidencia, todas las paginas
+    public List<DatosDeJira.Comentario> comentarios(CredencialesDeJira credenciales, String claveDeIncidencia) {
         List<DatosDeJira.Comentario> comentarios = new ArrayList<>();
         int desde = 0;
         int total;
         do {
-            JsonNode pagina = obligatorio(credenciales, "/rest/api/3/issue/" + codificar(claveIssue) + "/comment?startAt="
+            JsonNode pagina = obligatorio(credenciales, "/rest/api/3/issue/" + codificar(claveDeIncidencia) + "/comment?startAt="
                     + desde + "&maxResults=" + TAMANO_DE_PAGINA);
             JsonNode lote = pagina.path("comments");
             for (JsonNode comentario : lote)
@@ -155,15 +155,15 @@ public class ClienteDeJira {
         return comentarios;
     }
 
-    // Issue del JSON de Jira
-    private static DatosDeJira.Issue issue(JsonNode issue) {
-        JsonNode campos = issue.path("fields");
+    // Incidencia del JSON de Jira
+    private static DatosDeJira.Incidencia incidencia(JsonNode incidencia) {
+        JsonNode campos = incidencia.path("fields");
         List<String> etiquetas = new ArrayList<>();
         campos.path("labels").forEach(etiqueta -> etiquetas.add(etiqueta.asString()));
         List<String> versiones = new ArrayList<>();
         campos.path("fixVersions").forEach(version -> versiones.add(version.path("id").asString()));
         JsonNode responsable = campos.path("assignee");
-        return new DatosDeJira.Issue(issue.path("id").asString(), issue.path("key").asString(),
+        return new DatosDeJira.Incidencia(incidencia.path("id").asString(), incidencia.path("key").asString(),
                 campos.path("summary").asString(), TextoDeAdf.convertir(campos.path("description")),
                 campos.path("issuetype").path("id").asString(), campos.path("status").path("id").asString(),
                 campos.path("priority").path("name").asString(null), campos.path("parent").path("key").asString(null),
@@ -219,10 +219,8 @@ public class ClienteDeJira {
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JIRA_CREDENCIALES_INVALIDAS, "ClienteDeJira | get | status " + status);
         if (toleraAusencia && (status == 404 || status == 400))
             return Optional.empty();
-        if (status != 200) {
-            log.error("Jira respondio un status inesperado | url={} | ruta={} | status={}", credenciales.url(), ruta, status);
-            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JIRA_NO_DISPONIBLE, "ClienteDeJira | get | status " + status);
-        }
+        if (status != 200)
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JIRA_NO_DISPONIBLE, "ClienteDeJira | get | " + ruta + " | status " + status);
         try {
             return Optional.of(lector.readTree(respuesta.body()));
         } catch (JacksonException e) {

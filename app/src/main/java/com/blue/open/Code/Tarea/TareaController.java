@@ -108,11 +108,11 @@ public class TareaController {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 
-    // Relaciones de una tarea vistas desde ella. Responde la lista de TareaRelacionDTO
+    // Relaciones de una tarea vistas desde ella. Responde la lista de TareaRelacionesResponseDTO
     @GetMapping("/{uuid}/relaciones")
     @Contrato(casoDeUso = "CU-TAR-08", resumen = "Relaciones de una tarea vistas desde ella, con el estado de la otra tarea",
             permiso = Contrato.AUTENTICADO)
-    public ResponseEntity<List<TareaRelacionDTO>> relaciones(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
+    public ResponseEntity<List<TareaRelacionesResponseDTO>> relaciones(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(relacionesUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 

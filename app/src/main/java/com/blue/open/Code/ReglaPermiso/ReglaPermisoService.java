@@ -5,6 +5,7 @@ import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Core.Crud.AbstractService;
+import com.blue.open.Core.Kernel.Entidad.EntidadBase;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,8 +44,8 @@ public class ReglaPermisoService extends AbstractService<ReglaPermiso, ReglaPerm
             modelo.setValoresAnteriores(valoresDelHistorial(modelo));
         ReglaPermiso aplicada = super.hookGuardarAplicarDto(dto, modelo);
         long id = aplicada.getId() == null ? -1L : aplicada.getId();
-        if (reglaPermisoRepository.existsByRolAndUsuarioAndProyectoAndTableroAndNivelAndStatusAndIdNot(aplicada.getRol(),
-                aplicada.getUsuario(), aplicada.getProyecto(), aplicada.getTablero(), aplicada.getNivel(), 0, id))
+        if (reglaPermisoRepository.existeOtraIgual(idDe(aplicada.getRol()), idDe(aplicada.getUsuario()), idDe(aplicada.getProyecto()),
+                idDe(aplicada.getTablero()), aplicada.getNivel(), id))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.REGLA_DE_PERMISO_REPETIDA,
                     "ReglaPermisoService | hookGuardarAplicarDto | regla repetida");
         return aplicada;
@@ -62,6 +63,11 @@ public class ReglaPermisoService extends AbstractService<ReglaPermiso, ReglaPerm
         else
             historial.registrarCambios(Historial.REGLA_PERMISO, guardada.getUuid(), modelo.getValoresAnteriores(), valores);
         return guardada;
+    }
+
+    // Id de la entidad relacionada, o -1 si no hay (para comparar reglas con datos opcionales)
+    private static long idDe(EntidadBase entidad) {
+        return entidad == null ? -1L : entidad.getId();
     }
 
     // Valores de la regla que sigue el historial, como texto y en orden fijo

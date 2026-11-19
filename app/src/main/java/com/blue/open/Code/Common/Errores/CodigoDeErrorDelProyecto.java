@@ -10,10 +10,6 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum CodigoDeErrorDelProyecto implements CodigoDeError {
 
-    @Descripcion("Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto)")
-    CUIT_INVALIDO(HttpStatus.BAD_REQUEST, "CUIT inválido"),
-    @Descripcion("Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación")
-    EMAIL_YA_REGISTRADO(HttpStatus.BAD_REQUEST, "Email ya registrado"),
     @Descripcion("Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas")
     CONFIGURACIONES_PRIVADAS(HttpStatus.FORBIDDEN, "No tenes permiso para ver estas variables"),
     @Descripcion("Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro")
@@ -107,9 +103,7 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     @Descripcion("Al clonar una Subtarea no se eligió (o se eligieron los dos) si el clon queda como tarea propia (tipoCodigo) o como subtarea de otra tarea (padreUuid)")
     CLON_DE_SUBTAREA_SIN_DESTINO(HttpStatus.BAD_REQUEST, "Elegí si el clon queda como tarea propia, con su tipo, o como subtarea de otra tarea."),
     @Descripcion("Al clonar una Subtarea como tarea propia se eligió un tipo que no es Historia, Tarea o Bug")
-    TIPO_DE_CLON_INVALIDO(HttpStatus.BAD_REQUEST, "Como tarea propia, el clon puede ser Historia, Tarea o Bug."),
-    @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
-    ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
+    TIPO_DE_CLON_INVALIDO(HttpStatus.BAD_REQUEST, "Como tarea propia, el clon puede ser Historia, Tarea o Bug.");
 
     private final HttpStatus status;
     private final String mensajePorDefecto;

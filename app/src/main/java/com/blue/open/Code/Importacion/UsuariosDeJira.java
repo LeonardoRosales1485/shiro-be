@@ -76,6 +76,7 @@ public class UsuariosDeJira {
         return usuarioRepository.save(usuario);
     }
 
+    // Recorta el texto al largo maximo de la columna de nombre del usuario
     private static String recortar(String texto) {
         return texto.length() > LARGO_MAXIMO ? texto.substring(0, LARGO_MAXIMO) : texto;
     }

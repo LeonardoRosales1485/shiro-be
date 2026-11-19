@@ -13,8 +13,11 @@ import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Traduce los nombres que usan la gente y los agentes en MCP (clave SHI-123, prefijo, codigo de tablero, nombre de
@@ -40,6 +43,20 @@ public class ReferenciasDeMcp {
         String normalizada = clave == null ? "" : clave.trim().toUpperCase(Locale.ROOT);
         return tareaRepository.findFirstByClave(normalizada)
                 .orElseThrow(() -> noExiste("No existe la tarea " + normalizada + ".", "tarea " + normalizada));
+    }
+
+    /*
+     * Uuids de las tareas por clave (vigentes o archivadas), en el orden recibido y en una consulta. Lanza
+     * REGISTRO_NO_ENCONTRADO con la primera clave que no existe. Una lista null o vacia responde una lista vacia
+     */
+    public List<String> uuidsDeTareas(List<String> claves) {
+        if (claves == null || claves.isEmpty())
+            return List.of();
+        List<String> normalizadas = claves.stream().map(clave -> clave == null ? "" : clave.trim().toUpperCase(Locale.ROOT)).toList();
+        Map<String, String> porClave = new HashMap<>();
+        tareaRepository.findByClaveIn(normalizadas).forEach(tarea -> porClave.put(tarea.getClave(), tarea.getUuid()));
+        return normalizadas.stream().map(clave -> Optional.ofNullable(porClave.get(clave))
+                .orElseThrow(() -> noExiste("No existe la tarea " + clave + ".", "tarea " + clave))).toList();
     }
 
     // Proyecto vigente por prefijo. Lanza REGISTRO_NO_ENCONTRADO si no existe

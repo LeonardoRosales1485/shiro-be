@@ -9,6 +9,7 @@ import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Version.Version;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,6 +47,10 @@ public class ContextoDeImportacion {
 
     // Sprints importados por id de Jira
     private final Map<String, Sprint> sprints = new HashMap<>();
+
+    // Sprint activo del proyecto durante la importacion (solo puede haber uno); null si no hay
+    @Setter
+    private Sprint sprintActivo;
 
     // Versiones importadas por id de Jira
     private final Map<String, Version> versiones = new HashMap<>();

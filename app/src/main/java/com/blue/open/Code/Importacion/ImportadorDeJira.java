@@ -167,9 +167,16 @@ public class ImportadorDeJira {
     private void versiones(ContextoDeImportacion contexto) {
         List<DatosDeJira.Version> deJira = jira.versiones(contexto.getCredenciales(), contexto.getClaveDeJira());
         Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.VERSION, deJira.stream().map(DatosDeJira.Version::id).toList());
+        // Las versiones vigentes del proyecto, en una consulta, por uuid y por nombre
+        Map<String, Version> porUuid = new HashMap<>();
+        Map<String, Version> porNombre = new HashMap<>();
+        versionRepository.findByProyectoAndStatus(contexto.getProyecto(), 0).forEach(existente -> {
+            porUuid.put(existente.getUuid(), existente);
+            porNombre.putIfAbsent(existente.getNombre(), existente);
+        });
         for (DatosDeJira.Version version : deJira) {
-            Version enShiro = Optional.ofNullable(yaImportadas.get(version.id())).flatMap(versionRepository::buscarVigentePorUuid)
-                    .or(() -> versionRepository.findFirstByProyectoAndNombreAndStatus(contexto.getProyecto(), version.nombre(), 0))
+            Version enShiro = Optional.ofNullable(porUuid.get(yaImportadas.get(version.id())))
+                    .or(() -> Optional.ofNullable(porNombre.get(version.nombre())))
                     .orElseGet(Version::new);
             boolean nueva = enShiro.getId() == null;
             if (enShiro.getEstado() != EstadoDeVersion.PUBLICADA) {
@@ -199,9 +206,18 @@ public class ImportadorDeJira {
         for (String tablero : contexto.getTableros().keySet())
             jira.sprints(contexto.getCredenciales(), tablero).forEach(sprint -> deJira.putIfAbsent(sprint.id(), sprint));
         Map<String, String> yaImportados = mapeos.uuids(TipoDeEntidadJira.SPRINT, deJira.keySet());
+        // Los sprints vigentes del proyecto, en una consulta, por uuid y por nombre; el activo se sigue en memoria
+        Map<String, Sprint> porUuid = new HashMap<>();
+        Map<String, Sprint> porNombre = new HashMap<>();
+        for (Sprint existente : sprintRepository.findByProyectoAndStatus(contexto.getProyecto(), 0)) {
+            porUuid.put(existente.getUuid(), existente);
+            porNombre.putIfAbsent(existente.getNombre(), existente);
+            if (existente.getEstado() == EstadoDeSprint.ACTIVO)
+                contexto.setSprintActivo(existente);
+        }
         for (DatosDeJira.Sprint sprint : deJira.values()) {
-            Sprint enShiro = Optional.ofNullable(yaImportados.get(sprint.id())).flatMap(sprintRepository::buscarVigentePorUuid)
-                    .or(() -> sprintRepository.findFirstByProyectoAndNombreAndStatus(contexto.getProyecto(), sprint.nombre(), 0))
+            Sprint enShiro = Optional.ofNullable(porUuid.get(yaImportados.get(sprint.id())))
+                    .or(() -> Optional.ofNullable(porNombre.get(sprint.nombre())))
                     .orElseGet(Sprint::new);
             boolean nuevo = enShiro.getId() == null;
             if (enShiro.getEstado() != EstadoDeSprint.CERRADO) {
@@ -232,11 +248,15 @@ public class ImportadorDeJira {
             case "closed" -> EstadoDeSprint.CERRADO;
             default -> EstadoDeSprint.PLANIFICADO;
         };
-        if (estado == EstadoDeSprint.ACTIVO && sprintRepository.findFirstByProyectoAndEstadoAndStatus(contexto.getProyecto(), EstadoDeSprint.ACTIVO, 0)
-                .filter(activo -> !activo.getId().equals(enShiro.getId())).isPresent()) {
+        Sprint activo = contexto.getSprintActivo();
+        if (estado == EstadoDeSprint.ACTIVO && activo != null && activo != enShiro) {
             estado = EstadoDeSprint.PLANIFICADO;
             contexto.getResumen().advertir(sprint.nombre(), "El proyecto ya tiene un sprint activo: este quedó planificado.");
         }
+        if (estado == EstadoDeSprint.ACTIVO)
+            contexto.setSprintActivo(enShiro);
+        else if (activo == enShiro)
+            contexto.setSprintActivo(null);
         enShiro.setEstado(estado);
     }
 

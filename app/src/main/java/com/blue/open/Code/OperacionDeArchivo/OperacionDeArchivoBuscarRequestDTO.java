@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ArchivoPaginarRequestDTO extends EntidadBaseDTO {
+public class OperacionDeArchivoBuscarRequestDTO extends EntidadBaseDTO {
 
     @Descripcion("Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO. Vacío para todos")
     private String tipo;

@@ -34,10 +34,10 @@ public class Tablero extends EntidadConBorradoLogico {
     @JoinColumn(name = "id_tipo_tablero", nullable = false)
     private TipoTablero tipoTablero;
 
-    // Tablero nuevo de un proyecto, del tipo recibido
     // Operacion de archivo que archivo el tablero (al archivar su proyecto); null si esta vigente
     private Long idOperacionArchivo;
 
+    // Tablero nuevo de un proyecto, del tipo recibido
     public Tablero(Proyecto proyecto, TipoTablero tipoTablero) {
         this.proyecto = proyecto;
         this.tipoTablero = tipoTablero;

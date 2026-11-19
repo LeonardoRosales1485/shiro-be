@@ -1,6 +1,7 @@
 package com.blue.open.Code.Tarea;
 
 import com.blue.open.Code.Proyecto.Proyecto;
+import com.blue.open.Code.Proyecto.ProyectoBacklogResponseDTO;
 import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import jakarta.persistence.LockModeType;
@@ -47,20 +48,25 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
 
     // Backlog del proyecto (T5.1 y resolucion B21): tareas vigentes sin sprint de todos los tipos, en su orden unico; las que
     // nadie ordeno todavia van al final, por numero
-    @Query("SELECT new com.blue.open.Code.Tarea.TareaDeBacklogDTO(t.uuid, t.clave, t.titulo, ti.codigo, e.nombre, tt.codigo, "
+    @Query("SELECT new com.blue.open.Code.Proyecto.ProyectoBacklogResponseDTO(t.uuid, t.clave, t.titulo, ti.codigo, e.nombre, tt.codigo, "
             + "t.prioridad, t.puntos, r.nombre) FROM Tarea t JOIN t.tipo ti JOIN t.estado e JOIN t.tablero tb "
             + "JOIN tb.tipoTablero tt LEFT JOIN t.responsable r "
             + "WHERE t.proyecto = :proyecto AND t.status = 0 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
-    List<TareaDeBacklogDTO> backlogDe(@Param("proyecto") Proyecto proyecto);
+    List<ProyectoBacklogResponseDTO> backlogDe(@Param("proyecto") Proyecto proyecto);
 
     // Las mismas tareas del backlog, como entidades, en el mismo orden (para reordenarlas)
     @Query("SELECT t FROM Tarea t WHERE t.proyecto = :proyecto AND t.status = 0 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
     List<Tarea> tareasDelBacklog(@Param("proyecto") Proyecto proyecto);
 
-    // Tareas del sprint con el status recibido
-    List<Tarea> findBySprintAndStatus(Sprint sprint, Integer status);
+    // Tareas vigentes de un sprint con su estado y su sprint en la misma consulta (cerrar, archivar, vista previa: sin N+1)
+    @Query("SELECT t FROM Tarea t JOIN FETCH t.estado JOIN FETCH t.sprint WHERE t.sprint = :sprint AND t.status = 0")
+    List<Tarea> vigentesDelSprint(@Param("sprint") Sprint sprint);
+
+    // Tareas vigentes con los uuids recibidos, con su sprint en la misma consulta (asignar y quitar de un sprint)
+    @Query("SELECT t FROM Tarea t LEFT JOIN FETCH t.sprint WHERE t.uuid IN :uuids AND t.status = 0")
+    List<Tarea> vigentesConSprint(@Param("uuids") Collection<String> uuids);
 
     // Ids de tareas cuyo texto (clave, titulo y descripcion, columna busqueda en español) coincide con el texto, o
     // cuya clave es el texto. SQL nativo: JPQL no expresa el operador @@ de tsvector ni plainto_tsquery. Hasta 1000
@@ -95,7 +101,8 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     int restaurarPorOperacion(@Param("operacion") Long operacion, @Param("usuario") Long usuario,
             @Param("fecha") Timestamp fecha);
 
-    // Tareas por uuid con su tablero, tipo de tablero, tipo, estado, responsable, padre y sprint, en una consulta (importador, F4)
+    // Tareas por uuid con su tablero, tipo de tablero, tipo, estado, responsable, padre y sprint, en una consulta (importador, F4).
+    // Sin filtro de status a proposito: una tarea importada que se archivo en Shiro se reconoce igual y no se duplica
     @Query("SELECT t FROM Tarea t JOIN FETCH t.tablero tb JOIN FETCH tb.tipoTablero JOIN FETCH t.tipo "
             + "JOIN FETCH t.estado LEFT JOIN FETCH t.responsable LEFT JOIN FETCH t.padre LEFT JOIN FETCH t.sprint WHERE t.uuid IN :uuids")
     List<Tarea> buscarParaImportar(@Param("uuids") Collection<String> uuids);
@@ -103,4 +110,10 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Cuales de las claves recibidas ya usa alguna tarea (importador, F4)
     @Query("SELECT t.clave FROM Tarea t WHERE t.clave IN :claves")
     List<String> clavesEnUso(@Param("claves") Collection<String> claves);
+
+    // Tareas con los uuids y el status recibidos, en una consulta
+    List<Tarea> findByUuidInAndStatus(Collection<String> uuids, Integer status);
+
+    // Tareas con las claves recibidas (vigentes o archivadas), en una consulta (MCP las identifica por clave)
+    List<Tarea> findByClaveIn(Collection<String> claves);
 }

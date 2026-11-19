@@ -11,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,16 +30,12 @@ import java.util.Map;
  * Dependencias externas: la base de datos (tokens de acceso).
  */
 @Slf4j
+@RequiredArgsConstructor
 public class FiltroDeMcp extends OncePerRequestFilter {
 
     private final AuthTokenConSha256Service tokens;
 
     private final ObjectMapper escritor = new ObjectMapper();
-
-    // Recibe el protocolo tokens con el que se autentica
-    public FiltroDeMcp(AuthTokenConSha256Service tokens) {
-        this.tokens = tokens;
-    }
 
     // Autentica el token y marca el canal MCP; si no autentica responde 401 con el codigo de error
     @Override

@@ -9,10 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 /**
- * Repositorio de Importacion.
+ * Repositorio de Importacion: busqueda por uuid y marca atomica de ejecucion en curso.
  */
 public interface ImportacionRepository extends EntidadRepositoryBorradoLogico<Importacion> {
 
+    // Importacion por uuid con el status pedido (0 = vigente)
     Optional<Importacion> findFirstByUuidAndStatus(String uuid, Integer status);
 
     // Pasa la importacion a EN_CURSO si no lo estaba. Responde 1 si la paso, 0 si ya estaba en curso: asi dos

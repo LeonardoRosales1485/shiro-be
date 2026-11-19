@@ -46,6 +46,7 @@ public class ValidadorDeUrlDeJira {
                 : Arrays.stream(hostsDePrueba.split(",")).map(String::trim).filter(h -> !h.isEmpty()).toList();
     }
 
+    // Error de URL fuera de *.atlassian.net (o de los hosts de prueba). No interpola la url en el mensaje
     private static ExcepcionDeApi noPermitida(String url) {
         return new ExcepcionDeApi(CodigoDeErrorDelProyecto.JIRA_URL_NO_PERMITIDA, "ValidadorDeUrlDeJira | validar | url no permitida");
     }

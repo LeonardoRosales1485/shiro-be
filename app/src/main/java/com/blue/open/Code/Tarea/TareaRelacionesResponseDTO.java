@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class TareaRelacionDTO extends EntidadBaseDTO {
+public class TareaRelacionesResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Cómo ve esta tarea la relación: BLOQUEA, BLOQUEADA_POR, RELACIONA, DUPLICA, DUPLICADA_POR, CLONADA_EN o CLONADA_DE")
     private VinculoDeTarea vinculo;
@@ -37,7 +37,7 @@ public class TareaRelacionDTO extends EntidadBaseDTO {
     private boolean tareaArchivada;
 
     // Constructor de la proyeccion: el vinculo sale del tipo guardado y de si esta tarea es el origen
-    public TareaRelacionDTO(String uuid, TipoDeRelacion tipo, Boolean esOrigen, String tareaUuid, String tareaClave,
+    public TareaRelacionesResponseDTO(String uuid, TipoDeRelacion tipo, Boolean esOrigen, String tareaUuid, String tareaClave,
             String tareaTitulo, String tareaEstadoNombre, Integer tareaStatus) {
         setUuid(uuid);
         this.vinculo = tipo.vinculo(Boolean.TRUE.equals(esOrigen));

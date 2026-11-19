@@ -1,4 +1,4 @@
-package com.blue.open.Code.Importacion;
+package com.blue.open.Code.Common.Configuracion;
 
 import com.blue.open.Core.Kernel.Trazabilidad.InicializadorDeTraceIdGlobal;
 import org.springframework.beans.factory.annotation.Value;

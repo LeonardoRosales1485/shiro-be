@@ -19,6 +19,7 @@ import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Usuario.UsuarioAsignarGruposRequestDTO;
 import com.blue.open.Code.Usuario.UsuarioDTO;
 import com.blue.open.Code.Usuario.UsuarioService;
+import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Identity.DTO.RolDTO;
 import com.blue.open.Core.Identity.Entidad.Rol;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
@@ -191,7 +192,8 @@ public class HerramientasMcpDeAdministracion {
         } else {
             dto.setTipoSujeto(TipoDeSujeto.ROL);
             dto.setRolUuid(grupoRepository.findByNombreInAndStatus(List.of(partesDelSujeto[1]), 0).stream().findFirst()
-                    .map(Rol::getUuid).orElse(null));
+                    .map(Rol::getUuid).orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
+                            "No hay un grupo llamado " + partesDelSujeto[1] + ".", "HerramientasMcpDeAdministracion | regla | grupo")));
         }
         String[] partesDelRecurso = recurso.split("/", 2);
         Proyecto proyecto = referencias.proyecto(partesDelRecurso[0]);

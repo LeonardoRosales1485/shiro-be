@@ -2,7 +2,7 @@ package com.blue.open.Code.Relacion;
 
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Tarea.Tarea;
-import com.blue.open.Code.Tarea.TareaRelacionDTO;
+import com.blue.open.Code.Tarea.TareaRelacionesResponseDTO;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,8 +24,8 @@ public interface RelacionRepository extends EntidadRepositoryBorradoLogico<Relac
     Optional<Relacion> findFirstByUuidAndStatus(String uuid, Integer status);
 
     // Relaciones vigentes de una tarea, vistas desde ella: la otra tarea (vigente o archivada) y si esta es el origen.
-    // El nombre del sentido (BLOQUEADA_POR, ...) lo arma el constructor de TareaRelacionDTO
-    @Query("SELECT new com.blue.open.Code.Tarea.TareaRelacionDTO(r.uuid, r.tipo, "
+    // El nombre del sentido (BLOQUEADA_POR, ...) lo arma el constructor de TareaRelacionesResponseDTO
+    @Query("SELECT new com.blue.open.Code.Tarea.TareaRelacionesResponseDTO(r.uuid, r.tipo, "
             + "CASE WHEN o.uuid = :uuid THEN true ELSE false END, "
             + "CASE WHEN o.uuid = :uuid THEN d.uuid ELSE o.uuid END, "
             + "CASE WHEN o.uuid = :uuid THEN d.clave ELSE o.clave END, "
@@ -34,7 +34,7 @@ public interface RelacionRepository extends EntidadRepositoryBorradoLogico<Relac
             + "CASE WHEN o.uuid = :uuid THEN d.status ELSE o.status END) "
             + "FROM Relacion r JOIN r.origen o JOIN r.destino d JOIN o.estado eo JOIN d.estado ed "
             + "WHERE r.status = 0 AND (o.uuid = :uuid OR d.uuid = :uuid) ORDER BY r.id")
-    List<TareaRelacionDTO> listarDeTarea(@Param("uuid") String uuid);
+    List<TareaRelacionesResponseDTO> listarDeTarea(@Param("uuid") String uuid);
 
     // Archiva en un solo UPDATE las relaciones vigentes de las tareas vigentes del proyecto, con la operacion recibida (archivar un proyecto)
     @Modifying(flushAutomatically = true, clearAutomatically = true)

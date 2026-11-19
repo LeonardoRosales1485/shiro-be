@@ -21,7 +21,7 @@ public class ComprobacionDeGoogleAlIniciar implements ApplicationRunner {
     private final ClavesPublicasDeGoogle claves;
 
     @Value("${shiro.google.client-id:}")
-    private String clientId;
+    private String idDeCliente;
 
     @Value("${shiro.google.dominio:}")
     private String dominio;
@@ -33,7 +33,7 @@ public class ComprobacionDeGoogleAlIniciar implements ApplicationRunner {
     // Valida la configuracion y baja las claves; ante un error solo loguea
     @Override
     public void run(ApplicationArguments argumentos) {
-        if (clientId == null || clientId.isBlank() || dominio == null || dominio.isBlank()) {
+        if (idDeCliente == null || idDeCliente.isBlank() || dominio == null || dominio.isBlank()) {
             log.warn("Ingreso con Google deshabilitado | falta GOOGLE_CLIENT_ID o GOOGLE_DOMINIO");
             return;
         }

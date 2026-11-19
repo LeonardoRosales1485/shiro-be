@@ -1,4 +1,4 @@
-package com.blue.open.Code.Tarea.CasosDeUso;
+package com.blue.open.Code.Proyecto.CasosDeUso;
 
 import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
 import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
@@ -6,11 +6,11 @@ import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
 import com.blue.open.Code.Proyecto.Proyecto;
+import com.blue.open.Code.Proyecto.ProyectoBacklogResponseDTO;
+import com.blue.open.Code.Proyecto.ProyectoOrdenarBacklogRequestDTO;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
 import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
 import com.blue.open.Code.Tarea.Tarea;
-import com.blue.open.Code.Tarea.TareaDeBacklogDTO;
-import com.blue.open.Code.Tarea.TareaOrdenarBacklogRequestDTO;
 import com.blue.open.Code.Tarea.TareaRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
@@ -28,12 +28,12 @@ import java.util.Map;
  * quedan despues, en su orden anterior. El orden es uno solo para todos. Exige EDITAR en el proyecto y deja una fila
  * ORDENAR_BACKLOG en el historial del proyecto.
  * Dependencias externas: la base de datos.
- * Recibe: TareaOrdenarBacklogRequestDTO. Responde: el backlog ordenado. Lanza REGISTRO_NO_ENCONTRADO, SIN_PERMISO o
+ * Recibe: uuid del proyecto y ProyectoOrdenarBacklogRequestDTO. Responde: el backlog ordenado. Lanza REGISTRO_NO_ENCONTRADO, SIN_PERMISO o
  * TAREA_FUERA_DEL_BACKLOG.
  */
 @Service
 @RequiredArgsConstructor
-public class TareaOrdenarBacklogUseCase {
+public class ProyectoOrdenarBacklogUseCase {
 
     private final ProyectoRepository proyectoRepository;
 
@@ -44,21 +44,21 @@ public class TareaOrdenarBacklogUseCase {
     private final RegistradorDeHistorial historial;
 
     @Transactional
-    public List<TareaDeBacklogDTO> ejecutar(TareaOrdenarBacklogRequestDTO dto) {
-        Proyecto proyecto = proyectoRepository.findFirstByUuidAndStatus(dto.getProyectoUuid(), 0)
+    public List<ProyectoBacklogResponseDTO> ejecutar(String uuid, ProyectoOrdenarBacklogRequestDTO dto) {
+        Proyecto proyecto = proyectoRepository.findFirstByUuidAndStatus(uuid, 0)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO,
-                        "TareaOrdenarBacklogUseCase | ejecutar | proyecto " + dto.getProyectoUuid()));
+                        "ProyectoOrdenarBacklogUseCase | ejecutar | proyecto " + uuid));
         permisos.exigir(NivelDePermiso.EDITAR, proyecto);
         Map<String, Tarea> pendientes = new LinkedHashMap<>();
         for (Tarea tarea : tareaRepository.tareasDelBacklog(proyecto)) {
             pendientes.put(tarea.getUuid(), tarea);
         }
         List<Tarea> orden = new ArrayList<>();
-        for (String uuid : dto.getTareas()) {
-            Tarea tarea = pendientes.remove(uuid);
+        for (String uuidDeTarea : dto.getTareas()) {
+            Tarea tarea = pendientes.remove(uuidDeTarea);
             if (tarea == null)
                 throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_FUERA_DEL_BACKLOG,
-                        "TareaOrdenarBacklogUseCase | ejecutar | tarea " + uuid).conDato("tareaUuid", uuid);
+                        "ProyectoOrdenarBacklogUseCase | ejecutar | tarea " + uuidDeTarea).conDato("tareaUuid", uuidDeTarea);
             orden.add(tarea);
         }
         orden.addAll(pendientes.values());

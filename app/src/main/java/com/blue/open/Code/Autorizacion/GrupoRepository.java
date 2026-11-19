@@ -1,7 +1,10 @@
 package com.blue.open.Code.Autorizacion;
 
 import com.blue.open.Core.Identity.Entidad.Rol;
+import com.blue.open.Core.Monoempresa.Entidad.UsuarioRol;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,4 +27,8 @@ public interface GrupoRepository extends Repository<Rol, Long> {
 
     // Grupo por uuid con el status recibido
     Optional<Rol> findFirstByUuidAndStatus(String uuid, Integer status);
+
+    // Asignaciones vigentes de grupos de un usuario, con su grupo en la misma consulta (sin N+1)
+    @Query("SELECT ur FROM UsuarioRol ur JOIN FETCH ur.rol WHERE ur.idUsuario = :usuario AND ur.status = 0")
+    List<UsuarioRol> asignacionesVigentesConGrupo(@Param("usuario") Long usuario);
 }

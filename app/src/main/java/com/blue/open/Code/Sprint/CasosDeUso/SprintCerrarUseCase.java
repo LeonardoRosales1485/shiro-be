@@ -44,7 +44,7 @@ public class SprintCerrarUseCase {
         if (sprint.getEstado() != EstadoDeSprint.ACTIVO)
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_NO_ACTIVO, "SprintCerrarUseCase | estado " + sprint.getEstado());
         Sprint destino = dto.getDestino() == DestinoDeCierre.SPRINT ? destino(sprint, dto.getSprintDestinoUuid()) : null;
-        for (Tarea tarea : tareaRepository.findBySprintAndStatus(sprint, 0)) {
+        for (Tarea tarea : tareaRepository.vigentesDelSprint(sprint)) {
             if (!tarea.getEstado().isTerminado())
                 tareasDeSprint.mover(tarea, destino);
         }

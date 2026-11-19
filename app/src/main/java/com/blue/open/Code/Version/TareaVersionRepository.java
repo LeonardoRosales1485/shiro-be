@@ -7,18 +7,18 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositorio de asignaciones de tareas a versiones.
  */
 public interface TareaVersionRepository extends EntidadRepositoryBorradoLogico<TareaVersion> {
 
-    // Asignacion vigente de la tarea a la version
-    Optional<TareaVersion> findFirstByTareaAndVersionAndStatus(Tarea tarea, Version version, Integer status);
 
-    // Asignaciones vigentes de una tarea (para clonar sus versiones)
-    List<TareaVersion> findByTareaAndStatus(Tarea tarea, Integer status);
+
+    // Versiones vigentes y sin publicar de una tarea, en una consulta (clonar con VERSIONES)
+    @Query("SELECT tv.version FROM TareaVersion tv WHERE tv.tarea = :tarea AND tv.status = 0 AND tv.version.status = 0 "
+            + "AND tv.version.estado = com.blue.open.Code.Version.EstadoDeVersion.SIN_PUBLICAR")
+    List<Version> versionesSinPublicarDe(@Param("tarea") Tarea tarea);
 
     // Tareas vigentes y terminadas de la version, por orden de tipo y numero: las lineas del changelog
     @Query("SELECT new com.blue.open.Code.Version.LineaDeChangelog(ti.nombre, ti.orden, t.clave, t.titulo) "
@@ -29,4 +29,7 @@ public interface TareaVersionRepository extends EntidadRepositoryBorradoLogico<T
 
     // Asignaciones vigentes de varias tareas, en una consulta (importador, F4)
     List<TareaVersion> findByTareaInAndStatus(Collection<Tarea> tareas, Integer status);
+
+    // Asignaciones con el status recibido de una version para varias tareas, en una consulta
+    List<TareaVersion> findByVersionAndTareaInAndStatus(Version version, Collection<Tarea> tareas, Integer status);
 }

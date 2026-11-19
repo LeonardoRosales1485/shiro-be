@@ -97,7 +97,7 @@ public class HerramientasMcpDeVersion {
     // Pedido de tareas a partir de sus claves
     private VersionTareasRequestDTO pedido(List<String> claves) {
         VersionTareasRequestDTO pedido = new VersionTareasRequestDTO();
-        pedido.setTareas(claves == null ? List.of() : claves.stream().map(clave -> referencias.tarea(clave).getUuid()).toList());
+        pedido.setTareas(referencias.uuidsDeTareas(claves));
         return pedido;
     }
 }
