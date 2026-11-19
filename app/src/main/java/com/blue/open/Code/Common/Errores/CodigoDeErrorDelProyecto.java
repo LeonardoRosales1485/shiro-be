@@ -28,6 +28,8 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     JERARQUIA_DE_TAREA_INVALIDA(HttpStatus.BAD_REQUEST, "El tipo de la tarea no encaja en la jerarquía."),
     @Descripcion("Al crear o editar una tarea se eligió como padre una tarea de otro proyecto")
     PADRE_DE_OTRO_PROYECTO(HttpStatus.BAD_REQUEST, "La tarea padre tiene que ser del mismo proyecto."),
+    @Descripcion("Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona")
+    ESTADO_DE_OTRO_TABLERO(HttpStatus.BAD_REQUEST, "El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

@@ -1,5 +1,6 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -28,6 +29,8 @@ public class TareaController {
 
     private final TareaService service;
 
+    private final TareaMoverUseCase moverUseCase;
+
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
     @Contrato(casoDeUso = "CU-TAR-01", resumen = "Obtiene una tarea", permiso = Contrato.AUTENTICADO)
@@ -49,5 +52,13 @@ public class TareaController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> guardar(@Valid @RequestBody TareaDTO dto) {
         return new ResponseEntity<>(service.guardar(dto), HttpStatus.OK);
+    }
+
+    // Mueve una tarea a otro estado de su tablero. Responde la tarea movida
+    @PostMapping("/{uuid}/mover")
+    @Contrato(casoDeUso = "CU-TAR-04", resumen = "Mueve una tarea a otro estado de su tablero", permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<TareaDTO> mover(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid,
+            @Valid @RequestBody TareaMoverRequestDTO dto) {
+        return new ResponseEntity<>(moverUseCase.ejecutar(uuid, dto), HttpStatus.OK);
     }
 }

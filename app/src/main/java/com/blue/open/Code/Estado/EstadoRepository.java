@@ -10,6 +10,9 @@ import java.util.Optional;
  */
 public interface EstadoRepository extends EntidadRepositoryBorradoLogico<Estado> {
 
+    // Estado por uuid con el status recibido (0: vigente)
+    Optional<Estado> findFirstByUuidAndStatus(String uuid, Integer status);
+
     // Estado inicial vigente de un tipo de tablero: el estado en el que nace una tarea nueva
     Optional<Estado> findFirstByTipoTableroAndInicialTrueAndStatus(TipoTablero tipoTablero, Integer status);
 }
