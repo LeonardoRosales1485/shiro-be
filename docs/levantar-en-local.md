@@ -108,14 +108,15 @@ Ingresar con el usuario inicial (`sysadmin`, clave `123` en local). Responde un 
 curl -X POST http://localhost:7090/api/usuario/iniciar-sesion -H "Content-Type: application/json" -d "{\"nombreDeUsuario\":\"sysadmin\",\"contrasena\":\"123\"}"
 ```
 
-Llamar la herramienta MCP de eco (en F0 `/api/mcp` todavía no pide token; eso llega en T3.1):
+Llamar la herramienta MCP de eco. `/api/mcp` exige un token de acceso personal (con los seeds, el usuario `demo`
+tiene `demo-access-token`; uno propio se crea con `POST /api/usuario/crear-token`):
 
 ```bash
-curl -X POST http://localhost:7090/api/mcp -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"eco\",\"arguments\":{\"texto\":\"hola\"}}}"
+curl -X POST http://localhost:7090/api/mcp -H "Authorization: Bearer demo-access-token" -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"eco\",\"arguments\":{\"texto\":\"hola\"}}}"
 ```
 
 También podés conectar un cliente MCP (por ejemplo Claude Code) a `http://localhost:7090/api/mcp` con transporte
-HTTP.
+HTTP y el header `Authorization: Bearer <tu token>`.
 
 ## 6. Correr las pruebas
 

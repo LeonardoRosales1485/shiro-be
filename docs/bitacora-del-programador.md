@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F2 terminada.** T2.1 a T2.5 cerradas (versión 1.0.21). Sigue F3 (MCP). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F3 en curso.** F2 terminada; T3.1 cerrada (versión 1.0.22). Sigue T3.2 (herramientas de consulta y de tareas). Guía local: `shiro-be/docs/levantar-en-local.md`.
 
 ## Cierre de F2
 
@@ -51,6 +51,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T3.1 | FiltroDeMcp (servlet, solo /mcp): exige Bearer con token de acceso, autentica con AuthTokenConSha256Service, rechaza JWT, token revocado o de usuario archivado con 401 y el cuerpo de error de la API, y marca el request con canal MCP. McpEcoTest usa token. Guía local actualizada. Decisión 16 en docs/adendas-propuestas.md | 0813921 (rojo) y verde en el commit siguiente. ./mvnw verify: 387 pruebas, 0 fallas, 23 omitidas. Versión 1.0.22 |
 | 18/11/2026 | T2.5 | Usuarios y grupos para super admin y Administradores. ProteccionDeAdministradores: un Administrador no toca al super admin ni a otros Administradores ni a los grupos SYSADMIN y ADMIN. GET y POST /usuario/{uuid}/grupos (Core 4.0.0 monoempresa no lo trae). /borrar reemplazado por archivar y restaurar usuario (desactiva tokens, conserva responsable, nadie se archiva a sí mismo) y archivar grupo (los del sistema no). Nombre de grupo único. UsuarioService y RolService reemplazan los controles de permisos del Core (que exigían permisos que ADMIN no tiene). Decisiones 11 a 15 en docs/adendas-propuestas.md | 57cdc5a (rojo) y verde en el commit siguiente. ./mvnw verify: 383 pruebas, 0 fallas, 23 omitidas; cobertura 94,6%. Versión 1.0.21 |
 | 18/11/2026 | T2.4 | ResolutorDePermisosDeRecurso aplicado en todos los servicios y casos de uso de F1: VER para leer (uuid, historial, relaciones, comentarios), EDITAR para crear, editar, mover, comentar y relacionar, ARCHIVAR para archivar y restaurar tareas y proyectos, VER y EDITAR para clonar. Los paginados de proyectos, tareas y comentarios se restringen a lo visible con una condición JPQL (un proyecto se ve si se ve él o alguno de sus tableros). Archivar y restaurar proyectos pasa a exigir ARCHIVAR en el proyecto. Decisiones 9 y 10 en docs/adendas-propuestas.md | 04ec343 (rojo) y verde en el commit siguiente. ./mvnw verify: 371 pruebas, 0 fallas, 17 omitidas; cobertura 94,4%. Versión 1.0.20 |
 | 18/11/2026 | T2.3 | shr_regla_permiso (sujeto grupo o usuario, recurso proyecto o tablero, nivel y efecto, con checks en la base). ABM /regla-permiso con archivar e historial (solo super admin y Administradores). EvaluadorDeReglasDePermiso: función pura con el orden de Spec 2 (tablero antes que proyecto, usuario antes que grupo, entre grupos gana negar, sin reglas negado; EDITAR y ARCHIVAR permitidos implican VER). ResolutorDePermisosDeRecurso: administradores pueden todo; reglas del usuario y de sus grupos leídas una vez por request. Seed: CLIENTE ve el proyecto Shiro. Decisiones 7 y 8 en docs/adendas-propuestas.md | 79f74f7 (rojo) y verde en el commit siguiente. ./mvnw verify: 367 pruebas, 0 fallas, 17 omitidas; cobertura 90,8%. Versión 1.0.19 |

@@ -21,4 +21,5 @@ revise y se agreguen a los documentos. Cada una dice qué documento afecta.
 | 13 | 19/11/2026 | T2.5 | DAF sección 15 | "Administrar a otros Administradores" se aplica así: un Administrador no edita, archiva ni cambia grupos del super admin ni de otros Administradores (sí de sí mismo), y no asigna ni quita los grupos SYSADMIN y ADMIN | La HU no detallaba qué acciones incluye |
 | 14 | 19/11/2026 | T2.5 | Spec 7 | Nadie se archiva a sí mismo. Al restaurar un usuario, sus tokens anteriores siguen desactivados: tiene que crear otros | Evita que el super admin quede afuera; la spec no decía qué pasa con los tokens al restaurar |
 | 15 | 19/11/2026 | T2.5 | Spec 2 | El nombre de un grupo no se repite entre los vigentes | Pendiente anotado en T0: Core 4.0.0 no lo valida |
+| 16 | 19/11/2026 | T3.1 | Spec 2 | El filtro de `/mcp` es un filtro de servlet registrado solo para `/mcp` (no una cadena de Spring Security): el Core deja pasar todo en Spring Security y autoriza con `@Contrato`. El 401 lleva el mismo cuerpo de error que la API (`codigo`, `mensajeParaUsuario`, `status`) | Mismo efecto que pide la spec sin reemplazar la cadena de seguridad del Core |
 

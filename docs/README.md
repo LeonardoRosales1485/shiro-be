@@ -98,6 +98,10 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Roles base: `SYSADMIN` (super admin) y `ADMIN`. Los permisos por proyecto y tablero de Shiro (`shr_regla_permiso`) llegan en F2.
 - Un usuario no puede crear un rol ni asignar a otro usuario un rol con permisos que él mismo no tiene (salvo `SYSADMIN`).
 
+## MCP
+
+- Servidor MCP sin estado en `/api/mcp` (Streamable HTTP). Exige `Authorization: Bearer <token de acceso personal>` (protocolo `tokens`): sin token, con un JWT o con un token revocado o de un usuario archivado responde 401 antes de llegar a las herramientas (`FiltroDeMcp`). Los cambios hechos por MCP quedan en el historial con canal `MCP`.
+
 ## Configuraciones (`Configuracion`)
 
 Módulo heredado de la plantilla; lo usa la trazabilidad del Core (key `DEBUG`).
