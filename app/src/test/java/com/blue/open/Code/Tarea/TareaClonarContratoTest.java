@@ -104,6 +104,26 @@ class TareaClonarContratoTest extends PruebaDeContrato {
     }
 
     @Test
+    void elClonDeUnaSubtareaConservaElPadre() {
+        JsonNode historia = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia");
+        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea", uuid(historia));
+
+        JsonNode clon = clonar(uuid(subtarea), TareasDeSeed.TABLERO_QA, null).esperar(200).json();
+
+        assertEquals(historia.get("clave").asString(), clon.get("padreClave").asString());
+    }
+
+    @Test
+    void elClonDeUnaHistoriaNoHeredaElPadre() {
+        JsonNode epica = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "EPICA", "Épica");
+        JsonNode historia = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia", uuid(epica));
+
+        JsonNode clon = clonar(uuid(historia), TareasDeSeed.TABLERO_PRINCIPAL, null).esperar(200).json();
+
+        assertTrue(clon.get("padreUuid").isNull());
+    }
+
+    @Test
     void tableroDeOtroProyectoRechazado() {
         String tableroAjeno = escenario.crearProyectoYDevolverTablero("CLO", "PRINCIPAL");
 

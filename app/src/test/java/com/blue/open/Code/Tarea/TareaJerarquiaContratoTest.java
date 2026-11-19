@@ -90,6 +90,36 @@ class TareaJerarquiaContratoTest extends PruebaDeContrato {
         guardar(edicion).esperarError(400, "JERARQUIA_DE_TAREA_INVALIDA");
     }
 
+    @Test
+    void unaSubtareaSinPadreRechazada() {
+        JsonNode error = guardar(EscenarioDeTarea.rapida(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Suelta"))
+                .esperarError(400, "JERARQUIA_DE_TAREA_INVALIDA").json();
+
+        assertEquals("Una Subtarea necesita una tarea padre.", error.get("mensajeParaUsuario").asString());
+    }
+
+    @Test
+    void unaSubtareaNoQuedaSinPadreAlEditar() {
+        JsonNode historia = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia");
+        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Subtarea",
+                historia.get("uuid").asString());
+        Map<String, Object> edicion = EscenarioDeTarea.rapida(TareasDeSeed.TABLERO_PRINCIPAL, "SUBTAREA", "Sin padre");
+        edicion.put("uuid", subtarea.get("uuid").asString());
+        edicion.put("fechaDeActualizacion", subtarea.get("fechaDeActualizacion").asString());
+
+        guardar(edicion).esperarError(400, "JERARQUIA_DE_TAREA_INVALIDA");
+    }
+
+    @Test
+    void elPadrePuedeEstarEnOtroTableroDelMismoProyecto() {
+        JsonNode historia = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "HISTORIA", "Historia");
+
+        JsonNode subtarea = escenario.crearHija(TareasDeSeed.TABLERO_QA, "SUBTAREA", "Probar la historia",
+                historia.get("uuid").asString());
+
+        assertEquals(historia.get("clave").asString(), subtarea.get("padreClave").asString());
+    }
+
     // POST /tarea/guardar como SYSADMIN
     private Respuesta guardar(Map<String, Object> cuerpo) {
         return como(SYSADMIN).post("/tarea/guardar").json(cuerpo).ejecutar();

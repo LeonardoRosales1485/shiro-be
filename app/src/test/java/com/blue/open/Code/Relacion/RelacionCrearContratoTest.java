@@ -72,6 +72,16 @@ class RelacionCrearContratoTest extends PruebaDeContrato {
     }
 
     @Test
+    void tareasDeProyectosDistintosNoSeRelacionan() {
+        String tableroAjeno = como(ADMIN).post("/proyecto/guardar").json(Map.of("nombre", "Ajeno", "prefijo", "AJR"))
+                .preparacion().ejecutar().esperar(200).json().get("tableros").get(0).get("uuid").asString();
+        JsonNode ajena = como(ADMIN).post("/tarea/guardar").json(Map.of("tableroUuid", tableroAjeno, "tipoCodigo",
+                "TAREA", "titulo", "Ajena")).preparacion().ejecutar().esperar(200).json();
+
+        crear(tarea("Propia"), ajena, "RELACIONA").esperarError(400, "RELACION_ENTRE_PROYECTOS");
+    }
+
+    @Test
     void laRelacionDeClonSoloLaCreaClonar() {
         crear(tarea("A"), tarea("B"), "CLONA").esperarError(400, "TIPO_DE_RELACION_NO_PERMITIDO");
     }

@@ -11,6 +11,8 @@ final class ProyectosDeSeed {
     static final String SHIRO_PREFIJO = "SHI";
 
     // Proyecto archivado (status -1), prefijo ARC: su prefijo queda reservado
+    static final String ARCHIVADO = "b1000000-0000-4000-8000-000000000002";
+
     static final String ARCHIVADO_PREFIJO = "ARC";
 
     private ProyectosDeSeed() {
