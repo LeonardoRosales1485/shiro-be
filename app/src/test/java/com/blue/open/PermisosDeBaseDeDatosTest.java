@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * T0.3 del plan: "nada se borra" lo garantiza la base (spec, Spec 1). El usuario de la aplicacion lo crea Liquibase
  * con SELECT, INSERT y UPDATE sobre las tablas shr_ y sin DELETE ni TRUNCATE; shr_historial es solo insercion. Sobre
  * las tablas del Core conserva DELETE (core-protocolo-jwt borra refresh tokens).
- * Crea una tabla shr_ de prueba como duenio, le aplica los permisos con la funcion que deja Liquibase y despues se
+ * Crea una tabla shr_ de prueba como duenio (y usa la shr_historial real, de T1.6), le aplica los permisos con la funcion que deja Liquibase y despues se
  * conecta como el usuario de la aplicacion. Corre sin la transaccion del test: la otra conexion tiene que ver la tabla.
  * Dependencias externas: ninguna (PostgreSQL embebido de core-test).
  */
@@ -33,6 +33,9 @@ class PermisosDeBaseDeDatosTest extends TestConBaseDeDatos {
     private static final String TABLA_SHR = "shr_prueba_de_permisos";
 
     private static final String TABLA_HISTORIAL = "shr_historial";
+
+    // Uuid de la fila de historial que inserta el test (la borra el duenio al terminar)
+    private static final String UUID_DE_PRUEBA = "ffffffff-0000-4000-8000-00000000f001";
 
     // SQLSTATE de PostgreSQL para "permission denied"
     private static final String PERMISO_DENEGADO = "42501";
@@ -49,21 +52,11 @@ class PermisosDeBaseDeDatosTest extends TestConBaseDeDatos {
     @Value("${spring.liquibase.parameters.shiro_contrasena_app}")
     private String contrasenaDeLaApp;
 
-    // Tablas creadas por el test: si shr_historial ya existe (T1.6 en adelante) no se toca
-    private boolean historialCreadoPorElTest;
-
     // Crea las tablas de prueba como duenio y les aplica los permisos del usuario de la aplicacion
     @BeforeEach
     void crearTablasDePrueba() {
         jdbc.execute("CREATE TABLE " + TABLA_SHR + " (id SERIAL PRIMARY KEY, texto VARCHAR(50))");
         jdbc.execute("INSERT INTO " + TABLA_SHR + " (texto) VALUES ('inicial')");
-        Integer existeHistorial = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = ?", Integer.class,
-                TABLA_HISTORIAL);
-        historialCreadoPorElTest = existeHistorial != null && existeHistorial == 0;
-        if (historialCreadoPorElTest) {
-            jdbc.execute("CREATE TABLE " + TABLA_HISTORIAL + " (id SERIAL PRIMARY KEY, campo VARCHAR(50))");
-        }
         jdbc.queryForObject("SELECT shr_aplicar_permisos_app(?)", Object.class, usuarioDeLaApp);
     }
 
@@ -71,9 +64,7 @@ class PermisosDeBaseDeDatosTest extends TestConBaseDeDatos {
     @AfterEach
     void borrarTablasDePrueba() {
         jdbc.execute("DROP TABLE IF EXISTS " + TABLA_SHR);
-        if (historialCreadoPorElTest) {
-            jdbc.execute("DROP TABLE IF EXISTS " + TABLA_HISTORIAL);
-        }
+        jdbc.update("DELETE FROM " + TABLA_HISTORIAL + " WHERE uuid = ?", UUID_DE_PRUEBA);
     }
 
     @Test
@@ -106,9 +97,11 @@ class PermisosDeBaseDeDatosTest extends TestConBaseDeDatos {
     @Test
     void elHistorialEsSoloInsercion() throws SQLException {
         try (Connection conexion = conectarComoApp(); Statement sentencia = conexion.createStatement()) {
-            assertEquals(1, sentencia.executeUpdate("INSERT INTO " + TABLA_HISTORIAL + " (campo) VALUES ('titulo')"));
+            assertEquals(1, sentencia.executeUpdate("INSERT INTO " + TABLA_HISTORIAL
+                    + " (uuid, entidad, uuid_entidad, accion, campo, canal) VALUES ('" + UUID_DE_PRUEBA
+                    + "', 'TAREA', '" + UUID_DE_PRUEBA + "', 'EDITAR', 'titulo', 'WEB')"));
             SQLException actualizar = assertThrows(SQLException.class,
-                    () -> sentencia.executeUpdate("UPDATE " + TABLA_HISTORIAL + " SET campo = 'otro'"));
+                    () -> sentencia.executeUpdate("UPDATE " + TABLA_HISTORIAL + " SET campo = 'otro' WHERE uuid = '" + UUID_DE_PRUEBA + "'"));
             assertEquals(PERMISO_DENEGADO, actualizar.getSQLState());
         }
     }

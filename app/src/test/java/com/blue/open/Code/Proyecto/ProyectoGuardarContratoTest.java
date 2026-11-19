@@ -1,9 +1,12 @@
 package com.blue.open.Code.Proyecto;
 
+import com.blue.open.Code.Historial.Historial;
+import com.blue.open.Code.Historial.HistorialRepository;
 import com.blue.open.Core.Identity.Auth.RolBaseEnum;
 import com.blue.open.Core.Test.PruebaDeContrato;
 import com.blue.open.Core.Test.Respuesta;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
@@ -18,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * archivado) y no se cambia despues de crear el proyecto. Crean y editan el super admin y los Administradores.
  */
 class ProyectoGuardarContratoTest extends PruebaDeContrato {
+
+    @Autowired
+    private HistorialRepository historialRepository;
 
     @Test
     void alCrearSeGeneranLosCuatroTableros() {
@@ -79,6 +85,21 @@ class ProyectoGuardarContratoTest extends PruebaDeContrato {
 
         assertEquals("El prefijo no se cambia: lo usan las claves de las tareas existentes.",
                 error.get("mensajeParaUsuario").asString());
+    }
+
+    @Test
+    void crearYEditarDejanSuFilaEnElHistorial() {
+        String uuid = guardar(RolBaseEnum.SYSADMIN.name(), alta("Historial", "HIS")).esperar(200).json()
+                .get("uuid").asString();
+        guardar(RolBaseEnum.SYSADMIN.name(), Map.of("uuid", uuid, "nombre", "Historial editado", "prefijo", "HIS"))
+                .esperar(200);
+
+        List<String> filas = new ArrayList<>();
+        for (Historial fila : historialRepository.findByEntidadAndUuidEntidadOrderByIdAsc("PROYECTO", uuid)) {
+            filas.add(fila.getAccion() + " " + fila.getCampo() + " " + fila.getValorNuevo());
+        }
+
+        assertEquals(List.of("CREAR null HIS", "EDITAR nombre Historial editado"), filas);
     }
 
     // POST /proyecto/guardar como el actor del rol
