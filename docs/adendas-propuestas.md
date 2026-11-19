@@ -34,4 +34,5 @@ revise y se agreguen a los documentos. Cada una dice qué documento afecta.
 | 26 | 19/11/2026 | T5.3 | Adenda 1 del DAF | Clonar con VERSIONES asigna el clon solo a las versiones sin publicar del original | Una versión publicada no cambia |
 | 27 | 19/11/2026 | T5.4 | Spec 3 | La búsqueda de tareas es `POST /tarea/paginar` con el parámetro `texto`; la de archivados, `POST /archivo/paginar` con `tipo`, `texto`, `pagina` y `tamano` (no un `PedidoDePaginado`, porque mezcla tablas). Un archivado aparece si el usuario tiene ARCHIVAR sobre su recurso; los usuarios archivados, solo para administradores | La spec dice "según permisos" sin fijar cuál |
 | 28 | 19/11/2026 | T5.4 | Spec 3 | La búsqueda en español usa el diccionario `spanish` de PostgreSQL: las palabras en inglés usadas en español (sprint, bug) no siempre coinciden en plural | Comportamiento del diccionario, para tenerlo presente |
+| 29 | 19/11/2026 | T5.5 | Spec 4 | En MCP los sprints y las versiones se identifican por proyecto y nombre; `gestionar_sprint` suma la acción quitar y `gestionar_version` la acción quitar | Como las tareas por clave: así los nombra la gente |
 

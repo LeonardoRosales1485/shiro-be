@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.28"
+  version: "1.0.29"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -219,7 +219,7 @@ paths:
                 el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto:
                   summary: "El administrador ve todo lo archivado y filtra por tipo y texto (ADMIN)"
                   value:
-                    cantidadDeElementos: 4
+                    cantidadDeElementos: 5
                     contenido:
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
@@ -245,14 +245,14 @@ paths:
                     numero: 1
                     primera: false
                     tamano: 200
-                    totalDeElementos: 204
+                    totalDeElementos: 205
                     totalDePaginas: 2
                     ultima: true
                     vacia: false
                 el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto-2:
                   summary: "El administrador ve todo lo archivado y filtra por tipo y texto (2) (ADMIN)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
@@ -261,10 +261,17 @@ paths:
                       status: -1
                       tipo: "TAREA"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      nombre: "MCPP-3 Tercera"
+                      proyectoPrefijo: "MCPP"
+                      status: -1
+                      tipo: "TAREA"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     numero: 1
                     primera: false
                     tamano: 200
-                    totalDeElementos: 201
+                    totalDeElementos: 202
                     totalDePaginas: 2
                     ultima: true
                     vacia: false
@@ -4611,7 +4618,7 @@ paths:
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - estado: "PLANIFICADO"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -4622,10 +4629,19 @@ paths:
                       proyectoUuid: "b1000000-0000-4000-8000-000000000001"
                       status: 0
                       uuid: "b6000000-0000-4000-8000-000000000001"
+                    - estado: "CERRADO"
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      fin: "2026-12-14"
+                      inicio: "2026-12-01"
+                      nombre: "S1"
+                      proyectoPrefijo: "MCPP"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      status: 0
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 1
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -6626,7 +6642,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 2"
+                      titulo: "Alta concurrente 3"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                       versiones: []
@@ -6654,7 +6670,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 42"
+                      titulo: "Alta concurrente 1"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                       versiones: []
@@ -9623,23 +9639,23 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjU4OTJ9.A1nx2IvIzkBjWqkaUweWH5jyFSVNMH4LF0E4aSh8dLwlLnrqV5zykFuqX6_97UkFq_q8Gd0Kgw2yFplsdZjaaSleGNQAp7Cta2TCVDZZCiK2FGL6pd9wjuZ2l6LGv_cFb6dwUAtBFHkOUXmzYdxVq9rDtCjuA7ql3SqGrJ4ABLkMGeIcdjHd9XnSI76IrL2_RCogs1jVf7gCg9hFI_X3KPURCIYGvtajYDH5_CS7q0tdy6zWZw07Bs05V2U025su4qgQmzpqGwkyg2UGHI5kakFqZHkvsOvdaCk_Lvy05S5X7ygGwhUj6jxMSThGTmeFfEmMkkhAB8GHOeXGfZvF1A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjYxMDR9.oQILRSH_ueDGR3WEEv0WBugAeUmsdzZhOOx8Mvzgg7_GiuhaZD4IQWRUOXDw3Fuj1LXpy0bU2PtyVEYJOuMX0xV1ZS9kA8pg_3J4xGRMB6KtBpqoLj7meGGsQOg8577Wc3IjOwQTy22ozpIvCYw51rZuHVxW8xt-f7whBPFPr0XVhieWmMZL0QXGGGfZb-50cDiRGodJrYpRq3KMhpziT8wP7Y2-ry4WswWEfLfHFU-uv73F2KPuNvG2GQ_oRKdAN0ZuyziF2Q7jsbkGIWemf_pmKrpU15MP-1B_Os1-Rzoja2XTdSEGiSmf9H0y0zKp0JcwiM9t6H4Jp_yxc8V2Uw"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY1ODkyfQ.bRThvL5gEQ2Kyled160r1gLtujJYJbunN9M6LjE_UFfWVp5ppsPaOS5OZqaeaH4eVv_ecWB2NgkCqO_XRfgUZMwNYv6TSPD1BxZvSb6OP6CCAVMka9GLsc8sibdg7ujUg0WatiURvmev0_ZXNh9N6zKyiaN-mojHjS-xB_-MdLBu_-vS4OmU0Ya4XjgrCWw2xdjQn9aWvDr7ps6EjSXKweq61z0brKoKWW1GW40WhgRYQky3K5ffsOalzRtnjsfyUNGypFrRAqqBHFbv2Rc0cBtFE_miVXwddmDp-BXyXVFKI5sc5qcTPzCo9UZKy35uIp9unV0IXIVkGCw0mNqchA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY2MTA0fQ.j0MGCXxB04Qck8WVkHo6g5Oa7mzpgyxA11rp8ubVgBj2pfJZjVq907T1AiAm-_nCP8SvYDkM4vI1TXlpvxKHq93mWgFFCJiZ-qiKPXZHvZt7SekaD62j1G4bSM13wyrrdzxxpdd_S0IgY4VE_Ee50jUGfrcTehBVuC_9oU53lxkRm96IkhtueHj1XB4StRjyOSohx45yO8xS82ZSNBQavL9a3HL-TsHHeZ5RKLXItcaBM-tKI4hJO7uGZa7QB4uK44zkBLvIiZjVhWSD5kaPIgVI2xALaoezyEEsKGGytt0o0bVrmnjioL1qu00zZSvIzHT4yfsICuGdjv9b7jVqSQ"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY1ODkyfQ.FRqVzPV-l0-KWxljHYoOdzYF66Uxthpkywjn8u79vZqf8qfOnktDQfyAtv8_-O2hAfeRYMBkeJpGiewsWic4YWhe4SDanbPQLLqjPFJWX9XY1RIbTKeVBV0JM00apNnRz4CBRhc2XMSnr_1BEkjKY_PM2hBZ2KqcnlHHyP6-aHpttzW65l7RDMQ4Ntoe1rFc9AWKReAdMCoumoJzJyIvxcml1yH6wyhLNTQi7uZ65Ctb0U_ZBUvRQqP9ERIuyf9H79qHhyC0aiMExtOHMZKPJNpwKq4jBD_SpTblHtlxlJ8BJofpImjQBkCzfeSuU-FFmdqMWoXYiHSUgpdu-GXsbQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDY2MTA0fQ.Wy_MEVxZcB-CXJ-HKuA3umcovJ7d8p7O1iSf5WPM5CZuEQTYOv3yiG_QIsqIYhhp9x0YT4KTa9ysLrC6OmatNg6uk-XM_hDR-npDIzMGRErhiYHbkvwWl-0PLs5368yU66HYDPtTZBDtYG9_kdCaWjljprYXelyhdAbOTnlKp6mo50alw95DfVAqYKmzUGOpoxIUj8izIgDoQDZ25Z0-ePm4SgwVlmOWaRhw3E3MmVBvFzOWIJeFU5NY4_0ZBAHk0TTC42HKM_Ps8QhxKVnQ8DNMJOdOEDfNPIlIwnW9H13UmWVNNTQz390vBmRTRFRXR4riKAvD0fhrdYila9skqg"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjU4OTJ9.KIhQn6UovKfE9m1Yl2XrhoGnggG6pbjVkKqhFkwTc8HyrQ26x-CCdaHnRuVxpjD_U2pr5t8SfqjnbUFLsvrvf1lJSUMMQdyg-nP9uylLGRkq3XPOKPmvD_ZI0HbB2jMwy6eeBLNieJOSWb47jRHMyttXVUUMyuT7I0OHfcCb4l15yy63uHpRl2MkXi40ByEtYQogha9pW5cCJ5CsLbbZzZEZpbYBz0T42Vy8SPW67kDHkCq0klvy7ZmAZWUH_SMnjreYc--VP_nkdPAYaVnhDalR4mRNNyrHBbV2Ktg242uFSISeBQpyP2jBC0un8oPYEVK5fxWe7R_Klyl4BWdUVQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjYxMDV9.47oNBw0OgBRvkaZmBFHOT0P6V3iMuddsJq6H1_Uaw4k2Ykm7ycTeQJ4mB8ub8hQvj4TX3iCGVR5Ck7aoAz-_cltx2W-PU3ecyxwRSeZ-FsJAE_3gIU3FTJ3PKwdWwoWhA6Wj3HOfpFz9L6FTxoZdpM4b8VKrC1AHe51JTDYG_2blDzU8eTYJp0laRePJFjo9ZYhn20Zf7I9rcYEzgMjvB3NVMWsV2poGiIwCsqCzdxt0-F_uZ4ZOcIjattkOBOO-C_oNHzGdIuUE3i_IBxqCFQx1D_CLvyWi6g2E-y4mf7dzq2lL9a7K_JKRElbQ_KBJyYb9T7sxD4QSeHrQON08NA"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjU4OTJ9.RUr0kdXD0WmLYdRSBs1Al1ketzrJhiSeiMwgUEQSP082I3R0a1bvfoz5ab2gYluWSUC_XtluoPZZHo7ERubtgV3UTwsQKe377zDzRLwAXQTOkps3BeEeA8wN6FG0zDT6CogHFFIYy0YrSjK5D80o0EuMH0RMoITfUykdTbRIMk1HYJ0SFPYIUfhK-AJTIT9qUF5V2bT3Pq5Q_r0zmt-OZ2kiVGvidaY_o9PXpwwaVkIzIjkoEh_wR9htLXP6q7ul5wwPQNJnrl_P7ALfbEUiny6tsLnB08s98BRG3ZArHGD6mbIOBjRX6Lq_uT3nAEjyqbq2A0LdbBJYdBmTMKGeQw"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjYxMDV9.EBeNpgKc4mBlqdOziVB-ywYebper2LlUAK9ROT_t_qO-uNWRcWXUulu0DW_5ss61iiGySTwfYnt8eUr4fxhfsQI1M6hCeHWdLpXDDiHvtnmxDj1VyPFMWra46Tl57POJW-4x7_5pLn_oVmE4c-22sStDPdxipIQ-u9EqZ0sZzAyU1k3xKe3X5ph8pYV5gIGc3EON7r-HAPfd-MGAPzSuZG0z-et_ikzOynrWPx8p--oZzNgaa8_BR3w8lbEIWh-dFs9lS3oAvIlsk9pviae0wCXf2VpdGMVME3nen6H-bkP3TGSC6H2zurglYgKhYBeLpi-CjQoJ3bB85XnpaHsqlA"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}

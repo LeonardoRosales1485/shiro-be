@@ -6,7 +6,25 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-**F5 en curso.** T5.1 a T5.4 cerradas (versión 1.0.28). Sigue T5.5 (herramientas MCP de planificación). Guía local: `shiro-be/docs/levantar-en-local.md`.
+**F5 terminada.** Versión 1.0.29. Sigue F4 (importador de Jira, contra un Jira simulado hasta tener credenciales). Guía local: `shiro-be/docs/levantar-en-local.md`.
+
+## Cierre de F3 y F5
+
+F3 (MCP) y F5 (planificación y búsqueda) terminadas el 19/11/2026, versión 1.0.29. F5 se hizo antes que F4 porque el importador trae sprints y versiones.
+
+| Tarea | Verificación del plan | Evidencia |
+| --- | --- | --- |
+| T3.1 | Sin token, 401; token revocado, 401 | `McpSeguridadTest`, `McpEcoTest` |
+| T3.2 | Prueba de punta a punta con un cliente MCP | `McpHerramientasTest` |
+| T3.3 | Sin confirmar no cambia nada y devuelve la vista previa | `McpArchivoYAdministracionTest` |
+| T3.4 | Prueba con un LLM real en st7 | Pendiente: necesita el despliegue en st7 y al equipo |
+| T5.1 | El orden se conserva entre usuarios | `TareaBacklogContratoTest` |
+| T5.2 | Segundo activo rechazado | `SprintCicloContratoTest`, `SprintContratoTest` |
+| T5.3 | Changelog agrupado por tipo | `VersionCicloContratoTest`, `VersionContratoTest` |
+| T5.4 | Resultados respetan permisos | `TareaBusquedaContratoTest`, `ArchivoBuscarContratoTest` |
+| T5.5 | Prueba de punta a punta | `McpPlanificacionTest` |
+
+Pendiente de los criterios de calidad: revisión humana del filtro de MCP (la pide el plan antes de cerrar F3) y la prueba de carga en st7.
 
 ## Cierre de F2
 
@@ -51,6 +69,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 18/11/2026 | T5.5 | Herramientas MCP de planificación: ver_backlog y ordenar_backlog (HerramientasMcpDeBacklog), gestionar_sprint (crear, asignar, quitar, iniciar, cerrar con vista previa), gestionar_version (crear, asignar, quitar, changelog, publicar con vista previa) y buscar_archivados. Prueba de punta a punta con el cliente MCP oficial. Decisión 29 | 36d6415 (rojo) y verde en el commit siguiente. ./mvnw verify: 435 pruebas, 0 fallas, 29 omitidas; cobertura 93,1%. Versión 1.0.29 |
 | 18/11/2026 | T5.4 | Columna busqueda (tsvector en español generado de clave, título y descripción) con índice GIN. POST /tarea/paginar con el parámetro texto filtra por esa búsqueda o por clave (consulta nativa con comentario) y respeta permisos; buscar_tareas de MCP usa lo mismo. POST /archivo/paginar busca tareas, proyectos, sprints, versiones y usuarios archivados según ARCHIVAR sobre su recurso (usuarios solo administradores), con filtro por tipo y texto. Decisiones 27 y 28 | 9b4d872 (rojo) y verde en el commit siguiente. ./mvnw verify: 433 pruebas, 0 fallas, 29 omitidas. Versión 1.0.28 |
 | 18/11/2026 | T5.3 | shr_version y shr_tarea_version. ABM /version y casos de uso asignar, quitar, publicar (fecha elegida; changelog guardado; la versión publicada no cambia), changelog en Markdown (ChangelogDeVersion: tareas terminadas agrupadas por tipo), archivar y restaurar. La tarea muestra sus versiones; clonar con VERSIONES las copia a las sin publicar. Seed versión 1.0. Decisiones 25 y 26 | 95c517e (rojo) y verde en el commit siguiente. ./mvnw verify: 428 pruebas, 0 fallas, 29 omitidas. Versión 1.0.27 |
 | 18/11/2026 | T5.2 | shr_sprint con índice único parcial (un ACTIVO por proyecto) e id_sprint en shr_tarea. ABM /sprint y casos de uso asignar, quitar, iniciar, cerrar (destino BACKLOG o SPRINT; lo terminado queda en el sprint) y archivar (activo rechazado; planificado devuelve sus tareas). TareasDeSprint reúne los pasos compartidos. El backlog excluye las tareas con sprint y /tarea/guardar conserva el sprint. Seed Sprint 1. Decisiones 23 y 24 | 0e592c0 (rojo) y verde en el commit siguiente. ./mvnw verify: 414 pruebas, 0 fallas, 26 omitidas. Versión 1.0.26 |

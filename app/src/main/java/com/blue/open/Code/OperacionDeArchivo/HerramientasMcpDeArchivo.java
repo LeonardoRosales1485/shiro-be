@@ -22,6 +22,7 @@ import com.blue.open.Code.Usuario.Usuario;
 import com.blue.open.Code.Usuario.UsuarioDTO;
 import com.blue.open.Code.Usuario.UsuarioRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
+import com.blue.open.Core.Kernel.DTO.Pagina;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import com.blue.open.Core.Protocolo.ApiKey.AccessTokenRepository;
@@ -70,6 +71,22 @@ public class HerramientasMcpDeArchivo {
     private final UsuarioArchivarUseCase archivarUsuario;
 
     private final UsuarioRestaurarUseCase restaurarUsuario;
+
+    private final ArchivoBuscarUseCase buscarUseCase;
+
+    // Busca lo archivado sobre lo que el usuario tiene permiso de archivo
+    @McpTool(name = "buscar_archivados", description = "Busca lo archivado (TAREA, PROYECTO, SPRINT, VERSION o USUARIO) sobre lo que tenés permiso de archivo, por tipo y texto. 50 por página.")
+    public RespuestaDeHerramienta buscarArchivados(
+            @McpToolParam(description = "Tipo: TAREA, PROYECTO, SPRINT, VERSION o USUARIO. Vacío para todos", required = false) String tipo,
+            @McpToolParam(description = "Texto a buscar en el nombre", required = false) String texto,
+            @McpToolParam(description = "Número de página, desde 1. Por defecto 1", required = false) Integer pagina) {
+        ArchivoPaginarRequestDTO pedido = new ArchivoPaginarRequestDTO();
+        pedido.setTipo(tipo);
+        pedido.setTexto(texto);
+        pedido.setPagina(pagina == null ? 1 : pagina);
+        Pagina<ArchivadoDTO> archivados = buscarUseCase.ejecutar(pedido);
+        return new RespuestaDeHerramienta(archivados.getTotalDeElementos() + " archivados", archivados);
+    }
 
     /*
      * Archiva una tarea (por clave, con sus hijas), un proyecto (por prefijo, con todo lo que contiene) o un usuario
