@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.16"
+  version: "1.0.17"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -3819,7 +3819,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 5"
+                      titulo: "Alta concurrente 11"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -3844,7 +3844,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 40"
+                      titulo: "Alta concurrente 5"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -5960,9 +5960,19 @@ paths:
                   summary: "Elimina un token propio (ADMIN)"
                   value:
                     activo: 0
-                    codigo: "token-de-prueba-token-a-eliminar"
+                    codigo: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Token a eliminar"
+                    status: -1
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                un-token-revocado-deja-de-autenticar:
+                  summary: "Un token revocado deja de autenticar (ADMIN)"
+                  value:
+                    activo: 0
+                    codigo: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Revocable"
                     status: -1
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -6227,6 +6237,18 @@ paths:
                 summary: "Sin nombre (ADMIN)"
                 value:
                   nombre: ""
+              un-token-revocado-deja-de-autenticar:
+                summary: "Un token revocado deja de autenticar (ADMIN)"
+                value:
+                  nombre: "Revocable"
+              el-token-se-muestra-una-sola-vez:
+                summary: "El token se muestra una sola vez (ADMIN)"
+                value:
+                  nombre: "Una sola vez"
+              la-base-guarda-solo-el-hash-y-el-token-autentica-por-hash:
+                summary: "La base guarda solo el hash y el token autentica por hash (ADMIN)"
+                value:
+                  nombre: "Agente MCP"
       responses:
         "200":
           description: "OK"
@@ -6242,6 +6264,36 @@ paths:
                     codigo: "token-de-prueba-token-de-prueba"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Token de prueba"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                un-token-revocado-deja-de-autenticar:
+                  summary: "Un token revocado deja de autenticar (ADMIN)"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-revocable"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Revocable"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-token-se-muestra-una-sola-vez:
+                  summary: "El token se muestra una sola vez (ADMIN)"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-una-sola-vez"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Una sola vez"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                la-base-guarda-solo-el-hash-y-el-token-autentica-por-hash:
+                  summary: "La base guarda solo el hash y el token autentica por hash (ADMIN)"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-agente-mcp"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Agente MCP"
                     status: 0
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -6903,8 +6955,18 @@ paths:
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
+                la-base-guarda-solo-el-hash-y-el-token-autentica-por-hash:
+                  summary: "La base guarda solo el hash y el token autentica por hash"
+                  value:
+                    contrasena: null
+                    email: "demo@example.local"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombreDeUsuario: "demo"
+                    status: 0
+                    telefono: "1122334455"
+                    uuid: "90000000-0000-4000-8000-000000000002"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `ACCESS_TOKEN_INVALIDO`, `NO_AUTENTICADO`"
           content:
             application/json:
               schema:
@@ -6926,6 +6988,15 @@ paths:
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+                un-token-revocado-deja-de-autenticar:
+                  summary: "Un token revocado deja de autenticar"
+                  value:
+                    codigo: "ACCESS_TOKEN_INVALIDO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Token de acceso personal inválido"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
   /usuario/tokens:
@@ -6956,12 +7027,29 @@ paths:
                   summary: "Lista los tokens propios (ADMIN)"
                   value:
                   - activo: 1
-                    codigo: "demo-access-token"
+                    codigo: null
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Token demo"
                     status: 0
                     usuarioUuid: "90000000-0000-4000-8000-000000000002"
                     uuid: "90000000-0000-4000-8000-000000000007"
+                el-token-se-muestra-una-sola-vez:
+                  summary: "El token se muestra una sola vez (ADMIN)"
+                  value:
+                  - activo: 1
+                    codigo: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token demo"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "90000000-0000-4000-8000-000000000007"
+                  - activo: 1
+                    codigo: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Una sola vez"
+                    status: 0
+                    usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:

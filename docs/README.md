@@ -10,6 +10,7 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - `nombreDeUsuario` obligatorio.
 - Un usuario nuevo entra sin roles: no ve nada hasta que un administrador le asigna grupos (spec, Spec 2). Por eso no hay rol por defecto.
 - Ingreso: `jwt` (sesión web), `basic` (cuentas locales) y `tokens` (MCP). El ingreso con Google se agrega en F2.
+- Tokens de acceso (MCP): `POST /usuario/crear-token`, `GET /usuario/tokens` y `DELETE /usuario/borrar-token/{uuid}` (endpoints del Core). La base guarda solo el SHA-256 del token y autentica buscando por ese hash; el token se muestra una única vez, en la respuesta de crear-token, y el listado no lo trae. Borrar un token lo revoca: deja de autenticar al instante (`ACCESS_TOKEN_INVALIDO`). Mientras el Core no publique 4.1.0, la lógica vive en Shiro (`AuthTokenConSha256Service`, que reemplaza al bean del Core).
 - Shiro no tiene registro público ni recuperación de contraseña por email.
 
 ## Proyectos (`Proyecto`)
