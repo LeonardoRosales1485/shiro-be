@@ -45,6 +45,7 @@ Reglas obligatorias que aplican **solo si se da su disparador**. A diferencia de
 | Escribir el primer controller de un proyecto nuevo (hay que decidir si es el backend de un front propio o una API) | `docs/criterios/versionado-de-api.md` |
 | Crear o modificar un endpoint cuyo consumidor no es el front propio (app móvil, integración de un tercero, otro backend, API pública) | `docs/criterios/versionado-de-api.md` |
 | Entregarle a un consumidor externo la URL de un endpoint que ya existe | `docs/criterios/versionado-de-api.md` |
+| Crear o modificar una herramienta MCP (`@McpTool`) | `docs/criterios/herramientas-mcp.md` |
 
 Cómo agregar un criterio nuevo y qué secciones debe tener: `docs/criterios/README.md`.
 
