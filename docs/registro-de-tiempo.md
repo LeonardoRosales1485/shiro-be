@@ -43,5 +43,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 35 | 2026-11-18 | 21:01 | 21:19 | 18 min | Build | T1.3 (esfuerzo Alto): pruebas en rojo, tareas en modo rápido y edición, clave con bloqueo de fila, 50 altas concurrentes; arreglo del pool (ConfiguracionDesdeBase) | Cerrada, verify verde, push |
 | 36 | 2026-11-18 | 21:23 | 23:53 | 150 min | Build | T1.4 a T1.10 sin esperar aprobación; bitácora movida al repositorio; cierre de F1. Incluye una pausa por el límite de uso y un reinicio del worker, que no se pudieron medir aparte | F1 terminada, verify verde, push; falta aprobación |
 | 37 | 2026-11-19 | 00:12 | 01:05 | 53 min | Build | Adenda 4 (DAF) y ajustes de F1; F2 completa (T2.1 a T2.5); F3 T3.1 a T3.3. Primer tramo del turno: el turno sigue con F5 y F4 | F2 terminada, F3 salvo T3.4; push en cada tarea |
+| 38 | 2026-11-19 | 01:05 | 01:51 | 46 min | Build | Segundo tramo del turno: F3 T3.4 dejada pendiente, F5 completa (T5.1 a T5.5) y F4 completa contra un Jira simulado (T4.1 a T4.4), sin esperar aprobación | F5 y F4 terminadas, verify verde (469 pruebas), push en cada tarea; versión 1.0.30 |
 
-**Total acumulado medido:** 329 min
+**Total acumulado medido:** 375 min
