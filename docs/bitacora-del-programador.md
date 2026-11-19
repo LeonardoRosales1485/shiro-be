@@ -8,6 +8,31 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 **F1 terminada, falta la aprobación del arquitecto.** T1.1 a T1.10 cerradas (versión 1.0.15). Ver «Cierre de F1» más abajo. Guía local: `shiro-be/docs/levantar-en-local.md`.
 
+## Cierre de F1
+
+F1 (núcleo de tareas) terminada el 18/11/2026, versión 1.0.15 (`865938b`). Espera la aprobación del arquitecto antes de F2.
+
+| Tarea | Verificación del plan | Evidencia |
+| --- | --- | --- |
+| T1.1 | Datos sembrados de tableros, estados y tipos | `TipoTableroListarContratoTest`, `TipoTareaListarContratoTest` |
+| T1.2 | Proyecto con sus cuatro tableros y prefijo único | `ProyectoGuardarContratoTest` |
+| T1.3 | 50 creaciones concurrentes sin claves repetidas; crear solo con tipo y título | `TareaClavesConcurrentesTest`, `TareaGuardarContratoTest` |
+| T1.4 | Casos borde de Spec 7 (jerarquía, tablero no editable) | `TareaJerarquiaContratoTest`, `TareaGuardarContratoTest.elTableroNoSeCambia` |
+| T1.5 | Estado de otro tablero rechazado | `TareaMoverContratoTest` |
+| T1.6 | Cada escritura deja su fila; `shr_historial` no admite UPDATE | `TareaHistorialContratoTest`, `ProyectoGuardarContratoTest`, `PermisosDeBaseDeDatosTest` |
+| T1.7 | Dos guardados con la misma fecha leída: 409 | `TareaEdicionSimultaneaContratoTest` |
+| T1.8 | Restaurar devuelve solo lo de esa operación; subtarea con padre archivado rechazada | `TareaArchivarContratoTest`, `TareaRestaurarContratoTest` |
+| T1.9 | La relación se lee desde las dos tareas | `RelacionCrearContratoTest`, `RelacionArchivarContratoTest`, `ComentarioGuardarContratoTest` |
+| T1.10 | Clonar con la selección por defecto, con todo y con lo mínimo; el clon muestra el estado del original | `TareaClonarContratoTest` |
+
+Suite: `./mvnw verify` con 318 pruebas, 0 fallas, 14 omitidas (casos de borrar del ABM, que no existe); cobertura de líneas 95,1%; CPD sin duplicados. CI (Calidad) en verde en cada tarea cerrada.
+
+Para decidir antes o durante F2:
+
+- Archivar y restaurar proyectos: qué arrastra (ver pendientes).
+- Decisiones propias de F1 para revisar: una Subtarea puede no tener padre; el padre puede estar en otro tablero del mismo proyecto; las relaciones pueden cruzar proyectos; solo el autor edita su comentario; `/relacion/crear` en vez de `guardar`; las rutas de casos de uso siguen `/{uuid}/{caso}` (la spec decía `POST /mover`, `/historial/{uuid}`); el clon no hereda el padre y las subtareas se clonan en todos los niveles.
+- Todos los endpoints de F1 piden solo sesión: los permisos por recurso llegan en T2.3 y T2.4.
+
 ## Avances
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
