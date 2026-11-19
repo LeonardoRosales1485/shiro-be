@@ -4,6 +4,7 @@ import com.blue.open.Code.Usuario.CasosDeUso.UsuarioArchivarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioMisTokensUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioRestaurarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioSesionGruposUseCase;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
@@ -58,6 +59,8 @@ public class UsuarioController {
     private final UsuarioAsignarGruposUseCase asignarGruposUseCase;
 
     private final UsuarioSesionGruposUseCase sesionGruposUseCase;
+
+    private final UsuarioMisTokensUseCase misTokensUseCase;
 
     // Obtiene un usuario por su uuid. Responde el UsuarioDTO
     @GetMapping("/uuid/{uuid}")
@@ -145,5 +148,13 @@ public class UsuarioController {
                     tokens.getRefreshToken(), authJwtService.getVigenciaDelRefreshToken(), RUTA_DEL_REFRESH_TOKEN));
         }
         return respuesta.body(tokens);
+    }
+
+    // Mis tokens de acceso, tambien los revocados, con su ultimo uso. Responde la lista, los mas nuevos primero
+    @GetMapping("mis-tokens")
+    @Contrato(casoDeUso = "CU-USR-25", resumen = "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<UsuarioTokenResponseDTO>> misTokens() {
+        return new ResponseEntity<>(misTokensUseCase.ejecutar(), HttpStatus.OK);
     }
 }
