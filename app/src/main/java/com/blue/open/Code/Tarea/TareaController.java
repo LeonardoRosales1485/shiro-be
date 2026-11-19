@@ -3,6 +3,7 @@ package com.blue.open.Code.Tarea;
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Historial.HistorialDTO;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaArchivarUseCase;
+import com.blue.open.Code.Tarea.CasosDeUso.TareaClonarUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaHistorialUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaMoverUseCase;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaRelacionesUseCase;
@@ -47,6 +48,8 @@ public class TareaController {
     private final TareaRestaurarUseCase restaurarUseCase;
 
     private final TareaRelacionesUseCase relacionesUseCase;
+
+    private final TareaClonarUseCase clonarUseCase;
 
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
@@ -111,5 +114,14 @@ public class TareaController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<TareaRelacionDTO>> relaciones(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(relacionesUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Clona una tarea a un tablero del mismo proyecto, copiando los datos elegidos. Responde el clon
+    @PostMapping("/{uuid}/clonar")
+    @Contrato(casoDeUso = "CU-TAR-09", resumen = "Clona una tarea a un tablero del mismo proyecto eligiendo qué datos se copian",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<TareaDTO> clonar(@Descripcion("Uuid de la tarea original") @PathVariable("uuid") String uuid,
+            @Valid @RequestBody TareaClonarRequestDTO dto) {
+        return new ResponseEntity<>(clonarUseCase.ejecutar(uuid, dto), HttpStatus.OK);
     }
 }
