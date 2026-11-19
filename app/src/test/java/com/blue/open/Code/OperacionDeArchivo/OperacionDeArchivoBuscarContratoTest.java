@@ -74,6 +74,20 @@ class OperacionDeArchivoBuscarContratoTest extends PruebaDeContrato {
         assertFalse(encontrada.get("archivadoPorNombre").isNull(), encontrada::toString);
     }
 
+    @Test
+    void cadaElementoDiceCuantoSeArchivoConEl() {
+        String padre = tarea("Padre con subtareas");
+        como(ADMIN).post("/tarea/guardar").json(Map.of("tableroUuid", TABLERO_PRINCIPAL, "tipoCodigo", "SUBTAREA", "titulo", "Hija uno",
+                "padreUuid", padre)).preparacion().ejecutar().esperar(200);
+        como(ADMIN).post("/tarea/guardar").json(Map.of("tableroUuid", TABLERO_PRINCIPAL, "tipoCodigo", "SUBTAREA", "titulo", "Hija dos",
+                "padreUuid", padre)).preparacion().ejecutar().esperar(200);
+        como(ADMIN).post("/tarea/{uuid}/archivar", padre).preparacion().ejecutar().esperar(200);
+
+        JsonNode encontrada = buscar(como(ADMIN), "TAREA", "Padre con subtareas").get(0);
+
+        assertEquals(2, encontrada.get("incluidos").asInt(), encontrada::toString);
+    }
+
     // POST /archivo/paginar con el tipo y el texto si no son null; responde el contenido
     private static JsonNode buscar(Peticion peticion, String tipo, String texto) {
         Map<String, Object> pedido = new HashMap<>(Map.of("pagina", 1, "tamano", 200));

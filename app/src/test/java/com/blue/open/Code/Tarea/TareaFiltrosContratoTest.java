@@ -57,6 +57,25 @@ class TareaFiltrosContratoTest extends PruebaDeContrato {
         assertEquals(List.of(), clavesCon(proyecto, "responsable.uuid", "no-existe"));
     }
 
+    @Test
+    void variosValoresDeUnFiltroSeCombinanConOYSinSprintEsNulo() {
+        String tablero = escenario.crearProyectoYDevolverTablero("TFC", "PRINCIPAL");
+        JsonNode bug = escenario.crear(tablero, "BUG", "Un bug");
+        JsonNode historia = escenario.crear(tablero, "HISTORIA", "Una historia");
+        escenario.crear(tablero, "TAREA", "Una tarea");
+        String proyecto = como(ADMIN).get("/tarea/uuid/{uuid}", bug.get("uuid").asString()).preparacion().ejecutar().esperar(200)
+                .json().get("proyectoUuid").asString();
+
+        JsonNode pagina = como(ADMIN).post("/tarea/paginar").json(Map.of("pagina", 1, "tamano", 50, "filtros", List.of(
+                List.of(Map.of("campo", "proyecto.uuid", "operacion", "=", "valor", proyecto)),
+                List.of(Map.of("campo", "tipo.codigo", "operacion", "=", "valor", "BUG"), Map.of("campo", "tipo.codigo", "operacion", "=", "valor", "HISTORIA")),
+                List.of(Map.of("campo", "sprint.uuid", "operacion", "is null", "valor", ""))))).ejecutar().esperar(200).json();
+
+        List<String> claves = new ArrayList<>();
+        pagina.get("contenido").forEach(tarea -> claves.add(tarea.get("clave").asString()));
+        assertEquals(List.of(bug.get("clave").asString(), historia.get("clave").asString()).stream().sorted().toList(), claves.stream().sorted().toList());
+    }
+
     // Claves de las tareas del proyecto con un filtro mas
     private List<String> clavesCon(String proyecto, String campo, String valor) {
         JsonNode pagina = como(ADMIN).post("/tarea/paginar").json(Map.of("pagina", 1, "tamano", 50,
