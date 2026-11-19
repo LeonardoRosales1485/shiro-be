@@ -3,6 +3,7 @@ package com.blue.open.Code.Sprint;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintArchivarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintAsignarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintCerrarUseCase;
+import com.blue.open.Code.Sprint.CasosDeUso.SprintCierreUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintIniciarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintQuitarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
@@ -41,6 +42,8 @@ public class SprintController {
     private final SprintCerrarUseCase cerrarUseCase;
 
     private final SprintArchivarUseCase archivarUseCase;
+
+    private final SprintCierreUseCase cierreUseCase;
 
     // Obtiene un sprint. Responde el SprintDTO
     @GetMapping("/uuid/{uuid}")
@@ -102,5 +105,13 @@ public class SprintController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> archivar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Cierre del sprint: quien lo cerro, cuando y que paso con cada tarea. Responde el cierre
+    @GetMapping("/{uuid}/cierre")
+    @Contrato(casoDeUso = "CU-SPR-09", resumen = "Cierre de un sprint: quién lo cerró, cuándo y el estado y destino de cada tarea al cerrar (exige VER)",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<SprintCierreResponseDTO> cierre(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(cierreUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

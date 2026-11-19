@@ -4,24 +4,32 @@ import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Historial.AccionDeHistorial;
 import com.blue.open.Code.Historial.Historial;
 import com.blue.open.Code.Historial.RegistradorDeHistorial;
+import com.blue.open.Code.Sprint.DestinoAlCerrar;
 import com.blue.open.Code.Sprint.DestinoDeCierre;
 import com.blue.open.Code.Sprint.EstadoDeSprint;
 import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Code.Sprint.SprintCerrarRequestDTO;
 import com.blue.open.Code.Sprint.SprintDTO;
 import com.blue.open.Code.Sprint.SprintRepository;
+import com.blue.open.Code.Sprint.TareaDeSprintCerrado;
+import com.blue.open.Code.Sprint.TareaDeSprintCerradoRepository;
 import com.blue.open.Code.Sprint.TareasDeSprint;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaRepository;
+import com.blue.open.Code.Usuario.UsuarioDeLaSesion;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Caso de uso: cierra el sprint activo (T5.2 y adenda 3 del DAF). Las tareas en un estado terminado quedan en el
  * sprint cerrado (asi el sprint registra lo que se hizo); las demas van al backlog o a otro sprint planificado del
- * proyecto. Exige EDITAR.
+ * proyecto. Guarda quien lo cerro y una foto de cada tarea con su destino (propuesta 46 resuelta el 19/11). Exige
+ * EDITAR.
  * Dependencias externas: la base de datos.
  * Recibe: uuid del sprint y el destino. Responde: SprintDTO. Lanza REGISTRO_NO_ENCONTRADO, SIN_PERMISO,
  * SPRINT_NO_ACTIVO o SPRINT_DESTINO_INVALIDO.
@@ -38,17 +46,26 @@ public class SprintCerrarUseCase {
 
     private final RegistradorDeHistorial historial;
 
+    private final TareaDeSprintCerradoRepository cierres;
+
+    private final UsuarioDeLaSesion usuarioDeLaSesion;
+
     @Transactional
     public SprintDTO ejecutar(String uuid, SprintCerrarRequestDTO dto) {
         Sprint sprint = tareasDeSprint.sprint(uuid);
         if (sprint.getEstado() != EstadoDeSprint.ACTIVO)
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_NO_ACTIVO, "SprintCerrarUseCase | estado " + sprint.getEstado());
         Sprint destino = dto.getDestino() == DestinoDeCierre.SPRINT ? destino(sprint, dto.getSprintDestinoUuid()) : null;
+        DestinoAlCerrar paraPendientes = destino == null ? DestinoAlCerrar.BACKLOG : DestinoAlCerrar.SPRINT;
+        List<TareaDeSprintCerrado> fotos = new ArrayList<>();
         for (Tarea tarea : tareaRepository.vigentesDelSprint(sprint)) {
-            if (!tarea.getEstado().isTerminado())
+            boolean terminada = tarea.getEstado().isTerminado();
+            fotos.add(new TareaDeSprintCerrado(sprint, tarea, terminada ? DestinoAlCerrar.TERMINADA : paraPendientes, destino));
+            if (!terminada)
                 tareasDeSprint.mover(tarea, destino);
         }
-        sprint.setEstado(EstadoDeSprint.CERRADO);
+        cierres.saveAll(fotos);
+        sprint.cerrar(usuarioDeLaSesion.obtener());
         sprintRepository.save(sprint);
         historial.registrar(Historial.SPRINT, uuid, AccionDeHistorial.EDITAR, "estado", EstadoDeSprint.ACTIVO.name(),
                 EstadoDeSprint.CERRADO.name());
