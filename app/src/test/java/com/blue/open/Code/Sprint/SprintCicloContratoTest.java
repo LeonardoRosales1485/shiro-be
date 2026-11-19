@@ -108,6 +108,19 @@ class SprintCicloContratoTest extends PruebaDeContrato {
     }
 
     @Test
+    void reglasDelCicloDeVida() {
+        String proyecto = proyecto("SPF");
+        String tarea = tarea(tableroPrincipal(proyecto), "Del ciclo");
+        String activo = crear(proyecto, "Activo").get("uuid").asString();
+        accion(activo, "iniciar", null).esperar(200);
+
+        accion(activo, "iniciar", null).esperarError(400, "SPRINT_NO_PLANIFICADO");
+        accion(activo, "cerrar", Map.of("destino", "SPRINT", "sprintDestinoUuid", activo)).esperarError(400, "SPRINT_DESTINO_INVALIDO");
+        accion(activo, "cerrar", Map.of("destino", "BACKLOG")).esperar(200);
+        accion(activo, "asignar", Map.of("tareas", List.of(tarea))).esperarError(400, "SPRINT_CERRADO");
+    }
+
+    @Test
     void sinEditarElProyectoNoSeCreaUnSprint() {
         como("CLIENTE").post("/sprint/guardar").json(Map.of("proyectoUuid", SprintContratoTest.PROYECTO_SHIRO,
                 "nombre", "Sin permiso", "inicio", "2026-12-01", "fin", "2026-12-14")).ejecutar()

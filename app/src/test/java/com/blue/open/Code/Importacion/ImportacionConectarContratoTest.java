@@ -1,5 +1,8 @@
 package com.blue.open.Code.Importacion;
 
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.blue.open.Code.Common.Cifrado.CifradorDeCredenciales;
 import com.blue.open.Core.Test.PruebaDeContrato;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +30,9 @@ class ImportacionConectarContratoTest extends PruebaDeContrato {
     private static JiraSimulado jira;
 
     private EscenarioDeImportacion escenario;
+
+    @Autowired
+    private CifradorDeCredenciales cifrador;
 
     @BeforeAll
     static void iniciarJira() throws IOException {
@@ -124,6 +130,23 @@ class ImportacionConectarContratoTest extends PruebaDeContrato {
 
         cuerpo.put("url", "http://empresa.atlassian.net");
         escenario.conectar(cuerpo).esperarError(400, "JIRA_URL_NO_PERMITIDA");
+    }
+
+    @Test
+    void sinFraseDeCifrado() {
+        Object frase = ReflectionTestUtils.getField(cifrador, "frase");
+        ReflectionTestUtils.setField(cifrador, "frase", "");
+        try {
+            escenario.conectar(escenario.credenciales("JSIM")).esperarError(503, "CIFRADO_NO_CONFIGURADO");
+        } finally {
+            ReflectionTestUtils.setField(cifrador, "frase", frase);
+        }
+    }
+
+    @Test
+    void credencialesQueYaNoSeDescifran() {
+        como("SYSADMIN").get("/importacion/{uuid}/catalogo", ImportacionContratoTest.IMPORTACION_DE_SEED).ejecutar()
+                .esperarError(400, "CREDENCIAL_NO_DESCIFRABLE");
     }
 
     @Test

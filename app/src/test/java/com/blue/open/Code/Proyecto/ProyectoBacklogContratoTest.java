@@ -1,24 +1,25 @@
-package com.blue.open.Code.Tarea;
+package com.blue.open.Code.Proyecto;
 
+import com.blue.open.Code.Tarea.EscenarioDeTarea;
+import com.blue.open.Code.Tarea.TareasDeSeed;
 import com.blue.open.Core.Test.PruebaDeContrato;
 import com.blue.open.Core.Test.Respuesta;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
- * CU-BKL-01 y CU-BKL-02: backlog del proyecto (GET /backlog/proyecto/{uuid}) y su orden (POST /backlog/ordenar).
+ * CU-BKL-01 y CU-BKL-02: backlog del proyecto (GET /proyecto/{uuid}/backlog) y su orden (POST /proyecto/{uuid}/ordenar-backlog).
  * T5.1 del plan y seccion 4 del DAF: el backlog tiene las tareas sin sprint de todos los tableros (todos los tipos: epicas, historias, tareas, bugs y subtareas, resolucion B21 del 19/11; antes sin epicas ni
  * subtareas) con un unico orden, el mismo para todos. Leer exige VER en el proyecto y ordenar, EDITAR.
  */
-class TareaBacklogContratoTest extends PruebaDeContrato {
+class ProyectoBacklogContratoTest extends PruebaDeContrato {
 
     private static final String ADMIN = "ADMIN";
 
@@ -65,24 +66,24 @@ class TareaBacklogContratoTest extends PruebaDeContrato {
 
     @Test
     void sinEditarElProyectoNoSeOrdena() {
-        como("CLIENTE").post("/backlog/ordenar").json(Map.of("proyectoUuid", PROYECTO_SHIRO, "tareas",
+        como("CLIENTE").post("/proyecto/{uuid}/ordenar-backlog", PROYECTO_SHIRO).json(Map.of("tareas",
                 List.of(TareasDeSeed.SHI_1))).ejecutar().esperarError(403, "SIN_PERMISO");
     }
 
     @Test
     void proyectoInexistente() {
-        como(ADMIN).get("/backlog/proyecto/{uuid}", TareasDeSeed.TABLERO_INEXISTENTE).ejecutar()
+        como(ADMIN).get("/proyecto/{uuid}/backlog", TareasDeSeed.TABLERO_INEXISTENTE).ejecutar()
                 .esperarError(400, "REGISTRO_NO_ENCONTRADO");
     }
 
     // GET /backlog/proyecto/{uuid} de Shiro como el actor del rol
     private JsonNode backlog(String rol) {
-        return como(rol).get("/backlog/proyecto/{uuid}", PROYECTO_SHIRO).ejecutar().esperar(200).json();
+        return como(rol).get("/proyecto/{uuid}/backlog", PROYECTO_SHIRO).ejecutar().esperar(200).json();
     }
 
     // POST /backlog/ordenar de Shiro como Administrador
     private Respuesta ordenar(List<String> tareas) {
-        return como(ADMIN).post("/backlog/ordenar").json(Map.of("proyectoUuid", PROYECTO_SHIRO, "tareas", tareas)).ejecutar();
+        return como(ADMIN).post("/proyecto/{uuid}/ordenar-backlog", PROYECTO_SHIRO).json(Map.of("tareas", tareas)).ejecutar();
     }
 
     // Claves del backlog que estan en la lista recibida, en el orden del backlog

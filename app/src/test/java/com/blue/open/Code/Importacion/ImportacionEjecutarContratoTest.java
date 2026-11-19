@@ -29,6 +29,9 @@ import java.util.Map;
  */
 class ImportacionEjecutarContratoTest extends PruebaDeContrato {
 
+    // Importacion de los seeds en curso (2026-11-19-insert-ejemplos-auditoria-seed.yaml)
+    private static final String IMPORTACION_EN_CURSO = "b8000000-0000-4000-8000-000000000002";
+
     private static JiraSimulado jira;
 
     private EscenarioDeImportacion escenario;
@@ -260,6 +263,13 @@ class ImportacionEjecutarContratoTest extends PruebaDeContrato {
         String importacion = escenario.conectarJsim();
 
         escenario.ejecutar(importacion).esperarError(400, "IMPORTACION_SIN_MAPEO");
+    }
+
+    @Test
+    void unaImportacionEnCursoNoSeEjecutaNiSeMapea() {
+        escenario.ejecutar(IMPORTACION_EN_CURSO).esperarError(409, "IMPORTACION_EN_CURSO");
+        escenario.mapear(IMPORTACION_EN_CURSO, EscenarioDeImportacion.mapeo(EscenarioDeImportacion.TIPOS))
+                .esperarError(409, "IMPORTACION_EN_CURSO");
     }
 
     @Test

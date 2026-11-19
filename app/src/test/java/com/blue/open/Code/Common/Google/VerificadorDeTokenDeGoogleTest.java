@@ -4,14 +4,13 @@ import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Map;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Validacion del ID token de Google (T2.2 y Spec 2): firma con las claves publicas de Google, emisor, audiencia (el
@@ -27,7 +26,7 @@ class VerificadorDeTokenDeGoogleTest {
         ClavesPublicasDeGoogle claves = mock(ClavesPublicasDeGoogle.class);
         when(claves.clave(TokensDeGoogleDePrueba.KID)).thenReturn(Optional.of(TokensDeGoogleDePrueba.clavePublica()));
         verificador = new VerificadorDeTokenDeGoogle(claves);
-        ReflectionTestUtils.setField(verificador, "clientId", TokensDeGoogleDePrueba.CLIENT_ID);
+        ReflectionTestUtils.setField(verificador, "idDeCliente", TokensDeGoogleDePrueba.CLIENT_ID);
         ReflectionTestUtils.setField(verificador, "dominio", TokensDeGoogleDePrueba.DOMINIO);
     }
 
@@ -80,7 +79,7 @@ class VerificadorDeTokenDeGoogleTest {
 
     @Test
     void sinClientIdConfiguradoNoHayIngresoConGoogle() {
-        ReflectionTestUtils.setField(verificador, "clientId", "");
+        ReflectionTestUtils.setField(verificador, "idDeCliente", "");
 
         ExcepcionDeApi error = assertThrows(ExcepcionDeApi.class, () -> verificador.verificar("cualquiera"));
 

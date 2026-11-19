@@ -1,5 +1,9 @@
 package com.blue.open.Code.Usuario;
 
+import org.springframework.test.util.ReflectionTestUtils;
+import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
+import com.blue.open.Code.Common.Google.VerificadorDeTokenDeGoogle;
+import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Code.Common.Google.ClavesPublicasDeGoogle;
 import com.blue.open.Code.Common.Google.TokensDeGoogleDePrueba;
 import com.blue.open.Core.Test.PruebaDeContrato;
@@ -30,6 +34,9 @@ class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
 
     @Autowired
     private AuthJwtServiceDePrueba authJwtService;
+
+    @Autowired
+    private VerificadorDeTokenDeGoogle verificador;
 
     @BeforeEach
     void clavesDePrueba() {
@@ -92,6 +99,27 @@ class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
     void sinTokenRechazado() {
         sinAutenticacion().post("/usuario/ingresar-con-google").json(Map.of()).ejecutar()
                 .esperarError(400, "FORMULARIO_INVALIDO");
+    }
+
+    @Test
+    void googleNoResponde() {
+        when(clavesPublicasDeGoogle.clave(TokensDeGoogleDePrueba.KID))
+                .thenThrow(new ExcepcionDeApi(CodigoDeErrorDelProyecto.GOOGLE_NO_DISPONIBLE));
+
+        ingresar(TokensDeGoogleDePrueba.firmar(TokensDeGoogleDePrueba.claimsValidos("ana@example.com")))
+                .esperarError(503, "GOOGLE_NO_DISPONIBLE");
+    }
+
+    @Test
+    void sinConfiguracionDeGoogle() {
+        Object idDeCliente = ReflectionTestUtils.getField(verificador, "idDeCliente");
+        ReflectionTestUtils.setField(verificador, "idDeCliente", "");
+        try {
+            ingresar(TokensDeGoogleDePrueba.firmar(TokensDeGoogleDePrueba.claimsValidos("ana@example.com")))
+                    .esperarError(503, "GOOGLE_NO_CONFIGURADO");
+        } finally {
+            ReflectionTestUtils.setField(verificador, "idDeCliente", idDeCliente);
+        }
     }
 
     // POST /usuario/ingresar-con-google sin sesion

@@ -6,20 +6,19 @@ import com.blue.open.Core.Test.Peticion;
 import com.blue.open.Core.Test.PruebaDeContrato;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import tools.jackson.databind.JsonNode;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-ARC-01: busqueda de lo archivado (POST /archivo/paginar). T5.4 del plan y Spec 3: busca lo archivado de
  * cualquier tipo (tareas, proyectos, sprints, versiones y usuarios) segun permisos: cada elemento aparece si el
  * usuario tiene ARCHIVAR sobre su recurso (los usuarios, solo para administradores). Filtra por tipo y texto.
  */
-class ArchivoBuscarContratoTest extends PruebaDeContrato {
+class OperacionDeArchivoBuscarContratoTest extends PruebaDeContrato {
 
     private static final String ADMIN = "ADMIN";
 
