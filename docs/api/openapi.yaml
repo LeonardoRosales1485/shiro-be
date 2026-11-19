@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.6"
+  version: "1.0.8"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -45,6 +45,8 @@ info:
     | `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |
     | `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |
     | `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |
+    | `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |
+    | `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |
     | `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |
     | `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |
     | `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |
@@ -59,6 +61,7 @@ tags:
 - name: "Permiso"
 - name: "Proyecto"
 - name: "Rol"
+- name: "Tarea"
 - name: "TipoTablero"
 - name: "TipoTarea"
 - name: "Usuario"
@@ -1061,7 +1064,7 @@ paths:
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
-                    cantidadDeElementos: 1
+                    cantidadDeElementos: 2
                     contenido:
                     - descripcion: "Gestor de trabajo de Blue Open Data"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -1088,10 +1091,35 @@ paths:
                         tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
                         uuid: "b2000000-0000-4000-8000-000000000003"
                       uuid: "b1000000-0000-4000-8000-000000000001"
+                    - descripcion: null
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Altas concurrentes"
+                      prefijo: "CONC"
+                      status: 0
+                      tableros:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "PRINCIPAL"
+                        tipoTableroNombre: "Principal"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "QA"
+                        tipoTableroNombre: "QA"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "ANALISIS"
+                        tipoTableroNombre: "Análisis"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 1
+                    totalDeElementos: 2
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -1870,6 +1898,608 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /tarea/guardar:
+    post:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.guardar"
+      summary: "Crea una tarea con tipo y título en el primer estado de su tablero, o edita sus datos"
+      description: |-
+        **Caso de uso:** CU-TAR-03
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-03"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TareaDTO"
+            examples:
+              guardar-cuerpo-invalido:
+                summary: "Guardar cuerpo invalido (SYSADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+              guardar-alta:
+                summary: "Guardar alta (SYSADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Configurar el pipeline de integración"
+              el-tablero-no-se-cambia:
+                summary: "El tablero no se cambia (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                  tipoCodigo: "TAREA"
+                  titulo: "Mover de tablero"
+                  uuid: "b3000000-0000-4000-8000-000000000001"
+              cada-tarea-recibe-una-clave-distinta-del-proyecto:
+                summary: "Cada tarea recibe una clave distinta del proyecto (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Primera"
+              cada-tarea-recibe-una-clave-distinta-del-proyecto-2:
+                summary: "Cada tarea recibe una clave distinta del proyecto (2) (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                  tipoCodigo: "BUG"
+                  titulo: "Segunda"
+              crea-en-modo-rapido-solo-con-tipo-y-titulo:
+                summary: "Crea en modo rapido solo con tipo y titulo (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                  tipoCodigo: "BUG"
+                  titulo: "El token revocado sigue respondiendo"
+              tipo-inexistente-rechazado:
+                summary: "Tipo inexistente rechazado (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "SPIKE"
+                  titulo: "Investigar"
+              tablero-inexistente-rechazado:
+                summary: "Tablero inexistente rechazado (ADMIN)"
+                value:
+                  tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Sin tablero"
+              crea-con-todos-los-datos:
+                summary: "Crea con todos los datos (ADMIN)"
+                value:
+                  descripcion: "Trae los **sprints** y sus fechas."
+                  etiquetas:
+                  - texto: "importador"
+                  - texto: "jira"
+                  prioridad: "ALTA"
+                  puntos: 5
+                  responsableUuid: "90000000-0000-4000-8000-000000000012"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "HISTORIA"
+                  titulo: "Importar sprints desde Jira"
+                  vencimiento: "2026-12-15"
+              editar-cambia-los-campos-y-conserva-clave-estado-y-tablero:
+                summary: "Editar cambia los campos y conserva clave estado y tablero (ADMIN)"
+                value:
+                  etiquetas:
+                  - texto: "a"
+                  - texto: "b"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Borrador"
+              editar-cambia-los-campos-y-conserva-clave-estado-y-tablero-2:
+                summary: "Editar cambia los campos y conserva clave estado y tablero (2) (ADMIN)"
+                value:
+                  etiquetas:
+                  - texto: "b"
+                  - texto: "c"
+                  prioridad: "BAJA"
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "BUG"
+                  titulo: "Definitivo"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              sin-titulo-o-sin-tipo-rechazado-2:
+                summary: "Sin titulo o sin tipo rechazado (2) (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  titulo: "Sin tipo"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TareaDTO"
+              examples:
+                guardar-alta:
+                  summary: "Guardar alta (SYSADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Configurar el pipeline de integración"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                cada-tarea-recibe-una-clave-distinta-del-proyecto:
+                  summary: "Cada tarea recibe una clave distinta del proyecto (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Primera"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                cada-tarea-recibe-una-clave-distinta-del-proyecto-2:
+                  summary: "Cada tarea recibe una clave distinta del proyecto (2) (ADMIN)"
+                  value:
+                    clave: "SHI-3"
+                    descripcion: null
+                    estadoNombre: "Por probar"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000021"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                    tipoCodigo: "BUG"
+                    tipoNombre: "Bug"
+                    titulo: "Segunda"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                crea-en-modo-rapido-solo-con-tipo-y-titulo:
+                  summary: "Crea en modo rapido solo con tipo y titulo (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por probar"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000021"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "QA"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000002"
+                    tipoCodigo: "BUG"
+                    tipoNombre: "Bug"
+                    titulo: "El token revocado sigue respondiendo"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                crea-con-todos-los-datos:
+                  summary: "Crea con todos los datos (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: "Trae los **sprints** y sus fechas."
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "importador"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "jira"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "ALTA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: 5
+                    responsableNombre: "Sysadmin Pruebas"
+                    responsableUuid: "90000000-0000-4000-8000-000000000012"
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "HISTORIA"
+                    tipoNombre: "Historia"
+                    titulo: "Importar sprints desde Jira"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    vencimiento: "2026-12-15"
+                editar-cambia-los-campos-y-conserva-clave-estado-y-tablero:
+                  summary: "Editar cambia los campos y conserva clave estado y tablero (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "a"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "b"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Borrador"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    vencimiento: null
+                editar-cambia-los-campos-y-conserva-clave-estado-y-tablero-2:
+                  summary: "Editar cambia los campos y conserva clave estado y tablero (2) (ADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "b"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      texto: "c"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "BAJA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "BUG"
+                    tipoNombre: "Bug"
+                    titulo: "Definitivo"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+        "400":
+          description: "Errores: `FORMULARIO_INVALIDO`, `RELACION_NO_ENCONTRADA`, `TABLERO_DE_TAREA_NO_SE_CAMBIA`, `TIPO_DE_TAREA_INEXISTENTE`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                guardar-cuerpo-invalido:
+                  summary: "Guardar cuerpo invalido (SYSADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Escribí el título de la tarea"
+                      nombre: "titulo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                el-tablero-no-se-cambia:
+                  summary: "El tablero no se cambia (ADMIN)"
+                  value:
+                    codigo: "TABLERO_DE_TAREA_NO_SE_CAMBIA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tipo-inexistente-rechazado:
+                  summary: "Tipo inexistente rechazado (ADMIN)"
+                  value:
+                    codigo: "TIPO_DE_TAREA_INEXISTENTE"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "El tipo de tarea no existe."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                tablero-inexistente-rechazado:
+                  summary: "Tablero inexistente rechazado (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "tableroUuid"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                sin-titulo-o-sin-tipo-rechazado:
+                  summary: "Sin titulo o sin tipo rechazado (ADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Escribí el título de la tarea"
+                      nombre: "titulo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                sin-titulo-o-sin-tipo-rechazado-2:
+                  summary: "Sin titulo o sin tipo rechazado (2) (ADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Elegí el tipo de tarea"
+                      nombre: "tipoCodigo"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /tarea/paginar:
+    post:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.paginar"
+      summary: "Lista las tareas con filtros y orden"
+      description: |-
+        **Caso de uso:** CU-TAR-02
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-02"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PedidoDePaginado"
+            examples:
+              paginar:
+                summary: "Paginar (SYSADMIN)"
+                value:
+                  pagina: 1
+                  tamano: 5
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pagina_TareaDTO_"
+              examples:
+                paginar:
+                  summary: "Paginar (SYSADMIN)"
+                  value:
+                    cantidadDeElementos: 5
+                    contenido:
+                    - clave: "SHI-1"
+                      descripcion: "Primera tarea de ejemplo del proyecto."
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      informanteNombre: "Usuario Demo"
+                      informanteUuid: "90000000-0000-4000-8000-000000000002"
+                      prioridad: "MEDIA"
+                      proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Definir el tablero principal de Shiro"
+                      uuid: "b3000000-0000-4000-8000-000000000001"
+                      vencimiento: null
+                    - clave: "CONC-1"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Alta concurrente 30"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                      vencimiento: null
+                    - clave: "CONC-2"
+                      descripcion: null
+                      estadoNombre: "Por hacer"
+                      estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      etiquetas: []
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      informanteNombre: "Sysadmin Pruebas"
+                      informanteUuid: "90000000-0000-4000-8000-000000000012"
+                      prioridad: "MEDIA"
+                      proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                      puntos: null
+                      responsableNombre: null
+                      responsableUuid: null
+                      status: 0
+                      tableroCodigo: "PRINCIPAL"
+                      tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                      tipoCodigo: "TAREA"
+                      tipoNombre: "Tarea"
+                      titulo: "Alta concurrente 14"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                      vencimiento: null
+                    numero: 0
+                    primera: true
+                    tamano: 5
+                    totalDeElementos: 51
+                    totalDePaginas: 11
+                    ultima: false
+                    vacia: false
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+  /tarea/uuid/{uuid}:
+    get:
+      tags:
+      - "Tarea"
+      operationId: "TareaController.obtenerPorUuid"
+      summary: "Obtiene una tarea"
+      description: |-
+        **Caso de uso:** CU-TAR-01
+
+        **Requiere sesión:** sin rol ni permiso puntual.
+      x-caso-de-uso: "CU-TAR-01"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la tarea"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TareaDTO"
+              examples:
+                obtener-por-uuid:
+                  summary: "Obtener por uuid (SYSADMIN)"
+                  value:
+                    clave: "SHI-1"
+                    descripcion: "Primera tarea de ejemplo del proyecto."
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    informanteNombre: "Usuario Demo"
+                    informanteUuid: "90000000-0000-4000-8000-000000000002"
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Definir el tablero principal de Shiro"
+                    uuid: "b3000000-0000-4000-8000-000000000001"
+                    vencimiento: null
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                obtener-uuid-inexistente:
+                  summary: "Obtener uuid inexistente (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
   /tipo-tablero/listar:
     get:
@@ -3748,6 +4378,40 @@ components:
           type: "boolean"
           description: "La página no tiene registros"
       additionalProperties: false
+    Pagina_TareaDTO_:
+      type: "object"
+      description: "Página de resultados"
+      properties:
+        contenido:
+          type: "array"
+          description: "Registros de la página"
+          items:
+            $ref: "#/components/schemas/TareaDTO"
+        totalDeElementos:
+          type: "integer"
+          description: "Total de registros que cumplen los filtros"
+        totalDePaginas:
+          type: "integer"
+          description: "Total de páginas"
+        tamano:
+          type: "integer"
+          description: "Tamaño de la página"
+        numero:
+          type: "integer"
+          description: "Número de página (desde 0)"
+        cantidadDeElementos:
+          type: "integer"
+          description: "Registros en esta página"
+        primera:
+          type: "boolean"
+          description: "Es la primera página"
+        ultima:
+          type: "boolean"
+          description: "Es la última página"
+        vacia:
+          type: "boolean"
+          description: "La página no tiene registros"
+      additionalProperties: false
     Pagina_UsuarioDTO_:
       type: "object"
       description: "Página de resultados"
@@ -3856,6 +4520,18 @@ components:
           - "null"
           description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
+    PrioridadDeTarea:
+      type: "string"
+      enum:
+      - "MAS_ALTA"
+      - "ALTA"
+      - "MEDIA"
+      - "BAJA"
+      - "MAS_BAJA"
+    PrioridadDeTarea-nullable:
+      anyOf:
+      - type: "null"
+      - $ref: "#/components/schemas/PrioridadDeTarea"
     ProyectoDTO:
       type: "object"
       properties:
@@ -3987,6 +4663,149 @@ components:
           - "string"
           - "null"
           description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
+    TareaDTO:
+      type: "object"
+      properties:
+        clave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave de la tarea (SHI-123): prefijo del proyecto y número. Única; puede tener saltos. Solo lectura"
+        descripcion:
+          type:
+          - "string"
+          - "null"
+          description: "Descripción en Markdown. Vacía si no tiene"
+          maxLength: 20000
+        estadoNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del estado actual. Solo lectura"
+        estadoUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del estado actual. Una tarea nueva nace en el estado inicial de su tablero. Solo lectura: se cambia con mover"
+        etiquetas:
+          description: "Etiquetas de la tarea, en orden alfabético. Al guardar reemplaza la lista completa: las que no vienen se quitan"
+          maxItems: 20
+          type:
+          - "array"
+          - "null"
+          items:
+            $ref: "#/components/schemas/TareaEtiquetaDTO"
+            description: "Etiquetas de la tarea, en orden alfabético. Al guardar reemplaza la lista completa: las que no vienen se quitan"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        informanteNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del usuario informante. Solo lectura"
+        informanteUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del usuario informante. Si no viene, al crear es quien crea la tarea y al editar se conserva el actual"
+        prioridad:
+          $ref: "#/components/schemas/PrioridadDeTarea-nullable"
+          description: "Prioridad: MAS_ALTA, ALTA, MEDIA, BAJA o MAS_BAJA. Si no viene es MEDIA"
+        proyectoUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del proyecto de la tarea: el de su tablero. Solo lectura"
+        puntos:
+          type:
+          - "integer"
+          - "null"
+          description: "Estimación en puntos. Vacía si no está estimada"
+          minimum: 0
+          maximum: 999
+        responsableNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del usuario responsable. Solo lectura"
+        responsableUuid:
+          type:
+          - "string"
+          - "null"
+          description: "Uuid del usuario responsable. Vacío si la tarea no está asignada"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        tableroCodigo:
+          type:
+          - "string"
+          - "null"
+          description: "Código del tipo de tablero: PRINCIPAL, QA, ANALISIS o DISENO. Solo lectura"
+        tableroUuid:
+          type: "string"
+          description: "Uuid del tablero de la tarea: el que se está viendo al crearla. No cambia después de crearla"
+          minLength: 1
+        tipoCodigo:
+          type: "string"
+          description: "Código del tipo de tarea: EPICA, HISTORIA, TAREA, BUG o SUBTAREA"
+          minLength: 1
+        tipoNombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre visible del tipo de tarea. Solo lectura"
+        titulo:
+          type: "string"
+          description: "Título de la tarea"
+          minLength: 1
+          maxLength: 255
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+        vencimiento:
+          type:
+          - "string"
+          - "null"
+          format: "date"
+          description: "Fecha de vencimiento, sin hora (aaaa-mm-dd). Vacía si no vence"
+      required:
+      - "tableroUuid"
+      - "tipoCodigo"
+      - "titulo"
+      additionalProperties: false
+    TareaEtiquetaDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        texto:
+          type: "string"
+          description: "Texto de la etiqueta. Se guarda sin espacios al principio ni al final; las repetidas se guardan una vez"
+          minLength: 1
+          maxLength: 40
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "texto"
       additionalProperties: false
     TipoTableroDTO:
       type: "object"
@@ -4286,6 +5105,16 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No tenes permiso para realizar esta accion"
   cuando: "El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular"
   origen: "CodigoDeErrorKernel"
+- codigo: "TABLERO_DE_TAREA_NO_SE_CAMBIA"
+  status: 400
+  mensajePorDefecto: "Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala."
+  cuando: "Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "TIPO_DE_TAREA_INEXISTENTE"
+  status: 400
+  mensajePorDefecto: "El tipo de tarea no existe."
+  cuando: "Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA)"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "TOKEN_INVALIDO"
   status: 401
   mensajePorDefecto: "Token de acceso inválido"

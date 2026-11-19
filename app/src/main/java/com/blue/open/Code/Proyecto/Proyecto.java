@@ -45,4 +45,13 @@ public class Proyecto extends EntidadConBorradoLogico {
     // Tableros del proyecto: uno por tipo de tablero
     @OneToMany(mappedBy = "proyecto", fetch = FetchType.LAZY)
     private List<Tablero> tableros = new ArrayList<>();
+
+    /*
+     * Avanza el contador de claves y devuelve el numero para la tarea nueva. Solo se llama con la fila del proyecto
+     * bloqueada (ProyectoRepository.bloquearPorId): asi dos altas simultaneas nunca reciben el mismo numero.
+     */
+    public long siguienteNumero() {
+        this.ultimoNumero = this.ultimoNumero + 1;
+        return this.ultimoNumero;
+    }
 }

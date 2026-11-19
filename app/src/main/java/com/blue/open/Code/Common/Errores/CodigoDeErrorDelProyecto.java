@@ -20,6 +20,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     PREFIJO_DE_PROYECTO_EN_USO(HttpStatus.BAD_REQUEST, "El prefijo ya lo usa otro proyecto. Elegí otro."),
     @Descripcion("Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto")
     PREFIJO_DE_PROYECTO_NO_SE_CAMBIA(HttpStatus.BAD_REQUEST, "El prefijo no se cambia: lo usan las claves de las tareas existentes."),
+    @Descripcion("Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA)")
+    TIPO_DE_TAREA_INEXISTENTE(HttpStatus.BAD_REQUEST, "El tipo de tarea no existe."),
+    @Descripcion("Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona")
+    TABLERO_DE_TAREA_NO_SE_CAMBIA(HttpStatus.BAD_REQUEST, "Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

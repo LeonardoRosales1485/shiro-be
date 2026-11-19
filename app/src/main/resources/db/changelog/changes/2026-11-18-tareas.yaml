@@ -1,0 +1,129 @@
+# Tareas y sus etiquetas (T1.3). La clave (SHI-123) es unica y sale del contador del proyecto, que se bloquea por
+# fila al crear una tarea: puede tener saltos (adenda 2 del DAF). Padre, sprint, versiones, busqueda e id de Jira se
+# suman en las tareas siguientes del plan.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-tareas-1
+      author: shiro
+      comment: "Crea shr_tarea"
+      changes:
+        - createTable:
+            tableName: shr_tarea
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_proyecto, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: id_tablero, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: numero, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: clave, type: VARCHAR(30), constraints: {nullable: false}}
+              - column: {name: id_tipo_tarea, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: id_estado, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: titulo, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: descripcion, type: TEXT}
+              - column: {name: id_responsable, type: BIGINT}
+              - column: {name: id_informante, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: prioridad, type: VARCHAR(10), defaultValue: MEDIA, constraints: {nullable: false}}
+              - column: {name: puntos, type: INT}
+              - column: {name: vencimiento, type: DATE}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addUniqueConstraint:
+            tableName: shr_tarea
+            columnNames: clave
+            constraintName: uk_shr_tarea_clave
+        - addUniqueConstraint:
+            tableName: shr_tarea
+            columnNames: id_proyecto, numero
+            constraintName: uk_shr_tarea_proyecto_numero
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_proyecto
+            referencedTableName: shr_proyecto
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_proyecto
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_tablero
+            referencedTableName: shr_tablero
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_tablero
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_tipo_tarea
+            referencedTableName: shr_tipo_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_tipo_tarea
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_estado
+            referencedTableName: shr_estado
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_estado
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_responsable
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_responsable
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_informante
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_informante
+        - sql:
+            comment: "La prioridad es una de las cinco de la seccion 4 del DAF"
+            sql: "ALTER TABLE shr_tarea ADD CONSTRAINT ck_shr_tarea_prioridad CHECK (prioridad IN ('MAS_ALTA', 'ALTA', 'MEDIA', 'BAJA', 'MAS_BAJA'))"
+        - createIndex:
+            tableName: shr_tarea
+            indexName: ix_shr_tarea_tablero_estado
+            columns:
+              - column: {name: id_tablero}
+              - column: {name: id_estado}
+        - createIndex:
+            tableName: shr_tarea
+            indexName: ix_shr_tarea_responsable
+            columns:
+              - column: {name: id_responsable}
+      rollback:
+        - dropTable:
+            tableName: shr_tarea
+
+  - changeSet:
+      id: 2026-11-18-tareas-2
+      author: shiro
+      comment: "Crea shr_tarea_etiqueta: las quitadas quedan con status -1"
+      changes:
+        - createTable:
+            tableName: shr_tarea_etiqueta
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_tarea, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: texto, type: VARCHAR(40), constraints: {nullable: false}}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea_etiqueta
+            baseColumnNames: id_tarea
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_etiqueta_tarea
+        - createIndex:
+            tableName: shr_tarea_etiqueta
+            indexName: ix_shr_tarea_etiqueta_tarea
+            columns:
+              - column: {name: id_tarea}
+      rollback:
+        - dropTable:
+            tableName: shr_tarea_etiqueta
