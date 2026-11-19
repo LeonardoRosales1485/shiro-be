@@ -105,6 +105,39 @@ class McpArchivoYAdministracionTest extends TestConBaseDeDatos {
         }
     }
 
+    @Test
+    void sinSerAdministradorNingunaHerramientaDeAdministracionCambiaNada() {
+        try (McpSyncClient agente = ClienteMcpDePrueba.conectar(puerto, ClienteMcpDePrueba.TOKEN_CLIENTE)) {
+            Map<String, Map<String, Object>> llamadas = Map.of(
+                    "administrar_usuarios", Map.of("accion", "crear", "nombreDeUsuario", "noadmin-mcp", "confirmar", true),
+                    "administrar_grupos", Map.of("accion", "crear", "nombre", "Grupo sin admin"),
+                    "administrar_permisos", Map.of("accion", "archivar", "uuid", "no-importa", "confirmar", true));
+            llamadas.forEach((herramienta, argumentos) -> esperarSinPermiso(agente, herramienta, argumentos));
+            esperarSinPermiso(agente, "archivar", Map.of("tipo", "USUARIO", "identificador", "demo", "confirmar", true));
+            esperarSinPermiso(agente, "restaurar", Map.of("tipo", "USUARIO", "identificador", "demo"));
+        }
+    }
+
+    @Test
+    void crearYArchivarUnGrupoPideConfirmarParaArchivar() {
+        try (McpSyncClient agente = ClienteMcpDePrueba.conectar(puerto, ClienteMcpDePrueba.TOKEN_SYSADMIN)) {
+            llamar(agente, "administrar_grupos", Map.of("accion", "crear", "nombre", "Grupo MCP"));
+
+            JsonNode previa = llamar(agente, "administrar_grupos", Map.of("accion", "archivar", "nombre", "Grupo MCP"));
+            assertTrue(previa.get("resumen").asString().startsWith("Se archivaría el grupo Grupo MCP"), previa::toString);
+
+            JsonNode archivado = llamar(agente, "administrar_grupos", Map.of("accion", "archivar", "nombre", "Grupo MCP", "confirmar", true));
+            assertEquals("Grupo Grupo MCP archivado", archivado.get("resumen").asString());
+        }
+    }
+
+    // Llama la herramienta y exige que responda error de permiso sin cambiar nada
+    private static void esperarSinPermiso(McpSyncClient agente, String herramienta, Map<String, Object> argumentos) {
+        McpSchema.CallToolResult resultado = ClienteMcpDePrueba.llamar(agente, herramienta, argumentos);
+        assertTrue(Boolean.TRUE.equals(resultado.isError()), () -> herramienta + ": " + resultado);
+        assertTrue(ClienteMcpDePrueba.texto(resultado).contains("Solo el super admin"), () -> herramienta + ": " + resultado);
+    }
+
     // Llama la herramienta, exige que no sea un error y responde su JSON (resumen y datos)
     private JsonNode llamar(McpSyncClient agente, String herramienta, Map<String, Object> argumentos) {
         McpSchema.CallToolResult resultado = ClienteMcpDePrueba.llamar(agente, herramienta, argumentos);
