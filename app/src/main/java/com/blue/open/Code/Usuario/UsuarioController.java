@@ -1,6 +1,10 @@
 package com.blue.open.Code.Usuario;
 
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioArchivarUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioRestaurarUseCase;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Service.AuthService;
 import com.blue.open.Core.Identity.Service.CookiesDeSesion;
@@ -16,6 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Endpoints de usuarios: ABM (receta de sm-core-maven/core-crud/docs/receta-controller.md) y sesion actual. La logica
@@ -42,32 +48,66 @@ public class UsuarioController {
 
     private final CookiesDeSesion cookiesDeSesion;
 
+    private final UsuarioArchivarUseCase archivarUseCase;
+
+    private final UsuarioRestaurarUseCase restaurarUseCase;
+
+    private final UsuarioGruposUseCase gruposUseCase;
+
+    private final UsuarioAsignarGruposUseCase asignarGruposUseCase;
+
     // Obtiene un usuario por su uuid. Responde el UsuarioDTO
     @GetMapping("/uuid/{uuid}")
-    @Contrato(casoDeUso = "CU-USR-01", resumen = "Obtiene un usuario por su uuid", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-USR-01", resumen = "Obtiene un usuario por su uuid", permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<UsuarioDTO> obtenerPorUuid(@Descripcion("Uuid del registro") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
     }
 
     // Lista los usuarios con filtros y orden. Responde la pagina de UsuarioDTO
     @PostMapping("/paginar")
-    @Contrato(casoDeUso = "CU-USR-02", resumen = "Lista los usuarios con filtros y orden", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-USR-02", resumen = "Lista los usuarios con filtros y orden", permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<Pagina<UsuarioDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
     }
 
-    // Crea (sin uuid) o edita un usuario. El service exige USUARIO_CREAR o USUARIO_EDITAR
+    // Crea (sin uuid) o edita un usuario. Un Administrador no edita al super admin ni a otros Administradores
     @PostMapping("/guardar")
-    @Contrato(casoDeUso = "CU-USR-03", resumen = "Crea o edita un usuario", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-USR-03", resumen = "Crea o edita un usuario (un Administrador no edita al super admin ni a otros Administradores)",
+            permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<UsuarioDTO> guardar(@Valid @RequestBody UsuarioDTO dto) {
         return new ResponseEntity<>(service.guardar(dto), HttpStatus.OK);
     }
 
-    // Borrado logico de un usuario. Responde el usuario eliminado
-    @DeleteMapping("/borrar/{uuid}")
-    @Contrato(casoDeUso = "CU-USR-04", resumen = "Elimina (borrado lógico) un usuario", permiso = "SYSADMIN")
-    public ResponseEntity<UsuarioDTO> borrar(@Descripcion("Uuid del registro") @PathVariable("uuid") String uuid) {
-        return new ResponseEntity<>(service.borrar(uuid), HttpStatus.OK);
+    // Archiva un usuario: no ingresa mas y sus tokens se desactivan. Responde el usuario archivado
+    @PostMapping("/{uuid}/archivar")
+    @Contrato(casoDeUso = "CU-USR-04", resumen = "Archiva un usuario: no ingresa más, sus tokens se desactivan y sus tareas conservan el responsable",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<UsuarioDTO> archivar(@Descripcion("Uuid del usuario") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Restaura un usuario archivado. Responde el usuario restaurado
+    @PostMapping("/{uuid}/restaurar")
+    @Contrato(casoDeUso = "CU-USR-23", resumen = "Restaura un usuario archivado (sus tokens anteriores siguen desactivados)",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<UsuarioDTO> restaurar(@Descripcion("Uuid del usuario") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Grupos de un usuario. Responde la lista de grupos
+    @GetMapping("/{uuid}/grupos")
+    @Contrato(casoDeUso = "CU-USR-21", resumen = "Lista los grupos de un usuario", permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<List<GrupoDeUsuarioDTO>> grupos(@Descripcion("Uuid del usuario") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(gruposUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Reemplaza los grupos de un usuario. Responde los grupos que quedaron
+    @PostMapping("/{uuid}/grupos")
+    @Contrato(casoDeUso = "CU-USR-22", resumen = "Reemplaza los grupos de un usuario (los del sistema solo los maneja el super admin)",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<List<GrupoDeUsuarioDTO>> asignarGrupos(@Descripcion("Uuid del usuario") @PathVariable("uuid") String uuid,
+            @Valid @RequestBody UsuarioAsignarGruposRequestDTO dto) {
+        return new ResponseEntity<>(asignarGruposUseCase.ejecutar(uuid, dto), HttpStatus.OK);
     }
 
     // Usuario de la sesion actual. Responde el UsuarioDTO

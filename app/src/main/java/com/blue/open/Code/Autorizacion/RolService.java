@@ -1,12 +1,14 @@
 package com.blue.open.Code.Autorizacion;
 
+import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Identity.DTO.RolDTO;
-import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Entidad.Permiso;
 import com.blue.open.Core.Identity.Entidad.Rol;
+import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Service.RolBaseService;
-
+import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,7 +22,35 @@ import java.util.Set;
  * Recibe: RolDTO o uuid segun el endpoint. Responde: RolDTO.
  */
 @Service
+@RequiredArgsConstructor
 public class RolService extends RolBaseService<RolDTO> {
+
+    private final GrupoRepository grupoRepository;
+
+    private final ProteccionDeAdministradores proteccion;
+
+    private final ResolutorDePermisosDeRecurso permisos;
+
+    /*
+     * Reemplaza el control del Core (permisos ROL_CREAR y ROL_EDITAR): quien llega ya es super admin o Administrador
+     * por @Contrato. Valida que el nombre no se repita (GRUPO_REPETIDO) y que un Administrador no edite los grupos del
+     * sistema (SIN_PERMISO).
+     */
+    @Override
+    public void hookGuardarAuth(RolDTO dto) {
+        String uuid = dto.getUuid() == null ? "" : dto.getUuid();
+        if (!uuid.isEmpty())
+            grupoRepository.findFirstByUuidAndStatus(uuid, 0).ifPresent(proteccion::exigirQuePuedaManejar);
+        if (dto.getNombre() != null && grupoRepository.existsByNombreAndStatusAndUuidNot(dto.getNombre(), 0, uuid))
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.GRUPO_REPETIDO,
+                    "RolService | hookGuardarAuth | nombre repetido: " + dto.getNombre());
+    }
+
+    // Los administradores ven todos los grupos; el resto, los que el Core le deja ver
+    @Override
+    protected List<RolDTO> hookPaginarFiltrarResultados(List<RolDTO> dtos) {
+        return permisos.esAdministrador() ? dtos : super.hookPaginarFiltrarResultados(dtos);
+    }
 
     // Proyeccion del rol vigente por uuid. Un rol eliminado responde como inexistente
     @Override

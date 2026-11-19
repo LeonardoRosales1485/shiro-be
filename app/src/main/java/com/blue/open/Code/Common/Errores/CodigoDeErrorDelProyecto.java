@@ -58,6 +58,12 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     REGLA_DE_PERMISO_INVALIDA(HttpStatus.BAD_REQUEST, "La regla tiene que indicar un sujeto y un recurso, según su tipo."),
     @Descripcion("Al guardar una regla de permiso, ya hay otra vigente con el mismo sujeto, recurso y nivel: hay que editar esa")
     REGLA_DE_PERMISO_REPETIDA(HttpStatus.BAD_REQUEST, "Ya hay una regla para ese sujeto, recurso y nivel. Editá esa."),
+    @Descripcion("Al archivar un usuario se eligió el propio usuario de la sesión: nadie se archiva a sí mismo")
+    USUARIO_NO_SE_ARCHIVA_A_SI_MISMO(HttpStatus.BAD_REQUEST, "No podés archivar tu propio usuario."),
+    @Descripcion("Al crear o editar un grupo, ya hay otro vigente con ese nombre")
+    GRUPO_REPETIDO(HttpStatus.BAD_REQUEST, "Ya hay un grupo con ese nombre."),
+    @Descripcion("Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva")
+    GRUPO_DEL_SISTEMA(HttpStatus.BAD_REQUEST, "Los grupos del sistema no se archivan."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

@@ -23,7 +23,8 @@ class RolServiceTest {
 
     @BeforeEach
     void preparar() {
-        rolService = new RolService();
+        // puedeAsignarRol no usa las dependencias de RolService
+        rolService = new RolService(null, null, null);
         usuarioActual = new UsuarioBase() {
         };
         usuarioActual.setId(1L);

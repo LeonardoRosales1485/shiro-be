@@ -24,31 +24,34 @@ public class RolController {
 
     private final RolService service;
 
+    private final RolArchivarUseCase archivarUseCase;
+
     // Obtiene un rol con los permisos que otorga. Responde el RolDTO
     @GetMapping("/uuid/{uuid}")
-    @Contrato(casoDeUso = "CU-ROL-02", resumen = "Obtiene un rol con los permisos que otorga", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-ROL-02", resumen = "Obtiene un rol con los permisos que otorga", permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<RolDTO> obtenerPorUuid(@Descripcion("Uuid del registro") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
     }
 
     // Lista los roles vigentes con filtros y orden. Responde la pagina de RolDTO
     @PostMapping("/paginar")
-    @Contrato(casoDeUso = "CU-ROL-01", resumen = "Lista los roles vigentes con filtros y orden", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-ROL-01", resumen = "Lista los roles vigentes con filtros y orden", permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<Pagina<RolDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
     }
 
     // Crea (sin uuid) o edita un rol y los permisos que otorga. Responde el rol guardado
     @PostMapping("/guardar")
-    @Contrato(casoDeUso = "CU-ROL-03", resumen = "Crea o edita un rol y los permisos que otorga", permiso = "SYSADMIN")
+    @Contrato(casoDeUso = "CU-ROL-03", resumen = "Crea o edita un rol y los permisos que otorga", permiso = {"SYSADMIN", "ADMIN"})
     public ResponseEntity<RolDTO> guardar(@Valid @RequestBody RolDTO dto) {
         return new ResponseEntity<>(service.guardar(dto), HttpStatus.OK);
     }
 
-    // Borrado logico de un rol. Responde el rol eliminado
-    @DeleteMapping("/borrar/{uuid}")
-    @Contrato(casoDeUso = "CU-ROL-04", resumen = "Elimina (borrado lógico) un rol", permiso = "SYSADMIN")
-    public ResponseEntity<RolDTO> borrar(@Descripcion("Uuid del registro") @PathVariable("uuid") String uuid) {
-        return new ResponseEntity<>(service.borrar(uuid), HttpStatus.OK);
+    // Archiva un grupo (rol). Los del sistema no se archivan. Responde el grupo archivado
+    @PostMapping("/{uuid}/archivar")
+    @Contrato(casoDeUso = "CU-ROL-04", resumen = "Archiva un grupo (rol); los grupos del sistema no se archivan",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<RolDTO> archivar(@Descripcion("Uuid del grupo") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

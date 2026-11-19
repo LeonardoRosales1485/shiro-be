@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.20"
+  version: "1.0.21"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -34,6 +34,8 @@ info:
     | `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |
     | `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |
     | `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |
+    | `GRUPO_DEL_SISTEMA` | 400 | Los grupos del sistema no se archivan. | Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva |
+    | `GRUPO_REPETIDO` | 400 | Ya hay un grupo con ese nombre. | Al crear o editar un grupo, ya hay otro vigente con ese nombre |
     | `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |
     | `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |
     | `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |
@@ -69,6 +71,7 @@ info:
     | `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |
     | `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |
     | `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |
+    | `USUARIO_NO_SE_ARCHIVA_A_SI_MISMO` | 400 | No podés archivar tu propio usuario. | Al archivar un usuario se eligió el propio usuario de la sesión: nadie se archiva a sí mismo |
 servers:
 - url: "/api"
 tags:
@@ -1258,6 +1261,11 @@ paths:
                   nombre: "Shiro"
                   prefijo: "SHR"
                   uuid: "b1000000-0000-4000-8000-000000000001"
+              solo-el-super-admin-suma-personas-al-grupo-administradores:
+                summary: "Solo el super admin suma personas al grupo administradores"
+                value:
+                  nombre: "Del nuevo admin"
+                  prefijo: "DNA"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
@@ -1446,6 +1454,34 @@ paths:
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Recursos Humanos"
                     prefijo: "RRHH"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "PRINCIPAL"
+                      tipoTableroNombre: "Principal"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "QA"
+                      tipoTableroNombre: "QA"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      status: 0
+                      tipoTableroCodigo: "ANALISIS"
+                      tipoTableroNombre: "Análisis"
+                      tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                solo-el-super-admin-suma-personas-al-grupo-administradores:
+                  summary: "Solo el super admin suma personas al grupo administradores"
+                  value:
+                    descripcion: null
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Del nuevo admin"
+                    prefijo: "DNA"
                     status: 0
                     tableros:
                     - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -2947,128 +2983,6 @@ paths:
                     mensajeParaUsuario: "No tenés permiso para editar en el tablero."
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
-  /rol/borrar/{uuid}:
-    delete:
-      tags:
-      - "Rol"
-      operationId: "RolController.borrar"
-      summary: "Elimina (borrado lógico) un rol"
-      description: |-
-        **Caso de uso:** CU-ROL-04
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-ROL-04"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters:
-      - name: "uuid"
-        in: "path"
-        required: true
-        description: "Uuid del registro"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RolDTO"
-              examples:
-                eliminar:
-                  summary: "Eliminar (SYSADMIN)"
-                  value:
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Rol de prueba"
-                    permisos: []
-                    porDefecto: 0
-                    status: -1
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                elimina-un-rol:
-                  summary: "Elimina un rol (SYSADMIN)"
-                  value:
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombre: "Rol a eliminar"
-                    permisos: []
-                    porDefecto: 0
-                    status: -1
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-        "400":
-          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                eliminar-uuid-inexistente:
-                  summary: "Eliminar uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                eliminar-dos-veces:
-                  summary: "Eliminar dos veces (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                doble-borrado:
-                  summary: "Doble borrado (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                uuid-inexistente:
-                  summary: "Uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
   /rol/guardar:
     post:
       tags:
@@ -3078,9 +2992,9 @@ paths:
       description: |-
         **Caso de uso:** CU-ROL-03
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-ROL-03"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters: []
@@ -3091,6 +3005,17 @@ paths:
             schema:
               $ref: "#/components/schemas/RolDTO"
             examples:
+              los-grupos-del-sistema-no-se-archivan-ni-los-edita-un-administrador:
+                summary: "Los grupos del sistema no se archivan ni los edita un administrador (ADMIN)"
+                value:
+                  nombre: "ADMIN"
+                  uuid: "90000000-0000-4000-8000-000000000102"
+              el-nombre-de-un-grupo-no-se-repite:
+                summary: "El nombre de un grupo no se repite (ADMIN)"
+                value:
+                  nombre: "Desarrollo"
+                  permisos: []
+                  porDefecto: 0
               guardar-cuerpo-invalido:
                 summary: "Guardar cuerpo invalido (SYSADMIN)"
                 value:
@@ -3175,12 +3100,21 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
-          description: "Errores: `FORMULARIO_INVALIDO`"
+          description: "Errores: `FORMULARIO_INVALIDO`, `GRUPO_REPETIDO`"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                el-nombre-de-un-grupo-no-se-repite:
+                  summary: "El nombre de un grupo no se repite (ADMIN)"
+                  value:
+                    codigo: "GRUPO_REPETIDO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Ya hay un grupo con ese nombre."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
                 guardar-cuerpo-invalido:
                   summary: "Guardar cuerpo invalido (SYSADMIN)"
                   value:
@@ -3226,6 +3160,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                los-grupos-del-sistema-no-se-archivan-ni-los-edita-un-administrador:
+                  summary: "Los grupos del sistema no se archivan ni los edita un administrador (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
                 sin-permiso:
                   summary: "Sin permiso (CLIENTE)"
                   value:
@@ -3244,9 +3187,9 @@ paths:
       description: |-
         **Caso de uso:** CU-ROL-01
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-ROL-01"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters: []
@@ -3502,9 +3445,9 @@ paths:
       description: |-
         **Caso de uso:** CU-ROL-02
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-ROL-02"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters:
@@ -3580,6 +3523,101 @@ paths:
                     traceId: "0000000000000000"
                 un-rol-eliminado-no-se-encuentra:
                   summary: "Un rol eliminado no se encuentra (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /rol/{uuid}/archivar:
+    post:
+      tags:
+      - "Rol"
+      operationId: "RolController.archivar"
+      summary: "Archiva un grupo (rol); los grupos del sistema no se archivan"
+      description: |-
+        **Caso de uso:** CU-ROL-04
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-ROL-04"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del grupo"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolDTO"
+              examples:
+                archivar-un-grupo:
+                  summary: "Archivar un grupo (ADMIN)"
+                  value:
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Grupo a archivar"
+                    permisos: []
+                    porDefecto: 0
+                    status: -1
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `GRUPO_DEL_SISTEMA`, `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                los-grupos-del-sistema-no-se-archivan-ni-los-edita-un-administrador:
+                  summary: "Los grupos del sistema no se archivan ni los edita un administrador (SYSADMIN)"
+                  value:
+                    codigo: "GRUPO_DEL_SISTEMA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Los grupos del sistema no se archivan."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                archivar-un-grupo-2:
+                  summary: "Archivar un grupo (2) (ADMIN)"
                   value:
                     codigo: "REGISTRO_NO_ENCONTRADO"
                     errores: []
@@ -4719,7 +4757,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 16"
+                      titulo: "Alta concurrente 0"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                     - clave: "CONC-2"
@@ -4744,7 +4782,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 9"
+                      titulo: "Alta concurrente 49"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
                     numero: 0
@@ -4881,6 +4919,34 @@ paths:
                     tipoNombre: "Tarea"
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
+                    vencimiento: null
+                archivar-desactiva-los-tokens-y-conserva-el-responsable:
+                  summary: "Archivar desactiva los tokens y conserva el responsable (SYSADMIN)"
+                  value:
+                    clave: "SHI-2"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Asignada"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
         "400":
           description: "Errores: `REGISTRO_NO_ENCONTRADO`"
@@ -7082,130 +7148,6 @@ paths:
                     mensajeParaUsuario: "No tenes permiso para realizar esta accion"
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
-  /usuario/borrar/{uuid}:
-    delete:
-      tags:
-      - "Usuario"
-      operationId: "UsuarioController.borrar"
-      summary: "Elimina (borrado lógico) un usuario"
-      description: |-
-        **Caso de uso:** CU-USR-04
-
-        **Permiso:** `SYSADMIN`
-      x-caso-de-uso: "CU-USR-04"
-      x-permiso: "SYSADMIN"
-      security:
-      - bearer: []
-      parameters:
-      - name: "uuid"
-        in: "path"
-        required: true
-        description: "Uuid del registro"
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsuarioDTO"
-              examples:
-                eliminar:
-                  summary: "Eliminar (SYSADMIN)"
-                  value:
-                    contrasena: null
-                    email: "usuario.contrato.heredado@example.com"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "usuario.contrato.heredado"
-                    status: -1
-                    telefono: "3815550000"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                elimina-un-usuario:
-                  summary: "Elimina un usuario (SYSADMIN)"
-                  value:
-                    contrasena: null
-                    email: "usuario.eliminar.contrato@example.com"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    nombreDeUsuario: "usuario.eliminar.contrato"
-                    status: -1
-                    telefono: "3815550000"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-        "400":
-          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                eliminar-uuid-inexistente:
-                  summary: "Eliminar uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                eliminar-dos-veces:
-                  summary: "Eliminar dos veces (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                doble-borrado:
-                  summary: "Doble borrado (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-                uuid-inexistente:
-                  summary: "Uuid inexistente (SYSADMIN)"
-                  value:
-                    codigo: "REGISTRO_NO_ENCONTRADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No existe o ya fue eliminado"
-                    status: "400 BAD_REQUEST"
-                    traceId: "0000000000000000"
-        "401":
-          description: "Errores: `NO_AUTENTICADO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-autenticacion:
-                  summary: "Sin autenticación"
-                  value:
-                    codigo: "NO_AUTENTICADO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Usuario no identificado"
-                    status: "401 UNAUTHORIZED"
-                    traceId: "0000000000000000"
-        "403":
-          description: "Errores: `SIN_PERMISO`"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponseDTO"
-              examples:
-                sin-permiso:
-                  summary: "Sin permiso (CLIENTE)"
-                  value:
-                    codigo: "SIN_PERMISO"
-                    errores: []
-                    fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "No tienes permiso"
-                    status: "403 FORBIDDEN"
-                    traceId: "0000000000000000"
   /usuario/cerrar-sesion:
     post:
       tags:
@@ -7270,6 +7212,10 @@ paths:
             schema:
               $ref: "#/components/schemas/AccessTokenDTO"
             examples:
+              archivar-desactiva-los-tokens-y-conserva-el-responsable:
+                summary: "Archivar desactiva los tokens y conserva el responsable"
+                value:
+                  nombre: "Token a revocar"
               sin-sesion:
                 summary: "Sin sesion"
                 value:
@@ -7306,6 +7252,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/AccessTokenDTO"
               examples:
+                archivar-desactiva-los-tokens-y-conserva-el-responsable:
+                  summary: "Archivar desactiva los tokens y conserva el responsable"
+                  value:
+                    activo: 1
+                    codigo: "token-de-prueba-token-a-revocar"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Token a revocar"
+                    status: 0
+                    usuarioUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 crea-un-token-propio:
                   summary: "Crea un token propio (ADMIN)"
                   value:
@@ -7403,13 +7359,13 @@ paths:
       tags:
       - "Usuario"
       operationId: "UsuarioController.guardar"
-      summary: "Crea o edita un usuario"
+      summary: "Crea o edita un usuario (un Administrador no edita al super admin ni a otros Administradores)"
       description: |-
         **Caso de uso:** CU-USR-03
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-USR-03"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters: []
@@ -7420,6 +7376,18 @@ paths:
             schema:
               $ref: "#/components/schemas/UsuarioDTO"
             examples:
+              un-administrador-administra-usuarios-comunes:
+                summary: "Un administrador administra usuarios comunes (ADMIN)"
+                value:
+                  email: "comun-editado@example.com"
+                  nombreDeUsuario: "comun"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              un-administrador-no-modifica-al-super-admin:
+                summary: "Un administrador no modifica al super admin (ADMIN)"
+                value:
+                  email: "otro@example.com"
+                  nombreDeUsuario: "sysadmin-pruebas"
+                  uuid: "90000000-0000-4000-8000-000000000012"
               guardar-cuerpo-invalido:
                 summary: "Guardar cuerpo invalido (SYSADMIN)"
                 value:
@@ -7472,6 +7440,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/UsuarioDTO"
               examples:
+                un-administrador-administra-usuarios-comunes:
+                  summary: "Un administrador administra usuarios comunes (ADMIN)"
+                  value:
+                    contrasena: null
+                    email: "comun-editado@example.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombreDeUsuario: "comun"
+                    status: 0
+                    telefono: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 guardar-alta:
                   summary: "Guardar alta (SYSADMIN)"
                   value:
@@ -7585,6 +7563,15 @@ paths:
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
+                un-administrador-no-modifica-al-super-admin:
+                  summary: "Un administrador no modifica al super admin (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /usuario/ingresar-con-google:
     post:
       tags:
@@ -7608,23 +7595,23 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.Us76JI1fe_nqizMtZly-Jw7gy3FAGAz-MxZ1T5DKOvdNQbLIbuy1qkQrKe-0G_vdgsUKcH563gl9FzZlMcFq8j6Nvpmm2IXt2HXS9Hrf48Exj6REpXfko_VKv4bVlENml7iP2TIHYes20vuVjG4U-bdyOLc8T2FCDOTGPtaaavE7nuYmfj5pNf-Y0G1ECbpkcVARqlK3TZqN-iCVXzKcRG5g-G7rLmqHqfYY45GqgHO-HvTXOE9gxbAtJewsg7wLVI1dZcJZIL3MpVYUyTAE5byAdnMnynXd6W1Rtbhf21nkynYiMzk_J_hJ3o1suWEI9L2c8JEKBktglEtTDjR68A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjM4NTJ9.0DeACeSr8BcKVDeILaF2OkY6AHBJjA4Mc5wMZ0nrP1YhMZySR5ZI74VqPwK4hWN0URSMBuBq1NnN7O8xHYAKm372uEorOTl-o3XQsjHB5hUufMLcjfHZSekGjgv0IeJVxUsLXR3PlZVUruN9cYUSnqXMrHYVYWBlOEaeL3F9gyroRZcq5-7bNA5XTaSatSN7OFN6P177yJ39WlB2hrBdPdNsYsmKCgHOl3Z6u0W9OGqrFGcq1xI1CdFX0N8bv9DJAGt6mh07ZCHuT2ls4YXQxXZJfFuBRoAo7xiQphb-kIyxBqpG6Dl06C_MM4CzdGzUpH8KgYKFO1NYDutlL8zO4A"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.b9M748xX3bG9ZO-uvPl-uzSPIYGY6uPov9xpTY31bwljQyq6Gx5F7ZOMYy-AK79K1zmXodzgV4nY0SauZZPXSC_ziG3YR3m-w2QqmkyN1YEXy7CweKdIpsvaLV1TV8w-EfnaGdA48jeHxp-zsH_IUuac7KCt8VNZy6wC1Tzzik4J7sNeNsw42MSWJNKI2nekjhUgc4HONJnIcQttZJkbk3iRVj3Zqf86bdOj_UcoI3E_6fFVUMz8ZTgbddqZTiLidzzxo84uRoAVy63KMBKvPa1BoPTeZINsK202IT09bOrkoGoNJ1wwGNGzaZXA2q-WFpVFaaGQHci87Psj6XiU8A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzODUyfQ.Lfl7EIwqrwTznpjPWyWhmx8ArN0MS9y1op9gENVuoKHj9FDuHafXK8bNCya2nuJlIqTe198HvAtP_ryxBdPMJY4a_cz5_lxL_O0VRb-4YnhfkF_Yaifgkvz-5eVCZy1Y1r_BmzizV1K9nO9dw0huNQkjyKBC5YgeA1zDGi-Zuh9izc3rz32bPK0eNaBeMcSDc8zXYYiVwubPgyPMdK63Yr5qlQ1f5oH_grTrDPmdEiIv5RUPUVgxVqyHQhEoXCCQ4adECcGt054je4WoAkacsgD07r8-9DnN8dw6t6vDn3Ifrni2so-0B_PYehoR7crX_maSypuuWstMVvdtxYWw7Q"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzMzU0fQ.IcRIt1I1DXcbubX4AoEKt2ksWoSKVgmNP9EBCmjY2jj3ctjzQ9mpNTS6uxmL9VqjLcl2U89wk7f7SKZi-2OPxlY_tChEF9zABMK9IwsMknY_gdMqGgV2H17gco96DVAyY70UIaQkR83j9myVxIky3zH5gmAPmYS6QoY32DpZzlCGY51H96S_NliMQbhVX-35NrrlWXe8aWbB2xHLibsPkZaKpDk3FvUPqhDtNjwBgazwGK_XpoVVS0hcDWodEsKnTLFZYsLav4-pq--KjkMlvVp7afzS4w9YEbKndyHP1lLiGcnE7TW3A3sXJ66KIay00y2BJTs67sS3b6-WKTIMNQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYzODUzfQ.VIjEDSQKiAiFKd4kwkWyUCnwPUYC8h5Uq963fZjSIp7Q19YMLdpfF0SzgR4PaBy2nAczFK63Dy_tB9155rW-sJdsNz85MzcqsRUBapqxFNLF2oQSakKFC7g-aR2Pb-w8v-DaPAhYtnKbuObNuRkCgFD-9bjyToh408wYVwtvrm0JNXxtyvg4_tnzXqeXAfv4Fieh9T9TD4KrFg0w8BaeejX82OIJi2LBUvCP34UKBtfQqkmSRz0F75YC9uGb5WcEVQu9k-fq0jKsOIj7cSFKT8o4u5cI7lQfQWW-l-myHUMpGxyKJbE2pvjGuUYq3ELwAIsNEp2UeSveaO3wOwA-8Q"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjMzNTR9.TIy9lAJpuZvdd2w4b3YrOMTbg5TliekPhv-db0vQPvx3Rax3PflQ0MVBzIIDDDfTZawmMficvIW5njbClSr7HU2pSTo7YQ83Rmi9wlg73bMA0xmnxBIsHiCSh7rH5JiXVOlsnWTcOfzbv5WRxia2w933iPZOGSZ36IywoThsMnCkf2bLSiECVPa0U7uyhlywqVX_h0-IVqC-XEoOz-UgaxSIN6IgPqJJhbu7D6t2kWzEZ75i3lhhgAS3tNtEkyRXFNpnF5k38SZFqbZ7sIECqxVV-Bz3iYVybztcaX9awz6vo9HD87Idlb00HxBlLbIHYu52_Im2PqLIpSPhQkIFOQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjM4NTN9.R-Ml0MnQwSYKFUIcYWa4WPnlh77-0ZTKGlOoADUwyCZxkv7gmA9IHtqdPKBRlqwf6gA9feI1uCA1P7c4-kJ6lnAqzIJ-dhj-dL6ugNN24d5eA3UDqQVhARSe3_7xnTVYa3YihXOB9BXHTZRG8F8PiVaN9OHarw68zhFWq33vvT3GCVtOIMoZxG5i7m3NqNu5KqBT-LfrBIIJKa1hNq0GJzar-ZGdQsQ_Xenf-h7CheqKlWPzyIwoRLnqafr0rrmfzwUNluEuWt9dDa9cLYwSyFWdQDCairD4G46ql374bMggZWyUKsYYvrpfGPRs-O_O9JC7VtC90F10paDKH8n7sg"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjMzNTR9.oaahOvAEGIgVXd6kayAp9ui4BAw5NdrQjDLRMGYVUAJinYl-JAlzYIBjGJI6igGfdr9kLqoKhuy4izvZqZ_HnAximrkbwo0rzGR-5IMpxO_sCmgCtxrT2fCKQNWC3LGBlkxEnezQu4e1kMCN06N248tzR5xkf6o109ZB7z0xekuqhmwVh2w1e0N9RHsQZH3nz4NZG0U4rap8La3Byfu6bMSCAd32KTAq3RizA7fntiCcAC9HPy84FDhYSici_Ug1c_hFM231nJhZq8oUY06LrVJEQo-Dq7JbsfIPD60VDYe-qRoQxJEyn_DUiYsue6O-unDiadHCFZ8JCi_FX_OMLQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjM4NTN9.OlMHmncvR5TvkHF8WBnnEBUJQ0rO88SHpVaW-EPCfHmnutjO4etp0tdm4J5K2_WMcqAxYaQQWC7B3g3bW7ppzL0ZvXHbji3xLADariSbLFW0NKccOyzw6DlfVmpCqkfUFX6FKTrk4DmAqHAVh8Gbqsffkx-0pDQCQ9IgeZbuj9DLkB2oj37On--dlKwd39mzBlxVe5OGywnlt6pPsZUE3to0soluL-tF1iNRYieMt_k-nXQZVwl65I9dqC9626TB29cfKA-tRzalIHuMDQdpr18unlrYxExwdUEImpTeY3zG2YQM2k4uCv64BoEC0Cq3AVS_qLx_nSNQgHV29TXEzg"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -7805,9 +7792,9 @@ paths:
       description: |-
         **Caso de uso:** CU-USR-02
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-USR-02"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters: []
@@ -8156,6 +8143,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponseDTO"
               examples:
+                archivar-desactiva-los-tokens-y-conserva-el-responsable:
+                  summary: "Archivar desactiva los tokens y conserva el responsable"
+                  value:
+                    codigo: "ACCESS_TOKEN_INVALIDO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Token de acceso personal inválido"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
                 sin-sesion:
                   summary: "Sin sesion"
                   value:
@@ -8268,9 +8264,9 @@ paths:
       description: |-
         **Caso de uso:** CU-USR-01
 
-        **Permiso:** `SYSADMIN`
+        **Permiso:** `SYSADMIN, ADMIN`
       x-caso-de-uso: "CU-USR-01"
-      x-permiso: "SYSADMIN"
+      x-permiso: "SYSADMIN, ADMIN"
       security:
       - bearer: []
       parameters:
@@ -8336,6 +8332,441 @@ paths:
                     traceId: "0000000000000000"
                 uuid-inexistente:
                   summary: "Uuid inexistente (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /usuario/{uuid}/archivar:
+    post:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.archivar"
+      summary: "Archiva un usuario: no ingresa más, sus tokens se desactivan y sus tareas conservan el responsable"
+      description: |-
+        **Caso de uso:** CU-USR-04
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-04"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del usuario"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioDTO"
+              examples:
+                archivar-desactiva-los-tokens-y-conserva-el-responsable:
+                  summary: "Archivar desactiva los tokens y conserva el responsable (SYSADMIN)"
+                  value:
+                    contrasena: null
+                    email: "a-archivar@example.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombreDeUsuario: "a-archivar"
+                    status: -1
+                    telefono: "3815550000"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`, `USUARIO_NO_SE_ARCHIVA_A_SI_MISMO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                archivar-dos-veces-rechazado:
+                  summary: "Archivar dos veces rechazado (SYSADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                nadie-se-archiva-a-si-mismo:
+                  summary: "Nadie se archiva a si mismo (SYSADMIN)"
+                  value:
+                    codigo: "USUARIO_NO_SE_ARCHIVA_A_SI_MISMO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No podés archivar tu propio usuario."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                solo-el-super-admin-suma-personas-al-grupo-administradores:
+                  summary: "Solo el super admin suma personas al grupo administradores (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                un-administrador-no-modifica-al-super-admin:
+                  summary: "Un administrador no modifica al super admin (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /usuario/{uuid}/grupos:
+    get:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.grupos"
+      summary: "Lista los grupos de un usuario"
+      description: |-
+        **Caso de uso:** CU-USR-21
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-21"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del usuario"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/GrupoDeUsuarioDTO"
+              examples:
+                un-administrador-administra-usuarios-comunes:
+                  summary: "Un administrador administra usuarios comunes (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    nombre: "CLIENTE"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000009"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                grupos-de-un-usuario-inexistente:
+                  summary: "Grupos de un usuario inexistente (ADMIN)"
+                  value:
+                    codigo: "REGISTRO_NO_ENCONTRADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+    post:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.asignarGrupos"
+      summary: "Reemplaza los grupos de un usuario (los del sistema solo los maneja el super admin)"
+      description: |-
+        **Caso de uso:** CU-USR-22
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-22"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del usuario"
+        schema:
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioAsignarGruposRequestDTO"
+            examples:
+              un-administrador-administra-usuarios-comunes:
+                summary: "Un administrador administra usuarios comunes (ADMIN)"
+                value:
+                  grupos:
+                  - "90000000-0000-4000-8000-000000000009"
+              asignar-reemplaza-los-grupos-y-rechaza-uno-inexistente-2:
+                summary: "Asignar reemplaza los grupos y rechaza uno inexistente (2) (ADMIN)"
+                value:
+                  grupos: []
+              asignar-reemplaza-los-grupos-y-rechaza-uno-inexistente-3:
+                summary: "Asignar reemplaza los grupos y rechaza uno inexistente (3) (ADMIN)"
+                value:
+                  grupos:
+                  - "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              solo-el-super-admin-suma-personas-al-grupo-administradores:
+                summary: "Solo el super admin suma personas al grupo administradores (ADMIN)"
+                value:
+                  grupos:
+                  - "90000000-0000-4000-8000-000000000102"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/GrupoDeUsuarioDTO"
+              examples:
+                un-administrador-administra-usuarios-comunes:
+                  summary: "Un administrador administra usuarios comunes (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    nombre: "CLIENTE"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000009"
+                asignar-reemplaza-los-grupos-y-rechaza-uno-inexistente:
+                  summary: "Asignar reemplaza los grupos y rechaza uno inexistente (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    nombre: "CLIENTE"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000009"
+                asignar-reemplaza-los-grupos-y-rechaza-uno-inexistente-2:
+                  summary: "Asignar reemplaza los grupos y rechaza uno inexistente (2) (ADMIN)"
+                  value: []
+                solo-el-super-admin-suma-personas-al-grupo-administradores-2:
+                  summary: "Solo el super admin suma personas al grupo administradores (2) (SYSADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    nombre: "ADMIN"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000102"
+        "400":
+          description: "Errores: `RELACION_NO_ENCONTRADA`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                asignar-reemplaza-los-grupos-y-rechaza-uno-inexistente-3:
+                  summary: "Asignar reemplaza los grupos y rechaza uno inexistente (3) (ADMIN)"
+                  value:
+                    codigo: "RELACION_NO_ENCONTRADA"
+                    datos:
+                      campo: "grupos"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No existe el registro relacionado indicado"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                solo-el-super-admin-suma-personas-al-grupo-administradores:
+                  summary: "Solo el super admin suma personas al grupo administradores (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                un-administrador-no-modifica-al-super-admin:
+                  summary: "Un administrador no modifica al super admin (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /usuario/{uuid}/restaurar:
+    post:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.restaurar"
+      summary: "Restaura un usuario archivado (sus tokens anteriores siguen desactivados)"
+      description: |-
+        **Caso de uso:** CU-USR-23
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-23"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid del usuario"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioDTO"
+              examples:
+                restaurar-devuelve-al-usuario:
+                  summary: "Restaurar devuelve al usuario (SYSADMIN)"
+                  value:
+                    contrasena: null
+                    email: "a-restaurar@example.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombreDeUsuario: "a-restaurar"
+                    status: 0
+                    telefono: "3815550000"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                restaurar-devuelve-al-usuario-2:
+                  summary: "Restaurar devuelve al usuario (2) (SYSADMIN)"
                   value:
                     codigo: "REGISTRO_NO_ENCONTRADO"
                     errores: []
@@ -8671,6 +9102,30 @@ components:
           - "string"
           - "null"
           description: "Valor como texto; se convierte al tipo del atributo. En in/not in es una lista JSON"
+      additionalProperties: false
+    GrupoDeUsuarioDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del grupo"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
     HistorialDTO:
       type: "object"
@@ -9782,6 +10237,33 @@ components:
           - "null"
           description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
+    UsuarioAsignarGruposRequestDTO:
+      type: "object"
+      properties:
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        grupos:
+          description: "Uuids de los grupos que va a tener el usuario. Reemplaza la lista anterior; vacía le quita todos"
+          type: "array"
+          items:
+            type: "string"
+            description: "Uuids de los grupos que va a tener el usuario. Reemplaza la lista anterior; vacía le quita todos"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "grupos"
+      additionalProperties: false
     UsuarioDTO:
       type: "object"
       properties:
@@ -9988,6 +10470,16 @@ x-catalogo-de-errores:
   mensajePorDefecto: "Google no responde. Volvé a intentar en unos minutos."
   cuando: "Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde"
   origen: "CodigoDeErrorDelProyecto"
+- codigo: "GRUPO_DEL_SISTEMA"
+  status: 400
+  mensajePorDefecto: "Los grupos del sistema no se archivan."
+  cuando: "Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "GRUPO_REPETIDO"
+  status: 400
+  mensajePorDefecto: "Ya hay un grupo con ese nombre."
+  cuando: "Al crear o editar un grupo, ya hay otro vigente con ese nombre"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "HOOK_NO_IMPLEMENTADO"
   status: 500
   mensajePorDefecto: "No implementado"
@@ -10163,3 +10655,8 @@ x-catalogo-de-errores:
   mensajePorDefecto: "El usuario no está pendiente de verificación"
   cuando: "Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado)"
   origen: "CodigoDeErrorIdentity"
+- codigo: "USUARIO_NO_SE_ARCHIVA_A_SI_MISMO"
+  status: 400
+  mensajePorDefecto: "No podés archivar tu propio usuario."
+  cuando: "Al archivar un usuario se eligió el propio usuario de la sesión: nadie se archiva a sí mismo"
+  origen: "CodigoDeErrorDelProyecto"
