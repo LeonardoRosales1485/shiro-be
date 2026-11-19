@@ -1,5 +1,6 @@
 package com.blue.open.Code.ReglaPermiso;
 
+import com.blue.open.Code.Autorizacion.ReglaDeUnUsuario;
 import com.blue.open.Code.Autorizacion.ReglaEvaluable;
 import com.blue.open.Core.Kernel.Repository.EntidadRepositoryBorradoLogico;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,18 @@ public interface ReglaPermisoRepository extends EntidadRepositoryBorradoLogico<R
             + "WHERE r.status = 0 AND (u.id = :usuario OR ro.id IN "
             + "(SELECT ur.rol.id FROM UsuarioRol ur WHERE ur.idUsuario = :usuario AND ur.status = 0))")
     List<ReglaEvaluable> reglasDelUsuario(@Param("usuario") Long usuario);
+
+    // Reglas vigentes de usuarios puntuales sobre el proyecto o sobre alguno de sus tableros
+    @Query("SELECT new com.blue.open.Code.Autorizacion.ReglaDeUnUsuario(u.id, true, p.id, t.id, r.nivel, r.efecto) "
+            + "FROM ReglaPermiso r JOIN r.usuario u LEFT JOIN r.proyecto p LEFT JOIN r.tablero t "
+            + "WHERE r.status = 0 AND (p.id = :proyecto OR t.proyecto.id = :proyecto)")
+    List<ReglaDeUnUsuario> reglasDeUsuariosDelProyecto(@Param("proyecto") Long proyecto);
+
+    // Reglas vigentes de grupos sobre el proyecto o sobre alguno de sus tableros, una por cada integrante vigente
+    @Query("SELECT new com.blue.open.Code.Autorizacion.ReglaDeUnUsuario(ur.idUsuario, false, p.id, t.id, r.nivel, r.efecto) "
+            + "FROM ReglaPermiso r JOIN r.rol ro JOIN UsuarioRol ur ON ur.rol.id = ro.id LEFT JOIN r.proyecto p LEFT JOIN r.tablero t "
+            + "WHERE r.status = 0 AND ur.status = 0 AND (p.id = :proyecto OR t.proyecto.id = :proyecto)")
+    List<ReglaDeUnUsuario> reglasDeGruposDelProyecto(@Param("proyecto") Long proyecto);
 
     // Si ya hay otra regla vigente con el mismo sujeto, recurso y nivel. Recibe los ids de grupo, usuario, proyecto y
     // tablero (-1 si la regla no tiene ese dato) y el id de la regla que se guarda (-1 en un alta)

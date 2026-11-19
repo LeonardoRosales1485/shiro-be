@@ -41,4 +41,11 @@ public interface UsuarioRepository extends EntidadRepositoryBorradoLogico<Usuari
 
     // Usuarios por uuid, en una consulta (usuarios importados de Jira, F4)
     List<Usuario> findByUuidIn(Collection<String> uuids);
+
+    // Usuarios vigentes, por nombre de usuario
+    List<Usuario> findByStatusOrderByNombreDeUsuario(Integer status);
+
+    // Ids de los usuarios vigentes del grupo del super admin o de Administradores, que acceden a todo
+    @Query("SELECT ur.idUsuario FROM UsuarioRol ur JOIN ur.rol r WHERE ur.status = 0 AND r.status = 0 AND r.nombre IN :grupos")
+    List<Long> idsDeLosGrupos(@Param("grupos") Collection<String> grupos);
 }

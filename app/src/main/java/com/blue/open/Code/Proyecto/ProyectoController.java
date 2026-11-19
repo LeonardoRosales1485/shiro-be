@@ -4,6 +4,7 @@ import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoArchivarUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoBacklogUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoOrdenarBacklogUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoRestaurarUseCase;
+import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoUsuariosUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -41,6 +42,8 @@ public class ProyectoController {
     private final ProyectoBacklogUseCase backlogUseCase;
 
     private final ProyectoOrdenarBacklogUseCase ordenarBacklogUseCase;
+
+    private final ProyectoUsuariosUseCase usuariosUseCase;
 
     // Obtiene un proyecto con sus tableros. Responde el ProyectoDTO
     @GetMapping("/uuid/{uuid}")
@@ -94,5 +97,13 @@ public class ProyectoController {
     public ResponseEntity<List<ProyectoBacklogResponseDTO>> ordenarBacklog(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid,
             @Valid @RequestBody ProyectoOrdenarBacklogRequestDTO dto) {
         return new ResponseEntity<>(ordenarBacklogUseCase.ejecutar(uuid, dto), HttpStatus.OK);
+    }
+
+    // Usuarios con acceso al proyecto, para elegir el responsable de una tarea. Responde la lista por nombre de usuario
+    @GetMapping("/{uuid}/usuarios")
+    @Contrato(casoDeUso = "CU-PRY-06", resumen = "Usuarios con acceso a un proyecto, para elegir el responsable de una tarea (exige VER en el proyecto)",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<ProyectoUsuarioResponseDTO>> usuarios(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(usuariosUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }
