@@ -6,6 +6,7 @@ import com.blue.open.Core.Test.Peticion;
 import com.blue.open.Core.Test.PruebaDeContrato;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import tools.jackson.databind.JsonNode;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 /**
  * CU-ARC-01: busqueda de lo archivado (POST /archivo/paginar). T5.4 del plan y Spec 3: busca lo archivado de
- * cualquier tipo (tareas, proyectos, sprints, versiones y usuarios) segun permisos: cada elemento aparece si el
+ * cualquier tipo (tareas, proyectos, sprints, versiones y usuarios) con quien lo archivo (T6.4), segun permisos: cada elemento aparece si el
  * usuario tiene ARCHIVAR sobre su recurso (los usuarios, solo para administradores). Filtra por tipo y texto.
  */
 class OperacionDeArchivoBuscarContratoTest extends PruebaDeContrato {
@@ -60,6 +61,17 @@ class OperacionDeArchivoBuscarContratoTest extends PruebaDeContrato {
         String visto = buscar(con(jwt), null, null).toString();
         assertTrue(visto.contains(tarea), visto);
         assertFalse(buscar(con(jwt), "USUARIO", null).toString().contains("\"tipo\":\"USUARIO\""));
+    }
+
+    @Test
+    void cadaElementoDiceQuienLoArchivo() {
+        String tarea = tarea("Archivada por alguien");
+        como(ADMIN).post("/tarea/{uuid}/archivar", tarea).preparacion().ejecutar().esperar(200);
+
+        JsonNode encontrada = buscar(como(ADMIN), "TAREA", "por alguien").get(0);
+
+        assertEquals(tarea, encontrada.get("uuid").asString());
+        assertFalse(encontrada.get("archivadoPorNombre").isNull(), encontrada::toString);
     }
 
     // POST /archivo/paginar con el tipo y el texto si no son null; responde el contenido
