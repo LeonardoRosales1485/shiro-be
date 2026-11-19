@@ -8,6 +8,9 @@ description = "JWT de ejemplo firmados con la clave de prueba: los genera la sui
 paths = [
   '''^docs/api/''',
   '''^app/src/test/java/com/blue/open/Code/Usuario/AuthJwtServiceDePrueba\.java$''',
-  # JWT inventado con firma "firma" (no es valido): prueba que /mcp rechaza un JWT en vez de un token de acceso
-  '''^app/src/test/java/com/blue/open/Code/Common/Mcp/McpSeguridadTest\.java$''',
 ]
+
+[[allowlists]]
+description = "Tokens de acceso de los seeds de ejemplo (contexto seed, solo local y pruebas; en servidor no se cargan): aparecen en los ejemplos de curl de la documentacion y en las pruebas"
+regexTarget = "line"
+regexes = ['''(sysadmin|demo|cliente)-access-token''']
