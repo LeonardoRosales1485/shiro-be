@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Caso de uso: backlog de un proyecto (T5.1): sus tareas sin sprint de todos los tableros, sin epicas ni subtareas,
+ * Caso de uso: backlog de un proyecto (T5.1): sus tareas sin sprint de todos los tableros y de todos los tipos (resolucion B21),
  * en el orden unico del proyecto. Exige VER en el proyecto.
  * Dependencias externas: la base de datos.
  * Recibe: uuid del proyecto. Responde: lista de TareaDeBacklogDTO. Lanza REGISTRO_NO_ENCONTRADO o SIN_PERMISO.

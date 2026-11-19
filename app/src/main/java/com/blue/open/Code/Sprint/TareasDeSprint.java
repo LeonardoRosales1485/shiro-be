@@ -26,8 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TareasDeSprint {
 
-    private static final int NIVEL_DEL_BACKLOG = 2;
-
     private final SprintRepository sprintRepository;
 
     private final TareaRepository tareaRepository;
@@ -54,13 +52,12 @@ public class TareasDeSprint {
         return sprint;
     }
 
-    // Tareas vigentes de nivel 2 del proyecto del sprint. Lanza TAREA_FUERA_DEL_BACKLOG si alguna no lo es
+    // Tareas vigentes del proyecto del sprint, de cualquier tipo. Lanza TAREA_FUERA_DEL_BACKLOG si alguna no lo es
     public List<Tarea> tareasDelProyecto(Sprint sprint, List<String> uuids) {
         List<Tarea> tareas = new ArrayList<>();
         for (String uuid : uuids) {
             Tarea tarea = tareaRepository.findFirstByUuidAndStatus(uuid, 0)
                     .filter(t -> t.getProyecto().getId().equals(sprint.getProyecto().getId()))
-                    .filter(t -> t.getTipo().getNivel() == NIVEL_DEL_BACKLOG)
                     .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_FUERA_DEL_BACKLOG,
                             "TareasDeSprint | tarea " + uuid).conDato("tareaUuid", uuid));
             tareas.add(tarea);

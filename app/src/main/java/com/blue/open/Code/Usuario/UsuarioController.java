@@ -5,6 +5,7 @@ import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioRestaurarUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioSesionGruposUseCase;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Service.AuthService;
 import com.blue.open.Core.Identity.Service.CookiesDeSesion;
@@ -55,6 +56,8 @@ public class UsuarioController {
     private final UsuarioGruposUseCase gruposUseCase;
 
     private final UsuarioAsignarGruposUseCase asignarGruposUseCase;
+
+    private final UsuarioSesionGruposUseCase sesionGruposUseCase;
 
     // Obtiene un usuario por su uuid. Responde el UsuarioDTO
     @GetMapping("/uuid/{uuid}")
@@ -117,6 +120,14 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> sesion() {
         UsuarioBase usuarioActual = authService.autenticar();
         return ResponseEntity.ok(service.obtenerPorUuid(usuarioActual.getUuid()));
+    }
+
+    // Grupos del usuario de la sesion y si es administrador. Responde UsuarioSesionGruposResponseDTO
+    @GetMapping("sesion/grupos")
+    @Contrato(casoDeUso = "CU-USR-24", resumen = "Grupos del usuario de la sesión y si es administrador (requiere sesión, sin permiso puntual)",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<UsuarioSesionGruposResponseDTO> sesionGrupos() {
+        return ResponseEntity.ok(sesionGruposUseCase.ejecutar());
     }
 
     // Ingresa con el ID token de Google. Publico. Responde el JWT y su refresh token, como iniciar-sesion, y los

@@ -21,6 +21,7 @@ import com.blue.open.Code.Tarea.TareaEtiquetaDTO;
 import com.blue.open.Code.Tarea.TareaEtiquetaRepository;
 import com.blue.open.Code.Tarea.TareaRepository;
 import com.blue.open.Code.Tarea.TareaService;
+import com.blue.open.Code.TipoTarea.TipoTareaRepository;
 import com.blue.open.Code.Version.EstadoDeVersion;
 import com.blue.open.Code.Version.TareaVersion;
 import com.blue.open.Code.Version.TareaVersionRepository;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -41,7 +43,7 @@ import java.util.Set;
  * siempre; el resto segun la seleccion (por defecto descripcion, prioridad y etiquetas). El clon nace como cualquier
  * alta (TareaService.guardar: clave nueva, estado inicial del tablero de destino, informante = quien clona). Los
  * comentarios copiados conservan autor, fecha y canal; las subtareas se clonan, con la misma seleccion, como hijas
- * del clon en el tablero de destino. El clon no hereda el padre, salvo el de una Subtarea. El original y el clon quedan vinculados con una relacion CLONA, que muestra el
+ * del clon en el tablero de destino. El clon no hereda el padre; el de una Subtarea es una tarea propia o subtarea de otra, a eleccion. El original y el clon quedan vinculados con una relacion CLONA, que muestra el
  * estado del otro, y el clon deja una fila CLONAR en su historial.
  * Dependencias externas: la base de datos.
  * Recibe: uuid de la tarea y TareaClonarRequestDTO. Responde: TareaDTO del clon. Lanza REGISTRO_NO_ENCONTRADO,
@@ -54,6 +56,9 @@ public class TareaClonarUseCase {
     private static final int VIGENTE = 0;
 
     private static final int NIVEL_SUBTAREA = 3;
+
+    // Nivel de las tareas sin padre obligatorio que puede ser el clon de una Subtarea: Historia, Tarea y Bug
+    private static final int NIVEL_DE_TAREA_PROPIA = 2;
 
     private final TareaRepository tareaRepository;
 
@@ -77,6 +82,8 @@ public class TareaClonarUseCase {
 
     private final ResolutorDePermisosDeRecurso permisos;
 
+    private final TipoTareaRepository tipoTareaRepository;
+
     @Transactional
     public TareaDTO ejecutar(String uuid, TareaClonarRequestDTO dto) {
         Tarea original = tareaRepository.findFirstByUuidAndStatus(uuid, VIGENTE)
@@ -90,9 +97,11 @@ public class TareaClonarUseCase {
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TABLERO_DE_OTRO_PROYECTO,
                     "TareaClonarUseCase | ejecutar | tarea " + original.getClave() + " | tablero " + destino.getUuid());
         Set<DatoAClonar> copiar = Set.copyOf(dto.getCopiar() == null ? DatoAClonar.POR_DEFECTO : dto.getCopiar());
-        // El clon no hereda el padre, salvo una Subtarea, que no puede quedar sin padre (adenda 4 del DAF)
-        String padreUuid = original.getTipo().getNivel() == NIVEL_SUBTAREA ? original.getPadre().getUuid() : null;
-        Tarea clon = clonar(original, destino, copiar, padreUuid);
+        // El clon no hereda el padre. Una Subtarea no puede quedar sin padre (adenda 4 del DAF): quien clona elige si
+        // el clon es una tarea propia de nivel 2 o una subtarea de otra tarea (resolucion A2 del 19/11)
+        Tarea clon = original.getTipo().getNivel() == NIVEL_SUBTAREA
+                ? clonar(original, destino, copiar, destinoDeSubtarea(original, dto))
+                : clonar(original, destino, copiar, new DestinoDelClon(original.getTipo().getCodigo(), null));
         vinculador.vincular(original, clon, TipoDeRelacion.CLONA);
         historial.registrar(Historial.TAREA, clon.getUuid(), AccionDeHistorial.CLONAR, null, null, original.getClave());
         return proyector.porUuid(Tarea.class, clon.getUuid(), TareaDTO.class)
@@ -102,12 +111,12 @@ public class TareaClonarUseCase {
 
     // Crea el clon de la tarea en el tablero (hijo del padre recibido, o sin padre) y, si se pidio, sus comentarios y
     // sus subtareas. Responde la tarea clonada
-    private Tarea clonar(Tarea original, Tablero destino, Set<DatoAClonar> copiar, String padreUuid) {
+    private Tarea clonar(Tarea original, Tablero destino, Set<DatoAClonar> copiar, DestinoDelClon destinoDelClon) {
         TareaDTO alta = new TareaDTO();
         alta.setTableroUuid(destino.getUuid());
-        alta.setTipoCodigo(original.getTipo().getCodigo());
+        alta.setTipoCodigo(destinoDelClon.tipoCodigo());
         alta.setTitulo(original.getTitulo());
-        alta.setPadreUuid(padreUuid);
+        alta.setPadreUuid(destinoDelClon.padreUuid());
         if (copiar.contains(DatoAClonar.DESCRIPCION))
             alta.setDescripcion(original.getDescripcion());
         if (copiar.contains(DatoAClonar.PRIORIDAD))
@@ -128,7 +137,7 @@ public class TareaClonarUseCase {
             copiarComentarios(original, clon);
         if (copiar.contains(DatoAClonar.SUBTAREAS)) {
             for (Tarea hija : tareaRepository.findByPadreInAndStatus(List.of(original), VIGENTE))
-                clonar(hija, destino, copiar, uuidDelClon);
+                clonar(hija, destino, copiar, new DestinoDelClon(hija.getTipo().getCodigo(), uuidDelClon));
         }
         return clon;
     }
@@ -164,5 +173,31 @@ public class TareaClonarUseCase {
             copia.setIdUsuarioDeCreacion(usuarioActual.getIdUsuarioActual());
             comentarioRepository.save(copia);
         }
+    }
+
+    /*
+     * Tipo y padre del clon de una Subtarea: tarea propia (tipoCodigo de nivel 2, sin padre) o subtarea de otra tarea
+     * (padreUuid; TareaService valida que sea del proyecto y de nivel menor). Lanza CLON_DE_SUBTAREA_SIN_DESTINO si no
+     * viene ninguno o vienen los dos, y TIPO_DE_CLON_INVALIDO si el tipo no es de nivel 2.
+     */
+    private DestinoDelClon destinoDeSubtarea(Tarea original, TareaClonarRequestDTO dto) {
+        boolean conTipo = dto.getTipoCodigo() != null && !dto.getTipoCodigo().isBlank();
+        boolean conPadre = dto.getPadreUuid() != null && !dto.getPadreUuid().isBlank();
+        if (conTipo == conPadre)
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.CLON_DE_SUBTAREA_SIN_DESTINO,
+                    "TareaClonarUseCase | destinoDeSubtarea | " + original.getClave());
+        if (conPadre)
+            return new DestinoDelClon(original.getTipo().getCodigo(), dto.getPadreUuid());
+        String tipo = dto.getTipoCodigo().toUpperCase(Locale.ROOT);
+        boolean nivelDos = tipoTareaRepository.findFirstByCodigoAndStatus(tipo, VIGENTE).filter(t -> t.getNivel() == NIVEL_DE_TAREA_PROPIA).isPresent();
+        if (!nivelDos)
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TIPO_DE_CLON_INVALIDO, "TareaClonarUseCase | destinoDeSubtarea | tipo " + tipo);
+        return new DestinoDelClon(tipo, null);
+    }
+
+    /**
+     * Tipo y padre (o null) con que se crea un clon.
+     */
+    private record DestinoDelClon(String tipoCodigo, String padreUuid) {
     }
 }

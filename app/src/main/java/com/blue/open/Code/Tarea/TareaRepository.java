@@ -45,17 +45,17 @@ public interface TareaRepository extends EntidadRepositoryBorradoLogico<Tarea> {
     // Cantidad de tareas del proyecto con el status recibido (vista previa de archivar un proyecto)
     long countByProyectoAndStatus(Proyecto proyecto, Integer status);
 
-    // Backlog del proyecto (T5.1): tareas vigentes de nivel 2 (historias, tareas y bugs) en su orden unico; las que
+    // Backlog del proyecto (T5.1 y resolucion B21): tareas vigentes sin sprint de todos los tipos, en su orden unico; las que
     // nadie ordeno todavia van al final, por numero
     @Query("SELECT new com.blue.open.Code.Tarea.TareaDeBacklogDTO(t.uuid, t.clave, t.titulo, ti.codigo, e.nombre, tt.codigo, "
             + "t.prioridad, t.puntos, r.nombre) FROM Tarea t JOIN t.tipo ti JOIN t.estado e JOIN t.tablero tb "
             + "JOIN tb.tipoTablero tt LEFT JOIN t.responsable r "
-            + "WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 AND t.sprint IS NULL "
+            + "WHERE t.proyecto = :proyecto AND t.status = 0 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
     List<TareaDeBacklogDTO> backlogDe(@Param("proyecto") Proyecto proyecto);
 
     // Las mismas tareas del backlog, como entidades, en el mismo orden (para reordenarlas)
-    @Query("SELECT t FROM Tarea t JOIN t.tipo ti WHERE t.proyecto = :proyecto AND t.status = 0 AND ti.nivel = 2 AND t.sprint IS NULL "
+    @Query("SELECT t FROM Tarea t WHERE t.proyecto = :proyecto AND t.status = 0 AND t.sprint IS NULL "
             + "ORDER BY CASE WHEN t.ordenBacklog IS NULL THEN 1 ELSE 0 END, t.ordenBacklog, t.numero")
     List<Tarea> tareasDelBacklog(@Param("proyecto") Proyecto proyecto);
 

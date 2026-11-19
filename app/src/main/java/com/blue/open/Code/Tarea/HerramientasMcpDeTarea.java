@@ -175,18 +175,23 @@ public class HerramientasMcpDeTarea {
 
     /*
      * Clona una tarea a un tablero del mismo proyecto. copiar elige que datos se copian ademas de titulo y tipo; si no
-     * viene, descripcion, prioridad y etiquetas. Exige VER en el original y EDITAR en el destino.
+     * viene, descripcion, prioridad y etiquetas. Una Subtarea pide tipo (tarea propia) o padre (subtarea de otra).
+     * Exige VER en el original y EDITAR en el destino.
      */
     @McpTool(name = "clonar_tarea", description = "Clona una tarea a otro tablero del mismo proyecto, eligiendo qué datos se copian.")
     @Transactional
     public RespuestaDeHerramienta clonarTarea(
             @McpToolParam(description = "Clave de la tarea original", required = true) String clave,
             @McpToolParam(description = "Tablero de destino: PRINCIPAL, QA, ANALISIS o DISENO", required = true) String tablero,
-            @McpToolParam(description = "Qué copiar además de título y tipo: DESCRIPCION, PRIORIDAD, ETIQUETAS, PUNTOS, RESPONSABLE, VERSIONES, COMENTARIOS, SUBTAREAS. Si no viene: DESCRIPCION, PRIORIDAD y ETIQUETAS", required = false) List<String> copiar) {
+            @McpToolParam(description = "Qué copiar además de título y tipo: DESCRIPCION, PRIORIDAD, ETIQUETAS, PUNTOS, RESPONSABLE, VERSIONES, COMENTARIOS, SUBTAREAS. Si no viene: DESCRIPCION, PRIORIDAD y ETIQUETAS", required = false) List<String> copiar,
+            @McpToolParam(description = "Solo si la original es una Subtarea y el clon queda como tarea propia: HISTORIA, TAREA o BUG", required = false) String tipo,
+            @McpToolParam(description = "Solo si la original es una Subtarea y el clon cuelga de otra tarea: la clave de esa tarea", required = false) String padre) {
         Tarea original = referencias.tarea(clave);
         TareaClonarRequestDTO pedido = new TareaClonarRequestDTO();
         pedido.setTableroUuid(referencias.tablero(original.getProyecto(), tablero).getUuid());
         pedido.setCopiar(copiar == null ? null : copiar.stream().map(dato -> DatoAClonar.valueOf(dato.toUpperCase(Locale.ROOT))).toList());
+        pedido.setTipoCodigo(tipo);
+        pedido.setPadreUuid(padre == null ? null : referencias.tarea(padre).getUuid());
         TareaDTO clon = clonarUseCase.ejecutar(original.getUuid(), pedido);
         return new RespuestaDeHerramienta("Clonada " + original.getClave() + " como " + clon.getClave(), clon);
     }

@@ -64,7 +64,7 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     GRUPO_REPETIDO(HttpStatus.BAD_REQUEST, "Ya hay un grupo con ese nombre."),
     @Descripcion("Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva")
     GRUPO_DEL_SISTEMA(HttpStatus.BAD_REQUEST, "Los grupos del sistema no se archivan."),
-    @Descripcion("Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada, con sprint, épica o subtarea)")
+    @Descripcion("Al ordenar el backlog se mandó una tarea que no está en el backlog del proyecto (de otro proyecto, archivada o con sprint)")
     TAREA_FUERA_DEL_BACKLOG(HttpStatus.BAD_REQUEST, "Una de las tareas no está en el backlog del proyecto."),
     @Descripcion("Al guardar un sprint, la fecha de fin es anterior a la de inicio")
     SPRINT_FECHAS_INVALIDAS(HttpStatus.BAD_REQUEST, "La fecha de fin del sprint no puede ser anterior a la de inicio."),
@@ -102,6 +102,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     IMPORTACION_SIN_MAPEO(HttpStatus.BAD_REQUEST, "Antes de importar hay que mapear los tableros, estados y tipos."),
     @Descripcion("Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine")
     IMPORTACION_EN_CURSO(HttpStatus.CONFLICT, "La importación está en curso. Esperá a que termine."),
+    @Descripcion("Al clonar una Subtarea no se eligió (o se eligieron los dos) si el clon queda como tarea propia (tipoCodigo) o como subtarea de otra tarea (padreUuid)")
+    CLON_DE_SUBTAREA_SIN_DESTINO(HttpStatus.BAD_REQUEST, "Elegí si el clon queda como tarea propia, con su tipo, o como subtarea de otra tarea."),
+    @Descripcion("Al clonar una Subtarea como tarea propia se eligió un tipo que no es Historia, Tarea o Bug")
+    TIPO_DE_CLON_INVALIDO(HttpStatus.BAD_REQUEST, "Como tarea propia, el clon puede ser Historia, Tarea o Bug."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

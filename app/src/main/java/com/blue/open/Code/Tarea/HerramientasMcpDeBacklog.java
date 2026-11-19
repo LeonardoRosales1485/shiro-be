@@ -27,7 +27,7 @@ public class HerramientasMcpDeBacklog {
     private final TareaOrdenarBacklogUseCase ordenarUseCase;
 
     // Backlog del proyecto en su orden unico
-    @McpTool(name = "ver_backlog", description = "Muestra el backlog de un proyecto: historias, tareas y bugs sin sprint, en su orden único.")
+    @McpTool(name = "ver_backlog", description = "Muestra el backlog de un proyecto: las tareas sin sprint de todos los tipos, en su orden único.")
     public RespuestaDeHerramienta verBacklog(@McpToolParam(description = "Prefijo del proyecto", required = true) String proyecto) {
         List<TareaDeBacklogDTO> backlog = backlogUseCase.ejecutar(referencias.proyecto(proyecto).getUuid());
         return new RespuestaDeHerramienta(backlog.size() + " tareas en el backlog de " + proyecto.toUpperCase(), backlog);
