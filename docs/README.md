@@ -9,7 +9,8 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - Modelo monoempresa (`core-monoempresa`): un usuario tiene roles directos, sin empresas. Los roles hacen de grupos de Shiro.
 - `nombreDeUsuario` obligatorio.
 - Un usuario nuevo entra sin roles: no ve nada hasta que un administrador le asigna grupos (spec, Spec 2). Por eso no hay rol por defecto.
-- Ingreso: `jwt` (sesión web), `basic` (cuentas locales) y `tokens` (MCP). El ingreso con Google se agrega en F2.
+- Ingreso: `jwt` (sesión web), `basic` (cuentas locales) y `tokens` (MCP).
+- Ingreso con Google (`POST /usuario/ingresar-con-google`, público): recibe el ID token de Google Identity Services, valida firma, emisor, audiencia (client id configurado), vencimiento, correo verificado y dominio (`hd`), busca el usuario vigente por correo o lo crea sin roles ni contraseña, y responde el JWT del Core como `iniciar-sesion`. Errores: `TOKEN_DE_GOOGLE_INVALIDO` (401), `DOMINIO_DE_GOOGLE_NO_PERMITIDO` (403), `GOOGLE_NO_CONFIGURADO` y `GOOGLE_NO_DISPONIBLE` (503). Un usuario archivado no entra. Se configura con `GOOGLE_CLIENT_ID` y `GOOGLE_DOMINIO`; sin ellos queda deshabilitado.
 - Tokens de acceso (MCP): `POST /usuario/crear-token`, `GET /usuario/tokens` y `DELETE /usuario/borrar-token/{uuid}` (endpoints del Core). La base guarda solo el SHA-256 del token y autentica buscando por ese hash; el token se muestra una única vez, en la respuesta de crear-token, y el listado no lo trae. Borrar un token lo revoca: deja de autenticar al instante (`ACCESS_TOKEN_INVALIDO`). Mientras el Core no publique 4.1.0, la lógica vive en Shiro (`AuthTokenConSha256Service`, que reemplaza al bean del Core).
 - Shiro no tiene registro público ni recuperación de contraseña por email.
 

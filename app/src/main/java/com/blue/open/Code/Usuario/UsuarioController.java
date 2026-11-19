@@ -1,13 +1,18 @@
 package com.blue.open.Code.Usuario;
 
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Identity.Service.AuthService;
+import com.blue.open.Core.Identity.Service.CookiesDeSesion;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
 import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
+import com.blue.open.Core.Protocolo.Jwt.AuthJwtService;
+import com.blue.open.Core.Protocolo.Jwt.JwtTokenDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +29,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UsuarioController {
 
+    // Path de la cookie refresh_token: el mismo que usa el Core para /usuario (context-path /api + ruta usuario)
+    private static final String RUTA_DEL_REFRESH_TOKEN = "/api/usuario";
+
     private final UsuarioService service;
 
     private final AuthService authService;
+
+    private final UsuarioIngresarConGoogleUseCase ingresarConGoogleUseCase;
+
+    private final AuthJwtService authJwtService;
+
+    private final CookiesDeSesion cookiesDeSesion;
 
     // Obtiene un usuario por su uuid. Responde el UsuarioDTO
     @GetMapping("/uuid/{uuid}")
@@ -63,5 +77,22 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> sesion() {
         UsuarioBase usuarioActual = authService.autenticar();
         return ResponseEntity.ok(service.obtenerPorUuid(usuarioActual.getUuid()));
+    }
+
+    // Ingresa con el ID token de Google. Publico. Responde el JWT y su refresh token, como iniciar-sesion, y los
+    // setea como cookies si estan habilitadas
+    @PostMapping("ingresar-con-google")
+    @Contrato(casoDeUso = "CU-USR-20", resumen = "Ingresa con una cuenta de Google de la organización y responde un JWT y su refresh token (también como cookies)",
+            permiso = Contrato.PUBLICO)
+    public ResponseEntity<JwtTokenDTO> ingresarConGoogle(@Valid @RequestBody UsuarioIngresarConGoogleRequestDTO cuerpo) {
+        JwtTokenDTO tokens = ingresarConGoogleUseCase.ejecutar(cuerpo.getIdToken());
+        ResponseEntity.BodyBuilder respuesta = ResponseEntity.ok();
+        if (cookiesDeSesion.isHabilitada()) {
+            respuesta.header(HttpHeaders.SET_COOKIE, cookiesDeSesion.crear(CookiesDeSesion.ACCESS_TOKEN, tokens.getToken(),
+                    authJwtService.getVigenciaDelToken()));
+            respuesta.header(HttpHeaders.SET_COOKIE, cookiesDeSesion.crear(CookiesDeSesion.REFRESH_TOKEN,
+                    tokens.getRefreshToken(), authJwtService.getVigenciaDelRefreshToken(), RUTA_DEL_REFRESH_TOKEN));
+        }
+        return respuesta.body(tokens);
     }
 }

@@ -46,6 +46,14 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     TABLERO_DE_OTRO_PROYECTO(HttpStatus.BAD_REQUEST, "El tablero de destino tiene que ser del mismo proyecto."),
     @Descripcion("Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto")
     RELACION_ENTRE_PROYECTOS(HttpStatus.BAD_REQUEST, "Solo se relacionan tareas del mismo proyecto."),
+    @Descripcion("Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google")
+    TOKEN_DE_GOOGLE_INVALIDO(HttpStatus.UNAUTHORIZED, "No se pudo validar tu cuenta de Google. Volvé a intentar."),
+    @Descripcion("Al ingresar con Google, la cuenta no es del dominio de la organización")
+    DOMINIO_DE_GOOGLE_NO_PERMITIDO(HttpStatus.FORBIDDEN, "Solo pueden ingresar cuentas de Google de la organización."),
+    @Descripcion("El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña")
+    GOOGLE_NO_CONFIGURADO(HttpStatus.SERVICE_UNAVAILABLE, "El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña."),
+    @Descripcion("Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde")
+    GOOGLE_NO_DISPONIBLE(HttpStatus.SERVICE_UNAVAILABLE, "Google no responde. Volvé a intentar en unos minutos."),
     @Descripcion("No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend")
     ERROR_GENERANDO_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Error al generar el email");
 

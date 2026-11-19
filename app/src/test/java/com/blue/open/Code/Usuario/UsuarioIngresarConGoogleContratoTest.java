@@ -6,9 +6,11 @@ import com.blue.open.Core.Test.PruebaDeContrato;
 import com.blue.open.Core.Test.Respuesta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import tools.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,12 +20,16 @@ import static org.mockito.Mockito.when;
 /**
  * CU-USR-20: ingresar con Google (POST /usuario/ingresar-con-google). T2.2 del plan y Spec 2: el front manda el ID
  * token de Google; el backend lo valida, busca o crea el usuario por correo y responde el JWT del Core. Un usuario
- * nuevo entra sin roles. Las claves publicas de Google son un doble: la prueba no llama a Google.
+ * nuevo entra sin roles. Las claves publicas de Google son un doble: la prueba no llama a Google. En el profile test
+ * el JWT de la respuesta es fijo (AuthJwtServiceDePrueba); para usar la sesion se pide uno firmado.
  */
 class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
 
     @MockitoBean
     private ClavesPublicasDeGoogle clavesPublicasDeGoogle;
+
+    @Autowired
+    private AuthJwtServiceDePrueba authJwtService;
 
     @BeforeEach
     void clavesDePrueba() {
@@ -36,11 +42,14 @@ class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
         JsonNode sesion = ingresar(TokensDeGoogleDePrueba.firmar(TokensDeGoogleDePrueba.claimsValidos("nueva@example.com")))
                 .esperar(200).json();
 
-        String jwt = sesion.get("token").asString();
+        assertEquals(AuthJwtServiceDePrueba.JWT, sesion.get("token").asString());
+        JsonNode creados = usuariosConCorreo("nueva@example.com");
+        assertEquals(1, creados.size());
+        String jwt = authJwtService.jwtFirmado(creados.get(0).get("uuid").asString());
         JsonNode usuario = sinAutenticacion().get("/usuario/sesion").encabezado("Authorization", "Bearer " + jwt)
                 .ejecutar().esperar(200).json();
         assertEquals("nueva@example.com", usuario.get("email").asString());
-        assertEquals("Persona de Prueba", usuario.get("nombre").asString());
+        assertEquals("nueva@example.com", usuario.get("nombreDeUsuario").asString());
         sinAutenticacion().post("/proyecto/guardar").encabezado("Authorization", "Bearer " + jwt)
                 .json(Map.of("nombre", "Sin permiso", "prefijo", "SPE")).ejecutar().esperarError(403, "SIN_PERMISO");
     }
@@ -49,10 +58,10 @@ class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
     void elMismoCorreoEntraComoElMismoUsuario() {
         String token = TokensDeGoogleDePrueba.firmar(TokensDeGoogleDePrueba.claimsValidos("repetida@example.com"));
 
-        String primero = uuidDeLaSesion(ingresar(token).esperar(200).json().get("token").asString());
-        String segundo = uuidDeLaSesion(ingresar(token).esperar(200).json().get("token").asString());
+        ingresar(token).esperar(200);
+        ingresar(token).esperar(200);
 
-        assertEquals(primero, segundo);
+        assertEquals(1, usuariosConCorreo("repetida@example.com").size());
     }
 
     @Test
@@ -90,9 +99,10 @@ class UsuarioIngresarConGoogleContratoTest extends PruebaDeContrato {
         return sinAutenticacion().post("/usuario/ingresar-con-google").json(Map.of("idToken", idToken)).ejecutar();
     }
 
-    // Uuid del usuario del JWT recibido
-    private String uuidDeLaSesion(String jwt) {
-        return sinAutenticacion().get("/usuario/sesion").encabezado("Authorization", "Bearer " + jwt).ejecutar()
-                .esperar(200).json().get("uuid").asString();
+    // Usuarios vigentes con el correo recibido (POST /usuario/paginar como super admin)
+    private JsonNode usuariosConCorreo(String email) {
+        return como("SYSADMIN").post("/usuario/paginar").json(Map.of("pagina", 1, "tamano", 10, "filtros",
+                List.of(List.of(Map.of("campo", "email", "operacion", "=", "valor", email))))).preparacion().ejecutar()
+                .esperar(200).json().get("contenido");
     }
 }

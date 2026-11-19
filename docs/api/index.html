@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Contrato de endpoint generado por core-test desde las pruebas de contrato. No se edita a mano. -->
-    <title>API de Open Data 1.0.17</title>
+    <title>API de Open Data 1.0.18</title>
     <style>
         body { margin: 0; padding: 0; }
     </style>
@@ -1868,8 +1868,8 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "API de Open Data",
-    "version" : "1.0.17",
-    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
+    "version" : "1.0.18",
+    "description" : "Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.\n\nContrato generado desde las pruebas de contrato: cada operación, schema y ejemplo salió de ejecutar el endpoint real. No se edita a mano.\n\n## Catálogo de errores\n\nToda respuesta de error trae `codigo`: el front discrimina por ese campo, nunca por `mensajeParaUsuario`.\n\n| Código | HTTP | Mensaje por defecto | Cuándo ocurre |\n|---|---|---|---|\n| `ACCESS_TOKEN_INVALIDO` | 401 | Token de acceso personal inválido | El token de acceso personal del header `Authorization` no existe, fue desactivado o eliminado |\n| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera el tamaño máximo permitido | Un archivo del request (o el request multipart completo) supera el tamaño máximo que acepta el servidor |\n| `BORRADO_LOGICO_TRANSICION_INVALIDA` | 400 | No se puede aplicar ese cambio de estado | Al guardar un registro con un `status` no permitido: reactivar (0) un registro eliminado (-1), o enviar un valor distinto de 0 y -1 |\n| `CODIGO_INVALIDO` | 400 | Código inválido | El código de verificación o de recuperación de contraseña enviado no coincide con el generado |\n| `CODIGO_VENCIDO` | 400 | El código ha expirado | El código de verificación o de recuperación de contraseña venció: hay que pedir uno nuevo |\n| `CODIGO_YA_UTILIZADO` | 400 | El código ya fue utilizado | El código de recuperación de contraseña ya fue usado: hay que pedir uno nuevo |\n| `CONFIGURACIONES_PRIVADAS` | 403 | No tenes permiso para ver estas variables | Se piden varias configuraciones y alguna es privada sin tener permiso para verlas. El mensaje nombra las configuraciones privadas |\n| `CREDENCIALES_INVALIDAS` | 401 | Usuario o contraseña incorrectos | Login con usuario o contraseña incorrectos. No distingue si el usuario no existe o si la contraseña no coincide |\n| `CUERPO_INVALIDO` | 400 | Error con los datos enviados | El body no se puede leer: JSON malformado, o un valor cuyo tipo no corresponde al del campo |\n| `CUIT_INVALIDO` | 400 | CUIT inválido | Al guardar una empresa o en el registro público de usuario y empresa, el CUIT no es válido (dígito verificador incorrecto) |\n| `DATOS_INCOMPLETOS` | 400 | Datos incompletos | Al body le falta un dato obligatorio del flujo de verificación, recuperación de contraseña o registro público (uuid, código, email o los datos de la empresa) |\n| `DEMASIADOS_INTENTOS` | 429 | Por favor espere unos minutos antes de reintentar | Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior |\n| `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |\n| `EMAIL_YA_REGISTRADO` | 400 | Email ya registrado | Al dar de alta un usuario, el email ya lo usa otro usuario activo o pendiente de verificación |\n| `ERROR_GENERANDO_EMAIL` | 500 | Error al generar el email | No se pudo armar el email de registro o de recuperación de contraseña. Es un error del backend |\n| `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |\n| `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |\n| `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |\n| `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |\n| `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |\n| `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |\n| `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |\n| `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |\n| `LOGIN_NO_DISPONIBLE` | 400 | No está disponible este metodo de login | Login con usuario y contraseña cuando el backend no tiene habilitado el protocolo JWT |\n| `MEDIA_TYPE_NO_SOPORTADO` | 415 | Tipo de contenido no soportado | El endpoint no acepta el `Content-Type` del request |\n| `METODO_NO_SOPORTADO` | 405 | Metodo HTTP no soportado | El endpoint existe pero no acepta el método HTTP usado |\n| `NO_AUTENTICADO` | 401 | Usuario no identificado | La request no identifica a ningún usuario (no envió credenciales) y el endpoint exige sesión: hay que iniciar sesión |\n| `ORIGEN_NO_PERMITIDO` | 403 | Origen no permitido | El request se autentica con una cookie de sesión (`access_token` o `refresh_token`) y modifica datos (POST, PUT, PATCH o DELETE) desde un origen que no es el mismo host del backend ni está en `core.protocolo.cookie.origenes-permitidos`. Con el header `Authorization` no ocurre |\n| `PADRE_ARCHIVADO` | 400 | Restaurá primero la tarea padre. | Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave) |\n| `PADRE_DE_OTRO_PROYECTO` | 400 | La tarea padre tiene que ser del mismo proyecto. | Al crear o editar una tarea se eligió como padre una tarea de otro proyecto |\n| `PAGINADO_INVALIDO` | 400 | La consulta de paginado no es valida | La consulta de un paginado no se puede resolver: un campo de filtro u orden que no existe o no se puede filtrar, un operador inválido o un valor que no corresponde al tipo del campo |\n| `PREFIJO_DE_PROYECTO_EN_USO` | 400 | El prefijo ya lo usa otro proyecto. Elegí otro. | Al crear un proyecto, el prefijo ya lo usa otro proyecto, vigente o archivado. Hay que elegir otro |\n| `PREFIJO_DE_PROYECTO_NO_SE_CAMBIA` | 400 | El prefijo no se cambia: lo usan las claves de las tareas existentes. | Al editar un proyecto se mandó un prefijo distinto del actual: el prefijo no se cambia después de crear el proyecto |\n| `REFRESH_TOKEN_FALTANTE` | 400 | Refresh token is missing | El body de la renovación del token no trae el refresh token |\n| `REFRESH_TOKEN_INVALIDO` | 401 | Refresh token inválido o no encontrado | El refresh token enviado no existe, o su usuario no existe o está dado de baja: hay que volver a iniciar sesión |\n| `REFRESH_TOKEN_VENCIDO` | 401 | El refresh token ha expirado. Por favor inicie sesión nuevamente | El refresh token enviado venció: hay que volver a iniciar sesión |\n| `REGISTRO_NO_ENCONTRADO` | 400 | No existe el registro | El registro pedido (por el uuid del path u otro identificador del request) no existe o ya fue eliminado |\n| `RELACION_CONSIGO_MISMA` | 400 | Una tarea no se relaciona consigo misma. | Al relacionar tareas se eligió la misma tarea como origen y destino |\n| `RELACION_ENTRE_PROYECTOS` | 400 | Solo se relacionan tareas del mismo proyecto. | Al relacionar tareas se eligieron tareas de proyectos distintos: las relaciones son dentro de un proyecto |\n| `RELACION_NO_ENCONTRADA` | 400 | No existe el registro relacionado indicado | Al guardar, el uuid de una relación (campo `{relacion}Uuid` del DTO) no corresponde a un registro vigente. `datos.campo` trae el nombre de ese campo |\n| `RELACION_YA_EXISTE` | 400 | Esas tareas ya tienen esa relación. | Al relacionar tareas, ya existe una relación vigente del mismo tipo entre ellas, en cualquier sentido |\n| `SERVICIO_DE_MAIL_NO_DISPONIBLE` | 500 | No se pueden enviar emails | El flujo necesita enviar un código por email y el backend no tiene el envío de emails habilitado |\n| `SIN_PERMISO` | 403 | No tenes permiso para realizar esta accion | El usuario autenticado no tiene el rol o permiso que exige el endpoint, o no puede operar sobre ese registro o esa empresa en particular |\n| `TABLERO_DE_OTRO_PROYECTO` | 400 | El tablero de destino tiene que ser del mismo proyecto. | Al clonar una tarea se eligió un tablero de otro proyecto: se clona a tableros del mismo proyecto |\n| `TABLERO_DE_TAREA_NO_SE_CAMBIA` | 400 | Una tarea no cambia de tablero. Para llevarla a otro tablero, clonala. | Al editar una tarea se mandó un tablero distinto del actual: una tarea no cambia de tablero, se clona |\n| `TAREA_MODIFICADA` | 409 | La tarea cambió mientras la editabas. Recargá y volvé a intentar. | Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar |\n| `TIPO_DE_RELACION_NO_PERMITIDO` | 400 | La relación de clon se crea al clonar la tarea. | Al relacionar tareas se pidió el tipo CLONA: esa relación solo la crea clonar una tarea |\n| `TIPO_DE_TAREA_INEXISTENTE` | 400 | El tipo de tarea no existe. | Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA) |\n| `TOKEN_DE_GOOGLE_INVALIDO` | 401 | No se pudo validar tu cuenta de Google. Volvé a intentar. | Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google |\n| `TOKEN_INVALIDO` | 401 | Token de acceso inválido | El access token HS256 del header `Authorization` no es válido (firma, tipo o usuario asociado). Un token con otro `alg` no es de este protocolo y no recibe este código |\n| `TOKEN_NOMBRE_DUPLICADO` | 400 | Ya existe un token con ese nombre | Al crear un token de acceso personal, el usuario ya tiene otro activo con el mismo nombre |\n| `TOKEN_REQUERIDO` | 401 | Token de acceso requerido | Al conectarse por WebSocket (frame STOMP `CONNECT`) sin el header `Authorization: Bearer {token}` o con el token vacío. Llega como frame `ERROR` de STOMP: hay que iniciar sesión y reconectar con el access token. Un endpoint HTTP sin token responde `NO_AUTENTICADO` |\n| `TOKEN_VENCIDO` | 401 | El token de acceso ha expirado. Por favor inicie sesión nuevamente | El access token del header `Authorization` venció: hay que renovarlo con el refresh token |\n| `USUARIO_NO_PENDIENTE_VERIFICACION` | 400 | El usuario no está pendiente de verificación | Se intenta verificar el código de un usuario que no está pendiente de verificación ni activo (por ejemplo, fue eliminado) |\n"
   },
   "servers" : [ {
     "url" : "/api"
@@ -3347,6 +3347,13 @@
                     "prefijo" : "SHR",
                     "uuid" : "b1000000-0000-4000-8000-000000000001"
                   }
+                },
+                "un-usuario-nuevo-entra-sin-roles" : {
+                  "summary" : "Un usuario nuevo entra sin roles",
+                  "value" : {
+                    "nombre" : "Sin permiso",
+                    "prefijo" : "SPE"
+                  }
                 }
               }
             }
@@ -3761,6 +3768,17 @@
                 "examples" : {
                   "sin-permiso" : {
                     "summary" : "Sin permiso (CLIENTE)",
+                    "value" : {
+                      "codigo" : "SIN_PERMISO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No tienes permiso",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "un-usuario-nuevo-entra-sin-roles" : {
+                    "summary" : "Un usuario nuevo entra sin roles",
                     "value" : {
                       "codigo" : "SIN_PERMISO",
                       "errores" : [ ],
@@ -6644,7 +6662,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 11",
+                        "titulo" : "Alta concurrente 14",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
                         "vencimiento" : null
                       }, {
@@ -6670,7 +6688,7 @@
                         "tableroUuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
                         "tipoCodigo" : "TAREA",
                         "tipoNombre" : "Tarea",
-                        "titulo" : "Alta concurrente 5",
+                        "titulo" : "Alta concurrente 27",
                         "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
                         "vencimiento" : null
                       } ],
@@ -9962,6 +9980,181 @@
         }
       }
     },
+    "/usuario/ingresar-con-google" : {
+      "post" : {
+        "tags" : [ "Usuario" ],
+        "operationId" : "UsuarioController.ingresarConGoogle",
+        "summary" : "Ingresa con una cuenta de Google de la organización y responde un JWT y su refresh token (también como cookies)",
+        "description" : "**Caso de uso:** CU-USR-20\n\n**Pública:** no requiere autenticación.",
+        "x-caso-de-uso" : "CU-USR-20",
+        "security" : [ ],
+        "parameters" : [ ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UsuarioIngresarConGoogleRequestDTO"
+              },
+              "examples" : {
+                "un-token-invalido-rechazado" : {
+                  "summary" : "Un token invalido rechazado",
+                  "value" : {
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjI2MjV9.Ox99WbN1T4vxQKvP2zobfp-NmxWlbU0aw_lHDyr2QMr5iZRJPEOiBvRxK6uqg7yG9vUdumK_zbBQ6iFwwVJ6nYwSNw6BjmeduTnRyLPPZTiuw6AjBCaWSUdCJz2IRW9QtxPLYmwgVCDnBZlTASENozWdaikLwq0sVSNkX7irlFboc6klnslZGkMoL3tPRSlwJPBBbe3H5c72rK93ERXLl48E_2QqnNKQLMm1c7nwaXMk99ul8zHvYpu_YJ_DhKLEtmO1fRTVwooHJIGkB_DCRsg2KhjG_tmMxogMDFf8vKGo0R3QMI6vOUcjujlyHnDNOBP5TJROyohXZyNkPP63tA"
+                  }
+                },
+                "el-mismo-correo-entra-como-el-mismo-usuario" : {
+                  "summary" : "El mismo correo entra como el mismo usuario",
+                  "value" : {
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYyNjI1fQ.YB1KHxHMMgCOAUH9FnEO2EauYNkNULiFVAbXSAZkCdPC1wyshXOLK5LnkUSoOou2b-eNDKU-amFdhIl53SEeXHVSrOSl_1vnw0qKe6tGEtGHUo7nRh8HlmFz0gAkVyJnzz011vTBtrUiRMxJ4SeV3T5oRBkm0bBRb7L9Wawp5FvF2KdjhFDRlRI6Z-FxJScSZZPdLz1xrPuz9G0__LfvVO3lw14RwYnOsJcD7BwHt8E4qp-jTb2_nM_aGHuf5wHMOLVrHQCjVfQAqSTi02Buo3zVk0Mo-drliPq6etV7tLifyvpbdkLBJDO2SWFkGFT5HVHVvpOAlTgdJ6PTOvlYBg"
+                  }
+                },
+                "un-usuario-nuevo-entra-sin-roles" : {
+                  "summary" : "Un usuario nuevo entra sin roles",
+                  "value" : {
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MDYyNjI1fQ.TtCtJnR7mkXpQiTRlOU5efVVApyKplO-fqYinCkedIEekZo-1SfU1ZW5h2IYX2F4J6-wJ5f3ujEbm8z0QXMrW4x24FE5sOBij5kcfwz1Lv_TMRhm_kHAaCRvhiieyRh2uQOvtSjE6moTcyeGV_e89vh3Qz31gN0FvKoZQZJZLK0iURrYPZKlReybKfvzVx5U7_CxgqJjQxN5Ug0yPLyuqVloQoDB4MyQJwYUUrJfFliN7mHX6n0h_eIrjmYSy2hbfNlVU1-E4SkMdeZUqGYycfKYUH_NL9VzGTqOSvNdP9gyBuFemAS2rbg8iYX_m0N9Sk7OZAzXXjLy_oTKxw3ggg"
+                  }
+                },
+                "un-usuario-archivado-no-entra" : {
+                  "summary" : "Un usuario archivado no entra",
+                  "value" : {
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUwNjI2MjV9.CQy0qK60Ah2oRZmsj-lj2UnacJonVXxLiEKd5XXhX-B8r4fN14-GXbNjga4u73qLr36KVjVHjmwq5V4E_N4qiWelynKTqfeiGFEK1HpmVP3v9V8v6k6ALVrkhXFHkNmSYBm2ZhV8Fi-iL8H-sknZ8MZX5PgDIMC_0IhSF9LA6JQFSdfrFvl2YQUZzmNH3OzF1-4Et71gKn5J7lbuVo2HCLLmoG9dJ2-Zp4s9WNe8A3KENNCJ7r-8w04jUauoXP7Haf6i_krrPh5zEcoIjydlM6Ir9Bti5zfzV4Ja3wOFWADXgzqp1zJVdc2bGlWw86y5yw_7goICiyeKDY6WqMfSdg"
+                  }
+                },
+                "una-cuenta-de-otro-dominio-rechazada" : {
+                  "summary" : "Una cuenta de otro dominio rechazada",
+                  "value" : {
+                    "idToken" : "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUwNjI2MjV9.LrHPRfuCOwlURINHqHMbHDxV2OLkBXv1DdzZjpsuKgYqUQinPgQ9Cd-Z0Y8qKZZbAE779uBrz-8IGREvONqXTRso3JTIbmjcHAX9j5TJhDXmMp86nAqeIicAnHtjhSsyYmoiED-2mm5uGl1Q3LgjU6IhlDzRRhww0HDUkB-0rCrBOUv1VDCzuhGWhCifi3_k2o_aDTWs6H1VXlbJl1UM6xD68IuccjT1Hr9xR3uJmPMI408L_rhQyOi0dTWnTLzXbiGXdFcEhzJ12t8naOLaYcuI3Ldg_jluD3Q7-grXrAIlMwUEpdik3GNKr9UGL6esnOzge0_XcCXjQPQTtXd5BA"
+                  }
+                },
+                "sin-token-rechazado" : {
+                  "summary" : "Sin token rechazado",
+                  "value" : { }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JwtTokenDTO"
+                },
+                "examples" : {
+                  "el-mismo-correo-entra-como-el-mismo-usuario" : {
+                    "summary" : "El mismo correo entra como el mismo usuario",
+                    "value" : {
+                      "refreshToken" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "token" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c3VhcmlvLWRlLXBydWViYSJ9.firma-de-prueba"
+                    }
+                  },
+                  "el-mismo-correo-entra-como-el-mismo-usuario-2" : {
+                    "summary" : "El mismo correo entra como el mismo usuario (2)",
+                    "value" : {
+                      "refreshToken" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "token" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c3VhcmlvLWRlLXBydWViYSJ9.firma-de-prueba"
+                    }
+                  },
+                  "un-usuario-nuevo-entra-sin-roles" : {
+                    "summary" : "Un usuario nuevo entra sin roles",
+                    "value" : {
+                      "refreshToken" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+                      "token" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c3VhcmlvLWRlLXBydWViYSJ9.firma-de-prueba"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Errores: `FORMULARIO_INVALIDO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "sin-token-rechazado" : {
+                    "summary" : "Sin token rechazado",
+                    "value" : {
+                      "codigo" : "FORMULARIO_INVALIDO",
+                      "errores" : [ {
+                        "mensaje" : "Falta el token de Google",
+                        "nombre" : "idToken"
+                      } ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Error en el formulario",
+                      "status" : "400 BAD_REQUEST",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Errores: `NO_AUTENTICADO`, `TOKEN_DE_GOOGLE_INVALIDO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "un-token-invalido-rechazado" : {
+                    "summary" : "Un token invalido rechazado",
+                    "value" : {
+                      "codigo" : "TOKEN_DE_GOOGLE_INVALIDO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "No se pudo validar tu cuenta de Google. Volvé a intentar.",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  },
+                  "un-usuario-archivado-no-entra" : {
+                    "summary" : "Un usuario archivado no entra",
+                    "value" : {
+                      "codigo" : "NO_AUTENTICADO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Tu usuario está archivado.",
+                      "status" : "401 UNAUTHORIZED",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Errores: `DOMINIO_DE_GOOGLE_NO_PERMITIDO`",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseDTO"
+                },
+                "examples" : {
+                  "una-cuenta-de-otro-dominio-rechazada" : {
+                    "summary" : "Una cuenta de otro dominio rechazada",
+                    "value" : {
+                      "codigo" : "DOMINIO_DE_GOOGLE_NO_PERMITIDO",
+                      "errores" : [ ],
+                      "fechaHora" : "2026-01-01T12:00:00.000-03:00",
+                      "mensajeParaUsuario" : "Solo pueden ingresar cuentas de Google de la organización.",
+                      "status" : "403 FORBIDDEN",
+                      "traceId" : "0000000000000000"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/usuario/iniciar-sesion" : {
       "post" : {
         "tags" : [ "JwtLogin" ],
@@ -10487,6 +10680,18 @@
                   "$ref" : "#/components/schemas/UsuarioDTO"
                 },
                 "examples" : {
+                  "un-usuario-nuevo-entra-sin-roles" : {
+                    "summary" : "Un usuario nuevo entra sin roles",
+                    "value" : {
+                      "contrasena" : null,
+                      "email" : "nueva@example.com",
+                      "fechaDeCreacion" : "2026-01-01T12:00:00.000-03:00",
+                      "nombreDeUsuario" : "nueva@example.com",
+                      "status" : 0,
+                      "telefono" : null,
+                      "uuid" : "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    }
+                  },
                   "la-cookie-de-acceso-autentica-un-endpoint" : {
                     "summary" : "La cookie de acceso autentica un endpoint",
                     "value" : {
@@ -12181,6 +12386,32 @@
         "required" : [ "email", "nombreDeUsuario" ],
         "additionalProperties" : false
       },
+      "UsuarioIngresarConGoogleRequestDTO" : {
+        "type" : "object",
+        "properties" : {
+          "fechaDeCreacion" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time",
+            "description" : "Fecha y hora de creación del registro (solo lectura)",
+            "pattern" : "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+          },
+          "idToken" : {
+            "type" : "string",
+            "description" : "ID token (JWT) que devuelve Google Identity Services al elegir la cuenta",
+            "minLength" : 1
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "description" : "Identificador público del registro. El id interno nunca se expone"
+          }
+        },
+        "required" : [ "idToken" ],
+        "additionalProperties" : false
+      },
       "UsuarioYContrasenaDTO" : {
         "type" : "object",
         "properties" : {
@@ -12291,6 +12522,12 @@
     "cuando" : "Se pidió un nuevo código de verificación o de recuperación antes de que termine el tiempo de espera desde el anterior",
     "origen" : "CodigoDeErrorIdentity"
   }, {
+    "codigo" : "DOMINIO_DE_GOOGLE_NO_PERMITIDO",
+    "status" : 403,
+    "mensajePorDefecto" : "Solo pueden ingresar cuentas de Google de la organización.",
+    "cuando" : "Al ingresar con Google, la cuenta no es del dominio de la organización",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
     "codigo" : "EMAIL_YA_REGISTRADO",
     "status" : 400,
     "mensajePorDefecto" : "Email ya registrado",
@@ -12326,6 +12563,18 @@
     "mensajePorDefecto" : "Error en el formulario",
     "cuando" : "El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje",
     "origen" : "CodigoDeErrorKernel"
+  }, {
+    "codigo" : "GOOGLE_NO_CONFIGURADO",
+    "status" : 503,
+    "mensajePorDefecto" : "El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña.",
+    "cuando" : "El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "GOOGLE_NO_DISPONIBLE",
+    "status" : 503,
+    "mensajePorDefecto" : "Google no responde. Volvé a intentar en unos minutos.",
+    "cuando" : "Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde",
+    "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "HOOK_NO_IMPLEMENTADO",
     "status" : 500,
@@ -12487,6 +12736,12 @@
     "status" : 400,
     "mensajePorDefecto" : "El tipo de tarea no existe.",
     "cuando" : "Al crear o editar una tarea se mandó un código de tipo que no existe (los tipos son EPICA, HISTORIA, TAREA, BUG y SUBTAREA)",
+    "origen" : "CodigoDeErrorDelProyecto"
+  }, {
+    "codigo" : "TOKEN_DE_GOOGLE_INVALIDO",
+    "status" : 401,
+    "mensajePorDefecto" : "No se pudo validar tu cuenta de Google. Volvé a intentar.",
+    "cuando" : "Al ingresar con Google, el ID token no verifica: firma, emisor, audiencia, vencimiento o correo sin verificar. Hay que volver a iniciar sesión con Google",
     "origen" : "CodigoDeErrorDelProyecto"
   }, {
     "codigo" : "TOKEN_INVALIDO",

@@ -33,6 +33,8 @@ public class Historial extends EntidadBase {
 
     public static final String PROYECTO = "PROYECTO";
 
+    public static final String USUARIO = "USUARIO";
+
     // Entidad que cambio: TAREA, PROYECTO, ...
     private String entidad;
 

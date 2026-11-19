@@ -83,3 +83,9 @@ core:
     usuario-inicial:
       nombre-de-usuario: sysadmin
       contrasena: 123
+# Ingreso con Google (T2.2): configuracion de las pruebas; las claves publicas son un doble y no se llama a Google
+shiro:
+  google:
+    client-id: shiro-pruebas.apps.googleusercontent.com
+    dominio: example.com
+    comprobar-al-iniciar: false
