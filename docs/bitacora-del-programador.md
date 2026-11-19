@@ -122,6 +122,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Decisión | Quién la aprobó |
 | --- | --- | --- |
+| 19/11/2026 | Seguir con las fases siguientes sin esperar aprobación, salvo un bloqueo duro. Bitácora y adendas propuestas en `docs/` de shiro-be; no escribir en Claude Docs hasta que se pida (pedido el 19/11: DAF, plan, bitácora y diseño técnico actualizados; las propuestas 2 a 41 entraron como Adenda 5 del DAF, a confirmar) | Arquitecto |
 | 19/11/2026 | F1 aprobada. Adenda 4 del DAF: archivar un proyecto arrastra todo; Subtarea siempre con padre; padre en cualquier tablero del proyecto; relaciones solo dentro del proyecto; cada autor edita solo sus comentarios; /relacion/crear; rutas /{uuid}/{caso}; el clon no hereda el padre y clona subtareas en todos los niveles | Arquitecto |
 | 18/11/2026 | La bitácora pasa a `shiro-be/docs/bitacora-del-programador.md`. Seguir sin esperar aprobación hasta T1.10; detenerse solo ante un bloqueo fuerte para las tareas siguientes | Arquitecto |
 | 18/11/2026 | Vencimiento de la tarea como fecha sin hora (`LocalDate`, `aaaa-mm-dd`) | Arquitecto |
