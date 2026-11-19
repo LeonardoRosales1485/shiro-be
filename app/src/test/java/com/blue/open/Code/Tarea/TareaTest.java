@@ -34,6 +34,17 @@ class TareaTest {
     }
 
     @Test
+    void numerarImportadaArmaLaClaveDeJira() {
+        Tarea tarea = new Tarea();
+
+        tarea.numerarImportada("SIM", 6, "7");
+
+        assertEquals(6L, tarea.getNumero());
+        assertEquals("J-SIM-7", tarea.getClave());
+        assertThrows(ExcepcionDeApi.class, () -> tarea.numerarImportada("SIM", 7, "8"));
+    }
+
+    @Test
     void archivarYRestaurarCambianElStatusYLaOperacion() {
         Tarea tarea = new Tarea();
 
