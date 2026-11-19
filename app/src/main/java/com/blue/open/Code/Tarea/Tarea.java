@@ -30,8 +30,8 @@ import java.util.List;
 /**
  * Tarea de un tablero (seccion 4 del DAF y Spec 3). Pertenece a un Proyecto y a un Tablero, que no cambia; tiene un
  * TipoTarea, un Estado del tipo de su tablero, un Usuario responsable (opcional) y un Usuario informante, y sus
- * TareaEtiqueta. La clave (SHI-123) es unica: se arma con el prefijo del proyecto y el numero que da su contador.
- * Padre, sprint, versiones, busqueda e id de Jira se suman en las tareas siguientes del plan.
+ * TareaEtiqueta, y una Tarea padre opcional con sus Tarea hijas. La clave (SHI-123) es unica: se arma con el prefijo del proyecto y el numero que da su contador.
+ * Sprint, versiones, busqueda e id de Jira se suman en las tareas siguientes del plan.
  */
 @Setter
 @Getter
@@ -91,6 +91,15 @@ public class Tarea extends EntidadConBorradoLogico {
 
     // Fecha de vencimiento (opcional), sin hora
     private LocalDate vencimiento;
+
+    // Tarea padre (opcional): su tipo tiene un nivel menor y es del mismo proyecto. Lo valida TareaService
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_padre")
+    private Tarea padre;
+
+    // Tareas hijas (las que tienen a esta como padre)
+    @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY)
+    private List<Tarea> hijas = new ArrayList<>();
 
     // Etiquetas de la tarea; las quitadas quedan con status -1
     @OneToMany(mappedBy = "tarea", fetch = FetchType.LAZY)

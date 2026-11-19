@@ -46,6 +46,8 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final TareaEtiquetaRepository tareaEtiquetaRepository;
 
+    private final TareaRepository tareaRepository;
+
     /*
      * Aplica el DTO con las reglas de la tarea. Recibe el DTO validado y la tarea (nueva o vigente). Resuelve el tipo
      * por codigo (TIPO_DE_TAREA_INEXISTENTE), rechaza cambiar el tablero (TABLERO_DE_TAREA_NO_SE_CAMBIA), ignora el
@@ -71,17 +73,20 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         dto.setEstadoUuid(null);
 
         Tarea aplicada = super.hookGuardarAplicarDto(dto, modelo);
+        if (!esAlta) {
+            // Antes de cualquier consulta: una consulta dispara el flush y la tarea no puede quedar sin proyecto
+            aplicada.setProyecto(proyectoActual);
+            aplicada.setEstado(estadoActual);
+        }
         aplicada.setTipo(tipo);
         aplicada.setPrioridad(dto.getPrioridad() != null ? dto.getPrioridad()
                 : esAlta ? PrioridadDeTarea.MEDIA : prioridadActual);
         if (aplicada.getInformante() == null)
             aplicada.setInformante(esAlta ? usuarioDeLaSesion() : informanteActual);
         aplicada.setEtiquetasPedidas(textosDeEtiquetas(dto));
-        if (!esAlta) {
-            aplicada.setProyecto(proyectoActual);
-            aplicada.setEstado(estadoActual);
+        validarJerarquia(aplicada, esAlta);
+        if (!esAlta)
             return aplicada;
-        }
         Tablero tablero = aplicada.getTablero();
         aplicada.setEstado(estadoRepository.findFirstByTipoTableroAndInicialTrueAndStatus(tablero.getTipoTablero(), VIGENTE)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorKernel.ERROR_INTERNO,
@@ -118,6 +123,38 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
             tareaEtiquetaRepository.save(nueva);
         }
         return guardada;
+    }
+
+    /*
+     * Valida la jerarquia (Spec 7): el padre es otra tarea del mismo proyecto, de un tipo de nivel menor; al editar,
+     * ninguna hija vigente queda con un nivel menor o igual al del tipo nuevo. Lanza JERARQUIA_DE_TAREA_INVALIDA o
+     * PADRE_DE_OTRO_PROYECTO.
+     */
+    private void validarJerarquia(Tarea tarea, boolean esAlta) {
+        TipoTarea tipo = tarea.getTipo();
+        Tarea padre = tarea.getPadre();
+        if (padre != null) {
+            Long idProyecto = esAlta ? tarea.getTablero().getProyecto().getId() : tarea.getProyecto().getId();
+            if (!padre.getProyecto().getId().equals(idProyecto))
+                throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.PADRE_DE_OTRO_PROYECTO,
+                        "TareaService | validarJerarquia | padre " + padre.getClave());
+            if (padre.getId().equals(tarea.getId()) || padre.getTipo().getNivel() >= tipo.getNivel())
+                throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JERARQUIA_DE_TAREA_INVALIDA,
+                        conArticulo(tipo, true) + " no puede ir dentro de " + conArticulo(padre.getTipo(), false) + ".",
+                        "TareaService | validarJerarquia | padre " + padre.getClave());
+        }
+        if (!esAlta && tareaRepository.existsByPadreAndStatusAndTipoNivelLessThanEqual(tarea, VIGENTE, tipo.getNivel()))
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.JERARQUIA_DE_TAREA_INVALIDA,
+                    "La tarea tiene hijas que no pueden ir dentro de " + conArticulo(tipo, false) + ".",
+                    "TareaService | validarJerarquia | tarea " + tarea.getClave() + " | tipo " + tipo.getCodigo());
+    }
+
+    // Nombre del tipo con su articulo indefinido ("Una Épica", "un Bug"), para los mensajes al usuario
+    private static String conArticulo(TipoTarea tipo, boolean mayuscula) {
+        String articulo = "BUG".equals(tipo.getCodigo()) ? "un" : "una";
+        if (mayuscula)
+            articulo = Character.toUpperCase(articulo.charAt(0)) + articulo.substring(1);
+        return articulo + " " + tipo.getNombre();
     }
 
     // Usuario de la sesion, que es el informante de una tarea nueva. Lanza NO_AUTENTICADO si no hay sesion

@@ -1,0 +1,26 @@
+# Jerarquia de tareas (T1.4): la tarea padre. El nivel del tipo lo valida TareaService.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-18-tareas-padre-1
+      author: shiro
+      comment: "Agrega id_padre a shr_tarea"
+      changes:
+        - addColumn:
+            tableName: shr_tarea
+            columns:
+              - column: {name: id_padre, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_padre
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_tarea_padre
+        - createIndex:
+            tableName: shr_tarea
+            indexName: ix_shr_tarea_padre
+            columns:
+              - column: {name: id_padre}
+      rollback:
+        - dropColumn:
+            tableName: shr_tarea
+            columnName: id_padre

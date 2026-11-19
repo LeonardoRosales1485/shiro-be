@@ -97,6 +97,18 @@ public class TareaDTO extends EntidadBaseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate vencimiento;
 
+    @Descripcion("Uuid de la tarea padre. Vacío si no tiene. El padre es del mismo proyecto y de un tipo de nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea)")
+    @Columna("padre.uuid")
+    private String padreUuid;
+
+    @Descripcion("Clave de la tarea padre. Solo lectura")
+    @Columna("padre.clave")
+    private String padreClave;
+
+    @Descripcion("Tareas hijas vigentes, por número. Solo lectura")
+    @Coleccion(value = "hijas", orden = "numero")
+    private List<TareaHijaDTO> hijas = new ArrayList<>();
+
     @Descripcion("Etiquetas de la tarea, en orden alfabético. Al guardar reemplaza la lista completa: las que no vienen se quitan")
     @Valid
     @Size(max = 20, message = "Una tarea puede tener hasta 20 etiquetas")

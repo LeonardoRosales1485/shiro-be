@@ -44,6 +44,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Al editar no cambian la clave, el proyecto, el estado (se cambia con mover, T1.5) ni el tablero: mandar otro tablero responde `TABLERO_DE_TAREA_NO_SE_CAMBIA` (para llevarla a otro tablero se clona, T1.10).
 - Tipo inexistente: `TIPO_DE_TAREA_INEXISTENTE`. Tablero inexistente: `RELACION_NO_ENCONTRADA`.
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).
+- Jerarquía (`padreUuid`): Épica, después Historia, Tarea o Bug, después Subtarea. El padre es del mismo proyecto (si no, `PADRE_DE_OTRO_PROYECTO`) y de un tipo de nivel menor; al editar, el tipo nuevo tiene que seguir siendo de nivel menor que el de sus hijas. Si no, `JERARQUIA_DE_TAREA_INVALIDA`. La tarea responde sus `hijas` vigentes. El padre puede estar en otro tablero del mismo proyecto y una Subtarea puede no tener padre (la spec no lo exige).
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).
 - Nada se borra: no hay `/borrar`; archivar y restaurar llegan en T1.8.
 
