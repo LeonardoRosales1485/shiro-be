@@ -20,8 +20,6 @@ local:
       # Ingreso con Google (T2.2): client id OAuth y dominio de Workspace. Vacios: solo cuentas locales
       GOOGLE_CLIENT_ID: ""
       GOOGLE_DOMINIO: ""
-      # Importador de Jira (F4): frase de cifrado del token de Jira. Vacia: importador deshabilitado
-      SHIRO_CIFRADO_FRASE: ""
     postgres_user: shiro
     postgres_db: shiro
     postgres_pass: shiro
