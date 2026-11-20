@@ -4,7 +4,6 @@ import com.blue.open.Code.Autorizacion.EvaluadorDeReglasDePermiso;
 import com.blue.open.Code.Autorizacion.ReglaDeUnUsuario;
 import com.blue.open.Code.Autorizacion.ReglaEvaluable;
 import com.blue.open.Code.Autorizacion.ResolutorDePermisosDeRecurso;
-import com.blue.open.Code.Autorizacion.TableroDeProyecto;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
 import com.blue.open.Code.Proyecto.ProyectoUsuarioResponseDTO;
@@ -59,10 +58,7 @@ public class ProyectoUsuariosUseCase {
         permisos.exigir(NivelDePermiso.VER, proyecto);
         Set<Long> conAcceso = new HashSet<>(usuarioRepository.idsDeLosGrupos(GRUPOS_CON_ACCESO_TOTAL));
         conAcceso.addAll(porReglas(proyecto.getId()));
-        return usuarioRepository.findByStatusOrderByNombreDeUsuario(0).stream()
-                .filter(usuario -> conAcceso.contains(usuario.getId()))
-                .map(usuario -> new ProyectoUsuarioResponseDTO(usuario.getUuid(), usuario.getNombreDeUsuario(), usuario.getNombre()))
-                .toList();
+        return conAcceso.isEmpty() ? List.of() : usuarioRepository.vigentesParaElProyecto(conAcceso);
     }
 
     // Ids de los usuarios que pueden ver el proyecto o alguno de sus tableros por sus reglas o las de sus grupos
@@ -72,8 +68,7 @@ public class ProyectoUsuariosUseCase {
                         reglaPermisoRepository.reglasDeGruposDelProyecto(idProyecto).stream())
                 .collect(Collectors.groupingBy(ReglaDeUnUsuario::idUsuario,
                         Collectors.mapping(ReglaDeUnUsuario::evaluable, Collectors.toList())));
-        List<Long> tableros = tableroRepository.listarVigentesConProyecto().stream()
-                .filter(tablero -> idProyecto.equals(tablero.idProyecto())).map(TableroDeProyecto::idTablero).toList();
+        List<Long> tableros = tableroRepository.idsVigentesDelProyecto(idProyecto);
         return porUsuario.entrySet().stream()
                 .filter(reglas -> EvaluadorDeReglasDePermiso.puede(reglas.getValue(), NivelDePermiso.VER, null, idProyecto)
                         || tableros.stream().anyMatch(tablero ->

@@ -39,22 +39,27 @@ public class AvanceDeImportacion {
 
     private Integer comentariosTotales;
 
+    // Suma una version importada
     public void contarVersion() {
         versiones++;
     }
 
+    // Suma un sprint importado
     public void contarSprint() {
         sprints++;
     }
 
+    // Suma una tarea guardada (creada o actualizada)
     public void contarTarea() {
         tareas++;
     }
 
+    // Suma una tarea de la que ya se leyeron los comentarios de Jira
     public void contarTareaConComentariosLeidos() {
         tareasConComentariosLeidos++;
     }
 
+    // Suma un comentario procesado (nuevo o ya importado antes)
     public void contarComentario() {
         comentarios++;
     }
