@@ -8,6 +8,7 @@ import com.blue.open.Code.Sprint.SprintRepository;
 import com.blue.open.Code.Sprint.TareaDeSprintCerradoRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
+import com.blue.open.Core.Kernel.Proyeccion.Proyector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,15 +30,16 @@ public class SprintCierreUseCase {
 
     private final ResolutorDePermisosDeRecurso permisos;
 
+    private final Proyector proyector;
+
     @Transactional(readOnly = true)
     public SprintCierreResponseDTO ejecutar(String uuid) {
         Sprint sprint = sprintRepository.findFirstByUuidAndStatus(uuid, 0)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "SprintCierreUseCase | sprint " + uuid));
         permisos.exigir(NivelDePermiso.VER, sprint.getProyecto());
-        SprintCierreResponseDTO cierre = new SprintCierreResponseDTO();
-        cierre.setUuid(sprint.getUuid());
-        cierre.setFechaDeCierre(sprint.getFechaDeCierre());
-        cierre.setCerradoPorNombre(sprint.getCerradoPor() == null ? null : sprint.getCerradoPor().getNombre());
+        // Quien y cuando salen de la proyeccion; las tareas, de la foto del cierre
+        SprintCierreResponseDTO cierre = proyector.porUuid(Sprint.class, uuid, SprintCierreResponseDTO.class)
+                .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "SprintCierreUseCase | proyeccion " + uuid));
         cierre.setTareas(cierres.tareasDelCierre(sprint));
         return cierre;
     }

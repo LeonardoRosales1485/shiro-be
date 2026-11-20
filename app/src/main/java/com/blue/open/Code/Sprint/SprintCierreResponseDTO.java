@@ -1,6 +1,7 @@
 package com.blue.open.Code.Sprint;
 
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
+import com.blue.open.Core.Kernel.Proyeccion.Columna;
 import com.blue.open.Core.Kernel.DTO.EntidadBaseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -21,12 +22,14 @@ import java.util.List;
 public class SprintCierreResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Nombre del usuario que cerró el sprint. Vacío si no está cerrado")
+    @Columna("cerradoPor.nombre")
     private String cerradoPorNombre;
 
     @Descripcion("Fecha y hora del cierre. Vacía si no está cerrado")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
     private Timestamp fechaDeCierre;
 
+    // Las completa SprintCierreUseCase con TareaDeSprintCerradoRepository.tareasDelCierre (no es una relacion del sprint)
     @Descripcion("Tareas que tenía el sprint al cerrarse, por número, con su estado al cerrar y su destino")
     private List<SprintCierreTareaDTO> tareas = new ArrayList<>();
 }
