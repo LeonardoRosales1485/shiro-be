@@ -190,11 +190,8 @@ public class ImportadorDeJira {
             if (enShiro.getEstado() != EstadoDeVersion.PUBLICADA) {
                 enShiro.setProyecto(contexto.getProyecto());
                 enShiro.setNombre(version.nombre());
-                if (version.publicada()) {
-                    enShiro.setEstado(EstadoDeVersion.PUBLICADA);
-                    enShiro.setFechaDePublicacion(version.fecha() == null ? LocalDate.now(ZONA) : version.fecha());
-                    enShiro.setChangelog("Versión importada de Jira.");
-                }
+                if (version.publicada())
+                    enShiro.publicar(version.fecha() == null ? LocalDate.now(ZONA) : version.fecha(), "Versión importada de Jira.", null);
                 auditar(enShiro, nueva, contexto.idUsuario());
                 enShiro = versionRepository.save(enShiro);
             }
@@ -270,7 +267,7 @@ public class ImportadorDeJira {
             contexto.setSprintActivo(enShiro);
         else if (activo == enShiro)
             contexto.setSprintActivo(null);
-        enShiro.setEstado(estado);
+        enShiro.importarEstado(estado);
     }
 
     // Completa el usuario de creacion o de actualizacion

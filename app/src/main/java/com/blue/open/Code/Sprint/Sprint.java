@@ -48,7 +48,8 @@ public class Sprint extends EntidadConBorradoLogico {
     // Fecha de fin planificada, sin hora
     private LocalDate fin;
 
-    // Estado del sprint. Solo lo cambian iniciar y cerrar
+    // Estado del sprint. Solo lo cambian iniciar, cerrar y la importacion de Jira
+    @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     private EstadoDeSprint estado = EstadoDeSprint.PLANIFICADO;
 
@@ -69,6 +70,24 @@ public class Sprint extends EntidadConBorradoLogico {
     // Valores antes de editarlo, para el historial. No se persiste: lo completa SprintService
     @Transient
     private Map<String, String> valoresAnteriores = new LinkedHashMap<>();
+
+    /*
+     * Inicia el sprint planificado. Invariante: solo se inicia un sprint planificado; si no, lanza ExcepcionDeApi con
+     * SPRINT_NO_PLANIFICADO. Que no haya otro activo en el proyecto lo controla el caso de uso (necesita la base).
+     */
+    public void iniciar() {
+        if (estado != EstadoDeSprint.PLANIFICADO)
+            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_NO_PLANIFICADO, "Sprint | iniciar | " + getUuid() + " en " + estado);
+        this.estado = EstadoDeSprint.ACTIVO;
+    }
+
+    /*
+     * Copia el estado que el sprint tiene en Jira (solo la importacion; un sprint cerrado en Shiro no se reimporta).
+     * Recibe el estado ya resuelto (si el proyecto ya tiene otro activo, llega planificado).
+     */
+    public void importarEstado(EstadoDeSprint deJira) {
+        this.estado = deJira;
+    }
 
     /*
      * Cierra el sprint activo y guarda quien lo cerro y cuando (propuesta 46 resuelta el 19/11). Invariante: solo se

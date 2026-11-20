@@ -43,13 +43,16 @@ public class Version extends EntidadConBorradoLogico {
     private String nombre;
 
     // Estado. Solo lo cambia publicar
+    @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     private EstadoDeVersion estado = EstadoDeVersion.SIN_PUBLICAR;
 
     // Fecha de publicacion elegida al publicar, sin hora; null si no esta publicada
+    @Setter(AccessLevel.NONE)
     private LocalDate fechaDePublicacion;
 
     // Changelog en Markdown guardado al publicar; null si no esta publicada (se arma en el momento)
+    @Setter(AccessLevel.NONE)
     @Column(columnDefinition = "TEXT")
     private String changelog;
 

@@ -34,14 +34,14 @@ public class SprintIniciarUseCase {
     @Transactional
     public SprintDTO ejecutar(String uuid) {
         Sprint sprint = tareasDeSprint.sprint(uuid);
-        if (sprint.getEstado() != EstadoDeSprint.PLANIFICADO)
-            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_NO_PLANIFICADO, "SprintIniciarUseCase | estado " + sprint.getEstado());
-        sprintRepository.findFirstByProyectoAndEstadoAndStatus(sprint.getProyecto(), EstadoDeSprint.ACTIVO, 0).ifPresent(activo -> {
-            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_ACTIVO_EXISTENTE,
-                    "Ya hay un sprint activo en el proyecto: " + activo.getNombre() + ". Cerralo antes de iniciar otro.",
-                    "SprintIniciarUseCase | activo " + activo.getUuid());
-        });
-        sprint.setEstado(EstadoDeSprint.ACTIVO);
+        // Otro activo en el proyecto: solo se busca si este esta planificado (si no, iniciar lanza SPRINT_NO_PLANIFICADO)
+        if (sprint.getEstado() == EstadoDeSprint.PLANIFICADO)
+            sprintRepository.findFirstByProyectoAndEstadoAndStatus(sprint.getProyecto(), EstadoDeSprint.ACTIVO, 0).ifPresent(activo -> {
+                throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.SPRINT_ACTIVO_EXISTENTE,
+                        "Ya hay un sprint activo en el proyecto: " + activo.getNombre() + ". Cerralo antes de iniciar otro.",
+                        "SprintIniciarUseCase | activo " + activo.getUuid());
+            });
+        sprint.iniciar();
         sprintRepository.save(sprint);
         historial.registrar(Historial.SPRINT, uuid, AccionDeHistorial.EDITAR, "estado", EstadoDeSprint.PLANIFICADO.name(),
                 EstadoDeSprint.ACTIVO.name());
