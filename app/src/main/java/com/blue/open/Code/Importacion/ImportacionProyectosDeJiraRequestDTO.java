@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ImportacionProyectosRequestDTO extends EntidadBaseDTO {
+public class ImportacionProyectosDeJiraRequestDTO extends EntidadBaseDTO {
 
     @Descripcion("URL del sitio de Jira Cloud: solo https://{sitio}.atlassian.net")
     @NotBlank(message = "Escribí la URL de Jira")
@@ -31,7 +31,7 @@ public class ImportacionProyectosRequestDTO extends EntidadBaseDTO {
     @Size(max = 255, message = "El correo puede tener hasta 255 caracteres")
     private String correo;
 
-    @Descripcion("Token de API de Jira de esa cuenta. Se guarda cifrado y nunca se devuelve")
+    @Descripcion("Token de API de Jira de esa cuenta. Se usa solo para esta lectura: no se guarda ni se devuelve")
     @NotBlank(message = "Escribí el token de API de Jira")
     @Size(max = 512, message = "El token puede tener hasta 512 caracteres")
     private String token;

@@ -111,7 +111,7 @@ public class ImportacionController {
     @PostMapping("/proyectos-de-jira")
     @Contrato(casoDeUso = "CU-IMP-08", resumen = "Prueba la conexión con Jira y lista los proyectos visibles con esas credenciales (no guarda el token)",
             permiso = {SYSADMIN, ADMIN})
-    public ResponseEntity<List<ProyectoDeJiraDTO>> proyectosDeJira(@Valid @RequestBody ImportacionProyectosRequestDTO dto) {
+    public ResponseEntity<List<ImportacionProyectosDeJiraResponseDTO>> proyectosDeJira(@Valid @RequestBody ImportacionProyectosDeJiraRequestDTO dto) {
         return new ResponseEntity<>(proyectosDeJiraUseCase.ejecutar(dto), HttpStatus.OK);
     }
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ProyectoDeJiraDTO extends EntidadBaseDTO {
+public class ImportacionProyectosDeJiraResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Clave del proyecto en Jira (PTR): es la que se manda al conectar")
     private String clave;
@@ -22,7 +22,7 @@ public class ProyectoDeJiraDTO extends EntidadBaseDTO {
     private String nombre;
 
     // Proyecto con su clave y su nombre
-    public ProyectoDeJiraDTO(String clave, String nombre) {
+    public ImportacionProyectosDeJiraResponseDTO(String clave, String nombre) {
         this.clave = clave;
         this.nombre = nombre;
     }

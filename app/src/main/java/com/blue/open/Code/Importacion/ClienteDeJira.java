@@ -61,13 +61,13 @@ public class ClienteDeJira {
     }
 
     // Proyectos visibles con las credenciales (clave y nombre), todas las paginas, en el orden de Jira
-    public List<ProyectoDeJiraDTO> proyectos(CredencialesDeJira credenciales) {
-        List<ProyectoDeJiraDTO> proyectos = new ArrayList<>();
+    public List<ImportacionProyectosDeJiraResponseDTO> proyectos(CredencialesDeJira credenciales) {
+        List<ImportacionProyectosDeJiraResponseDTO> proyectos = new ArrayList<>();
         boolean ultima = false;
         while (!ultima) {
             JsonNode pagina = obligatorio(credenciales, "/rest/api/3/project/search?maxResults=50&startAt=" + proyectos.size());
             JsonNode valores = pagina.path("values");
-            valores.forEach(p -> proyectos.add(new ProyectoDeJiraDTO(p.path("key").asString(), p.path("name").asString())));
+            valores.forEach(p -> proyectos.add(new ImportacionProyectosDeJiraResponseDTO(p.path("key").asString(), p.path("name").asString())));
             ultima = pagina.path("isLast").asBoolean(true) || valores.isEmpty();
         }
         return proyectos;
