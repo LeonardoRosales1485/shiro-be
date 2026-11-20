@@ -42,4 +42,13 @@ class SprintRestaurarContratoTest extends PruebaDeContrato {
         como("CLIENTE").post("/sprint/{uuid}/restaurar", "b6000000-0000-4000-8000-000000000001").ejecutar()
                 .esperarError(400, "REGISTRO_NO_ENCONTRADO");
     }
+
+    @Test
+    void sinEditarEnElProyectoNoSeRestauraUnArchivado() {
+        String sprint = como(ADMIN).post("/sprint/guardar").json(Map.of("proyectoUuid", "b1000000-0000-4000-8000-000000000001", "nombre", "Sprint sin permiso",
+                "inicio", "2026-12-01", "fin", "2026-12-14")).preparacion().ejecutar().esperar(200).json().get("uuid").asString();
+        como(ADMIN).post("/sprint/{uuid}/archivar", sprint).preparacion().ejecutar().esperar(200);
+
+        como("CLIENTE").post("/sprint/{uuid}/restaurar", sprint).ejecutar().esperarError(403, "SIN_PERMISO");
+    }
 }

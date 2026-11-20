@@ -95,4 +95,15 @@ class OperacionDeArchivoVistaPreviaContratoTest extends PruebaDeContrato {
         elementos.forEach(elemento -> uuids.add(elemento.get("uuid").asString()));
         return uuids;
     }
+
+    @Test
+    void unUsuarioArchivadoSoloLoVenLosAdministradores() {
+        String usuario = como(ADMIN).post("/usuario/guardar").json(Map.of("nombreDeUsuario", "vista.previa.usuario", "email", "vista.previa@example.com"))
+                .preparacion().ejecutar().esperar(200).json().get("uuid").asString();
+        como(ADMIN).post("/usuario/{uuid}/archivar", usuario).preparacion().ejecutar().esperar(200);
+
+        como("CLIENTE").get("/archivo/{tipo}/{uuid}/vista-previa", "USUARIO", usuario).ejecutar().esperarError(403, "SIN_PERMISO");
+        assertEquals("vista.previa.usuario", como(ADMIN).get("/archivo/{tipo}/{uuid}/vista-previa", "USUARIO", usuario).ejecutar().esperar(200)
+                .json().get("nombre").asString());
+    }
 }
