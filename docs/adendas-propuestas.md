@@ -118,3 +118,10 @@ Otras resoluciones: el front pregunta si el usuario es administrador con `GET /u
 | 55 (sin avance ni cancelar) | `shr_importacion` guarda el avance (`avance`, JSON: inicio y versiones, sprints, tareas, lectura de comentarios y comentarios hechos de cuántos hay), escrito en su propia transacción a lo sumo una vez por segundo, y `cancelacion_pedida`. `POST /importacion/{uuid}/cancelar` (CU-IMP-07) la marca; la ejecución se corta en el próximo control, no queda nada de esa ejecución (corre en una sola transacción) y pasa a `CANCELADA`. El front muestra hora de inicio, tiempo estimado, porcentaje, conteos y «Cancelar importación» |
 | 56 (listado de administración y cuenta de Shiro) | El super admin aparece en la lista del grupo Administradores («Solo el super admin», sin «Sacar») y cuenta en sus personas. La cuenta de Shiro pide un nombre de usuario propio. La contraseña inicial la genera el backend: `POST /usuario/crear-cuenta` (CU-USR-27) crea la cuenta con sus grupos y responde la contraseña una sola vez |
 
+## Resoluciones del arquitecto sobre las propuestas de T6.6 (20/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 57 (detalle, edición y backlog del teléfono) | Ajustados al prototipo: barra fija con «Comentar» y «Clonar» en el detalle, edición sin etiquetas (con el aviso de que etiquetas, versiones y padre se editan desde la computadora), backlog con filas compactas, la ayuda de «⋯» y «Nueva tarea» fijo |
+| 58 (uso del gato y archivados en el teléfono) | Aprobada tal como está |
+

@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-F6 hecha: T6.1 a T6.6 (con las resoluciones 42 a 56). Decisiones de T6.6 para revisar: adendas propuestas 57 y 58. Sigue F7 (corte)
+F6 hecha: T6.1 a T6.6 (con las resoluciones 42 a 56). Propuestas 57 y 58 resueltas. Sigue F7 (corte)
 
 ## Cierre de F4
 
@@ -83,6 +83,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Tarea | Qué se hizo | Evidencia |
 | --- | --- | --- | --- |
+| 20/11/2026 | Resolución 57 | Teléfono como el prototipo: barra fija con «Comentar» (lleva al nuevo comentario) y «Clonar» en el detalle; la edición deja etiquetas, versiones y padre para la computadora; backlog con filas compactas, la ayuda de «⋯» y «Nueva tarea» fijo (crea en el tablero principal) | Pruebas en rojo (2864b43), 111 pruebas, lint, tipos, 0 duplicados, capturas en teléfono, versión 0.0.11 |
 | 20/11/2026 | T6.6 | Front en teléfono (hasta 760 px): barra superior con menú, título, tema y usuario; menú como cajón sin archivados ni administración (con el aviso de que se usan desde la computadora); tablero con buscador, una pestaña por estado y «Nueva tarea» fijo; acciones de la tarea en una hoja («⋯»); filtros de búsqueda plegables; administración, importación y archivados avisan que se usan desde la computadora. Loaders del diseño: el gato que busca las letras (inicio y carga del espacio, después de medio segundo), el 白 con el avance de la importación, skeletons en listas y botones con «Guardando…» y spinner. Errores de carga con «Reintentar»; el proyecto vacío ofrece importar desde Jira a los administradores | Pruebas en rojo (cb951e4 y b2edc14), 109 pruebas, cobertura de líneas 91,4%, lint, tipos, build, 0 duplicados, capturas en teléfono, versión 0.0.10 |
 | 20/11/2026 | Resoluciones T6.5 | Propuestas 52 a 56 resueltas: POST /importacion/proyectos-de-jira (CU-IMP-08) y «Probar conexión» con lista de proyectos; «Crear cuenta» para las personas de Jira sin cuenta (relee el catálogo); avance de la importación (shr_importacion.avance, en su propia transacción a lo sumo una vez por segundo) y POST /importacion/{uuid}/cancelar (CU-IMP-07, estado CANCELADA, sin dejar nada de esa ejecución); POST /usuario/crear-cuenta (CU-USR-27) con nombre de usuario propio y contraseña generada en el backend; super admin en la lista de Administradores | Pruebas en rojo (8164441 y 90ffaf7), verify 548 pruebas, cobertura 94,2%, versión 1.0.49; front 99 pruebas, lint, tipos, 0 duplicados, versión 0.0.9 |
 | 19/11/2026 | T6.5 | Front: «Usuarios y permisos» (/administracion, solo administradores) con pestañas Usuarios (ingreso, grupos, estado, filtros, cambiar grupos, archivar y restaurar, cuenta de Shiro con contraseña inicial generada), Grupos (personas con fecha de alta, sumar y sacar, nuevo grupo, archivar; Administradores solo lo cambia el super admin), Permisos (matriz por grupo y alcance con permite o niega por nivel, excepciones por usuario con lo que hereda de sus grupos) y Proyectos (tableros, sprint activo, tareas, editar nombre, archivar y restaurar). «Importar desde Jira» (/importar): conexión, tableros, estados y tipos, usuarios y resumen con consulta del estado en curso, e importaciones anteriores. Backend: GET /usuario/administracion (CU-USR-26), nombre en UsuarioDTO y cantidadDeTareas en ProyectoDTO | Pruebas en rojo (cfd921a y 2eda7cd), verify 538 pruebas, cobertura 94,1%, versión 1.0.48; front 98 pruebas, lint, tipos, build, 0 duplicados, capturas, versión 0.0.8 |
@@ -133,6 +134,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Decisión | Quién la aprobó |
 | --- | --- | --- |
+| 20/11/2026 | Propuesta 57: ajustar detalle, edición y backlog del teléfono al prototipo. Propuesta 58: aprobada tal como está | Arquitecto |
 | 20/11/2026 | Propuestas 52 a 56: permisos por nivel independiente (lo dice la spec); lista de proyectos de Jira en el asistente (no una vista «Todos los proyectos» de Shiro); crear cuenta desde la importación; avance y cancelación de la importación; super admin en Administradores, nombre de usuario propio y contraseña generada en el backend | Arquitecto |
 | 19/11/2026 | Seguir con las fases siguientes sin esperar aprobación, salvo un bloqueo duro. Bitácora y adendas propuestas en `docs/` de shiro-be; no escribir en Claude Docs hasta que se pida (pedido el 19/11: DAF, plan, bitácora y diseño técnico actualizados; las propuestas 2 a 41 entraron como Adenda 5 del DAF, a confirmar) | Arquitecto |
 | 19/11/2026 | F1 aprobada. Adenda 4 del DAF: archivar un proyecto arrastra todo; Subtarea siempre con padre; padre en cualquier tablero del proyecto; relaciones solo dentro del proyecto; cada autor edita solo sus comentarios; /relacion/crear; rutas /{uuid}/{caso}; el clon no hereda el padre y clona subtareas en todos los niveles | Arquitecto |
