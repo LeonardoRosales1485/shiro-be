@@ -52,8 +52,6 @@ public class VersionService extends AbstractService<Version, VersionDTO, Version
         String nombreAnterior = modelo.getNombre();
         if (!esAlta)
             dto.setProyectoUuid(modelo.getProyecto().getUuid());
-        dto.setEstado(EstadoDeVersion.SIN_PUBLICAR);
-        dto.setFechaDePublicacion(null);
         Version aplicada = super.hookGuardarAplicarDto(dto, modelo);
         permisos.exigir(NivelDePermiso.EDITAR, aplicada.getProyecto());
         if (!esAlta && !Objects.equals(nombreAnterior, aplicada.getNombre()))

@@ -1,0 +1,35 @@
+# Avance y cancelacion de una importacion de Jira (propuesta 55 resuelta el 20/11): cuanto lleva de cuanto hay, si se
+# pidio cancelarla y el estado CANCELADA.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-20-avance-de-importacion-1
+      author: shiro
+      comment: "Agrega a shr_importacion el avance (JSON) y si se pidio cancelarla"
+      changes:
+        - addColumn:
+            tableName: shr_importacion
+            columns:
+              - column: {name: avance, type: TEXT}
+              - column: {name: cancelacion_pedida, type: BOOLEAN, defaultValueBoolean: false, constraints: {nullable: false}}
+      rollback:
+        - dropColumn:
+            tableName: shr_importacion
+            columns:
+              - column: {name: avance}
+              - column: {name: cancelacion_pedida}
+  - changeSet:
+      id: 2026-11-20-avance-de-importacion-2
+      author: shiro
+      comment: "Suma el estado CANCELADA a shr_importacion"
+      changes:
+        - sql:
+            sql: >-
+              ALTER TABLE shr_importacion DROP CONSTRAINT ck_shr_importacion_estado;
+              ALTER TABLE shr_importacion ADD CONSTRAINT ck_shr_importacion_estado
+              CHECK (estado IN ('CONECTADA', 'MAPEADA', 'EN_CURSO', 'TERMINADA', 'FALLIDA', 'CANCELADA'))
+      rollback:
+        - sql:
+            sql: >-
+              ALTER TABLE shr_importacion DROP CONSTRAINT ck_shr_importacion_estado;
+              ALTER TABLE shr_importacion ADD CONSTRAINT ck_shr_importacion_estado
+              CHECK (estado IN ('CONECTADA', 'MAPEADA', 'EN_CURSO', 'TERMINADA', 'FALLIDA'))

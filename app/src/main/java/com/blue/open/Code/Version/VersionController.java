@@ -6,6 +6,7 @@ import com.blue.open.Code.Version.CasosDeUso.VersionChangelogUseCase;
 import com.blue.open.Code.Version.CasosDeUso.VersionPublicarUseCase;
 import com.blue.open.Code.Version.CasosDeUso.VersionQuitarUseCase;
 import com.blue.open.Code.Version.CasosDeUso.VersionRestaurarUseCase;
+import com.blue.open.Code.Version.CasosDeUso.VersionTareasUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
+
+import java.util.List;
 
 /**
  * Endpoints de versiones (Spec 3, T5.3): ABM sin borrar, asignar y quitar tareas, publicar, changelog en Markdown,
@@ -49,6 +52,8 @@ public class VersionController {
     private final VersionArchivarUseCase archivarUseCase;
 
     private final VersionRestaurarUseCase restaurarUseCase;
+
+    private final VersionTareasUseCase tareasUseCase;
 
     // Obtiene una version. Responde el VersionDTO
     @GetMapping("/uuid/{uuid}")
@@ -114,5 +119,12 @@ public class VersionController {
     @Contrato(casoDeUso = "CU-VER-09", resumen = "Restaura una versión archivada", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> restaurar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Tareas de la version, terminadas o no. Responde la lista por orden de tipo y numero
+    @GetMapping("/{uuid}/tareas")
+    @Contrato(casoDeUso = "CU-VER-10", resumen = "Tareas de una versión, terminadas o no, con su tipo, tablero y estado", permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<VersionTareaResponseDTO>> tareas(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(tareasUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

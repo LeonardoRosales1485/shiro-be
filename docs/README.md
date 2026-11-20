@@ -13,6 +13,8 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - Ingreso con Google (`POST /usuario/ingresar-con-google`, público): recibe el ID token de Google Identity Services, valida firma, emisor, audiencia (client id configurado), vencimiento, correo verificado y dominio (`hd`), busca el usuario vigente por correo o lo crea sin roles ni contraseña, y responde el JWT del Core como `iniciar-sesion`. Errores: `TOKEN_DE_GOOGLE_INVALIDO` (401), `DOMINIO_DE_GOOGLE_NO_PERMITIDO` (403), `GOOGLE_NO_CONFIGURADO` y `GOOGLE_NO_DISPONIBLE` (503). Un usuario archivado no entra. Se configura con `GOOGLE_CLIENT_ID` y `GOOGLE_DOMINIO`; sin ellos queda deshabilitado.
 - Tokens de acceso (MCP): `POST /usuario/crear-token`, `GET /usuario/tokens` y `DELETE /usuario/borrar-token/{uuid}` (endpoints del Core). La base guarda solo el SHA-256 del token y autentica buscando por ese hash; el token se muestra una única vez, en la respuesta de crear-token, y el listado no lo trae. Borrar un token lo revoca: deja de autenticar al instante (`ACCESS_TOKEN_INVALIDO`). Mientras el Core no publique 4.1.0, la lógica vive en Shiro (`AuthTokenConSha256Service`, que reemplaza al bean del Core).
 - Administración (T2.5): usuarios (`/usuario/uuid`, `paginar`, `guardar`) y grupos (`/rol/...`) los administran el super admin y los Administradores. Un Administrador no edita, archiva ni cambia los grupos del super admin ni de otros Administradores, y no asigna ni quita los grupos del sistema (`SYSADMIN`, `ADMIN`): eso lo hace solo el super admin (403 `SIN_PERMISO`).
+- Listado de administración (`GET /usuario/administracion`, CU-USR-26, super admin y Administradores): todos los usuarios vigentes y archivados con nombre, correo, si ingresan con cuenta de Shiro (tienen contraseña) o con Google, si están archivados y sus grupos con la fecha de alta en cada uno. Nunca trae la contraseña. `UsuarioDTO` tiene `nombre` (nombre y apellido); la cuenta de Shiro se crea con `POST /usuario/guardar` usando el correo como nombre de usuario.
+- Crear cuenta de Shiro (`POST /usuario/crear-cuenta`, CU-USR-27, super admin y Administradores): nombre, nombre de usuario, correo y grupos. El backend genera la contraseña inicial (16 caracteres al azar), la guarda hasheada y la responde una sola vez. Los grupos siguen las reglas de asignar grupos (un Administrador no suma al grupo Administradores).
 - Grupos de un usuario: `GET /usuario/{uuid}/grupos` y `POST /usuario/{uuid}/grupos` (lista completa; reemplaza la anterior y archiva las asignaciones quitadas).
 - Archivar un usuario (`POST /usuario/{uuid}/archivar`): ya no ingresa, sus tokens se desactivan y sus tareas conservan el responsable. Nadie se archiva a sí mismo (`USUARIO_NO_SE_ARCHIVA_A_SI_MISMO`). `POST /usuario/{uuid}/restaurar` lo devuelve; los tokens anteriores siguen desactivados.
 - Grupos: el nombre no se repite (`GRUPO_REPETIDO`). `POST /rol/{uuid}/archivar` archiva un grupo; los del sistema no se archivan (`GRUPO_DEL_SISTEMA`). No hay `/borrar` de usuarios ni de grupos.
@@ -24,7 +26,9 @@ La fuente de verdad es el DAF v1.0.0 y la spec técnica aprobada (jerarquía: DA
 - `nombre` obligatorio (hasta 120 caracteres); `descripcion` opcional (hasta 2000).
 - `prefijo`: de 2 a 6 letras, se guarda en mayúsculas. No se repite entre proyectos, tampoco con uno archivado (queda reservado), y no se cambia después de crear el proyecto (adenda 3 del DAF).
 - Al crear un proyecto se generan sus cuatro tableros: Principal, QA, Análisis y Diseño.
+- `ProyectoDTO` trae `cantidadDeTareas` (tareas vigentes, solo lectura) para la administración de proyectos.
 - Archivar (`POST /proyecto/{uuid}/archivar`, con `ARCHIVAR` en el proyecto) arrastra todo lo que hay dentro: tableros, tareas en todos los niveles, comentarios y relaciones, con el mismo id de operación. Restaurar (`POST /proyecto/{uuid}/restaurar`) devuelve lo de esa operación; lo archivado antes por separado queda archivado (adenda 4 del DAF).
+- Usuarios del proyecto (`GET /proyecto/{uuid}/usuarios`, con `VER`): el super admin, los Administradores y quienes ven el proyecto o alguno de sus tableros por sus reglas o las de sus grupos, por nombre de usuario. Cualquier usuario del proyecto elige de esta lista al responsable de una tarea (resolución de la propuesta 42).
 - Nada se borra: no hay `/borrar`.
 
 ## Tableros, estados y tipos de tarea
@@ -52,6 +56,7 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Edición simultánea: al editar se manda `fechaDeActualizacion`, la que se leyó (si falta, `FECHA_DE_LECTURA_OBLIGATORIA`). Si la tarea cambió desde entonces (otra edición, un movimiento), responde 409 `TAREA_MODIFICADA`: hay que recargar y volver a intentar. La fila de la tarea se bloquea mientras se compara, así dos guardados simultáneos con la misma fecha no pasan los dos.
 - Mover (`POST /tarea/{uuid}/mover`, `estadoUuid`): pasa de cualquier estado a cualquier otro de su tablero (las transiciones estrictas quedan para después de la v1). Un estado de otro tablero responde `ESTADO_DE_OTRO_TABLERO`.
 - Tipo inexistente: `TIPO_DE_TAREA_INEXISTENTE`. Tablero inexistente: `RELACION_NO_ENCONTRADA`.
+- La descripción y los comentarios se escriben en Markdown; el front los dibuja sin HTML peligroso (resolución de la propuesta 43). Desde el detalle de una épica se agregan Historias y desde una historia, tarea o bug, Subtareas (propuesta 45).
 - Prioridades: `MAS_ALTA`, `ALTA`, `MEDIA`, `BAJA`, `MAS_BAJA`. Puntos de 0 a 999. Vencimiento: fecha sin hora (`aaaa-mm-dd`).
 - Jerarquía (`padreUuid`): Épica, después Historia, Tarea o Bug, después Subtarea. El padre es del mismo proyecto (si no, `PADRE_DE_OTRO_PROYECTO`) y de un tipo de nivel menor; al editar, el tipo nuevo tiene que seguir siendo de nivel menor que el de sus hijas. Si no, `JERARQUIA_DE_TAREA_INVALIDA`. La tarea responde sus `hijas` vigentes. El padre puede estar en cualquier tablero del mismo proyecto. Una Subtarea tiene siempre padre: al crearla, al editarla y al cambiarle el tipo (adenda 4 del DAF).
 - Etiquetas: hasta 20, de hasta 40 caracteres; al guardar, la lista reemplaza a la anterior. Las quitadas quedan con status -1 (nada se borra).
@@ -83,10 +88,17 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Clonar con `VERSIONES` asigna el clon a las versiones sin publicar del original.
 - Seed: versión 1.0 del proyecto Shiro, sin publicar.
 
+- Tareas de una versión (`GET /version/{uuid}/tareas`, con `VER`): las vigentes asignadas, terminadas o no, con su tipo, tablero y estado, por orden de tipo y número. Las usa el detalle de versiones del front (T6.3).
+
+- Cierre de un sprint (`GET /sprint/{uuid}/cierre`, con `VER`): quién lo cerró, cuándo y, por cada tarea que tenía, su estado y puntos al cerrar y su destino (`TERMINADA`, `BACKLOG` o `SPRINT` con el nombre del sprint). Restaurar un sprint archivado: `POST /sprint/{uuid}/restaurar` (con `EDITAR`), vuelve con el estado que tenía.
+- `VersionDTO` trae `cantidadDeTareas` (vigentes) y `publicadaPorNombre`.
+
 ## Búsqueda
 
 - `POST /tarea/paginar` con el parámetro `texto` (en `parametros`) es la búsqueda de tareas: texto en español sobre la clave, el título y la descripción (con raíces: "tablero" encuentra "tableros"), o la clave exacta, combinable con los filtros. Respeta los permisos como cualquier listado. Usa una columna `tsvector` generada con índice GIN.
 - `POST /archivo/paginar` busca lo archivado de cualquier tipo (tareas, proyectos, sprints, versiones y usuarios), con filtro por tipo y texto: aparece lo que el usuario puede archivar (el tablero de la tarea o el proyecto); los usuarios, solo para administradores. Lo más reciente primero. Cada elemento se restaura en el endpoint de su tipo.
+
+- Parámetros de `/tarea/paginar` además de `texto`: `version` (uuid: las tareas asignadas a esa versión) y `etiqueta` (las que tienen esa etiqueta, sin distinguir mayúsculas). Los archivados (`/archivo/paginar`) traen `archivadoPorNombre` e `incluidos` (tareas archivadas en la misma operación). `GET /archivo/{tipo}/{uuid}/vista-previa` (con `ARCHIVAR`; los usuarios, administradores) dice dónde vuelve un archivado, qué se restaura con él, qué queda archivado y si su padre sigue archivado. En el paginado, varios filtros en un mismo grupo se combinan con O y `is null` sirve para «sin sprint».
 
 ## Comentarios (`Comentario`)
 
@@ -124,10 +136,13 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 
 - Solo el super admin y los Administradores importan. Se conecta con la URL del sitio de Jira, el correo de una cuenta y un token de API de esa cuenta; el token se guarda cifrado (`SHIRO_CIFRADO_FRASE`) y nunca se devuelve. Sin frase de cifrado el importador está deshabilitado.
 - La URL tiene que ser un sitio https de Jira Cloud (`*.atlassian.net`); si no, `JIRA_URL_NO_PERMITIDA`.
+- Probar la conexión (`POST /importacion/proyectos-de-jira`, CU-IMP-08): con URL, correo y token lista los proyectos de Jira visibles (clave y nombre) para elegir cuál importar. No guarda nada.
 - El administrador elige el prefijo del proyecto en Shiro (2 a 6 letras), que no puede usar otro proyecto. Si esa clave de Jira ya se importó, se reusa el mismo proyecto y hay que usar su prefijo (`IMPORTACION_CON_OTRO_PREFIJO`).
 - Al conectar, Shiro responde los tableros, estados (con si Jira los cuenta como terminados), tipos (con el nivel que tendrían en Shiro) y usuarios del proyecto de Jira. Cada usuario se vincula por correo con el de Shiro.
 - El mapeo lleva cada tablero de Jira a un tipo de tablero de Shiro (principal o sub-tablero; varios pueden ir al mismo), cada estado de Jira de ese tablero a un estado de ese tipo de tablero, y cada tipo de Jira a un tipo de Shiro. Un estado o tipo sin equivalente se puede crear (`crear: true`): se suma al catálogo con el nombre de Jira (se reusa uno con el mismo nombre) y aparece en todos los proyectos. El mapeo fija también cuántos días duran los sprints de Jira sin fechas. Solo se importan las tareas de los tableros mapeados.
 - La ejecución corre en segundo plano (una a la vez): crea el proyecto con sus tableros si no existe y trae versiones, sprints, tareas, subtareas, etiquetas y comentarios. Las tareas importadas llevan la clave `J-PREFIJO-número de Jira` (JSIM-7 queda `J-SIM-7`) y toman un número del contador del proyecto, así que las nuevas siguen `PREFIJO-n` sin chocar. Si la clave `J-` ya existe, se usa la clave de Jira entera (`J-SIM-OLD-7`) con una advertencia. Todo queda en el historial con canal IMPORTACION.
+- Avance: mientras corre, la importación guarda en `avance` (JSON) cuándo empezó y cuántas versiones, sprints, tareas y comentarios lleva de cuántos hay (y cuántas tareas tienen sus comentarios leídos de Jira), en su propia transacción y a lo sumo una vez por segundo. Al terminar queda completo.
+- Cancelar (`POST /importacion/{uuid}/cancelar`, CU-IMP-07): marca la importación en curso; la ejecución se corta en su próximo control, no queda nada de esa ejecución y pasa a `CANCELADA`. Solo una importación en curso (`IMPORTACION_NO_EN_CURSO`, 409).
 - Lo que no se puede importar no corta la ejecución: queda en las fallas del resumen (tipo o estado sin mapear, subtarea sin padre importado). Los cambios forzados quedan como advertencias (otra clave, sin padre, sprint activo repetido).
 - Cada persona de Jira sin cuenta en Shiro queda como un usuario sin acceso (sin contraseña ni grupos) llamado «Usuario importado» y su nombre de Jira, con su correo si Jira lo muestra: es responsable de sus tareas y autor de sus comentarios. Si después entra con Google con ese correo, entra como ese usuario.
 - Reimportar (volver a ejecutar, o conectar de nuevo con la misma clave) actualiza lo ya importado sin duplicar: cada elemento de Jira (también los usuarios creados) queda registrado en `shr_mapeo_jira`. Una tarea no cambia de tablero; los comentarios ya importados no se vuelven a traer.
@@ -138,6 +153,10 @@ Catálogos sembrados por Liquibase (`2026-11-18-catalogos.yaml`), de solo lectur
 - Los permisos se declaran en código (`PermisoBaseEnum` del Core y `PermisoEnum` del proyecto) y se sincronizan al arrancar. No se crean, editan ni borran por API.
 - Roles base: `SYSADMIN` (super admin) y `ADMIN`. Los permisos por proyecto y tablero de Shiro (`shr_regla_permiso`) llegan en F2.
 - Un usuario no puede crear un rol ni asignar a otro usuario un rol con permisos que él mismo no tiene (salvo `SYSADMIN`).
+
+## Tokens de acceso
+
+- `GET /usuario/mis-tokens` (con sesión): todos los tokens del usuario, también los revocados, con creación, revocación y último uso. El último uso lo registra la autenticación por token en `shr_uso_de_token`, a lo sumo una vez por minuto por token.
 
 ## MCP
 

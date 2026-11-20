@@ -1,0 +1,19 @@
+# Seeds del ultimo uso de tokens (propuesta 50 resuelta el 19/11): el token demo-access-token se uso el 18/11.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-uso-de-tokens-seed-1
+      author: shiro
+      comment: "Ultimo uso del token del usuario demo"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_uso_de_token WHERE uuid = 'b6200000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_uso_de_token
+            columns:
+              - column: {name: uuid, value: b6200000-0000-4000-8000-000000000001}
+              - column: {name: id_access_token, valueComputed: "(SELECT MIN(t.id) FROM auth_access_tokens t JOIN auth_usuarios u ON u.id = t.id_usuario WHERE u.nombre_de_usuario = 'demo')"}
+              - column: {name: ultimo_uso, valueDate: "2026-11-18T15:40:00"}
+      rollback:
+        - delete: {tableName: shr_uso_de_token, where: "uuid = 'b6200000-0000-4000-8000-000000000001'"}

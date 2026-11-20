@@ -20,9 +20,9 @@ import java.util.Locale;
 @Component
 public class AuthTokenServiceDePrueba extends AuthTokenConSha256Service {
 
-    // Recibe los repositorios que usa AuthTokenConSha256Service
-    public AuthTokenServiceDePrueba(AccessTokenRepository repositorio, UsuarioRepositorio usuarioRepositorio) {
-        super(repositorio, usuarioRepositorio);
+    // Recibe los repositorios y el registro de uso que usa AuthTokenConSha256Service
+    public AuthTokenServiceDePrueba(AccessTokenRepository repositorio, UsuarioRepositorio usuarioRepositorio, RegistroDeUsoDeToken registroDeUso) {
+        super(repositorio, usuarioRepositorio, registroDeUso);
     }
 
     // Codigo fijo del token con el nombre recibido (ej. "Token de prueba" -> "token-de-prueba-token-de-prueba")

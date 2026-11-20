@@ -27,6 +27,12 @@ public interface TareaVersionRepository extends EntidadRepositoryBorradoLogico<T
             + "ORDER BY ti.orden, t.numero")
     List<LineaDeChangelog> lineasDeChangelog(@Param("version") Version version);
 
+    // Tareas vigentes de la version, terminadas o no, por orden de tipo y numero (detalle de versiones del front)
+    @Query("SELECT new com.blue.open.Code.Version.VersionTareaResponseDTO(t.uuid, t.clave, t.titulo, ti.codigo, ti.nombre, tt.codigo, "
+            + "e.nombre, e.terminado) FROM TareaVersion tv JOIN tv.tarea t JOIN t.tipo ti JOIN t.estado e JOIN t.tablero tb "
+            + "JOIN tb.tipoTablero tt WHERE tv.version = :version AND tv.status = 0 AND t.status = 0 ORDER BY ti.orden, t.numero")
+    List<VersionTareaResponseDTO> tareasDe(@Param("version") Version version);
+
     // Asignaciones vigentes de varias tareas, en una consulta (importador, F4)
     List<TareaVersion> findByTareaInAndStatus(Collection<Tarea> tareas, Integer status);
 

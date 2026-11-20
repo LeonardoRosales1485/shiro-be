@@ -100,6 +100,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     IMPORTACION_SIN_MAPEO(HttpStatus.BAD_REQUEST, "Antes de importar hay que mapear los tableros, estados y tipos."),
     @Descripcion("Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine")
     IMPORTACION_EN_CURSO(HttpStatus.CONFLICT, "La importación está en curso. Esperá a que termine."),
+    @Descripcion("Se pidió cancelar una importación que no está en curso (ya terminó, falló o no se ejecutó)")
+    IMPORTACION_NO_EN_CURSO(HttpStatus.CONFLICT, "La importación no está en curso: no hay nada que cancelar."),
+    @Descripcion("La importación se cortó porque un administrador la canceló: no quedó nada de esa ejecución. Queda en el resumen de una importación CANCELADA")
+    IMPORTACION_CANCELADA(HttpStatus.CONFLICT, "Se canceló la importación: no se importó nada de esta ejecución."),
     @Descripcion("Al clonar una Subtarea no se eligió (o se eligieron los dos) si el clon queda como tarea propia (tipoCodigo) o como subtarea de otra tarea (padreUuid)")
     CLON_DE_SUBTAREA_SIN_DESTINO(HttpStatus.BAD_REQUEST, "Elegí si el clon queda como tarea propia, con su tipo, o como subtarea de otra tarea."),
     @Descripcion("Al clonar una Subtarea como tarea propia se eligió un tipo que no es Historia, Tarea o Bug")

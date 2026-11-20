@@ -2,8 +2,11 @@ package com.blue.open.Code.Usuario;
 
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioArchivarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioCrearCuentaUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioListadoDeAdministracionUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioMisTokensUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioRestaurarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioSesionGruposUseCase;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
@@ -58,6 +61,12 @@ public class UsuarioController {
     private final UsuarioAsignarGruposUseCase asignarGruposUseCase;
 
     private final UsuarioSesionGruposUseCase sesionGruposUseCase;
+
+    private final UsuarioMisTokensUseCase misTokensUseCase;
+
+    private final UsuarioListadoDeAdministracionUseCase listadoDeAdministracionUseCase;
+
+    private final UsuarioCrearCuentaUseCase crearCuentaUseCase;
 
     // Obtiene un usuario por su uuid. Responde el UsuarioDTO
     @GetMapping("/uuid/{uuid}")
@@ -145,5 +154,29 @@ public class UsuarioController {
                     tokens.getRefreshToken(), authJwtService.getVigenciaDelRefreshToken(), RUTA_DEL_REFRESH_TOKEN));
         }
         return respuesta.body(tokens);
+    }
+
+    // Mis tokens de acceso, tambien los revocados, con su ultimo uso. Responde la lista, los mas nuevos primero
+    @GetMapping("mis-tokens")
+    @Contrato(casoDeUso = "CU-USR-25", resumen = "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<List<UsuarioTokenResponseDTO>> misTokens() {
+        return new ResponseEntity<>(misTokensUseCase.ejecutar(), HttpStatus.OK);
+    }
+
+    // Listado de administracion: usuarios vigentes y archivados con su ingreso y sus grupos. Responde la lista por nombre
+    @GetMapping("administracion")
+    @Contrato(casoDeUso = "CU-USR-26", resumen = "Usuarios vigentes y archivados con su forma de ingreso y sus grupos, para la administración",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<List<UsuarioAdministracionResponseDTO>> listadoDeAdministracion() {
+        return new ResponseEntity<>(listadoDeAdministracionUseCase.ejecutar(), HttpStatus.OK);
+    }
+
+    // Crea una cuenta de Shiro con contrasena generada y sus grupos. Responde la cuenta con la contrasena, una sola vez
+    @PostMapping("crear-cuenta")
+    @Contrato(casoDeUso = "CU-USR-27", resumen = "Crea una cuenta de Shiro con sus grupos; la contraseña inicial la genera el backend y se responde una sola vez",
+            permiso = {"SYSADMIN", "ADMIN"})
+    public ResponseEntity<UsuarioCrearCuentaResponseDTO> crearCuenta(@Valid @RequestBody UsuarioCrearCuentaRequestDTO dto) {
+        return new ResponseEntity<>(crearCuentaUseCase.ejecutar(dto), HttpStatus.OK);
     }
 }

@@ -70,6 +70,8 @@ public final class JiraSimulado implements AutoCloseable {
         }
         String ruta = intercambio.getRequestURI().getPath();
         String cuerpo = switch (ruta) {
+            case "/rest/api/3/project/search" -> "{\"startAt\":0,\"isLast\":true,\"values\":[{\"id\":\"10000\",\"key\":\"JSIM\",\"name\":\"Proyecto simulado\"},"
+                    + "{\"id\":\"10001\",\"key\":\"OTRO\",\"name\":\"Otro proyecto\"}]}";
             case "/rest/api/3/project/JSIM" -> "{\"id\":\"10000\",\"key\":\"JSIM\",\"name\":\"Proyecto simulado\"}";
             case "/rest/agile/1.0/board" -> "{\"values\":[{\"id\":11,\"name\":\"Desarrollo\",\"type\":\"scrum\"},"
                     + "{\"id\":12,\"name\":\"QA\",\"type\":\"kanban\"}]}";

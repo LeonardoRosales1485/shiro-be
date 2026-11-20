@@ -57,4 +57,16 @@ class EjecucionDeImportacionTest {
         assertTrue(resumen.getValue().contains("ERROR_INTERNO"));
         assertTrue(!resumen.getValue().contains("detalle interno"));
     }
+
+    @Test
+    void unaCancelacionLaDejaCancelada() {
+        doThrow(new ExcepcionDeApi(CodigoDeErrorDelProyecto.IMPORTACION_CANCELADA)).when(importador).importar(1L, 2L);
+
+        ejecucion.correr(1L, "uuid", 2L);
+
+        ArgumentCaptor<String> resumen = ArgumentCaptor.forClass(String.class);
+        verify(repository).marcarCancelada(eq(1L), resumen.capture());
+        verify(repository, never()).marcarFallida(eq(1L), anyString());
+        assertTrue(resumen.getValue().contains("IMPORTACION_CANCELADA"));
+    }
 }

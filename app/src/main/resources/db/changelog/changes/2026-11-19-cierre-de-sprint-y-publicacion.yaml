@@ -1,0 +1,101 @@
+# Datos del cierre de un sprint y de la publicacion de una version (decisiones del 19/11 sobre las propuestas 46 y 47):
+# quien cerro el sprint y cuando, que paso con cada tarea al cerrar, y quien publico la version.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-cierre-de-sprint-1
+      author: shiro
+      comment: "Quien cerro el sprint y cuando"
+      changes:
+        - addColumn:
+            tableName: shr_sprint
+            columns:
+              - column: {name: id_usuario_cierre, type: BIGINT}
+              - column: {name: fecha_de_cierre, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_sprint
+            baseColumnNames: id_usuario_cierre
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_sprint_usuario_cierre
+      rollback:
+        - dropColumn: {tableName: shr_sprint, columnName: id_usuario_cierre}
+        - dropColumn: {tableName: shr_sprint, columnName: fecha_de_cierre}
+
+  - changeSet:
+      id: 2026-11-19-cierre-de-sprint-2
+      author: shiro
+      comment: "Crea shr_sprint_cierre_tarea: estado, puntos y destino de cada tarea al cerrar el sprint"
+      changes:
+        - createTable:
+            tableName: shr_sprint_cierre_tarea
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_sprint, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: id_tarea, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: estado_al_cerrar, type: VARCHAR(60), constraints: {nullable: false}}
+              - column: {name: terminada, type: BOOLEAN, constraints: {nullable: false}}
+              - column: {name: puntos, type: INT}
+              - column: {name: destino, type: VARCHAR(10), constraints: {nullable: false}}
+              - column: {name: id_sprint_destino, type: BIGINT}
+              - column: {name: id_operacion_archivo, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_sprint_cierre_tarea
+            baseColumnNames: id_sprint
+            referencedTableName: shr_sprint
+            referencedColumnNames: id
+            constraintName: fk_shr_sprint_cierre_tarea_sprint
+        - addForeignKeyConstraint:
+            baseTableName: shr_sprint_cierre_tarea
+            baseColumnNames: id_tarea
+            referencedTableName: shr_tarea
+            referencedColumnNames: id
+            constraintName: fk_shr_sprint_cierre_tarea_tarea
+        - addForeignKeyConstraint:
+            baseTableName: shr_sprint_cierre_tarea
+            baseColumnNames: id_sprint_destino
+            referencedTableName: shr_sprint
+            referencedColumnNames: id
+            constraintName: fk_shr_sprint_cierre_tarea_destino
+        - addForeignKeyConstraint:
+            baseTableName: shr_sprint_cierre_tarea
+            baseColumnNames: id_operacion_archivo
+            referencedTableName: shr_operacion_archivo
+            referencedColumnNames: id
+            constraintName: fk_shr_sprint_cierre_tarea_operacion_archivo
+        - createIndex:
+            tableName: shr_sprint_cierre_tarea
+            indexName: ix_shr_sprint_cierre_tarea_sprint
+            columns:
+              - column: {name: id_sprint}
+        - sql:
+            comment: "Destino acotado"
+            sql: ALTER TABLE shr_sprint_cierre_tarea ADD CONSTRAINT ck_shr_sprint_cierre_tarea_destino CHECK (destino IN ('TERMINADA', 'BACKLOG', 'SPRINT'))
+      rollback:
+        - dropTable:
+            tableName: shr_sprint_cierre_tarea
+
+  - changeSet:
+      id: 2026-11-19-publicacion-de-version-1
+      author: shiro
+      comment: "Quien publico la version"
+      changes:
+        - addColumn:
+            tableName: shr_version
+            columns:
+              - column: {name: id_usuario_publicacion, type: BIGINT}
+        - addForeignKeyConstraint:
+            baseTableName: shr_version
+            baseColumnNames: id_usuario_publicacion
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_shr_version_usuario_publicacion
+      rollback:
+        - dropColumn: {tableName: shr_version, columnName: id_usuario_publicacion}

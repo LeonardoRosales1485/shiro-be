@@ -8,6 +8,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Synchronize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Entity
 @Table(name = "shr_proyecto")
+@Synchronize({"shr_tarea", "shr_proyecto"})
 public class Proyecto extends EntidadConBorradoLogico {
 
     // Nombre visible del proyecto
@@ -44,6 +47,11 @@ public class Proyecto extends EntidadConBorradoLogico {
     // de fila; puede tener saltos (adenda 2 del DAF)
     @Setter(AccessLevel.NONE)
     private Long ultimoNumero = 0L;
+
+    // Cantidad de tareas vigentes del proyecto (la muestra la administracion de proyectos). Solo lectura
+    @Setter(AccessLevel.NONE)
+    @Formula("(SELECT COUNT(*) FROM shr_tarea t WHERE t.id_proyecto = id AND t.status = 0)")
+    private Integer cantidadDeTareas;
 
     // Operacion de archivo que archivo el proyecto; null si esta vigente. Solo la cambian archivar y restaurar
     @Setter(AccessLevel.NONE)

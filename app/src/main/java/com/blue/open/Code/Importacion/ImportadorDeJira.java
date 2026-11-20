@@ -82,6 +82,8 @@ public class ImportadorDeJira {
 
     private final ImportadorDeTareas importadorDeTareas;
 
+    private final SeguimientoDeImportacion seguimiento;
+
     private final ObjectMapper lector = new ObjectMapper();
 
     /*
@@ -100,13 +102,17 @@ public class ImportadorDeJira {
         Proyecto proyecto = proyecto(importacion, idUsuario);
         ContextoDeImportacion contexto = new ContextoDeImportacion(proyecto, credenciales, importacion.getClaveProyectoJira(), usuario, new ResumenDeImportacion(),
                 mapeo.duracionDeSprintEnDias() == null ? DIAS_DE_SPRINT_SIN_FECHAS : mapeo.duracionDeSprintEnDias());
+        contexto.setIdImportacion(idImportacion);
+        contexto.setSeguimiento(seguimiento);
         resolverMapeo(contexto, mapeo);
         versiones(contexto);
         sprints(contexto);
         importadorDeTareas.importar(contexto);
+        contexto.controlar(true);
         importacion.setProyecto(proyecto);
         importacion.setEstado(EstadoDeImportacion.TERMINADA);
         importacion.setResumen(lector.writeValueAsString(contexto.getResumen()));
+        importacion.setAvance(seguimiento.avance(contexto.getAvance()));
         importacion.setIdUsuarioDeActualizacion(idUsuario);
         importacionRepository.save(importacion);
     }
@@ -166,6 +172,8 @@ public class ImportadorDeJira {
     // Importa las versiones del proyecto: una publicada en Shiro ya no cambia
     private void versiones(ContextoDeImportacion contexto) {
         List<DatosDeJira.Version> deJira = jira.versiones(contexto.getCredenciales(), contexto.getClaveDeJira());
+        contexto.getAvance().setVersionesTotales(deJira.size());
+        contexto.controlar(true);
         Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.VERSION, deJira.stream().map(DatosDeJira.Version::id).toList());
         // Las versiones vigentes del proyecto, en una consulta, por uuid y por nombre
         Map<String, Version> porUuid = new HashMap<>();
@@ -182,11 +190,8 @@ public class ImportadorDeJira {
             if (enShiro.getEstado() != EstadoDeVersion.PUBLICADA) {
                 enShiro.setProyecto(contexto.getProyecto());
                 enShiro.setNombre(version.nombre());
-                if (version.publicada()) {
-                    enShiro.setEstado(EstadoDeVersion.PUBLICADA);
-                    enShiro.setFechaDePublicacion(version.fecha() == null ? LocalDate.now(ZONA) : version.fecha());
-                    enShiro.setChangelog("Versión importada de Jira.");
-                }
+                if (version.publicada())
+                    enShiro.publicar(version.fecha() == null ? LocalDate.now(ZONA) : version.fecha(), "Versión importada de Jira.", null);
                 auditar(enShiro, nueva, contexto.idUsuario());
                 enShiro = versionRepository.save(enShiro);
             }
@@ -197,6 +202,8 @@ public class ImportadorDeJira {
                 mapeos.registrar(TipoDeEntidadJira.VERSION, version.id(), enShiro.getUuid(), contexto.idUsuario());
             contexto.getVersiones().put(version.id(), enShiro);
             contexto.getResumen().contarVersion();
+            contexto.getAvance().contarVersion();
+            contexto.controlar(false);
         }
     }
 
@@ -205,6 +212,7 @@ public class ImportadorDeJira {
         Map<String, DatosDeJira.Sprint> deJira = new LinkedHashMap<>();
         for (String tablero : contexto.getTableros().keySet())
             jira.sprints(contexto.getCredenciales(), tablero).forEach(sprint -> deJira.putIfAbsent(sprint.id(), sprint));
+        contexto.getAvance().setSprintsTotales(deJira.size());
         Map<String, String> yaImportados = mapeos.uuids(TipoDeEntidadJira.SPRINT, deJira.keySet());
         // Los sprints vigentes del proyecto, en una consulta, por uuid y por nombre; el activo se sigue en memoria
         Map<String, Sprint> porUuid = new HashMap<>();
@@ -232,6 +240,8 @@ public class ImportadorDeJira {
                 mapeos.registrar(TipoDeEntidadJira.SPRINT, sprint.id(), enShiro.getUuid(), contexto.idUsuario());
             contexto.getSprints().put(sprint.id(), enShiro);
             contexto.getResumen().contarSprint();
+            contexto.getAvance().contarSprint();
+            contexto.controlar(false);
         }
     }
 
@@ -257,7 +267,7 @@ public class ImportadorDeJira {
             contexto.setSprintActivo(enShiro);
         else if (activo == enShiro)
             contexto.setSprintActivo(null);
-        enShiro.setEstado(estado);
+        enShiro.importarEstado(estado);
     }
 
     // Completa el usuario de creacion o de actualizacion

@@ -1,5 +1,6 @@
 package com.blue.open.Code.Importacion;
 
+import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,8 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Corre una importacion en segundo plano (en el ejecutorDeImportaciones) y, si no termina, la deja FALLIDA con el
+ * Corre una importacion en segundo plano (en el ejecutorDeImportaciones). Si un administrador la cancelo la deja
+ * CANCELADA (no quedo nada de esa ejecucion); si no termina por otro motivo, la deja FALLIDA con el
  * motivo en el resumen: un error de Jira o de credenciales, con su mensaje para el usuario; cualquier otro error, con
  * un mensaje generico y el detalle en el log.
  * Dependencias externas: Jira y la base de datos (a traves de ImportadorDeJira).
@@ -29,6 +31,13 @@ public class EjecucionDeImportacion {
             importador.importar(idImportacion, idUsuario);
             log.info("Importacion de Jira terminada | uuid={}", uuid);
         } catch (ExcepcionDeApi e) {
+            if (e.getCodigo() == CodigoDeErrorDelProyecto.IMPORTACION_CANCELADA) {
+                log.info("Importacion de Jira cancelada | uuid={}", uuid);
+                ResumenDeImportacion resumen = new ResumenDeImportacion();
+                resumen.fallo(e.getCodigo().codigo(), e.getMensajeParaUsuario());
+                importacionRepository.marcarCancelada(idImportacion, lector.writeValueAsString(resumen));
+                return;
+            }
             log.warn("Importacion de Jira fallida | uuid={} | codigo={}", uuid, e.getCodigo().codigo());
             fallida(idImportacion, e.getCodigo().codigo(), e.getMensajeParaUsuario());
         } catch (RuntimeException e) {

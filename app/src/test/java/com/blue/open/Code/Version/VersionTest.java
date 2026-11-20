@@ -1,5 +1,9 @@
 package com.blue.open.Code.Version;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import java.time.LocalDate;
+import com.blue.open.Code.Usuario.Usuario;
+import com.blue.open.Code.Common.Errores.CodigoDeErrorDelProyecto;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
 import org.junit.jupiter.api.Test;
 
@@ -48,5 +52,27 @@ class VersionTest {
         assertEquals(null, version.getFechaDeBorrado());
         assertEquals(null, version.getIdOperacionArchivo());
         assertThrows(ExcepcionDeApi.class, version::restaurar);
+    }
+
+    @Test
+    void publicarGuardaFechaChangelogYQuien() {
+        Version version = new Version();
+        Usuario quien = new Usuario();
+
+        version.publicar(LocalDate.of(2026, 12, 20), "## 1.0", quien);
+
+        assertEquals(EstadoDeVersion.PUBLICADA, version.getEstado());
+        assertEquals(LocalDate.of(2026, 12, 20), version.getFechaDePublicacion());
+        assertEquals("## 1.0", version.getChangelog());
+        assertSame(quien, version.getPublicadaPor());
+    }
+
+    @Test
+    void unaPublicadaNoSeVuelveAPublicar() {
+        Version version = new Version();
+        version.publicar(LocalDate.of(2026, 12, 20), "## 1.0", null);
+
+        ExcepcionDeApi error = assertThrows(ExcepcionDeApi.class, () -> version.publicar(LocalDate.of(2026, 12, 21), "otra", null));
+        assertEquals(CodigoDeErrorDelProyecto.VERSION_PUBLICADA, error.getCodigo());
     }
 }

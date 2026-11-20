@@ -5,6 +5,7 @@ import com.blue.open.Core.Test.Respuesta;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +29,18 @@ class UsuarioGuardarContratoTest extends PruebaDeContrato {
         assertEquals("usuario.prueba.contrato@example.com", creado.get("email").asString());
         assertEquals(0, creado.get("status").asInt());
         assertFalse(creado.hasNonNull("contrasena"));
+    }
+
+    @Test
+    void guardaElNombreYApellido() {
+        Map<String, Object> alta = new HashMap<>(EscenarioDeUsuario.alta("usuario.nombre.contrato"));
+        alta.put("nombre", "Rocío Villalba");
+
+        JsonNode creado = guardar(alta).esperar(200).json();
+
+        assertEquals("Rocío Villalba", creado.get("nombre").asString());
+        assertEquals("Rocío Villalba", como("SYSADMIN").get("/usuario/uuid/{uuid}", creado.get("uuid").asString()).ejecutar()
+                .esperar(200).json().get("nombre").asString());
     }
 
     @Test

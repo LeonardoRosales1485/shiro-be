@@ -1,9 +1,11 @@
 package com.blue.open.Code.Importacion;
 
+import com.blue.open.Code.Importacion.CasosDeUso.ImportacionCancelarUseCase;
 import com.blue.open.Code.Importacion.CasosDeUso.ImportacionCatalogoUseCase;
 import com.blue.open.Code.Importacion.CasosDeUso.ImportacionConectarUseCase;
 import com.blue.open.Code.Importacion.CasosDeUso.ImportacionEjecutarUseCase;
 import com.blue.open.Code.Importacion.CasosDeUso.ImportacionMapearUseCase;
+import com.blue.open.Code.Importacion.CasosDeUso.ImportacionProyectosDeJiraUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Endpoints del importador de Jira (F4, Spec 6): conectar, leer el catalogo, mapear, ejecutar, y obtener y listar
@@ -42,6 +46,10 @@ public class ImportacionController {
     private final ImportacionMapearUseCase mapearUseCase;
 
     private final ImportacionEjecutarUseCase ejecutarUseCase;
+
+    private final ImportacionCancelarUseCase cancelarUseCase;
+
+    private final ImportacionProyectosDeJiraUseCase proyectosDeJiraUseCase;
 
     // Obtiene una importacion por su uuid (sin el token). Responde el ImportacionDTO
     @GetMapping("/uuid/{uuid}")
@@ -89,5 +97,21 @@ public class ImportacionController {
             permiso = {SYSADMIN, ADMIN})
     public ResponseEntity<ImportacionDTO> ejecutar(@Descripcion("Uuid de la importación") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(ejecutarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Pide cancelar la importacion en curso. Responde la importacion con cancelacionPedida
+    @PostMapping("/{uuid}/cancelar")
+    @Contrato(casoDeUso = "CU-IMP-07", resumen = "Cancela una importación en curso: se corta en el próximo control, no queda nada de esa ejecución y pasa a CANCELADA",
+            permiso = {SYSADMIN, ADMIN})
+    public ResponseEntity<ImportacionDTO> cancelar(@Descripcion("Uuid de la importación") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(cancelarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Lista los proyectos de Jira visibles con las credenciales, sin guardar nada. Responde la lista de proyectos
+    @PostMapping("/proyectos-de-jira")
+    @Contrato(casoDeUso = "CU-IMP-08", resumen = "Prueba la conexión con Jira y lista los proyectos visibles con esas credenciales (no guarda el token)",
+            permiso = {SYSADMIN, ADMIN})
+    public ResponseEntity<List<ImportacionProyectosDeJiraResponseDTO>> proyectosDeJira(@Valid @RequestBody ImportacionProyectosDeJiraRequestDTO dto) {
+        return new ResponseEntity<>(proyectosDeJiraUseCase.ejecutar(dto), HttpStatus.OK);
     }
 }

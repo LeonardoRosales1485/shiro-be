@@ -20,6 +20,10 @@ public interface TableroRepository extends EntidadRepositoryBorradoLogico<Tabler
     @Query("SELECT new com.blue.open.Code.Autorizacion.TableroDeProyecto(t.id, t.proyecto.id) FROM Tablero t WHERE t.status = 0")
     List<TableroDeProyecto> listarVigentesConProyecto();
 
+    // Ids de los tableros vigentes de un proyecto (usuarios con acceso al proyecto, CU-PRY-06)
+    @Query("SELECT t.id FROM Tablero t WHERE t.proyecto.id = :proyecto AND t.status = 0")
+    List<Long> idsVigentesDelProyecto(@Param("proyecto") Long proyecto);
+
     // Tablero del proyecto por codigo de tipo (PRINCIPAL, QA, ANALISIS, DISENO) con el status recibido
     Optional<Tablero> findFirstByProyectoAndTipoTableroCodigoAndStatus(Proyecto proyecto, String codigo, Integer status);
 

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 /**
@@ -47,4 +48,12 @@ public class SprintDTO extends EntidadBaseDTO {
 
     @Descripcion("Estado: PLANIFICADO, ACTIVO o CERRADO. Solo lectura: cambia con iniciar y cerrar")
     private EstadoDeSprint estado;
+
+    @Descripcion("Nombre del usuario que cerró el sprint. Solo lectura; vacío si no está cerrado")
+    @Columna("cerradoPor.nombre")
+    private String cerradoPorNombre;
+
+    @Descripcion("Fecha y hora del cierre. Solo lectura; vacía si no está cerrado")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
+    private Timestamp fechaDeCierre;
 }

@@ -31,6 +31,12 @@ public class OperacionDeArchivoBuscarResponseDTO extends EntidadBaseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
     private Timestamp fechaDeBorrado;
 
+    @Descripcion("Nombre del usuario que lo archivó. Vacío si no se sabe")
+    private String archivadoPorNombre;
+
+    @Descripcion("Cuántas tareas se archivaron junto con el elemento (subtareas o historias de una tarea, tareas de un proyecto). Vacío en los demás tipos")
+    private Integer incluidos;
+
     // Arma el DTO a partir del elemento archivado
     public OperacionDeArchivoBuscarResponseDTO(ElementoArchivado elemento) {
         setUuid(elemento.uuid());
@@ -39,5 +45,6 @@ public class OperacionDeArchivoBuscarResponseDTO extends EntidadBaseDTO {
         this.nombre = elemento.nombre();
         this.proyectoPrefijo = elemento.proyectoPrefijo();
         this.fechaDeBorrado = elemento.fechaDeBorrado();
+        this.archivadoPorNombre = elemento.archivadoPorNombre();
     }
 }

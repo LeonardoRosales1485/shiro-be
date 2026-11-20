@@ -46,11 +46,14 @@ public class AuthTokenConSha256Service extends AuthTokenService {
 
     private final UsuarioRepositorio usuarios;
 
-    // Recibe los repositorios que usa AuthTokenService
-    public AuthTokenConSha256Service(AccessTokenRepository repositorio, UsuarioRepositorio usuarios) {
+    private final RegistroDeUsoDeToken registroDeUso;
+
+    // Recibe los repositorios que usa AuthTokenService y el registro del ultimo uso de cada token
+    public AuthTokenConSha256Service(AccessTokenRepository repositorio, UsuarioRepositorio usuarios, RegistroDeUsoDeToken registroDeUso) {
         super(repositorio, usuarios);
         this.repositorio = repositorio;
         this.usuarios = usuarios;
+        this.registroDeUso = registroDeUso;
     }
 
     // SHA-256 del texto en hexadecimal (64 caracteres): lo que guarda auth_access_tokens.codigo
@@ -65,7 +68,8 @@ public class AuthTokenConSha256Service extends AuthTokenService {
 
     /*
      * Usuario duenio del token del header Authorization (Bearer, no JWT), buscado por el SHA-256. Responde null si la
-     * request no trae un token de este tipo. Lanza ACCESS_TOKEN_INVALIDO si no existe, esta desactivado o eliminado.
+     * request no trae un token de este tipo. Registra el ultimo uso del token. Lanza ACCESS_TOKEN_INVALIDO si no existe,
+     * esta desactivado o eliminado.
      */
     @Override
     public UsuarioBase getUsuario() {
@@ -77,6 +81,7 @@ public class AuthTokenConSha256Service extends AuthTokenService {
                 .filter(t -> t.getIdUsuario() != null && t.getStatus() == 0 && t.getActivo() == 1)
                 .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorApiKey.ACCESS_TOKEN_INVALIDO,
                         "AuthTokenConSha256Service | getUsuario | token no encontrado o sin usuario"));
+        registroDeUso.registrar(modelo.getId());
         // orElse(null): el contrato de EstrategiaDeAutenticacion.getUsuario() es devolver null si no resuelve
         return usuarios.porId(modelo.getIdUsuario()).orElse(null);
     }

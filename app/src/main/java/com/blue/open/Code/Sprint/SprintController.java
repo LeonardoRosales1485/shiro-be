@@ -3,8 +3,10 @@ package com.blue.open.Code.Sprint;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintArchivarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintAsignarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintCerrarUseCase;
+import com.blue.open.Code.Sprint.CasosDeUso.SprintCierreUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintIniciarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintQuitarUseCase;
+import com.blue.open.Code.Sprint.CasosDeUso.SprintRestaurarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -41,6 +43,10 @@ public class SprintController {
     private final SprintCerrarUseCase cerrarUseCase;
 
     private final SprintArchivarUseCase archivarUseCase;
+
+    private final SprintCierreUseCase cierreUseCase;
+
+    private final SprintRestaurarUseCase restaurarUseCase;
 
     // Obtiene un sprint. Responde el SprintDTO
     @GetMapping("/uuid/{uuid}")
@@ -102,5 +108,20 @@ public class SprintController {
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> archivar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Cierre del sprint: quien lo cerro, cuando y que paso con cada tarea. Responde el cierre
+    @GetMapping("/{uuid}/cierre")
+    @Contrato(casoDeUso = "CU-SPR-09", resumen = "Cierre de un sprint: quién lo cerró, cuándo y el estado y destino de cada tarea al cerrar (exige VER)",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<SprintCierreResponseDTO> cierre(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(cierreUseCase.ejecutar(uuid), HttpStatus.OK);
+    }
+
+    // Restaura un sprint archivado. Responde el sprint restaurado
+    @PostMapping("/{uuid}/restaurar")
+    @Contrato(casoDeUso = "CU-SPR-10", resumen = "Restaura un sprint archivado con el estado que tenía (exige EDITAR)", permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<SprintDTO> restaurar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
+        return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
     }
 }

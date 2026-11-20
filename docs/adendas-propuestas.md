@@ -48,6 +48,23 @@ revise y se agreguen a los documentos. Cada una dice qué documento afecta.
 | 39 | 19/11/2026 | T4.3 | Spec 6 | Las descripciones y comentarios de Jira (formato ADF) se pasan a texto: párrafos, listas con guion y saltos de línea. El resto del formato (negritas, tablas, menciones, adjuntos) se pierde | La spec no menciona el formato. Los adjuntos de Jira no se importan |
 | 40 | 19/11/2026 | T4.1 a T4.3 | Spec 3 | Endpoints: `POST /importacion/conectar` (responde el catálogo), `GET /importacion/{uuid}/catalogo`, `POST /importacion/{uuid}/mapeo`, `POST /importacion/{uuid}/ejecutar`, uuid y paginar. No hay borrar | La spec lista `/mapeo` y `/ejecutar` sin uuid; con uuid en la ruta sigue la regla de casos de uso del template. El catálogo se puede volver a leer si se recarga la pantalla |
 | 41 | 19/11/2026 | T4.1 | Seguridad | La URL de Jira la escribe un administrador y el backend la llama (sin seguir redirecciones): puede apuntar a la red interna. Queda para la revisión humana de seguridad si hace falta limitarla a `*.atlassian.net` | Riesgo de SSRF acotado a administradores |
+| 42 | 19/11/2026 | T6.2 | Spec 1, prototipo | Asignar responsable desde el detalle: los administradores eligen de la lista de usuarios (`POST /usuario/paginar`, solo administradores); el resto solo puede «Asignármela». Para que cualquiera con EDITAR elija a otra persona hace falta un endpoint nuevo que liste los usuarios con acceso al proyecto | Hoy no hay forma de listar usuarios sin ser administrador. A decidir: ¿se agrega ese endpoint? |
+| 43 | 19/11/2026 | T6.2 | Prototipo "Detalle · edición" | La descripción se muestra y se edita como texto (respeta los saltos de línea) y dice «Acepta Markdown», pero todavía no se dibuja como Markdown ni tiene la pestaña «Vista previa» | Dibujar Markdown sin dependencias nuevas es un riesgo de XSS; conviene sumar una librería probada (por ejemplo `marked` con `DOMPurify`). A decidir |
+| 44 | 19/11/2026 | T6.2 | Prototipo "Clonar tarea" | El clon se ofrece hacia los otros tableros del proyecto, no hacia el mismo tablero (como el prototipo: «Clonar a otro tablero»). La API también acepta el mismo tablero | La spec dice «a otro tablero» |
+| 45 | 19/11/2026 | T6.2 | Prototipo "Detalle" | En una épica la sección se llama «Tareas de la épica» y no permite agregar desde el detalle; en una subtarea no hay sección de hijas y se muestra su tarea padre | Una épica tiene hijas de nivel 2, que se crean con «Nueva tarea» |
+| 46 | 19/11/2026 | T6.3 | Prototipo "Sprint cerrado" | El sprint cerrado muestra sus fechas y las tareas que quedaron en él (las terminadas), pero no quién lo cerró ni cuántas pasaron a otro sprint o volvieron al backlog con su estado al cerrar: el backend no guarda esos datos del cierre | Para mostrarlo haría falta guardar el cierre (usuario, fecha y destino de cada tarea). A decidir |
+| 47 | 19/11/2026 | T6.3 | Prototipo "Versiones" | La lista de versiones no muestra la cantidad de tareas de cada una (se ve en el detalle, con `GET /version/{uuid}/tareas`, CU-VER-10, nuevo en T6.3). Tampoco dice quién publicó una versión | Contarlas en la lista pide un pedido por versión o un campo nuevo en `VersionDTO`. A decidir |
+| 48 | 19/11/2026 | T6.3 | Prototipo "Backlog" | El backlog muestra todas sus tareas sin paginar y el orden se cambia con «Subir al principio» y «Bajar al final» (sin arrastrar). Archivar una tarea se hace desde su detalle | Con cientos de tareas convendrá paginar o arrastrar; se puede sumar después sin cambiar el backend |
+| 49 | 19/11/2026 | T6.4 | Prototipo "Archivados" | Archivados muestra nombre, proyecto, fecha y quién archivó, pero no la columna «Incluye» (cuántas subtareas o historias se archivaron junto con el elemento), ni «Ver» un archivado ni el detalle de qué se restaura y qué queda archivado antes de confirmar | Contar lo arrastrado y ver un archivado piden endpoints nuevos (leer por operación de archivo). A decidir |
+| 50 | 19/11/2026 | T6.4 | Prototipo "Tokens MCP" | La lista de tokens no tiene «Último uso» y los revocados no aparecen (el Core lista solo los vigentes) | El último uso lo tendría que registrar el filtro de MCP en cada pedido. A decidir |
+| 51 | 19/11/2026 | T6.4 | Prototipo "Búsqueda" | La búsqueda no ofrece filtrar «Sin sprint» ni varios valores a la vez en un filtro, y el responsable, el sprint y la versión aparecen recién al elegir un proyecto (sus listas son por proyecto) | Se puede sumar después sin cambiar el backend |
+| 52 | 19/11/2026 | T6.5 | Prototipos "Permisos" y "Cambiar permisos de un grupo" | La matriz muestra, por grupo y alcance (proyecto y cada tablero), los niveles que permite o niega («Editar», «Niega Ver», «—»). El modal elige por alcance y por nivel «—», «Permite» o «Niega», en vez de un único nivel acumulativo (Sin acceso, Ver, Editar, Archivar). «Sin acceso» en un tablero se logra negando Ver | Manda la spec: los niveles son independientes (propuesta 7). El prototipo los mostraba acumulativos |
+| 53 | 19/11/2026 | T6.5 | Prototipo "Importar desde Jira · conexión" | No hay «Probar conexión» ni lista de proyectos de Jira para elegir: se escriben la clave del proyecto de Jira y el prefijo en Shiro, y «Conectar» valida la conexión y trae el catálogo | El backend conecta con un proyecto puntual (CU-IMP-01). Listar los proyectos visibles pide un endpoint nuevo. A decidir |
+| 54 | 19/11/2026 | T6.5 | Prototipo "Importar desde Jira · estados" y "· usuarios" | Los tipos de Jira se mapean en el paso Estados, junto con los días de los sprints sin fechas (el prototipo no tenía dónde). En Usuarios no hay «Crear cuenta»: quien no tiene cuenta figura como «Se crea sin acceso» | El mapeo del backend exige los tipos. Las personas sin cuenta las crea la importación como «Usuario importado» (resolución de la propuesta 35) |
+| 55 | 19/11/2026 | T6.5 | Prototipo "Importación en curso" | Mientras corre no hay porcentaje, conteos parciales ni «Cancelar importación»: se muestra que sigue y se consulta el estado cada 2 segundos hasta el resumen. Las importaciones anteriores se listan al entrar, con «Ver resumen» y «Volver a importar» | El backend no registra el avance ni permite cancelar. A decidir |
+| 56 | 19/11/2026 | T6.5 | Prototipos "Administración · usuarios" y "Crear cuenta de Shiro" | Nuevo `GET /usuario/administracion` (CU-USR-26): usuarios vigentes y archivados con su ingreso (cuenta de Shiro si tiene contraseña; si no, Google) y sus grupos con la fecha de alta. `UsuarioDTO` suma `nombre` y `ProyectoDTO`, `cantidadDeTareas`. La cuenta de Shiro usa el correo como nombre de usuario y la contraseña inicial la genera el navegador (16 caracteres al azar), para copiarla una vez. El super admin no figura en la lista del grupo Administradores | Pedirlos por usuario sería un pedido por fila. La contraseña no pasa por ningún otro lado que la creación |
+| 57 | 20/11/2026 | T6.6 | Prototipos "Tarea en teléfono", "Editar en teléfono" y "Backlog en teléfono" | El detalle en el teléfono pone los detalles (estado, responsable, sprint) arriba y las acciones en «⋯», pero no tiene la barra fija de abajo con «Comentar» y «Clonar» (se comenta desde la sección de comentarios). Editar usa el mismo formulario que en la computadora, apilado, y permite también etiquetas, versiones y padre. El backlog se apila como en la computadora, con el mismo menú por tarea | Reusa las pantallas de la computadora en una columna; se puede sumar la barra fija y recortar la edición después |
+| 58 | 20/11/2026 | T6.6 | Prototipo "Loaders" | El gato que busca las letras se usa al abrir Shiro y al cargar el espacio; cambiar de proyecto no lo muestra porque los proyectos ya están cargados (se ve el skeleton del tablero). Archivados tampoco se usa en el teléfono, igual que administración e importación | El plan deja archivados solo para computadora |
 
 ## Resoluciones del arquitecto (19/11/2026)
 
@@ -64,4 +81,47 @@ Aprobadas tal como están: 2 a 21, 23 a 31 y 37 a 40, y las decisiones de la imp
 | 41 (URL de Jira abierta) | Solo sitios https de `*.atlassian.net` |
 
 Otras resoluciones: el front pregunta si el usuario es administrador con `GET /usuario/sesion/grupos` (A12, adenda en el diseño técnico); el ingreso dice «Usuario» (el backend recibe el nombre de usuario); el tema por defecto es oscuro; el front se versiona desde 0.0.1, +0.0.1 en cada push.
+
+
+## Resoluciones del arquitecto sobre las propuestas de T6.2 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 42 (responsable: solo administradores eligen a otra persona) | Cualquier usuario del proyecto elige al responsable, sea administrador o no. Nuevo `GET /proyecto/{uuid}/usuarios` (CU-PRY-06, exige `VER`): el super admin, los Administradores y quienes ven el proyecto o alguno de sus tableros por sus reglas o las de sus grupos. El front lo usa en la edición para todos y mantiene «Asignármela» |
+| 43 (descripción sin Markdown) | Se dibuja como Markdown con `marked` 18.1.3 y `DOMPurify` 3.4.17 (sin HTML peligroso; los enlaces abren en otra pestaña). También los comentarios. La edición tiene «Escribir» y «Vista previa» |
+| 44 (clonar a los otros tableros) | Aprobada: solo se clona dentro del mismo proyecto, a sus otros tableros |
+| 45 (épica sin agregar hijas desde el detalle) | Desde el detalle de una épica se agregan hijas, solo Historias (sección «Historias de la épica»). Desde una historia, tarea o bug se agregan subtareas |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.3 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 46 (sprint cerrado sin datos del cierre) | Se guardan: el sprint registra quién lo cerró y cuándo (`shr_sprint.id_usuario_cierre` y `fecha_de_cierre`) y `shr_sprint_cierre_tarea` guarda, por cada tarea, su estado y puntos al cerrar, si estaba terminada y su destino (terminada, backlog u otro sprint). `GET /sprint/{uuid}/cierre` (CU-SPR-09) y `cerradoPorNombre`/`fechaDeCierre` en `SprintDTO`. El front muestra el sprint cerrado como el prototipo |
+| 47 (versiones sin cantidad de tareas ni quién publicó) | `VersionDTO` trae `cantidadDeTareas` y `publicadaPorNombre` (`shr_version.id_usuario_publicacion`). La lista muestra la cantidad y el detalle, quién publicó |
+| 48 (backlog sin paginar ni arrastrar) | Aprobada tal como está |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.4 (19/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 49 (archivados sin «Incluye», «Ver» ni detalle de la restauración) | `/archivo/paginar` trae `incluidos` (tareas archivadas en la misma operación) y `GET /archivo/{tipo}/{uuid}/vista-previa` (CU-ARC-02, con `ARCHIVAR`; usuarios, administradores) dice dónde vuelve, qué se restaura con el elemento y qué queda archivado, y si el padre sigue archivado. El front muestra «Incluye», «Ver» y la vista previa al restaurar |
+| 50 (tokens sin último uso ni revocados) | `shr_uso_de_token` guarda el último uso de cada token (lo registra la autenticación por token, a lo sumo una vez por minuto) y `GET /usuario/mis-tokens` (CU-USR-25) lista todos los tokens del usuario, también los revocados, con creación, revocación y último uso |
+| 51 (búsqueda sin «Sin sprint» ni varios valores) | Tablero, tipo, estado, responsable y sprint aceptan varios valores (se combinan con O, en un mismo grupo de filtros del paginado) y el sprint tiene «Sin sprint (backlog)» (operación `is null`). Sin cambios en el backend |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.5 (20/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 52 (permisos por nivel independiente) | Aprobada: lo dice la spec |
+| 53 (sin lista de proyectos de Jira) | Nuevo `POST /importacion/proyectos-de-jira` (CU-IMP-08): con URL, correo y token lista los proyectos de Jira visibles, sin guardar nada. Es el «Probar conexión» del asistente: se elige el proyecto de una lista y el prefijo propone su clave |
+| 54 (sin «Crear cuenta» en Usuarios) | En el paso Usuarios, cada persona de Jira sin cuenta (con correo visible) tiene «Crear cuenta», que abre «Crear cuenta de Shiro» con su nombre y correo; al crearla se vuelve a leer el catálogo y queda vinculada. Quien no tenga cuenta sigue quedando como «Usuario importado» |
+| 55 (sin avance ni cancelar) | `shr_importacion` guarda el avance (`avance`, JSON: inicio y versiones, sprints, tareas, lectura de comentarios y comentarios hechos de cuántos hay), escrito en su propia transacción a lo sumo una vez por segundo, y `cancelacion_pedida`. `POST /importacion/{uuid}/cancelar` (CU-IMP-07) la marca; la ejecución se corta en el próximo control, no queda nada de esa ejecución (corre en una sola transacción) y pasa a `CANCELADA`. El front muestra hora de inicio, tiempo estimado, porcentaje, conteos y «Cancelar importación» |
+| 56 (listado de administración y cuenta de Shiro) | El super admin aparece en la lista del grupo Administradores («Solo el super admin», sin «Sacar») y cuenta en sus personas. La cuenta de Shiro pide un nombre de usuario propio. La contraseña inicial la genera el backend: `POST /usuario/crear-cuenta` (CU-USR-27) crea la cuenta con sus grupos y responde la contraseña una sola vez |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.6 (20/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 57 (detalle, edición y backlog del teléfono) | Ajustados al prototipo: barra fija con «Comentar» y «Clonar» en el detalle, edición sin etiquetas (con el aviso de que etiquetas, versiones y padre se editan desde la computadora), backlog con filas compactas, la ayuda de «⋯» y «Nueva tarea» fijo |
+| 58 (uso del gato y archivados en el teléfono) | Aprobada tal como está |
 

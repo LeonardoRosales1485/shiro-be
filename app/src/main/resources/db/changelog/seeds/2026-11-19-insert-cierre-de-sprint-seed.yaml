@@ -1,0 +1,46 @@
+# Seeds del cierre de un sprint (propuesta 46 resuelta el 19/11): Sprint 0 del proyecto Shiro, cerrado por el usuario
+# demo, con SHI-2 que volvio al backlog sin terminar.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-19-insert-cierre-de-sprint-seed-1
+      author: shiro
+      comment: "Crea el Sprint 0 del proyecto Shiro, cerrado"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_sprint WHERE uuid = 'b6000000-0000-4000-8000-000000000002'"}
+      changes:
+        - insert:
+            tableName: shr_sprint
+            columns:
+              - column: {name: uuid, value: b6000000-0000-4000-8000-000000000002}
+              - column: {name: id_proyecto, valueComputed: "(SELECT id FROM shr_proyecto WHERE prefijo = 'SHI')"}
+              - column: {name: nombre, value: "Sprint 0"}
+              - column: {name: inicio, valueDate: "2026-11-02"}
+              - column: {name: fin, valueDate: "2026-11-13"}
+              - column: {name: estado, value: CERRADO}
+              - column: {name: id_usuario_cierre, valueComputed: "(SELECT id FROM auth_usuarios WHERE nombre_de_usuario = 'demo')"}
+              - column: {name: fecha_de_cierre, valueDate: "2026-11-13T18:00:00"}
+      rollback:
+        - delete: {tableName: shr_sprint, where: "uuid = 'b6000000-0000-4000-8000-000000000002'"}
+
+  - changeSet:
+      id: 2026-11-19-insert-cierre-de-sprint-seed-2
+      author: shiro
+      comment: "SHI-2 volvio al backlog al cerrar el Sprint 0"
+      context: "@seed"
+      preConditions:
+        onFail: MARK_RAN
+        sqlCheck: {expectedResult: 0, sql: "SELECT COUNT(*) FROM shr_sprint_cierre_tarea WHERE uuid = 'b6100000-0000-4000-8000-000000000001'"}
+      changes:
+        - insert:
+            tableName: shr_sprint_cierre_tarea
+            columns:
+              - column: {name: uuid, value: b6100000-0000-4000-8000-000000000001}
+              - column: {name: id_sprint, valueComputed: "(SELECT id FROM shr_sprint WHERE uuid = 'b6000000-0000-4000-8000-000000000002')"}
+              - column: {name: id_tarea, valueComputed: "(SELECT id FROM shr_tarea WHERE uuid = 'b3000000-0000-4000-8000-000000000002')"}
+              - column: {name: estado_al_cerrar, value: "Por hacer"}
+              - column: {name: terminada, valueBoolean: false}
+              - column: {name: destino, value: BACKLOG}
+      rollback:
+        - delete: {tableName: shr_sprint_cierre_tarea, where: "uuid = 'b6100000-0000-4000-8000-000000000001'"}

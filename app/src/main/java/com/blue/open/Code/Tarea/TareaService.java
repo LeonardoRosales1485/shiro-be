@@ -15,7 +15,7 @@ import com.blue.open.Code.Tablero.Tablero;
 import com.blue.open.Code.TipoTarea.TipoTarea;
 import com.blue.open.Code.TipoTarea.TipoTareaRepository;
 import com.blue.open.Code.Usuario.Usuario;
-import com.blue.open.Code.Usuario.UsuarioRepository;
+import com.blue.open.Code.Usuario.UsuarioDeLaSesion;
 import com.blue.open.Core.Crud.AbstractService;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.DTO.ParametroDePaginado;
@@ -56,7 +56,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
 
     private final ProyectoRepository proyectoRepository;
 
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioDeLaSesion usuarioDeLaSesion;
 
     private final TareaEtiquetaRepository tareaEtiquetaRepository;
 
@@ -73,15 +73,24 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     }
 
     // El listado trae solo las tareas de los tableros que el usuario ve. Con el parametro "texto" es la busqueda:
-    // texto en español sobre clave, titulo y descripcion, o la clave exacta (T5.4)
+    // texto en español sobre clave, titulo y descripcion, o la clave exacta (T5.4). Con "version" (uuid) deja las
+    // asignadas a esa version y con "etiqueta" las que la tienen, sin distinguir mayusculas (T6.4)
     @Override
     protected PedidoDePaginado hookPaginarAntesDeConsultar(PedidoDePaginado pedido) {
         permisos.restringirATablerosVisibles(pedido, "t.tablero.id");
-        ParametroDePaginado texto = pedido.getParametroPorNombre("texto");
-        if (texto != null && texto.getValor() != null && !texto.getValor().isBlank()) {
-            List<Long> ids = tareaRepository.idsPorTexto(texto.getValor().trim());
+        String texto = valorDe(pedido, "texto");
+        if (texto != null) {
+            List<Long> ids = tareaRepository.idsPorTexto(texto);
             pedido.agregarCondicion("t.id IN :idsDeBusqueda", Map.of("idsDeBusqueda", ids.isEmpty() ? List.of(-1L) : ids));
         }
+        String version = valorDe(pedido, "version");
+        if (version != null)
+            pedido.agregarCondicion("EXISTS (SELECT 1 FROM TareaVersion tv WHERE tv.tarea = t AND tv.status = 0 "
+                    + "AND tv.version.uuid = :versionBuscada)", Map.of("versionBuscada", version));
+        String etiqueta = valorDe(pedido, "etiqueta");
+        if (etiqueta != null)
+            pedido.agregarCondicion("EXISTS (SELECT 1 FROM TareaEtiqueta te WHERE te.tarea = t AND te.status = 0 "
+                    + "AND LOWER(te.texto) = LOWER(:etiquetaBuscada))", Map.of("etiquetaBuscada", etiqueta));
         return super.hookPaginarAntesDeConsultar(pedido);
     }
 
@@ -138,7 +147,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         aplicada.setPrioridad(dto.getPrioridad() != null ? dto.getPrioridad()
                 : esAlta ? PrioridadDeTarea.MEDIA : prioridadActual);
         if (aplicada.getInformante() == null)
-            aplicada.setInformante(esAlta ? usuarioDeLaSesion() : informanteActual);
+            aplicada.setInformante(esAlta ? usuarioDeLaSesion.obtener() : informanteActual);
         aplicada.setEtiquetasPedidas(textosDeEtiquetas(dto));
         validarJerarquia(aplicada, esAlta);
         if (!esAlta)
@@ -274,14 +283,10 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         return articulo + " " + tipo.getNombre();
     }
 
-    // Usuario de la sesion, que es el informante de una tarea nueva. Lanza NO_AUTENTICADO si no hay sesion
-    private Usuario usuarioDeLaSesion() {
-        Long id = usuarioActual.getIdUsuarioActual();
-        if (id == null)
-            throw new ExcepcionDeApi(CodigoDeErrorKernel.NO_AUTENTICADO, "TareaService | usuarioDeLaSesion | sin sesion");
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ExcepcionDeApi(CodigoDeErrorKernel.NO_AUTENTICADO,
-                        "TareaService | usuarioDeLaSesion | no existe el usuario de la sesion"));
+    // Valor de un parametro del pedido sin espacios en los extremos, o null si no vino o esta vacio
+    private static String valorDe(PedidoDePaginado pedido, String nombre) {
+        ParametroDePaginado parametro = pedido.getParametroPorNombre(nombre);
+        return parametro == null || parametro.getValor() == null || parametro.getValor().isBlank() ? null : parametro.getValor().trim();
     }
 
     // Textos de las etiquetas del DTO, sin espacios en los extremos y sin repetir, en el orden recibido
