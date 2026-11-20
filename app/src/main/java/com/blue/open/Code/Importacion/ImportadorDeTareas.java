@@ -68,6 +68,8 @@ public class ImportadorDeTareas {
     // Importa las tareas y sus comentarios. Lo que no se puede importar queda en las fallas del resumen
     public void importar(ContextoDeImportacion contexto) {
         Map<String, IncidenciaAImportar> aceptadas = aceptar(contexto, traer(contexto));
+        contexto.getAvance().setTareasTotales(aceptadas.size());
+        contexto.controlar(true);
         usuariosDeJira.precargar(contexto, aceptadas.values().stream().map(a -> a.incidencia().responsable()).toList());
         Map<String, String> yaImportadas = mapeos.uuids(TipoDeEntidadJira.TAREA, aceptadas.values().stream().map(a -> a.incidencia().id()).toList());
         Map<String, Tarea> existentes = new HashMap<>();
@@ -78,6 +80,8 @@ public class ImportadorDeTareas {
         for (IncidenciaAImportar aceptada : aceptadas.values()) {
             Tarea existente = existentes.get(yaImportadas.get(aceptada.incidencia().id()));
             porClave.put(aceptada.incidencia().clave(), guardar(contexto, aceptada, existente, sufijos.get(aceptada.incidencia().clave())));
+            contexto.getAvance().contarTarea();
+            contexto.controlar(false);
         }
         padres(contexto, aceptadas, porClave);
         etiquetasYVersiones(contexto, aceptadas, porClave);
@@ -248,10 +252,18 @@ public class ImportadorDeTareas {
      */
     private void comentarios(ContextoDeImportacion contexto, Map<String, Tarea> porClave) {
         Map<DatosDeJira.Comentario, Tarea> deJira = new LinkedHashMap<>();
-        porClave.forEach((clave, tarea) -> jira.comentarios(contexto.getCredenciales(), clave).forEach(comentario -> deJira.put(comentario, tarea)));
+        porClave.forEach((clave, tarea) -> {
+            jira.comentarios(contexto.getCredenciales(), clave).forEach(comentario -> deJira.put(comentario, tarea));
+            contexto.getAvance().contarTareaConComentariosLeidos();
+            contexto.controlar(false);
+        });
+        contexto.getAvance().setComentariosTotales(deJira.size());
+        contexto.controlar(true);
         Map<String, String> yaImportados = mapeos.uuids(TipoDeEntidadJira.COMENTARIO, deJira.keySet().stream().map(DatosDeJira.Comentario::id).toList());
         usuariosDeJira.precargar(contexto, deJira.keySet().stream().map(DatosDeJira.Comentario::autor).toList());
         deJira.forEach((deJiraComentario, tarea) -> {
+            contexto.getAvance().contarComentario();
+            contexto.controlar(false);
             if (yaImportados.containsKey(deJiraComentario.id()))
                 return;
             Usuario autor = usuariosDeJira.resolver(contexto, deJiraComentario.autor());

@@ -43,7 +43,7 @@ class UsuarioCrearCuentaContratoTest extends PruebaDeContrato {
     @Test
     void faltaElNombreDeUsuario() {
         como("ADMIN").post("/usuario/crear-cuenta").json(Map.of("nombre", "Sin usuario", "email", "sin@proveedor.com", "grupos", List.of()))
-                .ejecutar().esperarError(400, "VALIDACION_FALLIDA");
+                .ejecutar().esperarError(400, "FORMULARIO_INVALIDO");
     }
 
     private String grupo(String nombre) {

@@ -30,7 +30,7 @@ public class ImportacionDTO extends EntidadBaseDTO {
     @Descripcion("Nombre del proyecto en Jira")
     private String nombreProyectoJira;
 
-    @Descripcion("Estado: CONECTADA, MAPEADA, EN_CURSO (corre en segundo plano), TERMINADA o FALLIDA")
+    @Descripcion("Estado: CONECTADA, MAPEADA, EN_CURSO (corre en segundo plano), TERMINADA, FALLIDA o CANCELADA")
     private EstadoDeImportacion estado;
 
     @Descripcion("Mapeo elegido, como JSON: tableros (id de Jira a uuid de tipo de tablero), estados (por tablero de Jira, id de estado de Jira a uuid de estado), tipos (id de Jira a uuid de tipo de tarea) y duracionDeSprintEnDias. Null hasta mapear")
@@ -38,6 +38,12 @@ public class ImportacionDTO extends EntidadBaseDTO {
 
     @Descripcion("Resumen de la última ejecución, como JSON: tareasCreadas, tareasActualizadas, tareasPorTipo, comentarios, sprints, versiones, fallas (claveJira y motivo), advertencias y usuariosImportados (usuarios creados sin acceso). Null hasta ejecutar")
     private String resumen;
+
+    @Descripcion("Avance de la ejecución en curso o de la última, como JSON: inicio (fecha y hora en que empezó), tareas y tareasTotales, comentarios y comentariosTotales (null mientras se leen de Jira), tareasConComentariosLeidos, sprints y sprintsTotales, versiones y versionesTotales. Null hasta ejecutar")
+    private String avance;
+
+    @Descripcion("true si se pidió cancelar la ejecución en curso; se corta en el próximo control y la importación queda CANCELADA")
+    private boolean cancelacionPedida;
 
     @Descripcion("Uuid del proyecto de Shiro con lo importado. Null hasta la primera ejecución")
     @Columna("proyecto.uuid")

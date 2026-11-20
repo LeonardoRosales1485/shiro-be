@@ -57,6 +57,13 @@ public class Importacion extends EntidadConBorradoLogico {
     @Column(columnDefinition = "TEXT")
     private String resumen;
 
+    // Avance de la ejecucion en curso o de la ultima, como JSON de AvanceDeImportacion; null hasta ejecutar
+    @Column(columnDefinition = "TEXT")
+    private String avance;
+
+    // Si un administrador pidio cancelar la ejecucion en curso: el importador la corta en el proximo control
+    private boolean cancelacionPedida;
+
     // Proyecto de Shiro con lo importado; null hasta la primera ejecucion
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proyecto")

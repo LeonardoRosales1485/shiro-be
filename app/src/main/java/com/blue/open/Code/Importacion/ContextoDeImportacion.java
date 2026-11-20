@@ -61,8 +61,31 @@ public class ContextoDeImportacion {
     // Usuarios de Shiro por correo (los que ya se buscaron)
     private final Map<String, Usuario> usuariosPorCorreo = new HashMap<>();
 
+    // Avance de la ejecucion: lo guarda SeguimientoDeImportacion a lo sumo una vez por segundo
+    private final AvanceDeImportacion avance = new AvanceDeImportacion();
+
+    // Importacion que se ejecuta y su seguimiento (avance y cancelacion); el seguimiento es null en las pruebas unitarias
+    @Setter
+    private Long idImportacion;
+
+    @Setter
+    private SeguimientoDeImportacion seguimiento;
+
+    // Momento del ultimo control del avance, en milisegundos
+    private long ultimoControl;
+
     // Usuarios creados sin acceso por id de Jira (en esta importacion o en una anterior)
     private final Map<String, Usuario> usuariosImportados = new HashMap<>();
+
+    // Guarda el avance y mira si se pidio cancelar, a lo sumo una vez por segundo (siempre si forzar). Lanza
+    // IMPORTACION_CANCELADA si un administrador la cancelo
+    public void controlar(boolean forzar) {
+        long ahora = System.currentTimeMillis();
+        if (seguimiento == null || (!forzar && ahora - ultimoControl < 1000))
+            return;
+        ultimoControl = ahora;
+        seguimiento.controlar(idImportacion, avance);
+    }
 
     // Id del usuario que importa
     public Long idUsuario() {

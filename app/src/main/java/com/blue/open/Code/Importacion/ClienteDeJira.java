@@ -60,6 +60,19 @@ public class ClienteDeJira {
                 proyecto.path("name").asString());
     }
 
+    // Proyectos visibles con las credenciales (clave y nombre), todas las paginas, en el orden de Jira
+    public List<ProyectoDeJiraDTO> proyectos(CredencialesDeJira credenciales) {
+        List<ProyectoDeJiraDTO> proyectos = new ArrayList<>();
+        boolean ultima = false;
+        while (!ultima) {
+            JsonNode pagina = obligatorio(credenciales, "/rest/api/3/project/search?maxResults=50&startAt=" + proyectos.size());
+            JsonNode valores = pagina.path("values");
+            valores.forEach(p -> proyectos.add(new ProyectoDeJiraDTO(p.path("key").asString(), p.path("name").asString())));
+            ultima = pagina.path("isLast").asBoolean(true) || valores.isEmpty();
+        }
+        return proyectos;
+    }
+
     // Tableros del proyecto (id y nombre), en el orden de Jira
     public List<ElementoDeJiraDTO> tableros(CredencialesDeJira credenciales, String clave) {
         List<ElementoDeJiraDTO> tableros = new ArrayList<>();
