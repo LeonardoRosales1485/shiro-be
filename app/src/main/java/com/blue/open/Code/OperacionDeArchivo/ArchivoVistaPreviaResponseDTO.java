@@ -41,4 +41,19 @@ public class ArchivoVistaPreviaResponseDTO extends EntidadBaseDTO {
 
     @Descripcion("Tareas archivadas por separado que quedan archivadas: hijas de la tarea o tareas del proyecto (hasta 50)")
     private List<ElementoDeArchivoDTO> quedanArchivadas = new ArrayList<>();
+
+    // Vista de un sprint, version, proyecto o usuario: solo el nombre (las listas las completa el caso de uso)
+    public ArchivoVistaPreviaResponseDTO(String tipo, String uuid, String nombre) {
+        setUuid(uuid);
+        this.tipo = tipo;
+        this.nombre = nombre;
+    }
+
+    // Vista de una tarea: nombre, donde vuelve, descripcion y si el padre sigue archivado
+    public ArchivoVistaPreviaResponseDTO(String tipo, String uuid, String nombre, String ubicacion, String descripcion, boolean padreArchivado) {
+        this(tipo, uuid, nombre);
+        this.ubicacion = ubicacion;
+        this.descripcion = descripcion;
+        this.padreArchivado = padreArchivado;
+    }
 }

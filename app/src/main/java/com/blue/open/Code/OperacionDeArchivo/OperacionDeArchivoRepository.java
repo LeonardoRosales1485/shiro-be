@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de operaciones de archivo. Tambien lee lo archivado de cada tipo para la busqueda de archivados.
@@ -63,4 +64,28 @@ public interface OperacionDeArchivoRepository extends EntidadRepository<Operacio
             + "FROM Tarea t WHERE t.status = -1 AND t.proyecto.id = :proyecto AND (t.idOperacionArchivo IS NULL OR t.idOperacionArchivo <> :operacion) "
             + "ORDER BY t.numero LIMIT 50")
     List<ElementoDeArchivoDTO> tareasDelProyectoArchivadasAparte(@Param("proyecto") Long proyecto, @Param("operacion") Long operacion);
+
+    // Vista previa de una tarea archivada: clave y titulo, tablero y estado al archivarse, descripcion y si el padre
+    // sigue archivado (CU-ARC-02)
+    @Query("SELECT new com.blue.open.Code.OperacionDeArchivo.ArchivoVistaPreviaResponseDTO('TAREA', t.uuid, CONCAT(t.clave, ' ', t.titulo), "
+            + "CONCAT(tt.nombre, ' · ', e.nombre), t.descripcion, CASE WHEN p.status = -1 THEN true ELSE false END) "
+            + "FROM Tarea t JOIN t.tablero tb JOIN tb.tipoTablero tt JOIN t.estado e LEFT JOIN t.padre p WHERE t.uuid = :uuid AND t.status = -1")
+    Optional<ArchivoVistaPreviaResponseDTO> vistaDeTarea(@Param("uuid") String uuid);
+
+    // Vista previa de un proyecto archivado: prefijo y nombre (CU-ARC-02)
+    @Query("SELECT new com.blue.open.Code.OperacionDeArchivo.ArchivoVistaPreviaResponseDTO('PROYECTO', p.uuid, CONCAT(p.prefijo, ' ', p.nombre)) "
+            + "FROM Proyecto p WHERE p.uuid = :uuid AND p.status = -1")
+    Optional<ArchivoVistaPreviaResponseDTO> vistaDeProyecto(@Param("uuid") String uuid);
+
+    // Vista previa de un sprint archivado: su nombre (CU-ARC-02)
+    @Query("SELECT new com.blue.open.Code.OperacionDeArchivo.ArchivoVistaPreviaResponseDTO('SPRINT', s.uuid, s.nombre) FROM Sprint s WHERE s.uuid = :uuid AND s.status = -1")
+    Optional<ArchivoVistaPreviaResponseDTO> vistaDeSprint(@Param("uuid") String uuid);
+
+    // Vista previa de una version archivada: su nombre (CU-ARC-02)
+    @Query("SELECT new com.blue.open.Code.OperacionDeArchivo.ArchivoVistaPreviaResponseDTO('VERSION', v.uuid, v.nombre) FROM Version v WHERE v.uuid = :uuid AND v.status = -1")
+    Optional<ArchivoVistaPreviaResponseDTO> vistaDeVersion(@Param("uuid") String uuid);
+
+    // Vista previa de un usuario archivado: su nombre de usuario (CU-ARC-02)
+    @Query("SELECT new com.blue.open.Code.OperacionDeArchivo.ArchivoVistaPreviaResponseDTO('USUARIO', u.uuid, u.nombreDeUsuario) FROM Usuario u WHERE u.uuid = :uuid AND u.status = -1")
+    Optional<ArchivoVistaPreviaResponseDTO> vistaDeUsuario(@Param("uuid") String uuid);
 }

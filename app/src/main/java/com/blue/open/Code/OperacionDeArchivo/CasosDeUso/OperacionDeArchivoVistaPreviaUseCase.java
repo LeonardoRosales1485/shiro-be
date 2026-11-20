@@ -7,13 +7,9 @@ import com.blue.open.Code.OperacionDeArchivo.OperacionDeArchivoRepository;
 import com.blue.open.Code.Proyecto.Proyecto;
 import com.blue.open.Code.Proyecto.ProyectoRepository;
 import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
-import com.blue.open.Code.Sprint.Sprint;
 import com.blue.open.Code.Sprint.SprintRepository;
 import com.blue.open.Code.Tarea.Tarea;
 import com.blue.open.Code.Tarea.TareaRepository;
-import com.blue.open.Code.Usuario.Usuario;
-import com.blue.open.Code.Usuario.UsuarioRepository;
-import com.blue.open.Code.Version.Version;
 import com.blue.open.Code.Version.VersionRepository;
 import com.blue.open.Core.Crud.Excepciones.CodigoDeErrorCrud;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
@@ -53,62 +49,49 @@ public class OperacionDeArchivoVistaPreviaUseCase {
 
     private final VersionRepository versionRepository;
 
-    private final UsuarioRepository usuarioRepository;
-
     private final ResolutorDePermisosDeRecurso permisos;
 
     @Transactional(readOnly = true)
     public ArchivoVistaPreviaResponseDTO ejecutar(String tipo, String uuid) {
         String normalizado = tipo == null ? "" : tipo.trim().toUpperCase(Locale.ROOT);
-        ArchivoVistaPreviaResponseDTO vista = switch (normalizado) {
-            case "TAREA" -> deTarea(archivado(tareaRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid));
-            case "PROYECTO" -> deProyecto(archivado(proyectoRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid));
+        // La entidad se carga solo para exigir el permiso; la vista sale de la consulta (Proyeccion)
+        return switch (normalizado) {
+            case "TAREA" -> {
+                Tarea tarea = archivado(tareaRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid);
+                permisos.exigir(NivelDePermiso.ARCHIVAR, tarea.getTablero());
+                ArchivoVistaPreviaResponseDTO vista = archivado(repository.vistaDeTarea(uuid), uuid);
+                Long operacion = tarea.getIdOperacionArchivo() == null ? -1L : tarea.getIdOperacionArchivo();
+                vista.setSeRestauran(repository.tareasDeLaOperacion(operacion, tarea.getId()));
+                vista.setCantidadQueSeRestaura(cantidadEnLaOperacion(tarea.getIdOperacionArchivo(), 1));
+                vista.setQuedanArchivadas(repository.hijasArchivadasAparte(tarea.getId(), operacion));
+                yield vista;
+            }
+            case "PROYECTO" -> {
+                Proyecto proyecto = archivado(proyectoRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid);
+                permisos.exigir(NivelDePermiso.ARCHIVAR, proyecto);
+                ArchivoVistaPreviaResponseDTO vista = archivado(repository.vistaDeProyecto(uuid), uuid);
+                Long operacion = proyecto.getIdOperacionArchivo() == null ? -1L : proyecto.getIdOperacionArchivo();
+                vista.setSeRestauran(repository.tareasDeLaOperacion(operacion, -1L));
+                vista.setCantidadQueSeRestaura(cantidadEnLaOperacion(proyecto.getIdOperacionArchivo(), 0));
+                vista.setQuedanArchivadas(repository.tareasDelProyectoArchivadasAparte(proyecto.getId(), operacion));
+                yield vista;
+            }
             case "SPRINT" -> {
-                Sprint sprint = archivado(sprintRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid);
-                permisos.exigir(NivelDePermiso.ARCHIVAR, sprint.getProyecto());
-                yield basica(sprint.getNombre());
+                permisos.exigir(NivelDePermiso.ARCHIVAR, archivado(sprintRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid).getProyecto());
+                yield archivado(repository.vistaDeSprint(uuid), uuid);
             }
             case "VERSION" -> {
-                Version version = archivado(versionRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid);
-                permisos.exigir(NivelDePermiso.ARCHIVAR, version.getProyecto());
-                yield basica(version.getNombre());
+                permisos.exigir(NivelDePermiso.ARCHIVAR, archivado(versionRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid).getProyecto());
+                yield archivado(repository.vistaDeVersion(uuid), uuid);
             }
             case "USUARIO" -> {
-                Usuario usuario = archivado(usuarioRepository.findFirstByUuidAndStatus(uuid, ARCHIVADO), uuid);
+                ArchivoVistaPreviaResponseDTO vista = archivado(repository.vistaDeUsuario(uuid), uuid);
                 if (!permisos.esAdministrador())
                     throw new ExcepcionDeApi(CodigoDeErrorKernel.SIN_PERMISO, "OperacionDeArchivoVistaPreviaUseCase | usuario " + uuid);
-                yield basica(usuario.getNombreDeUsuario());
+                yield vista;
             }
             default -> throw new ExcepcionDeApi(CodigoDeErrorCrud.REGISTRO_NO_ENCONTRADO, "OperacionDeArchivoVistaPreviaUseCase | tipo " + tipo);
         };
-        vista.setTipo(normalizado);
-        vista.setUuid(uuid);
-        return vista;
-    }
-
-    // Tarea: tablero y estado, descripcion, padre archivado, lo que se restaura con ella y sus hijas archivadas aparte
-    private ArchivoVistaPreviaResponseDTO deTarea(Tarea tarea) {
-        permisos.exigir(NivelDePermiso.ARCHIVAR, tarea.getTablero());
-        ArchivoVistaPreviaResponseDTO vista = basica(tarea.getClave() + " " + tarea.getTitulo());
-        vista.setUbicacion(tarea.getTablero().getTipoTablero().getNombre() + " · " + tarea.getEstado().getNombre());
-        vista.setDescripcion(tarea.getDescripcion());
-        vista.setPadreArchivado(tarea.getPadre() != null && tarea.getPadre().getStatus() == ARCHIVADO);
-        Long operacion = tarea.getIdOperacionArchivo() == null ? -1L : tarea.getIdOperacionArchivo();
-        vista.setSeRestauran(repository.tareasDeLaOperacion(operacion, tarea.getId()));
-        vista.setCantidadQueSeRestaura(cantidadEnLaOperacion(tarea.getIdOperacionArchivo(), 1));
-        vista.setQuedanArchivadas(repository.hijasArchivadasAparte(tarea.getId(), operacion));
-        return vista;
-    }
-
-    // Proyecto: sus tareas de la operacion (se restauran) y las archivadas aparte (quedan archivadas)
-    private ArchivoVistaPreviaResponseDTO deProyecto(Proyecto proyecto) {
-        permisos.exigir(NivelDePermiso.ARCHIVAR, proyecto);
-        ArchivoVistaPreviaResponseDTO vista = basica(proyecto.getPrefijo() + " " + proyecto.getNombre());
-        Long operacion = proyecto.getIdOperacionArchivo() == null ? -1L : proyecto.getIdOperacionArchivo();
-        vista.setSeRestauran(repository.tareasDeLaOperacion(operacion, -1L));
-        vista.setCantidadQueSeRestaura(cantidadEnLaOperacion(proyecto.getIdOperacionArchivo(), 0));
-        vista.setQuedanArchivadas(repository.tareasDelProyectoArchivadasAparte(proyecto.getId(), operacion));
-        return vista;
     }
 
     // Tareas archivadas en la operacion, menos las que se descuentan (la propia tarea)
@@ -117,13 +100,6 @@ public class OperacionDeArchivoVistaPreviaUseCase {
             return 0;
         long cantidad = repository.tareasPorOperacion(List.of(operacion)).stream().mapToLong(ConteoPorOperacion::cantidad).sum();
         return (int) Math.max(0, cantidad - descontar);
-    }
-
-    // Vista con solo el nombre
-    private static ArchivoVistaPreviaResponseDTO basica(String nombre) {
-        ArchivoVistaPreviaResponseDTO vista = new ArchivoVistaPreviaResponseDTO();
-        vista.setNombre(nombre);
-        return vista;
     }
 
     // El elemento archivado, o REGISTRO_NO_ENCONTRADO si no existe o no esta archivado
