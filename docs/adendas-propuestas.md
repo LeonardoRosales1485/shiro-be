@@ -105,3 +105,14 @@ Otras resoluciones: el front pregunta si el usuario es administrador con `GET /u
 | 49 (archivados sin «Incluye», «Ver» ni detalle de la restauración) | `/archivo/paginar` trae `incluidos` (tareas archivadas en la misma operación) y `GET /archivo/{tipo}/{uuid}/vista-previa` (CU-ARC-02, con `ARCHIVAR`; usuarios, administradores) dice dónde vuelve, qué se restaura con el elemento y qué queda archivado, y si el padre sigue archivado. El front muestra «Incluye», «Ver» y la vista previa al restaurar |
 | 50 (tokens sin último uso ni revocados) | `shr_uso_de_token` guarda el último uso de cada token (lo registra la autenticación por token, a lo sumo una vez por minuto) y `GET /usuario/mis-tokens` (CU-USR-25) lista todos los tokens del usuario, también los revocados, con creación, revocación y último uso |
 | 51 (búsqueda sin «Sin sprint» ni varios valores) | Tablero, tipo, estado, responsable y sprint aceptan varios valores (se combinan con O, en un mismo grupo de filtros del paginado) y el sprint tiene «Sin sprint (backlog)» (operación `is null`). Sin cambios en el backend |
+
+## Resoluciones del arquitecto sobre las propuestas de T6.5 (20/11/2026)
+
+| Propuesta | Resolución |
+| --- | --- |
+| 52 (permisos por nivel independiente) | Aprobada: lo dice la spec |
+| 53 (sin lista de proyectos de Jira) | Nuevo `POST /importacion/proyectos-de-jira` (CU-IMP-08): con URL, correo y token lista los proyectos de Jira visibles, sin guardar nada. Es el «Probar conexión» del asistente: se elige el proyecto de una lista y el prefijo propone su clave |
+| 54 (sin «Crear cuenta» en Usuarios) | En el paso Usuarios, cada persona de Jira sin cuenta (con correo visible) tiene «Crear cuenta», que abre «Crear cuenta de Shiro» con su nombre y correo; al crearla se vuelve a leer el catálogo y queda vinculada. Quien no tenga cuenta sigue quedando como «Usuario importado» |
+| 55 (sin avance ni cancelar) | `shr_importacion` guarda el avance (`avance`, JSON: inicio y versiones, sprints, tareas, lectura de comentarios y comentarios hechos de cuántos hay), escrito en su propia transacción a lo sumo una vez por segundo, y `cancelacion_pedida`. `POST /importacion/{uuid}/cancelar` (CU-IMP-07) la marca; la ejecución se corta en el próximo control, no queda nada de esa ejecución (corre en una sola transacción) y pasa a `CANCELADA`. El front muestra hora de inicio, tiempo estimado, porcentaje, conteos y «Cancelar importación» |
+| 56 (listado de administración y cuenta de Shiro) | El super admin aparece en la lista del grupo Administradores («Solo el super admin», sin «Sacar») y cuenta en sus personas. La cuenta de Shiro pide un nombre de usuario propio. La contraseña inicial la genera el backend: `POST /usuario/crear-cuenta` (CU-USR-27) crea la cuenta con sus grupos y responde la contraseña una sola vez |
+

@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.47"
+  version: "1.0.48"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -37,8 +37,10 @@ info:
     | `GRUPO_DEL_SISTEMA` | 400 | Los grupos del sistema no se archivan. | Se intentó archivar un grupo del sistema (SYSADMIN o ADMIN), que no se archiva |
     | `GRUPO_REPETIDO` | 400 | Ya hay un grupo con ese nombre. | Al crear o editar un grupo, ya hay otro vigente con ese nombre |
     | `HOOK_NO_IMPLEMENTADO` | 500 | No implementado | El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend |
+    | `IMPORTACION_CANCELADA` | 409 | Se canceló la importación: no se importó nada de esta ejecución. | La importación se cortó porque un administrador la canceló: no quedó nada de esa ejecución. Queda en el resumen de una importación CANCELADA |
     | `IMPORTACION_CON_OTRO_PREFIJO` | 400 | Ese proyecto de Jira ya se importó con otro prefijo. Usá el mismo para reimportarlo. | Al conectar con Jira, esa clave ya se importó en un proyecto de Shiro con otro prefijo: hay que usar el prefijo de ese proyecto |
     | `IMPORTACION_EN_CURSO` | 409 | La importación está en curso. Esperá a que termine. | Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine |
+    | `IMPORTACION_NO_EN_CURSO` | 409 | La importación no está en curso: no hay nada que cancelar. | Se pidió cancelar una importación que no está en curso (ya terminó, falló o no se ejecutó) |
     | `IMPORTACION_SIN_MAPEO` | 400 | Antes de importar hay que mapear los tableros, estados y tipos. | Se intentó ejecutar una importación que todavía no tiene mapeo |
     | `JERARQUIA_DE_TAREA_INVALIDA` | 400 | El tipo de la tarea no encaja en la jerarquía. | Al crear o editar una tarea, el tipo no encaja en la jerarquía: el padre tiene que ser de un nivel menor (Épica, después Historia, Tarea o Bug, después Subtarea), y las hijas, de un nivel mayor |
     | `JIRA_CREDENCIALES_INVALIDAS` | 400 | Jira rechazó el correo o el token. Revisalos y volvé a intentar. | Jira rechazó el correo o el token de API (o no tienen acceso al proyecto) |
@@ -1415,6 +1417,14 @@ paths:
             schema:
               $ref: "#/components/schemas/ImportacionConectarRequestDTO"
             examples:
+              al-terminar-el-avance-queda-completo:
+                summary: "Al terminar el avance queda completo (SYSADMIN)"
+                value:
+                  claveProyecto: "JSIM"
+                  correo: "importador@example.com"
+                  prefijo: "SIM"
+                  token: "token-de-jira-simulado"
+                  url: "http://127.0.0.1:40267"
               el-prefijo-ya-lo-usa-otro-proyecto:
                 summary: "El prefijo ya lo usa otro proyecto (SYSADMIN)"
                 value:
@@ -1422,7 +1432,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40703"
+                  url: "http://127.0.0.1:35769"
               solo-sitios-de-atlassian:
                 summary: "Solo sitios de atlassian (SYSADMIN)"
                 value:
@@ -1458,7 +1468,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "otro-token"
-                  url: "http://127.0.0.1:40703"
+                  url: "http://127.0.0.1:35769"
               proyecto-inexistente-en-jira:
                 summary: "Proyecto inexistente en jira (SYSADMIN)"
                 value:
@@ -1466,7 +1476,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40703"
+                  url: "http://127.0.0.1:35769"
               el-prefijo-tiene-de-dos-a-seis-letras:
                 summary: "El prefijo tiene de dos a seis letras (SYSADMIN)"
                 value:
@@ -1474,7 +1484,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "S1"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:40703"
+                  url: "http://127.0.0.1:35769"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -1482,7 +1492,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39141"
+                  url: "http://127.0.0.1:34293"
               un-proyecto-ya-importado-no-cambia-de-prefijo-2:
                 summary: "Un proyecto ya importado no cambia de prefijo (2) (SYSADMIN)"
                 value:
@@ -1490,7 +1500,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "OTRO"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39141"
+                  url: "http://127.0.0.1:34293"
               importa-un-proyecto-real-sin-fallas:
                 summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                 value:
@@ -1507,6 +1517,166 @@ paths:
               schema:
                 $ref: "#/components/schemas/ImportacionCatalogoDTO"
               examples:
+                al-terminar-el-avance-queda-completo:
+                  summary: "Al terminar el avance queda completo (SYSADMIN)"
+                  value:
+                    estados:
+                    - fechaDeCreacion: null
+                      idJira: "1"
+                      nivel: null
+                      nombre: "To Do"
+                      status: 0
+                      terminado: false
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "3"
+                      nivel: null
+                      nombre: "Done"
+                      status: 0
+                      terminado: true
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "21"
+                      nivel: null
+                      nombre: "Testing"
+                      status: 0
+                      terminado: false
+                      uuid: null
+                    fechaDeCreacion: null
+                    importacionUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    nombreProyectoJira: "Proyecto simulado"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: null
+                      idJira: "11"
+                      nivel: null
+                      nombre: "Desarrollo"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "12"
+                      nivel: null
+                      nombre: "QA"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    tipos:
+                    - fechaDeCreacion: null
+                      idJira: "10000"
+                      nivel: 1
+                      nombre: "Epic"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "10001"
+                      nivel: 2
+                      nombre: "Story"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "10002"
+                      nivel: 2
+                      nombre: "Task"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    usuarios:
+                    - correo: "demo@example.local"
+                      fechaDeCreacion: null
+                      nombre: "Demo"
+                      status: 0
+                      usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                      uuid: null
+                    - correo: "nadie@example.com"
+                      fechaDeCreacion: null
+                      nombre: "Nadie Pérez"
+                      status: 0
+                      usuarioUuid: null
+                      uuid: null
+                    uuid: null
+                solo-se-cancela-una-importacion-en-curso:
+                  summary: "Solo se cancela una importacion en curso (SYSADMIN)"
+                  value:
+                    estados:
+                    - fechaDeCreacion: null
+                      idJira: "1"
+                      nivel: null
+                      nombre: "To Do"
+                      status: 0
+                      terminado: false
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "3"
+                      nivel: null
+                      nombre: "Done"
+                      status: 0
+                      terminado: true
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "21"
+                      nivel: null
+                      nombre: "Testing"
+                      status: 0
+                      terminado: false
+                      uuid: null
+                    fechaDeCreacion: null
+                    importacionUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    nombreProyectoJira: "Proyecto simulado"
+                    status: 0
+                    tableros:
+                    - fechaDeCreacion: null
+                      idJira: "11"
+                      nivel: null
+                      nombre: "Desarrollo"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "12"
+                      nivel: null
+                      nombre: "QA"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    tipos:
+                    - fechaDeCreacion: null
+                      idJira: "10000"
+                      nivel: 1
+                      nombre: "Epic"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "10001"
+                      nivel: 2
+                      nombre: "Story"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    - fechaDeCreacion: null
+                      idJira: "10002"
+                      nivel: 2
+                      nombre: "Task"
+                      status: 0
+                      terminado: null
+                      uuid: null
+                    usuarios:
+                    - correo: "demo@example.local"
+                      fechaDeCreacion: null
+                      nombre: "Demo"
+                      status: 0
+                      usuarioUuid: "90000000-0000-4000-8000-000000000002"
+                      uuid: null
+                    - correo: "nadie@example.com"
+                      fechaDeCreacion: null
+                      nombre: "Nadie Pérez"
+                      status: 0
+                      usuarioUuid: null
+                      uuid: null
+                    uuid: null
                 conectar-responde-el-catalogo-de-jira:
                   summary: "Conectar responde el catalogo de jira (SYSADMIN)"
                   value:
@@ -3130,7 +3300,9 @@ paths:
                   value:
                     cantidadDeElementos: 2
                     contenido:
-                    - claveProyectoJira: "EJ"
+                    - avance: null
+                      cancelacionPedida: false
+                      claveProyectoJira: "EJ"
                       correo: "importador@example.local"
                       estado: "CONECTADA"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -3142,7 +3314,9 @@ paths:
                       status: 0
                       urlJira: "https://ejemplo.atlassian.net"
                       uuid: "b8000000-0000-4000-8000-000000000001"
-                    - claveProyectoJira: "EJD"
+                    - avance: null
+                      cancelacionPedida: false
+                      claveProyectoJira: "EJD"
                       correo: "importador@example.local"
                       estado: "EN_CURSO"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -3161,6 +3335,126 @@ paths:
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /importacion/proyectos-de-jira:
+    post:
+      tags:
+      - "Importacion"
+      operationId: "ImportacionController.proyectosDeJira"
+      summary: "Prueba la conexión con Jira y lista los proyectos visibles con esas credenciales (no guarda el token)"
+      description: |-
+        **Caso de uso:** CU-IMP-08
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-IMP-08"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportacionProyectosRequestDTO"
+            examples:
+              credenciales-invalidas:
+                summary: "Credenciales invalidas (SYSADMIN)"
+                value:
+                  correo: "importador@example.com"
+                  token: "otro"
+                  url: "http://127.0.0.1:46015"
+              lista-los-proyectos-visibles:
+                summary: "Lista los proyectos visibles (SYSADMIN)"
+                value:
+                  correo: "importador@example.com"
+                  token: "token-de-jira-simulado"
+                  url: "http://127.0.0.1:46015"
+              url-que-no-es-de-jira-cloud:
+                summary: "Url que no es de jira cloud (SYSADMIN)"
+                value:
+                  correo: "importador@example.com"
+                  token: "token-de-jira-simulado"
+                  url: "https://ejemplo.com"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ProyectoDeJiraDTO"
+              examples:
+                lista-los-proyectos-visibles:
+                  summary: "Lista los proyectos visibles (SYSADMIN)"
+                  value:
+                  - clave: "JSIM"
+                    fechaDeCreacion: null
+                    nombre: "Proyecto simulado"
+                    status: 0
+                    uuid: null
+                  - clave: "OTRO"
+                    fechaDeCreacion: null
+                    nombre: "Otro proyecto"
+                    status: 0
+                    uuid: null
+        "400":
+          description: "Errores: `JIRA_CREDENCIALES_INVALIDAS`, `JIRA_URL_NO_PERMITIDA`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                credenciales-invalidas:
+                  summary: "Credenciales invalidas (SYSADMIN)"
+                  value:
+                    codigo: "JIRA_CREDENCIALES_INVALIDAS"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Jira rechazó el correo o el token. Revisalos y volvé a intentar."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+                url-que-no-es-de-jira-cloud:
+                  summary: "Url que no es de jira cloud (SYSADMIN)"
+                  value:
+                    codigo: "JIRA_URL_NO_PERMITIDA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La URL de Jira tiene que ser https://{tu-sitio}.atlassian.net."
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
         "401":
           description: "Errores: `NO_AUTENTICADO`"
           content:
@@ -3225,6 +3519,8 @@ paths:
                 conectar-responde-el-catalogo-de-jira:
                   summary: "Conectar responde el catalogo de jira (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "CONECTADA"
@@ -3235,11 +3531,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:40703"
+                    urlJira: "http://127.0.0.1:35769"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "EJ"
                     correo: "importador@example.local"
                     estado: "CONECTADA"
@@ -3299,6 +3597,100 @@ paths:
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
                     mensajeParaUsuario: "No tienes permiso"
                     status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+  /importacion/{uuid}/cancelar:
+    post:
+      tags:
+      - "Importacion"
+      operationId: "ImportacionController.cancelar"
+      summary: "Cancela una importación en curso: se corta en el próximo control, no queda nada de esa ejecución y pasa a CANCELADA"
+      description: |-
+        **Caso de uso:** CU-IMP-07
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-IMP-07"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters:
+      - name: "uuid"
+        in: "path"
+        required: true
+        description: "Uuid de la importación"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportacionDTO"
+              examples:
+                cancelar-una-importacion-en-curso:
+                  summary: "Cancelar una importacion en curso (SYSADMIN)"
+                  value:
+                    avance: null
+                    cancelacionPedida: true
+                    claveProyectoJira: "EJD"
+                    correo: "importador@example.local"
+                    estado: "EN_CURSO"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    mapeo: "{\"tableros\":{},\"estados\":{},\"tipos\":{},\"duracionDeSprintEnDias\":14}"
+                    nombreProyectoJira: "Proyecto de ejemplo en curso"
+                    prefijo: "EJD"
+                    proyectoUuid: null
+                    resumen: null
+                    status: 0
+                    urlJira: "https://ejemplo.atlassian.net"
+                    uuid: "b8000000-0000-4000-8000-000000000002"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+        "409":
+          description: "Errores: `IMPORTACION_NO_EN_CURSO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                solo-se-cancela-una-importacion-en-curso:
+                  summary: "Solo se cancela una importacion en curso (SYSADMIN)"
+                  value:
+                    codigo: "IMPORTACION_NO_EN_CURSO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La importación no está en curso: no hay nada que cancelar."
+                    status: "409 CONFLICT"
                     traceId: "0000000000000000"
   /importacion/{uuid}/catalogo:
     get:
@@ -3486,24 +3878,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ImportacionDTO"
               examples:
-                el-mapeo-puede-crear-estados-y-tipos-que-faltan:
-                  summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
+                al-terminar-el-avance-queda-completo:
+                  summary: "Al terminar el avance queda completo (SYSADMIN)"
                   value:
-                    claveProyectoJira: "JSIM"
-                    correo: "importador@example.com"
-                    estado: "TERMINADA"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f542-7aff-75a3-8b6c-2ed81ba06b68\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f542-7b05-7e40-b096-62fe38dacf81\"},\"duracionDeSprintEnDias\":10}"
-                    nombreProyectoJira: "Proyecto simulado"
-                    prefijo: "SIM"
-                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
-                    status: 0
-                    urlJira: "http://127.0.0.1:39141"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                las-tareas-nuevas-siguen-el-contador-del-proyecto:
-                  summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
-                  value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:53.845-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3514,11 +3893,47 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:40267"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                el-mapeo-puede-crear-estados-y-tipos-que-faltan:
+                  summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
+                  value:
+                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-20T08:31:51.774-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":2,\"tareasConComentariosLeidos\":2,\"tareasTotales\":2,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
+                    claveProyectoJira: "JSIM"
+                    correo: "importador@example.com"
+                    estado: "TERMINADA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f8ba-271f-7e1f-8a14-ef3167c5b88f\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f8ba-2724-7d99-8fa4-c864fe5dedd5\"},\"duracionDeSprintEnDias\":10}"
+                    nombreProyectoJira: "Proyecto simulado"
+                    prefijo: "SIM"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
+                    status: 0
+                    urlJira: "http://127.0.0.1:34293"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                las-tareas-nuevas-siguen-el-contador-del-proyecto:
+                  summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
+                  value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:52.162-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
+                    claveProyectoJira: "JSIM"
+                    correo: "importador@example.com"
+                    estado: "TERMINADA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"},\"duracionDeSprintEnDias\":14}"
+                    nombreProyectoJira: "Proyecto simulado"
+                    prefijo: "SIM"
+                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
+                    status: 0
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-20T08:31:52.399-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":4,\"tareasConComentariosLeidos\":4,\"tareasTotales\":4,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3529,11 +3944,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:52.603-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3544,11 +3961,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:52.720-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3559,11 +3978,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:52.957-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3574,11 +3995,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:53.304-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3589,11 +4012,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:53.432-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3604,11 +4029,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:53.532-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3619,11 +4046,13 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica-2:
                   summary: "Reimportar no duplica (2) (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T08:31:53.659-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
@@ -3634,16 +4063,18 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                   value:
+                    avance: "{\"comentarios\":0,\"comentariosTotales\":0,\"inicio\":\"2026-11-20T08:31:57.397-03:00\",\"sprints\":1,\"sprintsTotales\":1,\"tareas\":87,\"tareasConComentariosLeidos\":87,\"tareasTotales\":87,\"versiones\":0,\"versionesTotales\":0}"
+                    cancelacionPedida: false
                     claveProyectoJira: "EXP"
                     correo: "leonardorosales1485@gmail.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f542-8fb2-7c42-850b-35b9e7bce02c\",\"11300\":\"01a1f542-8fb3-7f8a-8795-9ac584901ff4\",\"11299\":\"01a1f542-8fb4-756f-8b7d-c3ad4427b673\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f542-8fb5-78ae-808f-c11045e6e253\",\"11645\":\"01a1f542-8fb7-7899-bcd2-11aaa60f2f35\",\"11644\":\"01a1f542-8fb6-7ed3-987d-022fe21320fd\",\"11864\":\"01a1f542-8fb8-73e1-9343-7268c6cf6834\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f8ba-3d35-7ded-a843-17ad62d68cd8\",\"11300\":\"01a1f8ba-3d37-7cb7-9df5-35fb7c5d7b59\",\"11299\":\"01a1f8ba-3d38-7440-ab4a-ef71cb3784f3\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f8ba-3d3a-7841-b0b9-fc41e6db6aeb\",\"11645\":\"01a1f8ba-3d3b-7946-a908-1ed7ee4d24e4\",\"11644\":\"01a1f8ba-3d3b-7f69-b21c-cb03efff764f\",\"11864\":\"01a1f8ba-3d3c-76e1-90e7-ef64d4f10a81\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
@@ -3752,6 +4183,30 @@ paths:
             schema:
               $ref: "#/components/schemas/ImportacionMapeoRequestDTO"
             examples:
+              al-terminar-el-avance-queda-completo:
+                summary: "Al terminar el avance queda completo (SYSADMIN)"
+                value:
+                  duracionDeSprintEnDias: 14
+                  tableros:
+                  - estados:
+                    - estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                      idJira: "1"
+                    - estadoUuid: "a2000000-0000-4000-8000-000000000015"
+                      idJira: "3"
+                    idJira: "11"
+                    tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                  - estados:
+                    - estadoUuid: "a2000000-0000-4000-8000-000000000021"
+                      idJira: "21"
+                    idJira: "12"
+                    tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                  tipos:
+                  - idJira: "10001"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
+                  - idJira: "10000"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -3790,30 +4245,6 @@ paths:
                     idJira: "999"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
                   tipos: []
-              las-tareas-nuevas-siguen-el-contador-del-proyecto:
-                summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
-                value:
-                  duracionDeSprintEnDias: 14
-                  tableros:
-                  - estados:
-                    - estadoUuid: "a2000000-0000-4000-8000-000000000011"
-                      idJira: "1"
-                    - estadoUuid: "a2000000-0000-4000-8000-000000000015"
-                      idJira: "3"
-                    idJira: "11"
-                    tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
-                  - estados:
-                    - estadoUuid: "a2000000-0000-4000-8000-000000000021"
-                      idJira: "21"
-                    idJira: "12"
-                    tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
-                  tipos:
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
-                  - idJira: "10002"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               un-tipo-sin-mapear-queda-en-las-fallas:
                 summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
                 value:
@@ -3866,12 +4297,12 @@ paths:
                     idJira: "12"
                     tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
                   tipos:
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
                   - idJira: "10001"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
-                  - idJira: "10002"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
+                  - idJira: "10000"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
+                  - idJira: "10004"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
               importa-un-proyecto-real-sin-fallas:
                 summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                 value:
@@ -3901,24 +4332,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ImportacionDTO"
               examples:
-                el-mapeo-puede-crear-estados-y-tipos-que-faltan:
-                  summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
+                al-terminar-el-avance-queda-completo:
+                  summary: "Al terminar el avance queda completo (SYSADMIN)"
                   value:
-                    claveProyectoJira: "JSIM"
-                    correo: "importador@example.com"
-                    estado: "MAPEADA"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f542-7aff-75a3-8b6c-2ed81ba06b68\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f542-7b05-7e40-b096-62fe38dacf81\"},\"duracionDeSprintEnDias\":10}"
-                    nombreProyectoJira: "Proyecto simulado"
-                    prefijo: "SIM"
-                    proyectoUuid: null
-                    resumen: null
-                    status: 0
-                    urlJira: "http://127.0.0.1:39141"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                las-tareas-nuevas-siguen-el-contador-del-proyecto:
-                  summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
-                  value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -3929,11 +4347,47 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:40267"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                el-mapeo-puede-crear-estados-y-tipos-que-faltan:
+                  summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
+                  value:
+                    avance: null
+                    cancelacionPedida: false
+                    claveProyectoJira: "JSIM"
+                    correo: "importador@example.com"
+                    estado: "MAPEADA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f8ba-271f-7e1f-8a14-ef3167c5b88f\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f8ba-2724-7d99-8fa4-c864fe5dedd5\"},\"duracionDeSprintEnDias\":10}"
+                    nombreProyectoJira: "Proyecto simulado"
+                    prefijo: "SIM"
+                    proyectoUuid: null
+                    resumen: null
+                    status: 0
+                    urlJira: "http://127.0.0.1:34293"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                las-tareas-nuevas-siguen-el-contador-del-proyecto:
+                  summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
+                  value:
+                    avance: null
+                    cancelacionPedida: false
+                    claveProyectoJira: "JSIM"
+                    correo: "importador@example.com"
+                    estado: "MAPEADA"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\",\"12\":\"a1000000-0000-4000-8000-000000000002\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"a2000000-0000-4000-8000-000000000015\"},\"12\":{\"21\":\"a2000000-0000-4000-8000-000000000021\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10002\":\"a3000000-0000-4000-8000-000000000003\",\"10001\":\"a3000000-0000-4000-8000-000000000002\",\"10004\":\"a3000000-0000-4000-8000-000000000005\",\"10003\":\"a3000000-0000-4000-8000-000000000004\"},\"duracionDeSprintEnDias\":14}"
+                    nombreProyectoJira: "Proyecto simulado"
+                    prefijo: "SIM"
+                    proyectoUuid: null
+                    resumen: null
+                    status: 0
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -3944,11 +4398,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -3959,11 +4415,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -3974,11 +4432,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 mapear-deja-la-importacion-lista:
                   summary: "Mapear deja la importacion lista (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -3989,11 +4449,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -4004,11 +4466,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -4019,11 +4483,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -4034,11 +4500,13 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "MAPEADA"
@@ -4049,16 +4517,18 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39141"
+                    urlJira: "http://127.0.0.1:34293"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importa-un-proyecto-real-sin-fallas:
                   summary: "Importa un proyecto real sin fallas (SYSADMIN)"
                   value:
+                    avance: null
+                    cancelacionPedida: false
                     claveProyectoJira: "EXP"
                     correo: "leonardorosales1485@gmail.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f542-8fb2-7c42-850b-35b9e7bce02c\",\"11300\":\"01a1f542-8fb3-7f8a-8795-9ac584901ff4\",\"11299\":\"01a1f542-8fb4-756f-8b7d-c3ad4427b673\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f542-8fb5-78ae-808f-c11045e6e253\",\"11645\":\"01a1f542-8fb7-7899-bcd2-11aaa60f2f35\",\"11644\":\"01a1f542-8fb6-7ed3-987d-022fe21320fd\",\"11864\":\"01a1f542-8fb8-73e1-9343-7268c6cf6834\"},\"duracionDeSprintEnDias\":14}"
+                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f8ba-3d35-7ded-a843-17ad62d68cd8\",\"11300\":\"01a1f8ba-3d37-7cb7-9df5-35fb7c5d7b59\",\"11299\":\"01a1f8ba-3d38-7440-ab4a-ef71cb3784f3\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f8ba-3d3a-7841-b0b9-fc41e6db6aeb\",\"11645\":\"01a1f8ba-3d3b-7946-a908-1ed7ee4d24e4\",\"11644\":\"01a1f8ba-3d3b-7f69-b21c-cb03efff764f\",\"11864\":\"01a1f8ba-3d3c-76e1-90e7-ef64d4f10a81\"},\"duracionDeSprintEnDias\":14}"
                     nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
                     prefijo: "PRB"
                     proyectoUuid: null
@@ -5196,7 +5666,7 @@ paths:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
                     cantidadDeTareas: 5
-                    descripcion: "Importado de Jira (http://127.0.0.1:39141)"
+                    descripcion: "Importado de Jira (http://127.0.0.1:34293)"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Proyecto simulado"
                     prefijo: "SIM"
@@ -8017,7 +8487,7 @@ paths:
                       estado: "PLANIFICADO"
                       fechaDeCierre: null
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      fin: "2026-12-03"
+                      fin: "2026-12-04"
                       inicio: "2026-01-01"
                       nombre: "Sprint sin fechas"
                       proyectoPrefijo: "SIM"
@@ -10720,7 +11190,7 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 26"
+                      titulo: "Alta concurrente 10"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
                       versiones: []
@@ -13985,6 +14455,127 @@ paths:
                     mensajeParaUsuario: "Origen no permitido"
                     status: "403 FORBIDDEN"
                     traceId: "0000000000000000"
+  /usuario/crear-cuenta:
+    post:
+      tags:
+      - "Usuario"
+      operationId: "UsuarioController.crearCuenta"
+      summary: "Crea una cuenta de Shiro con sus grupos; la contraseña inicial la genera el backend y se responde una sola vez"
+      description: |-
+        **Caso de uso:** CU-USR-27
+
+        **Permiso:** `SYSADMIN, ADMIN`
+      x-caso-de-uso: "CU-USR-27"
+      x-permiso: "SYSADMIN, ADMIN"
+      security:
+      - bearer: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioCrearCuentaRequestDTO"
+            examples:
+              crea-la-cuenta-con-contrasena-generada-y-sus-grupos:
+                summary: "Crea la cuenta con contrasena generada y sus grupos (ADMIN)"
+                value:
+                  email: "ana@proveedor.com"
+                  grupos:
+                  - "90000000-0000-4000-8000-000000000009"
+                  nombre: "Ana Externa"
+                  nombreDeUsuario: "ana.externa"
+              falta-el-nombre-de-usuario:
+                summary: "Falta el nombre de usuario (ADMIN)"
+                value:
+                  email: "sin@proveedor.com"
+                  grupos: []
+                  nombre: "Sin usuario"
+              un-administrador-no-suma-al-grupo-administradores:
+                summary: "Un administrador no suma al grupo administradores (ADMIN)"
+                value:
+                  email: "otra@proveedor.com"
+                  grupos:
+                  - "90000000-0000-4000-8000-000000000102"
+                  nombre: "Otra"
+                  nombreDeUsuario: "otra.cuenta"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioCrearCuentaResponseDTO"
+              examples:
+                crea-la-cuenta-con-contrasena-generada-y-sus-grupos:
+                  summary: "Crea la cuenta con contrasena generada y sus grupos (ADMIN)"
+                  value:
+                    contrasena: "rzMA-BRF2-GgJ7-DhNV"
+                    email: "ana@proveedor.com"
+                    fechaDeCreacion: null
+                    nombre: "Ana Externa"
+                    nombreDeUsuario: "ana.externa"
+                    status: 0
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+        "400":
+          description: "Errores: `FORMULARIO_INVALIDO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                falta-el-nombre-de-usuario:
+                  summary: "Falta el nombre de usuario (ADMIN)"
+                  value:
+                    codigo: "FORMULARIO_INVALIDO"
+                    errores:
+                    - mensaje: "Escribí el nombre de usuario"
+                      nombre: "nombreDeUsuario"
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Error en el formulario"
+                    status: "400 BAD_REQUEST"
+                    traceId: "0000000000000000"
+        "401":
+          description: "Errores: `NO_AUTENTICADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-autenticacion:
+                  summary: "Sin autenticación"
+                  value:
+                    codigo: "NO_AUTENTICADO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Usuario no identificado"
+                    status: "401 UNAUTHORIZED"
+                    traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                sin-permiso:
+                  summary: "Sin permiso (CLIENTE)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "No tienes permiso"
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
+                un-administrador-no-suma-al-grupo-administradores:
+                  summary: "Un administrador no suma al grupo administradores (ADMIN)"
+                  value:
+                    codigo: "SIN_PERMISO"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "Solo el super admin administra al super admin, a los Administradores y a sus grupos."
+                    status: "403 FORBIDDEN"
+                    traceId: "0000000000000000"
   /usuario/crear-token:
     post:
       tags:
@@ -14442,27 +15033,27 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjR9.WdSouvuD-R4wTqkZTEwk9dieQEHztjOYoIbtxiCcNWYbu0rseAQvvgRWiCtqhCpORn7mG1dgjGJfXWHlaJOy1xVxG3pUF-BsUWcSUwbeer-n1cE9IJsDaVKAmRvnPZEew1eQucWzGa5EFzXNx8y3PTHaaJX13RkCXodZ5XfDg1ELLfy3T-HBhDoXYTibdWC3YERTHQ3GL1zIt70I4luVIvo_023DtXwAitXT_i0i2YN7wYoSVAW7nVdtYzuczXVEJFgMCHul1v27QHHnPeANaMmGndhYK_aHI06zGGTo2XBkdsD_nXA8G4EnIHr8vo-EuVrafTgEfprPfdCtv-LQhA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxNzc4OTl9.H038qg6pECxqQXqbRTWAndr9kVKDr0RUNyySTfKrSfghFL_jHrbMXFppzmDayHBhpS3twrR0A8WP4Pic6mtEqWOPjfrCYzYHRms34QFkpWWeP4NhoWCGJASx45F5VUl5YVe0ZZBg9CMQvM4peIFiBzSk1bWIrh3hi4L4XHtnLNOtGtLdtZ9cTMLKBVyMgiq8L7n4_k_YARXjhXbxiNZC703jf1ptqka_zUk7x4FMyt8MkrPIw3f3h-myzCnUD3hTqe62l-QPvK1j376lENkmnsST24h3cZ4WjnbKG8rekDGifmC38q-sVFUqdNoTqcgeZ7hC35nhhh1ifDBMlDqzWg"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE5NzI0fQ.f9QskkoQX7F8TNFCCeyYziXELUT2jc_eFC2e__zy32ujDztSnw-ZitqB8_eITZS8UeqU2GvvyV4o-ePa5TLCnQgjctZzMxbCxif8TWr4U8UqjpsHNeaXlnn87ZqdsP-rcHmdbP7xbvjIf0qJLIcORT_L04KrC84eK56DNor5jg47zzhBYZpb7VWONLjz9OURMgbYpyNboWIFB9sUx_30VCQKTNmVM5q5YftfJ-Yc3giQDlHnCcCQwmB8kLk4-Zj2DsjqiKWwXhg75XDScvk100ykFAmbHKqLenRoB8-Y7t2MoZI5owDq-zumx4WrZdj5CUnzb3-ag0fHFhZuLSeEjQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTc3ODk5fQ.dy3Po7UaSn0QtL7kW1-tqPBQJ1Bp5AvfL1M5d5yTGKf2The--bEfmCymvRTXBbgBG0Em0oO56l-b5n_yPEPCsbW7pTcXcskboDp1ttXg0wR2VVvPK2vmcQkYY8HvW-mKfcdJiKrMHxSXZ_BzKNa7HKM-6oBzIFW-FzPacd0cJ7nVXEoWGx21O1iWM7iHzOiaXiCaCu23tjaJZ7IgYQxGakuiGeClYDjc6CP0Ba_FzZ5hM2L9oJRTZfQrwjqrG7hzr4UFc2obPJuDUPOAN9F3FK901BkVbgMM1TyIaGdG3QxT9L0seR6NJHLgyms5apksMqA2xUNMc39-l5_P1oFH2w"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTE5NzI0fQ.WOsjqSTy8kmFXAnrSuz3kT3YKW5136SwSAeMTrNQlcWl00PD7MEPVmWTYrpiGOv57kdJJP1fJfxiGk--sTd2uFkITV5uHu1NFA16Y9_OgGJGHoW3QCeU-FaIpBKlAo_cYg8gvFcs0iwKB9e1cGZ3RR4VoCOMIN14PwedbkFV-Im4PHYWd5BvFFM_Y_nS5wHkOPO5pPPvud9QskM5ImtsZkjEp57n3JQ40uaSHPM9N6_2OHMAY9n_1F2fdLvLur-OP5nPgJaVL2HdzzgcCLpisLhyAqALlbRUgjXa_-ujof83EP6lxAx1ivLlK7ZCPS4h8hnqDx_7v4G5j0eEnhLCQQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTc3ODk5fQ.jPb7F568HuZHtqKxpb7T3Gy3t9W2wKqMiGwMMIq4dlxMuYizbLhEvVJPrg60vbphEP2uJTFBjIjCzPDoVtxt38Zlg1r7JTUhRPYK9Qb9S1_VMLUqrF8I4yaazvWswWOrUe_J3chtHj9MzFObVvVliaY9eU5fmJKJuLrshgDf6rky3DEGQqnw5OHOjxFdjAisfdfeBFn1r8K47P3y34ToKjTxRcLKdsCFzETq_RLOCxghZ46SNpW4Kxtrg1VH6xU50JZPYPdLpg43K6OmcnJ150g7_2D_4eshL9wRveKlv7azxftctYQyvZwkMMiS6xqNAbWXsajPk1hBuDE8ys37wA"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjR9.ckFt-KO5XmZmEcvBN_qoZYPE04fsNeIb2N52cVasJgfrXtv2tNyQGUmEFyKf4uMn8niMwLrq18QmH_Iw6mJ-LhuJb4sXL_CaVkCcFavM3nZI77i4wG8qHNBzI3snzWjSUyJ4_dPqGtNwQc6zLAutXnfFS8pi3Y_LwtS5mGnHs5FRrva86HpkCdShRfOPzAOW2d_hg_SjUBbee0o1x31b5fwv8AFMyTdqgj5Tzl-TBbTHmLaUcYxUuIPVTdsJk06X2jAY28T1tMNSaQkv5_3aJDTjn_nBaQCzBOJh_t1_024dXqiD2kYSGN3LzxPAXOFu8q1vwAHnobxeoUBRGjsCPQ"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxNzc5MDB9.Q-w2BH1Dm7lhqbARY9oTk27hvdV1hbW4CeXYtU-xe_pjo_c1-DlRnm33cKC9vq_BIX9rgJYUANASkwh_6-d9MJ3tgjCeCllSz3xZdhg5EMp6An4Y9qTaDDCgkHmYBnnpJPUdwJvQ8bqUdwPqEneBQ5rYlq44aBTO8LlyOL9S56baItYfpuj_5_U-qKNsajBV3_ItOQpk_W236r9-XJ8PWs_wD8_eJ5zXm0ge977HijHN57HACm4KP2478XgTQGUlnbyL180CtRVGbDarmHiJXn-DDZUSP_a8yRzg2Ls7bMHzIh0sR_xSJ2_4FRgetU2vkIyL_m0gAGq59_sgtVycVA"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxMTk3MjV9.SKxtsk7jD88WAX2GXNNkvusZquNleLbfzbEWoGj1F6KqYSFRNiuj9-nj7XH7RE3f_KkOBrBQAC_9TqCr1Q5PkxyjuxjHc-Wokj3cYabVYOAHn9vixscAKyqsnAaH8sfwWKSeOyY71Ywssy8MYbZyN2v42njxMditPwp0FtUP6gk6-FHQHUlroZdn9LtPf_3iArIg_Bi5jDqm_uWOhc9zFm42HTq05MNiS5Lk1MhoQ0Hc_zjJsGWBhhizFBIeKc5qTJcF-k6wRO_pA9HdNH72fj5yoPje7Dq1TdfF-Kxphr4VpJerO3QA0U6mpLsgXZ8kUhBQSTAE5P1GxgzzyNDMQg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxNzc5MDB9.CnSBSL5zXFfmQg8XQkPsDgCEMkIbbp3oz3JXvXQMPKAjMXIYWUzal9EQrjO_ZL91TyuvLKPq2EV7TW2-n6uN7dhqtFOUZTNHaF0BA8dAJjA-ZadBgzb11PXt044SBC6s13e2ACFuIZlN_mupnS4wGG3mnADVEoNThH4VQNNmB3rRpHsvAKR-mTsO84QVl3hx-5GyiTlRco3kI0slO58d3Of_RsUK7zY78hNXRRPSz9jAnC4sJ6ur00ZuF21WYcBRxBMjjtRoCvxnkIWt7ntIobCQH-7JQS-0bhFeparJGwThoWEDoxJ0tvvz2vGQ08V_xIxmR9CYehSdJVJdi2g5kQ"
               google-no-responde:
                 summary: "Google no responde"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxMTk3MjV9.oaeSY08sYsWRG34vEkGyKKq61Ah6Pq5s3cH6MqFTAzl12kaOdIagU8097OTZEgBhxibagae4PM3-LY8ZbIDsxAh8vNT06AXU5bArIzyRfgNuyBQbwiXuDsTc2JGB3NC-TmzqqyVf5X9QGmRoXMTzmIbZ-mf11CEY8GEIdOaaKOhayh5c6MJiGOd9pKQuBzg9U0pGQMQNMaD2dXcxoAQhp-PfOsbpLFWAnBUvEBBFR5kGvaAGOVcnmWcWQ6VtpKlCM0AUtZTNjeO6N7TFMMdu8s_PCn3fwLahSkCzDd6BYG0mFWLzMWNxhOVuplvIEbTR-SdcTLX07yL9vpZDmdMvng"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxNzc5MDB9.NAJFT2c6WsmBMBid3Y5w2aAPGsuEP7PaYvDJUx_N7rE5YN3wh_XfCKdyUx1pSXRENVw-WxYWG5zGmWvRwaq5XQY9zIwCSDrrVnEfAjafYJ8MdksnfqXzgRZAnKWEg_ymTxl3JGuxPJuvLt7lLQzEtf7auS7kH41E8IBf4Dyw93EDoHA91mBP-y4bg1GkXcuyhZwZxL6ncUG5907jHNY5yTyKgitDKExMkFBhqrdNAj0njTJq6KOc-pQ4sqgPnNuyDp85M4DvRdl0Ql3ekNRgyKVT8H_sNicPQauhIor6q4MADpFwLP5bf3S55lPBZDX6ZYGE1RGJ7MAM3_QamIxyIw"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -15327,6 +15918,17 @@ paths:
                     status: 0
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
+                crea-la-cuenta-con-contrasena-generada-y-sus-grupos:
+                  summary: "Crea la cuenta con contrasena generada y sus grupos (ADMIN)"
+                  value:
+                    contrasena: null
+                    email: "ana@proveedor.com"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    nombre: "Ana Externa"
+                    nombreDeUsuario: "ana.externa"
+                    status: 0
+                    telefono: null
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 guardar-y-obtener-responden-la-misma-forma:
                   summary: "Guardar y obtener responden la misma forma (SYSADMIN)"
                   value:
@@ -15565,6 +16167,13 @@ paths:
               examples:
                 un-administrador-administra-usuarios-comunes:
                   summary: "Un administrador administra usuarios comunes (ADMIN)"
+                  value:
+                  - fechaDeCreacion: null
+                    nombre: "CLIENTE"
+                    status: 0
+                    uuid: "90000000-0000-4000-8000-000000000009"
+                crea-la-cuenta-con-contrasena-generada-y-sus-grupos:
+                  summary: "Crea la cuenta con contrasena generada y sus grupos (ADMIN)"
                   value:
                   - fechaDeCreacion: null
                     nombre: "CLIENTE"
@@ -17320,6 +17929,7 @@ components:
       - "EN_CURSO"
       - "TERMINADA"
       - "FALLIDA"
+      - "CANCELADA"
     EstadoDeImportacion-nullable:
       anyOf:
       - type: "null"
@@ -17552,6 +18162,14 @@ components:
     ImportacionDTO:
       type: "object"
       properties:
+        avance:
+          type:
+          - "string"
+          - "null"
+          description: "Avance de la ejecución en curso o de la última, como JSON: inicio (fecha y hora en que empezó), tareas y tareasTotales, comentarios y comentariosTotales (null mientras se leen de Jira), tareasConComentariosLeidos, sprints y sprintsTotales, versiones y versionesTotales. Null hasta ejecutar"
+        cancelacionPedida:
+          type: "boolean"
+          description: "true si se pidió cancelar la ejecución en curso; se corta en el próximo control y la importación queda CANCELADA"
         claveProyectoJira:
           type:
           - "string"
@@ -17564,7 +18182,7 @@ components:
           description: "Correo de la cuenta de Jira con la que se conecta"
         estado:
           $ref: "#/components/schemas/EstadoDeImportacion-nullable"
-          description: "Estado: CONECTADA, MAPEADA, EN_CURSO (corre en segundo plano), TERMINADA o FALLIDA"
+          description: "Estado: CONECTADA, MAPEADA, EN_CURSO (corre en segundo plano), TERMINADA, FALLIDA o CANCELADA"
         fechaDeCreacion:
           type:
           - "string"
@@ -17651,6 +18269,46 @@ components:
       - "duracionDeSprintEnDias"
       - "tableros"
       - "tipos"
+      additionalProperties: false
+    ImportacionProyectosRequestDTO:
+      type: "object"
+      properties:
+        correo:
+          type: "string"
+          description: "Correo de la cuenta de Jira"
+          minLength: 1
+          maxLength: 255
+          format: "email"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        token:
+          type: "string"
+          description: "Token de API de Jira de esa cuenta. Se guarda cifrado y nunca se devuelve"
+          minLength: 1
+          maxLength: 512
+        url:
+          type: "string"
+          description: "URL del sitio de Jira Cloud: solo https://{sitio}.atlassian.net"
+          minLength: 1
+          maxLength: 255
+          pattern: "^https?://\\S+$"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "correo"
+      - "token"
+      - "url"
       additionalProperties: false
     JwtTokenDTO:
       type: "object"
@@ -18451,6 +19109,35 @@ components:
       required:
       - "nombre"
       - "prefijo"
+      additionalProperties: false
+    ProyectoDeJiraDTO:
+      type: "object"
+      properties:
+        clave:
+          type:
+          - "string"
+          - "null"
+          description: "Clave del proyecto en Jira (PTR): es la que se manda al conectar"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre del proyecto en Jira"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
       additionalProperties: false
     ProyectoOrdenarBacklogRequestDTO:
       type: "object"
@@ -19535,6 +20222,91 @@ components:
       required:
       - "grupos"
       additionalProperties: false
+    UsuarioCrearCuentaRequestDTO:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+          description: "Correo de la persona"
+          minLength: 1
+          maxLength: 255
+          format: "email"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        grupos:
+          description: "Uuids de los grupos de la persona (puede estar vacía). Solo el super admin suma al grupo Administradores"
+          type: "array"
+          items:
+            type: "string"
+            description: "Uuids de los grupos de la persona (puede estar vacía). Solo el super admin suma al grupo Administradores"
+        nombre:
+          type: "string"
+          description: "Nombre y apellido de la persona"
+          minLength: 1
+          maxLength: 255
+        nombreDeUsuario:
+          type: "string"
+          description: "Nombre de usuario con el que ingresa. No se repite"
+          minLength: 1
+          maxLength: 255
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      required:
+      - "email"
+      - "grupos"
+      - "nombre"
+      - "nombreDeUsuario"
+      additionalProperties: false
+    UsuarioCrearCuentaResponseDTO:
+      type: "object"
+      properties:
+        contrasena:
+          type:
+          - "string"
+          - "null"
+          description: "Contraseña inicial generada al azar. Se muestra una sola vez: compartila por un canal seguro"
+        email:
+          type:
+          - "string"
+          - "null"
+          description: "Correo"
+        fechaDeCreacion:
+          type:
+          - "string"
+          - "null"
+          format: "date-time"
+          description: "Fecha y hora de creación del registro (solo lectura)"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
+        nombre:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre y apellido"
+        nombreDeUsuario:
+          type:
+          - "string"
+          - "null"
+          description: "Nombre de usuario con el que ingresa"
+        status:
+          type: "integer"
+          description: "Estado del registro: 0 activo, -1 eliminado, -2 temporal (carga en varios pasos)"
+        uuid:
+          type:
+          - "string"
+          - "null"
+          description: "Identificador público del registro. El id interno nunca se expone"
+      additionalProperties: false
     UsuarioDTO:
       type: "object"
       properties:
@@ -20026,6 +20798,11 @@ x-catalogo-de-errores:
   mensajePorDefecto: "No implementado"
   cuando: "El backend no tiene implementado el contenido del email del flujo (registro o recuperación de contraseña). Es un error de configuración del backend"
   origen: "CodigoDeErrorIdentity"
+- codigo: "IMPORTACION_CANCELADA"
+  status: 409
+  mensajePorDefecto: "Se canceló la importación: no se importó nada de esta ejecución."
+  cuando: "La importación se cortó porque un administrador la canceló: no quedó nada de esa ejecución. Queda en el resumen de una importación CANCELADA"
+  origen: "CodigoDeErrorDelProyecto"
 - codigo: "IMPORTACION_CON_OTRO_PREFIJO"
   status: 400
   mensajePorDefecto: "Ese proyecto de Jira ya se importó con otro prefijo. Usá el mismo para reimportarlo."
@@ -20035,6 +20812,11 @@ x-catalogo-de-errores:
   status: 409
   mensajePorDefecto: "La importación está en curso. Esperá a que termine."
   cuando: "Se intentó mapear o ejecutar una importación que está en curso: hay que esperar a que termine"
+  origen: "CodigoDeErrorDelProyecto"
+- codigo: "IMPORTACION_NO_EN_CURSO"
+  status: 409
+  mensajePorDefecto: "La importación no está en curso: no hay nada que cancelar."
+  cuando: "Se pidió cancelar una importación que no está en curso (ya terminó, falló o no se ejecutó)"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "IMPORTACION_SIN_MAPEO"
   status: 400
