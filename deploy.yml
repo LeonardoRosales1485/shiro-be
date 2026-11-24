@@ -10,6 +10,9 @@ local:
     stack: spring_postgres
     env:
       RESTART_POLICY: "no"
+      # Origen del front local: el contenedor usa application.server.properties (CORS de stg).
+      # Sin esto, los POST con cookie de sesion desde Vite responden 403 ORIGEN_NO_PERMITIDO.
+      FRONT_URL_CORS: "http://localhost:7091,http://127.0.0.1:7091"
       # Clave de los JWT (solo local)
       JWT_SECRETO: "shiroLocalClaveDeDesarrolloLargaParaHS256NoUsarEnServidores"
       # Contrasena del usuario inicial sysadmin (solo local)
