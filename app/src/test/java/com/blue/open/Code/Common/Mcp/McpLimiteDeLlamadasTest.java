@@ -16,10 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * MJ-13 del plan de mejoras y decision D-3: cada token de acceso puede hacer hasta 120 llamadas por minuto a /mcp; la
  * siguiente responde 429 DEMASIADAS_LLAMADAS_MCP con Retry-After. El limite es por token: otro token sigue andando.
- * Usa un token propio para no gastar el cupo de los tokens de los seeds que usan las otras pruebas de MCP.
+ * Corre en su propio contexto con el limite real (application-test.yml lo sube para las demas pruebas de MCP, que
+ * comparten los tokens de los seeds) y con un token propio.
  * Dependencias externas: ninguna (PostgreSQL embebido de core-test).
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "shiro.mcp.llamadas-por-minuto=120")
 class McpLimiteDeLlamadasTest extends TestConBaseDeDatos {
 
     @LocalServerPort

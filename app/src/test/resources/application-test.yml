@@ -98,3 +98,7 @@ shiro:
   # El Jira simulado de las pruebas corre en 127.0.0.1 por http; en servidor solo se aceptan sitios https de Atlassian
   jira:
     hosts-de-prueba: 127.0.0.1
+  # Limite de llamadas a /mcp por token (MJ-13): las pruebas de MCP comparten los tokens de los seeds y pasan de 120
+  # por minuto. McpLimiteDeLlamadasTest prueba el limite real (120) en su propio contexto
+  mcp:
+    llamadas-por-minuto: 1000000

@@ -107,7 +107,10 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     @Descripcion("Al clonar una Subtarea no se eligió (o se eligieron los dos) si el clon queda como tarea propia (tipoCodigo) o como subtarea de otra tarea (padreUuid)")
     CLON_DE_SUBTAREA_SIN_DESTINO(HttpStatus.BAD_REQUEST, "Elegí si el clon queda como tarea propia, con su tipo, o como subtarea de otra tarea."),
     @Descripcion("Al clonar una Subtarea como tarea propia se eligió un tipo que no es Historia, Tarea o Bug")
-    TIPO_DE_CLON_INVALIDO(HttpStatus.BAD_REQUEST, "Como tarea propia, el clon puede ser Historia, Tarea o Bug.");
+    TIPO_DE_CLON_INVALIDO(HttpStatus.BAD_REQUEST, "Como tarea propia, el clon puede ser Historia, Tarea o Bug."),
+
+    @Descripcion("Un token de acceso pasó las 120 llamadas por minuto a /mcp: hay que esperar lo que dice Retry-After")
+    DEMASIADAS_LLAMADAS_MCP(HttpStatus.TOO_MANY_REQUESTS, "Se hicieron demasiadas llamadas por MCP con este token. Esperá un minuto y volvé a intentar.");
 
     private final HttpStatus status;
     private final String mensajePorDefecto;

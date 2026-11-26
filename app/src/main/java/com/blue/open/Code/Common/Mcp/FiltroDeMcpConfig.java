@@ -13,10 +13,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FiltroDeMcpConfig {
 
-    // Filtro de /mcp con el protocolo tokens
+    // Filtro de /mcp con el protocolo tokens y el limite de llamadas por token
     @Bean
-    public FilterRegistrationBean<FiltroDeMcp> filtroDeMcp(AuthTokenConSha256Service tokens) {
-        FilterRegistrationBean<FiltroDeMcp> registro = new FilterRegistrationBean<>(new FiltroDeMcp(tokens));
+    public FilterRegistrationBean<FiltroDeMcp> filtroDeMcp(AuthTokenConSha256Service tokens, LimiteDeLlamadasMcp limite) {
+        FilterRegistrationBean<FiltroDeMcp> registro = new FilterRegistrationBean<>(new FiltroDeMcp(tokens, limite));
         registro.addUrlPatterns("/mcp", "/mcp/*");
         registro.setName("filtroDeMcp");
         return registro;
