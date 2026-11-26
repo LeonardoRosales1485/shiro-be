@@ -1917,6 +1917,7 @@
         "summary" : "Busca lo archivado de cualquier tipo sobre lo que el usuario tiene permiso de archivo",
         "description" : "**Caso de uso:** CU-ARC-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-ARC-01",
+        "x-permiso" : "ARCHIVAR@PROYECTO|TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -2276,6 +2277,7 @@
         "summary" : "Vista previa de un archivado: qué es, dónde estaba, qué se restaura con él y qué queda archivado",
         "description" : "**Caso de uso:** CU-ARC-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-ARC-02",
+        "x-permiso" : "ARCHIVAR@PROYECTO|TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -2481,6 +2483,7 @@
         "summary" : "Comenta una tarea, o edita el cuerpo de un comentario propio",
         "description" : "**Caso de uso:** CU-COM-03\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-COM-03",
+        "x-permiso" : "EDITAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -2825,6 +2828,7 @@
         "summary" : "Lista comentarios con filtros y orden, por ejemplo los de una tarea",
         "description" : "**Caso de uso:** CU-COM-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-COM-02",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -3025,6 +3029,7 @@
         "summary" : "Obtiene un comentario",
         "description" : "**Caso de uso:** CU-COM-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-COM-01",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -3326,6 +3331,7 @@
         "summary" : "Lista las configuraciones visibles para quien consulta",
         "description" : "**Caso de uso:** CU-CON-01\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-CON-01",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "responses" : {
@@ -3369,6 +3375,7 @@
         "summary" : "Obtiene varias configuraciones por sus claves",
         "description" : "**Caso de uso:** CU-CON-03\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-CON-03",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "requestBody" : {
@@ -3476,6 +3483,7 @@
         "summary" : "Obtiene una configuración por su clave",
         "description" : "**Caso de uso:** CU-CON-02\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-CON-02",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ {
           "name" : "clave",
@@ -8460,6 +8468,7 @@
         "summary" : "Lista los proyectos con filtros y orden",
         "description" : "**Caso de uso:** CU-PRY-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-02",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -8768,6 +8777,7 @@
         "summary" : "Obtiene un proyecto con sus tableros",
         "description" : "**Caso de uso:** CU-PRY-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-01",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -8974,6 +8984,7 @@
         "summary" : "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones (exige ARCHIVAR en el proyecto)",
         "description" : "**Caso de uso:** CU-PRY-04\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-04",
+        "x-permiso" : "ARCHIVAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -9091,6 +9102,7 @@
         "summary" : "Backlog de un proyecto: tareas sin sprint de todos los tableros y tipos, en su orden único",
         "description" : "**Caso de uso:** CU-BKL-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-BKL-01",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -9415,6 +9427,7 @@
         "summary" : "Ordena el backlog de un proyecto (un único orden para todos)",
         "description" : "**Caso de uso:** CU-BKL-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-BKL-02",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -9595,6 +9608,7 @@
         "summary" : "Restaura un proyecto archivado con lo que se archivó junto con él (exige ARCHIVAR en el proyecto)",
         "description" : "**Caso de uso:** CU-PRY-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-05",
+        "x-permiso" : "ARCHIVAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -9733,6 +9747,7 @@
         "summary" : "Usuarios con acceso a un proyecto, para elegir el responsable de una tarea (exige VER en el proyecto)",
         "description" : "**Caso de uso:** CU-PRY-06\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-PRY-06",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -10664,6 +10679,7 @@
         "summary" : "Relaciona dos tareas: bloquea, se relaciona con o duplica",
         "description" : "**Caso de uso:** CU-REL-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-REL-01",
+        "x-permiso" : "EDITAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -10938,6 +10954,7 @@
         "summary" : "Archiva una relación entre tareas",
         "description" : "**Caso de uso:** CU-REL-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-REL-02",
+        "x-permiso" : "EDITAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -11945,6 +11962,7 @@
         "summary" : "Crea un sprint planificado o edita su nombre y fechas",
         "description" : "**Caso de uso:** CU-SPR-03\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-03",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -12338,6 +12356,7 @@
         "summary" : "Lista sprints con filtros y orden",
         "description" : "**Caso de uso:** CU-SPR-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-02",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -12499,6 +12518,7 @@
         "summary" : "Obtiene un sprint",
         "description" : "**Caso de uso:** CU-SPR-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-01",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -12644,6 +12664,7 @@
         "summary" : "Archiva un sprint planificado o cerrado (uno activo se cierra primero)",
         "description" : "**Caso de uso:** CU-SPR-08\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-08",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -12741,6 +12762,7 @@
         "summary" : "Asigna tareas al sprint",
         "description" : "**Caso de uso:** CU-SPR-04\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-04",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -12924,6 +12946,7 @@
         "summary" : "Cierra el sprint activo; lo pendiente va al backlog o a otro sprint planificado",
         "description" : "**Caso de uso:** CU-SPR-07\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-07",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -13089,6 +13112,7 @@
         "summary" : "Cierre de un sprint: quién lo cerró, cuándo y el estado y destino de cada tarea al cerrar (exige VER)",
         "description" : "**Caso de uso:** CU-SPR-09\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-09",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -13262,6 +13286,7 @@
         "summary" : "Inicia un sprint planificado; solo puede haber uno activo por proyecto",
         "description" : "**Caso de uso:** CU-SPR-06\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-06",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -13434,6 +13459,7 @@
         "summary" : "Quita tareas del sprint; vuelven al backlog",
         "description" : "**Caso de uso:** CU-SPR-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-05",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -13526,6 +13552,7 @@
         "summary" : "Restaura un sprint archivado con el estado que tenía (exige EDITAR)",
         "description" : "**Caso de uso:** CU-SPR-10\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-SPR-10",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -13657,6 +13684,7 @@
         "summary" : "Crea una tarea con tipo y título en el primer estado de su tablero, o edita sus datos",
         "description" : "**Caso de uso:** CU-TAR-03\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-03",
+        "x-permiso" : "EDITAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -14894,6 +14922,7 @@
         "summary" : "Lista las tareas con filtros y orden",
         "description" : "**Caso de uso:** CU-TAR-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-02",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -16135,6 +16164,7 @@
         "summary" : "Obtiene una tarea",
         "description" : "**Caso de uso:** CU-TAR-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-01",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -16458,6 +16488,7 @@
         "summary" : "Archiva una tarea y, en cascada, sus hijas en todos los niveles",
         "description" : "**Caso de uso:** CU-TAR-06\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-06",
+        "x-permiso" : "ARCHIVAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -16705,6 +16736,7 @@
         "summary" : "Clona una tarea a un tablero del mismo proyecto eligiendo qué datos se copian",
         "description" : "**Caso de uso:** CU-TAR-09\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-09",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -17247,6 +17279,7 @@
         "summary" : "Historial de cambios de una tarea, opcionalmente de un solo canal",
         "description" : "**Caso de uso:** CU-TAR-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-05",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -17734,6 +17767,7 @@
         "summary" : "Mueve una tarea a otro estado de su tablero",
         "description" : "**Caso de uso:** CU-TAR-04\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-04",
+        "x-permiso" : "EDITAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -18360,6 +18394,7 @@
         "summary" : "Relaciones de una tarea vistas desde ella, con el estado de la otra tarea",
         "description" : "**Caso de uso:** CU-TAR-08\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-08",
+        "x-permiso" : "VER@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -18545,6 +18580,7 @@
         "summary" : "Restaura una tarea archivada con lo que se archivó en su misma operación",
         "description" : "**Caso de uso:** CU-TAR-07\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TAR-07",
+        "x-permiso" : "ARCHIVAR@TABLERO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -18704,6 +18740,7 @@
         "summary" : "Lista los tipos de tablero con sus estados en orden de columna",
         "description" : "**Caso de uso:** CU-TTB-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TTB-01",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -19157,6 +19194,7 @@
         "summary" : "Lista los tipos de tarea con su nivel en la jerarquía",
         "description" : "**Caso de uso:** CU-TTA-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TTA-01",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -19358,6 +19396,7 @@
         "summary" : "Elimina un token de acceso propio (requiere sesión)",
         "description" : "**Caso de uso:** CU-TOK-03\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TOK-03",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -19509,6 +19548,7 @@
         "summary" : "Cierra la sesión: borra el refresh token y las cookies access_token y refresh_token",
         "description" : "**Caso de uso:** CU-USR-15\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-USR-15",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "requestBody" : {
@@ -19727,6 +19767,7 @@
         "summary" : "Crea un token de acceso personal para el usuario de la sesión (requiere sesión)",
         "description" : "**Caso de uso:** CU-TOK-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TOK-01",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -20296,6 +20337,7 @@
         "summary" : "Ingresa con una cuenta de Google de la organización y responde un JWT y su refresh token (también como cookies)",
         "description" : "**Caso de uso:** CU-USR-20\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-USR-20",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "requestBody" : {
@@ -20511,6 +20553,7 @@
         "summary" : "Inicia sesión con usuario y contraseña y responde un JWT y su refresh token (también como cookies HttpOnly access_token y refresh_token)",
         "description" : "**Caso de uso:** CU-USR-10\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-USR-10",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "requestBody" : {
@@ -20631,6 +20674,7 @@
         "summary" : "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso",
         "description" : "**Caso de uso:** CU-USR-25\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-USR-25",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -20973,6 +21017,7 @@
         "summary" : "Renueva el JWT con el refresh token, del body o de la cookie refresh_token (el refresh token anterior deja de valer)",
         "description" : "**Caso de uso:** CU-USR-11\n\n**Pública:** no requiere autenticación.",
         "x-caso-de-uso" : "CU-USR-11",
+        "x-permiso" : "PUBLICO",
         "security" : [ ],
         "parameters" : [ ],
         "requestBody" : {
@@ -21103,6 +21148,7 @@
         "summary" : "Obtiene el usuario de la sesión actual (requiere sesión, sin permiso puntual)",
         "description" : "**Caso de uso:** CU-USR-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-USR-05",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -21251,6 +21297,7 @@
         "summary" : "Grupos del usuario de la sesión y si es administrador (requiere sesión, sin permiso puntual)",
         "description" : "**Caso de uso:** CU-USR-24\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-USR-24",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -21342,6 +21389,7 @@
         "summary" : "Lista los tokens de acceso vigentes del usuario de la sesión (requiere sesión)",
         "description" : "**Caso de uso:** CU-TOK-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-TOK-02",
+        "x-permiso" : "AUTENTICADO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -22212,6 +22260,7 @@
         "summary" : "Crea una versión o edita su nombre (una publicada no se edita)",
         "description" : "**Caso de uso:** CU-VER-03\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-03",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -22466,6 +22515,7 @@
         "summary" : "Lista versiones con filtros y orden",
         "description" : "**Caso de uso:** CU-VER-02\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-02",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -22597,6 +22647,7 @@
         "summary" : "Obtiene una versión",
         "description" : "**Caso de uso:** CU-VER-01\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-01",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -22708,6 +22759,7 @@
         "summary" : "Archiva una versión",
         "description" : "**Caso de uso:** CU-VER-08\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-08",
+        "x-permiso" : "ARCHIVAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -22781,6 +22833,7 @@
         "summary" : "Asigna tareas del proyecto a una versión sin publicar",
         "description" : "**Caso de uso:** CU-VER-04\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-04",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -23010,6 +23063,7 @@
         "summary" : "Changelog de una versión en Markdown: tareas terminadas agrupadas por tipo",
         "description" : "**Caso de uso:** CU-VER-07\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-07",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -23062,6 +23116,7 @@
         "summary" : "Publica una versión con la fecha elegida; su changelog queda fijo",
         "description" : "**Caso de uso:** CU-VER-06\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-06",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -23210,6 +23265,7 @@
         "summary" : "Quita tareas de una versión sin publicar",
         "description" : "**Caso de uso:** CU-VER-05\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-05",
+        "x-permiso" : "EDITAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -23331,6 +23387,7 @@
         "summary" : "Restaura una versión archivada",
         "description" : "**Caso de uso:** CU-VER-09\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-09",
+        "x-permiso" : "ARCHIVAR@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
@@ -23404,6 +23461,7 @@
         "summary" : "Tareas de una versión, terminadas o no, con su tipo, tablero y estado",
         "description" : "**Caso de uso:** CU-VER-10\n\n**Requiere sesión:** sin rol ni permiso puntual.",
         "x-caso-de-uso" : "CU-VER-10",
+        "x-permiso" : "VER@PROYECTO",
         "security" : [ {
           "bearer" : [ ]
         } ],
