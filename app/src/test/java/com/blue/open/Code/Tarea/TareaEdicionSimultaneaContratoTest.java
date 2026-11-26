@@ -11,7 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * CU-TAR-03, edicion simultanea (T1.7 del plan y Spec 7): guardar recibe la fecha de actualizacion que leyo el
- * cliente; si la tarea cambio desde entonces responde 409 para que recargue.
+ * cliente; si la tarea cambio desde entonces responde 409 para que recargue. Desde MJ-02 del plan de mejoras se manda la
+ * version leida (@Version); la fecha se sigue aceptando una version mas.
  */
 class TareaEdicionSimultaneaContratoTest extends PruebaDeContrato {
 
@@ -60,9 +61,29 @@ class TareaEdicionSimultaneaContratoTest extends PruebaDeContrato {
         guardar(cuerpo).esperarError(400, "FECHA_DE_LECTURA_OBLIGATORIA");
     }
 
+    @Test
+    void conLaVersionLeidaSeEditaYLaVersionAvanza() {
+        JsonNode leida = escenario.crear(TareasDeSeed.TABLERO_PRINCIPAL, "TAREA", "Original");
+        Map<String, Object> cuerpo = edicionPorVersion(leida, "Con versión");
+
+        JsonNode editada = guardar(cuerpo).esperar(200).json();
+
+        assertEquals(leida.get("version").asLong() + 1, editada.get("version").asLong());
+        guardar(edicionPorVersion(leida, "Versión vieja")).esperarError(409, "TAREA_MODIFICADA");
+        assertEquals("Otra edición", guardar(edicionPorVersion(editada, "Otra edición")).esperar(200).json().get("titulo").asString());
+    }
+
     // POST /tarea/guardar como Administrador
     private Respuesta guardar(Map<String, Object> cuerpo) {
         return como(ADMIN).post("/tarea/guardar").json(cuerpo).ejecutar();
+    }
+
+    // Body de edicion del titulo de la tarea leida, con su version (MJ-02) y sin la fecha
+    private static Map<String, Object> edicionPorVersion(JsonNode leida, String titulo) {
+        Map<String, Object> cuerpo = edicion(leida, titulo);
+        cuerpo.remove("fechaDeActualizacion");
+        cuerpo.put("version", leida.get("version").asLong());
+        return cuerpo;
     }
 
     // Body de edicion del titulo de la tarea leida, con su fecha de actualizacion
