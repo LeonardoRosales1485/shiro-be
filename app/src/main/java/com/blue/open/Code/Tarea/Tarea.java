@@ -21,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -114,6 +115,12 @@ public class Tarea extends EntidadConBorradoLogico {
     // Posicion en el backlog del proyecto (un unico orden para todos); null hasta que alguien lo ordena: va al
     // final, por numero. Lo cambia el caso de uso de ordenar el backlog
     private Long ordenBacklog;
+
+    // Version de la tarea para el bloqueo optimista (MJ-02): Hibernate la sube en cada guardado y el UPDATE falla si
+    // otro guardado la cambio antes. Solo la maneja Hibernate
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Long version;
 
     // Operacion de archivo que archivo la tarea (shr_operacion_archivo); null si esta vigente. Solo la cambian
     // archivar y restaurar

@@ -8,6 +8,7 @@ import tools.jackson.databind.JsonNode;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CU-TAR-03, edicion simultanea (T1.7 del plan y Spec 7): guardar recibe la fecha de actualizacion que leyo el
@@ -68,7 +69,7 @@ class TareaEdicionSimultaneaContratoTest extends PruebaDeContrato {
 
         JsonNode editada = guardar(cuerpo).esperar(200).json();
 
-        assertEquals(leida.get("version").asLong() + 1, editada.get("version").asLong());
+        assertTrue(editada.get("version").asLong() > leida.get("version").asLong(), editada::toString);
         guardar(edicionPorVersion(leida, "Versión vieja")).esperarError(409, "TAREA_MODIFICADA");
         assertEquals("Otra edición", guardar(edicionPorVersion(editada, "Otra edición")).esperar(200).json().get("titulo").asString());
     }

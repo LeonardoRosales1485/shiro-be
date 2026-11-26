@@ -22,7 +22,10 @@ import com.blue.open.Core.Kernel.DTO.ParametroDePaginado;
 import com.blue.open.Core.Kernel.DTO.PedidoDePaginado;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeErrorKernel;
 import com.blue.open.Core.Kernel.Excepciones.ExcepcionDeApi;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -65,6 +68,9 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     private final RegistradorDeHistorial historial;
 
     private final ResolutorDePermisosDeRecurso permisos;
+
+    // Para ejecutar el UPDATE con @Version dentro del guardado y traducir el choque a 409 (MJ-02)
+    private final EntityManager entityManager;
 
     // Exige VER sobre el tablero de la tarea (si no existe, el Core responde REGISTRO_NO_ENCONTRADO)
     @Override
@@ -113,7 +119,7 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
         boolean esAlta = modelo.getId() == null;
         if (!esAlta) {
             permisos.exigir(NivelDePermiso.EDITAR, modelo.getTablero());
-            validarFechaLeida(dto, modelo);
+            validarLectura(dto, modelo);
         }
         if (!esAlta && !modelo.getTablero().getUuid().equals(dto.getTableroUuid()))
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TABLERO_DE_TAREA_NO_SE_CAMBIA,
@@ -174,6 +180,14 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     protected Tarea hookGuardarEnBase(Tarea modelo) {
         boolean esAlta = modelo.getId() == null;
         Tarea guardada = super.hookGuardarEnBase(modelo);
+        if (!esAlta) {
+            // El UPDATE con @Version se ejecuta aca: si otro guardado de la misma version llego antes, es un 409
+            try {
+                entityManager.flush();
+            } catch (OptimisticLockingFailureException | OptimisticLockException e) {
+                throw modificada(modelo, "otro guardado con la misma version llego antes");
+            }
+        }
         Set<String> pedidas = new LinkedHashSet<>(modelo.getEtiquetasPedidas());
         for (TareaEtiqueta etiqueta : tareaEtiquetaRepository.findByTareaAndStatus(guardada, VIGENTE)) {
             if (!pedidas.remove(etiqueta.getTexto())) {
@@ -232,19 +246,27 @@ public class TareaService extends AbstractService<Tarea, TareaDTO, TareaDTO> {
     }
 
     /*
-     * Control de edicion simultanea (Spec 7): la fecha leida tiene que coincidir con la de la tarea, al milisegundo
-     * (el JSON lleva milisegundos y la base, microsegundos). Despues deja en el DTO la fecha de la base, para que la
-     * copia del DTO no la cambie. Lanza FECHA_DE_LECTURA_OBLIGATORIA o TAREA_MODIFICADA.
+     * Control de edicion simultanea (Spec 7 y MJ-02): la version leida tiene que ser la de la tarea; sin version se
+     * acepta, una version mas, la fecha leida comparada al milisegundo (el JSON lleva milisegundos y la base,
+     * microsegundos). Despues deja en el DTO la fecha de la base, para que la copia del DTO no la cambie. Dos guardados
+     * con la misma version que pasan este control a la vez los corta el UPDATE con @Version (hookGuardarEnBase).
+     * Lanza FECHA_DE_LECTURA_OBLIGATORIA o TAREA_MODIFICADA.
      */
-    private static void validarFechaLeida(TareaDTO dto, Tarea modelo) {
-        if (dto.getFechaDeActualizacion() == null)
+    private static void validarLectura(TareaDTO dto, Tarea modelo) {
+        if (dto.getVersion() == null && dto.getFechaDeActualizacion() == null)
             throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.FECHA_DE_LECTURA_OBLIGATORIA,
-                    "TareaService | validarFechaLeida | tarea " + modelo.getClave());
-        if (dto.getFechaDeActualizacion().getTime() != modelo.getFechaDeActualizacion().getTime())
-            throw new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_MODIFICADA,
-                    "TareaService | validarFechaLeida | tarea " + modelo.getClave() + " | leida "
-                            + dto.getFechaDeActualizacion() + " | actual " + modelo.getFechaDeActualizacion());
+                    "TareaService | validarLectura | tarea " + modelo.getClave());
+        boolean cambio = dto.getVersion() != null
+                ? !dto.getVersion().equals(modelo.getVersion())
+                : dto.getFechaDeActualizacion().getTime() != modelo.getFechaDeActualizacion().getTime();
+        if (cambio)
+            throw modificada(modelo, "version leida " + dto.getVersion() + " | actual " + modelo.getVersion());
         dto.setFechaDeActualizacion(modelo.getFechaDeActualizacion());
+    }
+
+    // TAREA_MODIFICADA de la tarea, con el detalle para el log
+    private static ExcepcionDeApi modificada(Tarea modelo, String detalle) {
+        return new ExcepcionDeApi(CodigoDeErrorDelProyecto.TAREA_MODIFICADA, "TareaService | tarea " + modelo.getClave() + " | " + detalle);
     }
 
     /*
