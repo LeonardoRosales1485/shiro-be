@@ -6,7 +6,7 @@ Avances de la implementación de Shiro, tarea por tarea, con su evidencia. Compl
 
 ## Estado
 
-F6 hecha: T6.1 a T6.6 (con las resoluciones 42 a 56). Propuestas 57 y 58 resueltas. Sigue F7 (corte)
+F6 hecha: T6.1 a T6.6 (con las resoluciones 42 a 56). Propuestas 57 y 58 resueltas; F6 mergeada a develop. En curso: Ola 1 del plan de mejoras
 
 ## Cierre de F4
 
@@ -135,6 +135,7 @@ Para decidir antes o durante F2:
 
 | Fecha | Decisión | Quién la aprobó |
 | --- | --- | --- |
+| 26/11/2026 | Plan de mejoras (`docs/plan-de-mejoras.md`) aprobado con D-1 a D-6 tal como se proponen. Se trabaja la Ola 1 en el orden de su §8 (MJ-15, MJ-02, MJ-05, MJ-06, MJ-04, MJ-03, MJ-07 y MJ-01, la parte del repo) y se frena al terminarla. Forma de trabajo: rama `claude/jolly-newton-jqin42` partiendo de `develop`, push a esa rama sin preguntar, PR a develop con su OK; pruebas en dos niveles (lo tocado antes de cada commit, suite completa antes del PR) | Leonardo Rosales |
 | 20/11/2026 | Propuesta 57: ajustar detalle, edición y backlog del teléfono al prototipo. Propuesta 58: aprobada tal como está | Arquitecto |
 | 20/11/2026 | Propuestas 52 a 56: permisos por nivel independiente (lo dice la spec); lista de proyectos de Jira en el asistente (no una vista «Todos los proyectos» de Shiro); crear cuenta desde la importación; avance y cancelación de la importación; super admin en Administradores, nombre de usuario propio y contraseña generada en el backend | Arquitecto |
 | 19/11/2026 | Seguir con las fases siguientes sin esperar aprobación, salvo un bloqueo duro. Bitácora y adendas propuestas en `docs/` de shiro-be; no escribir en Claude Docs hasta que se pida (pedido el 19/11: DAF, plan, bitácora y diseño técnico actualizados; las propuestas 2 a 41 entraron como Adenda 5 del DAF, a confirmar) | Arquitecto |
