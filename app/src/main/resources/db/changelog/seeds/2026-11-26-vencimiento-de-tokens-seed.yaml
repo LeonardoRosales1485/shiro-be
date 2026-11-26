@@ -1,0 +1,16 @@
+# Seeds del vencimiento de tokens (MJ-14): los tokens de los seeds vencen a los 90 dias de cargarlos.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-26-vencimiento-de-tokens-seed-1
+      author: shiro
+      comment: "Vencimiento a 90 dias de los tokens de los seeds"
+      context: "@seed"
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO shr_vencimiento_de_token (uuid, id_access_token, vence)
+              SELECT gen_random_uuid()::text, t.id, CURRENT_TIMESTAMP + INTERVAL '90 days' FROM auth_access_tokens t
+              WHERE NOT EXISTS (SELECT 1 FROM shr_vencimiento_de_token v WHERE v.id_access_token = t.id)
+      rollback:
+        - sql:
+            sql: "DELETE FROM shr_vencimiento_de_token WHERE id_access_token IN (SELECT id FROM auth_access_tokens WHERE uuid LIKE '90000000-%')"

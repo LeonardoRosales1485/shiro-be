@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 
 /**
  * Token de acceso del usuario en "mis tokens" (CU-USR-25, propuesta 50 resuelta el 19/11): nombre, si esta activo,
- * cuando se creo, cuando se revoco y su ultimo uso. Nunca trae el token. Lo arma UsoDeTokenRepository.tokensDe.
+ * cuando se creo, cuando vence (MJ-14), cuando se revoco y su ultimo uso. Nunca trae el token. Lo arma UsoDeTokenRepository.tokensDe.
  */
 @Setter
 @Getter
@@ -32,14 +32,19 @@ public class UsuarioTokenResponseDTO extends EntidadBaseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
     private Timestamp ultimoUso;
 
-    // Token con sus datos y su ultimo uso
+    @Descripcion("Desde cuándo el token deja de servir (MJ-14)")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
+    private Timestamp vence;
+
+    // Token con sus datos, su ultimo uso y su vencimiento
     public UsuarioTokenResponseDTO(String uuid, String nombre, boolean activo, Timestamp fechaDeCreacion, Timestamp fechaDeRevocacion,
-            Timestamp ultimoUso) {
+            Timestamp ultimoUso, Timestamp vence) {
         setUuid(uuid);
         setFechaDeCreacion(fechaDeCreacion);
         this.nombre = nombre;
         this.activo = activo;
         this.fechaDeRevocacion = activo ? null : fechaDeRevocacion;
         this.ultimoUso = ultimoUso;
+        this.vence = vence;
     }
 }

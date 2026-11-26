@@ -1,0 +1,45 @@
+# MJ-14 del plan de mejoras y decision D-3: vencimiento de cada token de acceso personal. Tabla propia de Shiro: la
+# tabla del Core (auth_access_tokens) no se toca. Los tokens que ya existen vencen a los 90 dias de esta migracion.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-26-vencimiento-de-tokens-1
+      author: shiro
+      comment: "Crea shr_vencimiento_de_token: cuando vence cada token de acceso"
+      changes:
+        - createTable:
+            tableName: shr_vencimiento_de_token
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: uuid, type: CHAR(36), constraints: {nullable: false, unique: true}}
+              - column: {name: status, type: TINYINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+              - column: {name: id_access_token, type: BIGINT, constraints: {nullable: false, unique: true}}
+              - column: {name: vence, type: TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: id_operacion_archivo, type: BIGINT}
+              - column: {name: id_usuario_de_creacion, type: BIGINT}
+              - column: {name: id_usuario_de_actualizacion, type: BIGINT}
+              - column: {name: id_usuario_de_borrado, type: BIGINT}
+              - column: {name: fecha_de_creacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_actualizacion, type: TIMESTAMP, defaultValueComputed: CURRENT_TIMESTAMP, constraints: {nullable: false}}
+              - column: {name: fecha_de_borrado, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            baseTableName: shr_vencimiento_de_token
+            baseColumnNames: id_access_token
+            referencedTableName: auth_access_tokens
+            referencedColumnNames: id
+            constraintName: fk_shr_vencimiento_de_token_access_token
+      rollback:
+        - dropTable:
+            tableName: shr_vencimiento_de_token
+  - changeSet:
+      id: 2026-11-26-vencimiento-de-tokens-2
+      author: shiro
+      comment: "Los tokens que ya existen vencen a los 90 dias de esta migracion"
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO shr_vencimiento_de_token (uuid, id_access_token, vence)
+              SELECT gen_random_uuid()::text, t.id, CURRENT_TIMESTAMP + INTERVAL '90 days' FROM auth_access_tokens t
+              WHERE NOT EXISTS (SELECT 1 FROM shr_vencimiento_de_token v WHERE v.id_access_token = t.id)
+      rollback:
+        - sql:
+            sql: DELETE FROM shr_vencimiento_de_token

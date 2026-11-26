@@ -15,9 +15,9 @@ public interface UsoDeTokenRepository extends EntidadRepositoryBorradoLogico<Uso
     // Uso registrado del token
     Optional<UsoDeToken> findFirstByIdAccessToken(Long idAccessToken);
 
-    // Todos los tokens del usuario (vigentes y revocados), los mas nuevos primero, con su ultimo uso
+    // Todos los tokens del usuario (vigentes y revocados), los mas nuevos primero, con su ultimo uso y su vencimiento
     @Query("SELECT new com.blue.open.Code.Usuario.UsuarioTokenResponseDTO(a.uuid, a.nombre, CASE WHEN a.status = 0 AND a.activo = 1 "
-            + "THEN true ELSE false END, a.fechaDeCreacion, a.fechaDeBorrado, u.ultimoUso) FROM AccessToken a "
-            + "LEFT JOIN UsoDeToken u ON u.idAccessToken = a.id WHERE a.idUsuario = :usuario ORDER BY a.fechaDeCreacion DESC")
+            + "THEN true ELSE false END, a.fechaDeCreacion, a.fechaDeBorrado, u.ultimoUso, v.vence) FROM AccessToken a "
+            + "LEFT JOIN UsoDeToken u ON u.idAccessToken = a.id LEFT JOIN VencimientoDeToken v ON v.idAccessToken = a.id WHERE a.idUsuario = :usuario ORDER BY a.fechaDeCreacion DESC")
     List<UsuarioTokenResponseDTO> tokensDe(@Param("usuario") Long usuario);
 }

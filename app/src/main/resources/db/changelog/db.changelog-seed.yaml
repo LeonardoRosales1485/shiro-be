@@ -50,3 +50,6 @@ databaseChangeLog:
   - include:
       file: seeds/2026-11-19-insert-uso-de-tokens-seed.yaml
       relativeToChangelogFile: true
+  - include:
+      file: seeds/2026-11-26-vencimiento-de-tokens-seed.yaml
+      relativeToChangelogFile: true

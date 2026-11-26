@@ -4,6 +4,7 @@ import com.blue.open.Code.Autorizacion.SoloSesion;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioArchivarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioCrearCuentaUseCase;
+import com.blue.open.Code.Usuario.CasosDeUso.UsuarioCrearTokenConVencimientoUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioIngresarConGoogleUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioListadoDeAdministracionUseCase;
@@ -64,6 +65,8 @@ public class UsuarioController {
     private final UsuarioSesionGruposUseCase sesionGruposUseCase;
 
     private final UsuarioMisTokensUseCase misTokensUseCase;
+
+    private final UsuarioCrearTokenConVencimientoUseCase crearTokenConVencimientoUseCase;
 
     private final UsuarioListadoDeAdministracionUseCase listadoDeAdministracionUseCase;
 
@@ -162,10 +165,20 @@ public class UsuarioController {
     // Mis tokens de acceso, tambien los revocados, con su ultimo uso. Responde la lista, los mas nuevos primero
     @GetMapping("mis-tokens")
     @SoloSesion("tokens del propio usuario")
-    @Contrato(casoDeUso = "CU-USR-25", resumen = "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso",
+    @Contrato(casoDeUso = "CU-USR-25", resumen = "Mis tokens de acceso, también los revocados, con su creación, su vencimiento, su revocación y su último uso",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<UsuarioTokenResponseDTO>> misTokens() {
         return new ResponseEntity<>(misTokensUseCase.ejecutar(), HttpStatus.OK);
+    }
+
+    // Crea un token de acceso del usuario de la sesion que vence a los dias elegidos. Responde el token, una sola vez
+    @PostMapping("crear-token-con-vencimiento")
+    @SoloSesion("tokens del propio usuario")
+    @Contrato(casoDeUso = "CU-USR-28", resumen = "Crea un token de acceso que vence a los 30, 90 o 180 días; el token se responde una sola vez",
+            permiso = Contrato.AUTENTICADO)
+    public ResponseEntity<UsuarioCrearTokenConVencimientoResponseDTO> crearTokenConVencimiento(
+            @Valid @RequestBody UsuarioCrearTokenConVencimientoRequestDTO dto) {
+        return new ResponseEntity<>(crearTokenConVencimientoUseCase.ejecutar(dto), HttpStatus.OK);
     }
 
     // Listado de administracion: usuarios vigentes y archivados con su ingreso y sus grupos. Responde la lista por nombre
