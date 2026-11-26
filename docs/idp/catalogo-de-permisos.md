@@ -1,6 +1,6 @@
 # Catálogo de permisos
 
-Generado por la suite completa del backend (`CatalogoDePermisos`, MJ-05 del plan de mejoras) a partir del contrato `docs/api/openapi.yaml`, versión 1.0.57. No se edita a mano.
+Generado por la suite completa del backend (`CatalogoDePermisos`, MJ-05 del plan de mejoras) a partir del contrato `docs/api/openapi.yaml`, versión 1.0.58. No se edita a mano.
 
 - `SYSADMIN, ADMIN` u otro rol o permiso: lo exige `@Contrato` antes de entrar al endpoint.
 - `NIVEL@RECURSO` (por ejemplo `EDITAR@TABLERO`): exige sesión y ese nivel sobre el proyecto o el tablero del elemento, según las reglas de permiso (`ResolutorDePermisosDeRecurso`). El super admin y los Administradores pueden todo.
