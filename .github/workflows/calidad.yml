@@ -90,9 +90,12 @@ jobs:
         run: |
           pip install --quiet pyyaml
           python deploy/deploy.py --local local shiro-be --seed
-      # Health, version de app/pom.xml, ingreso de sysadmin y eco por MCP con el token del seed
+      # Espera el health, ingreso de sysadmin y eco por MCP con el token del seed
       - name: Humo de la imagen
         run: python .github/scripts/smoke_imagen.py
+      # Health UP y version de app/pom.xml en /actuator/info
+      - name: Smoke de deploy
+        run: python deploy/smoke.py local
       - name: Logs del backend
         if: failure()
         run: docker ps -a && docker logs $(docker ps -aq --filter "name=shiro-be" | head -1) 2>&1 | tail -200

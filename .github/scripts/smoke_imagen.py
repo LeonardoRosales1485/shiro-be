@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# Humo de la imagen recien desplegada (MJ-15 del plan de mejoras): espera a que /actuator/health responda UP, corre
-# deploy/smoke.py (health y version), ingresa como sysadmin y llama a la herramienta MCP "eco" con el token del seed.
+# Humo de la imagen recien desplegada (MJ-15 del plan de mejoras): espera a que /actuator/health responda UP, ingresa
+# como sysadmin y llama a la herramienta MCP "eco" con el token del seed. La version la verifica deploy/smoke.py, en
+# el paso siguiente del job.
 # Lo usa el job "imagen" de .github/workflows/calidad.yml despues de `python deploy/deploy.py --local local shiro-be --seed`.
 # Uso: python .github/scripts/smoke_imagen.py [--url http://localhost:7090/api]
 import argparse
 import json
-import subprocess
 import sys
 import time
 import urllib.error
@@ -61,8 +61,6 @@ def main() -> int:
     args = parser.parse_args()
 
     esperar_salud(args.url, args.espera)
-    subprocess.run([sys.executable, "deploy/smoke.py", "local", "--url", args.url], check=True)
-
     status, texto = pedir(f"{args.url}/usuario/iniciar-sesion", {"nombreDeUsuario": USUARIO, "contrasena": CONTRASENA})
     if status != 200:
         sys.exit(f"[imagen] el ingreso de {USUARIO} respondio {status}")
