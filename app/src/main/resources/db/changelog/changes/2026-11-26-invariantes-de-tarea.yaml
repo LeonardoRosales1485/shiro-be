@@ -1,0 +1,179 @@
+# Invariantes de la tarea en la base (MJ-03 del plan de mejoras; Spec 1, Spec 7 y adenda 4 del DAF). Java ya las
+# valida; la base las garantiza tambien, para que una migracion o un import con un error no las rompa.
+# - La tarea es del proyecto de su tablero: FK compuesta (id_tablero, id_proyecto) contra shr_tablero.
+# - El estado es del tipo de tablero de su tablero: trigger (la FK compuesta pediria copiar id_tipo_tablero en
+#   shr_tarea y mantenerlo desde JPA).
+# - La jerarquia (padre del mismo proyecto y de nivel menor, sin hijas vigentes de nivel menor o igual al cambiar el
+#   tipo): trigger BEFORE por fila, porque un CHECK no puede mirar otra fila. Que una tarea no sea su propio padre lo
+#   dice ademas un CHECK.
+# - Una Subtarea tiene padre: trigger de restriccion diferido (se verifica al confirmar la transaccion), porque el
+#   importador crea la Subtarea y le asigna el padre en una segunda pasada.
+# Los triggers inmediatos corren en cada sentencia, tambien dentro de las pruebas; el diferido no corre en una prueba
+# que se revierte, salvo que la prueba lo pase a inmediato (SET CONSTRAINTS ... IMMEDIATE).
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-1
+      author: shiro
+      comment: "Verifica que ningun dato actual rompa las invariantes antes de crear las restricciones"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              DO $$
+              DECLARE
+                proyecto BIGINT; estado BIGINT; propio BIGINT; otro_proyecto BIGINT; nivel BIGINT; subtarea BIGINT;
+              BEGIN
+                SELECT count(*) INTO proyecto FROM shr_tarea t JOIN shr_tablero b ON b.id = t.id_tablero
+                  WHERE b.id_proyecto <> t.id_proyecto;
+                SELECT count(*) INTO estado FROM shr_tarea t JOIN shr_tablero b ON b.id = t.id_tablero
+                  JOIN shr_estado e ON e.id = t.id_estado WHERE e.id_tipo_tablero <> b.id_tipo_tablero;
+                SELECT count(*) INTO propio FROM shr_tarea WHERE id_padre = id;
+                SELECT count(*) INTO otro_proyecto FROM shr_tarea t JOIN shr_tarea p ON p.id = t.id_padre
+                  WHERE p.id_proyecto <> t.id_proyecto;
+                SELECT count(*) INTO nivel FROM shr_tarea t JOIN shr_tarea p ON p.id = t.id_padre
+                  JOIN shr_tipo_tarea tt ON tt.id = t.id_tipo_tarea JOIN shr_tipo_tarea tp ON tp.id = p.id_tipo_tarea
+                  WHERE tp.nivel >= tt.nivel;
+                SELECT count(*) INTO subtarea FROM shr_tarea t JOIN shr_tipo_tarea tt ON tt.id = t.id_tipo_tarea
+                  WHERE tt.codigo = 'SUBTAREA' AND t.id_padre IS NULL;
+                IF proyecto + estado + propio + otro_proyecto + nivel + subtarea > 0 THEN
+                  RAISE EXCEPTION 'Hay tareas que rompen las invariantes de MJ-03 (proyecto del tablero: %, estado del tablero: %, propio padre: %, padre de otro proyecto: %, padre de nivel mayor o igual: %, subtarea sin padre: %). Hay que corregirlas antes de desplegar.',
+                    proyecto, estado, propio, otro_proyecto, nivel, subtarea;
+                END IF;
+              END
+              $$;
+
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-2
+      author: shiro
+      comment: "La tarea es del proyecto de su tablero: FK compuesta (id_tablero, id_proyecto)"
+      changes:
+        - addUniqueConstraint:
+            tableName: shr_tablero
+            columnNames: id, id_proyecto
+            constraintName: uk_shr_tablero_id_proyecto
+        - addForeignKeyConstraint:
+            baseTableName: shr_tarea
+            baseColumnNames: id_tablero, id_proyecto
+            referencedTableName: shr_tablero
+            referencedColumnNames: id, id_proyecto
+            constraintName: fk_shr_tarea_tablero_proyecto
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: shr_tarea
+            constraintName: fk_shr_tarea_tablero_proyecto
+        - dropUniqueConstraint:
+            tableName: shr_tablero
+            constraintName: uk_shr_tablero_id_proyecto
+
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-3
+      author: shiro
+      comment: "Una tarea no es su propio padre"
+      changes:
+        - sql:
+            sql: "ALTER TABLE shr_tarea ADD CONSTRAINT ck_shr_tarea_padre_distinto CHECK (id_padre IS NULL OR id_padre <> id)"
+      rollback:
+        - sql:
+            sql: "ALTER TABLE shr_tarea DROP CONSTRAINT ck_shr_tarea_padre_distinto"
+
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-4
+      author: shiro
+      comment: "El estado de la tarea es del tipo de tablero de su tablero"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              CREATE FUNCTION shr_tarea_estado_del_tablero() RETURNS TRIGGER
+              LANGUAGE plpgsql AS $f$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM shr_estado e JOIN shr_tablero b ON b.id_tipo_tablero = e.id_tipo_tablero
+                               WHERE e.id = NEW.id_estado AND b.id = NEW.id_tablero) THEN
+                  RAISE EXCEPTION 'shr_tarea: el estado % no es del tipo de tablero del tablero %', NEW.id_estado, NEW.id_tablero
+                    USING ERRCODE = 'check_violation';
+                END IF;
+                RETURN NEW;
+              END
+              $f$;
+        - sql:
+            sql: >-
+              CREATE TRIGGER tg_shr_tarea_estado_del_tablero BEFORE INSERT OR UPDATE OF id_estado, id_tablero ON shr_tarea
+              FOR EACH ROW EXECUTE FUNCTION shr_tarea_estado_del_tablero()
+      rollback:
+        - sql:
+            sql: "DROP TRIGGER tg_shr_tarea_estado_del_tablero ON shr_tarea"
+        - sql:
+            sql: "DROP FUNCTION shr_tarea_estado_del_tablero()"
+
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-5
+      author: shiro
+      comment: "Jerarquia de la tarea: padre del mismo proyecto y de nivel menor, hijas de nivel mayor"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              CREATE FUNCTION shr_tarea_jerarquia() RETURNS TRIGGER
+              LANGUAGE plpgsql AS $f$
+              DECLARE
+                nivel_propio INT; nivel_padre INT; proyecto_padre BIGINT;
+              BEGIN
+                SELECT nivel INTO nivel_propio FROM shr_tipo_tarea WHERE id = NEW.id_tipo_tarea;
+                IF NEW.id_padre IS NOT NULL THEN
+                  SELECT tt.nivel, p.id_proyecto INTO nivel_padre, proyecto_padre
+                    FROM shr_tarea p JOIN shr_tipo_tarea tt ON tt.id = p.id_tipo_tarea WHERE p.id = NEW.id_padre;
+                  IF proyecto_padre <> NEW.id_proyecto THEN
+                    RAISE EXCEPTION 'shr_tarea: el padre % es de otro proyecto (tarea %)', NEW.id_padre, NEW.id
+                      USING ERRCODE = 'check_violation';
+                  END IF;
+                  IF NEW.id_padre = NEW.id OR nivel_padre >= nivel_propio THEN
+                    RAISE EXCEPTION 'shr_tarea: el padre % tiene que ser de un nivel menor que la tarea %', NEW.id_padre, NEW.id
+                      USING ERRCODE = 'check_violation';
+                  END IF;
+                END IF;
+                IF TG_OP = 'UPDATE' AND NEW.id_tipo_tarea <> OLD.id_tipo_tarea AND EXISTS (
+                    SELECT 1 FROM shr_tarea h JOIN shr_tipo_tarea th ON th.id = h.id_tipo_tarea
+                    WHERE h.id_padre = NEW.id AND h.status = 0 AND th.nivel <= nivel_propio) THEN
+                  RAISE EXCEPTION 'shr_tarea: la tarea % tiene hijas vigentes de nivel menor o igual al de su tipo nuevo', NEW.id
+                    USING ERRCODE = 'check_violation';
+                END IF;
+                RETURN NEW;
+              END
+              $f$;
+        - sql:
+            sql: >-
+              CREATE TRIGGER tg_shr_tarea_jerarquia BEFORE INSERT OR UPDATE OF id_padre, id_tipo_tarea, id_proyecto ON shr_tarea
+              FOR EACH ROW EXECUTE FUNCTION shr_tarea_jerarquia()
+      rollback:
+        - sql:
+            sql: "DROP TRIGGER tg_shr_tarea_jerarquia ON shr_tarea"
+        - sql:
+            sql: "DROP FUNCTION shr_tarea_jerarquia()"
+
+  - changeSet:
+      id: 2026-11-26-invariantes-de-tarea-6
+      author: shiro
+      comment: "Una Subtarea tiene padre, verificado al confirmar la transaccion"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >-
+              CREATE FUNCTION shr_tarea_subtarea_con_padre() RETURNS TRIGGER
+              LANGUAGE plpgsql AS $f$
+              BEGIN
+                IF EXISTS (SELECT 1 FROM shr_tarea t JOIN shr_tipo_tarea tt ON tt.id = t.id_tipo_tarea
+                           WHERE t.id = NEW.id AND tt.codigo = 'SUBTAREA' AND t.id_padre IS NULL) THEN
+                  RAISE EXCEPTION 'shr_tarea: una Subtarea necesita padre (tarea %)', NEW.id USING ERRCODE = 'check_violation';
+                END IF;
+                RETURN NULL;
+              END
+              $f$;
+        - sql:
+            sql: >-
+              CREATE CONSTRAINT TRIGGER tg_shr_tarea_subtarea_con_padre AFTER INSERT OR UPDATE OF id_padre, id_tipo_tarea
+              ON shr_tarea DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION shr_tarea_subtarea_con_padre()
+      rollback:
+        - sql:
+            sql: "DROP TRIGGER tg_shr_tarea_subtarea_con_padre ON shr_tarea"
+        - sql:
+            sql: "DROP FUNCTION shr_tarea_subtarea_con_padre()"

@@ -16,7 +16,7 @@
          fuente: Maven la escribe en app-version.properties y de ahi la leen /info y el header API-Version -->
     <groupId>com.blue.open</groupId>
     <artifactId>open-data-proyect</artifactId>
-    <version>1.0.52</version>
+    <version>1.0.61</version>
     <name>open-data-proyect</name>
     <description>BackEnd de Open Data</description>
 
@@ -40,6 +40,8 @@
          vulnerabilidades criticas y altas en Tomcat 11.0.24 y Jackson 2.21.5 / 3.1.5 (adenda de implementacion 1:
          ninguna alta ni critica). Se quitan cuando core-parent suba a un Boot que ya las traiga -->
     <properties>
+        <!-- Default de la propiedad que saltea el paso del catalogo de permisos junto con las pruebas -->
+        <maven.test.skip>false</maven.test.skip>
         <tomcat.version>11.0.29</tomcat.version>
         <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
         <jackson-bom.version>3.1.8</jackson-bom.version>
@@ -268,6 +270,33 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+            <!-- Catalogo de permisos (MJ-05 del plan de mejoras): despues de las pruebas completa x-permiso en docs/api
+                 (las operaciones AUTENTICADO y PUBLICO salen de core-test sin el) y escribe docs/idp/catalogo-de-permisos.md.
+                 Se saltea con -Dmaven.test.skip (la imagen Docker no compila las pruebas) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>catalogo-de-permisos</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${maven.test.skip}</skip>
+                            <target>
+                                <java classname="com.blue.open.CatalogoDePermisos" classpathref="maven.test.classpath" fork="true" failonerror="true">
+                                    <arg value="${project.basedir}/../docs/api"/>
+                                    <arg value="${project.basedir}/../docs/idp"/>
+                                    <arg value="${project.version}"/>
+                                </java>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Criterios de calidad del plan (adenda de implementacion 1): cobertura de lineas del backend de 80% o mas,
                  medida sobre la suite completa (unitarias y pruebas de contrato). verify falla si no se cumple.

@@ -1,5 +1,8 @@
 package com.blue.open.Code.Version;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.Version.CasosDeUso.VersionArchivarUseCase;
 import com.blue.open.Code.Version.CasosDeUso.VersionAsignarUseCase;
 import com.blue.open.Code.Version.CasosDeUso.VersionChangelogUseCase;
@@ -57,6 +60,7 @@ public class VersionController {
 
     // Obtiene una version. Responde el VersionDTO
     @GetMapping("/uuid/{uuid}")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-01", resumen = "Obtiene una versión", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> obtenerPorUuid(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
@@ -64,6 +68,7 @@ public class VersionController {
 
     // Lista versiones con filtros y orden. Responde la pagina de VersionDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO, detalle = "lista solo las versiones de proyectos visibles")
     @Contrato(casoDeUso = "CU-VER-02", resumen = "Lista versiones con filtros y orden", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<VersionDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
@@ -71,6 +76,7 @@ public class VersionController {
 
     // Crea una version sin publicar o edita su nombre. Responde la version guardada
     @PostMapping("/guardar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-03", resumen = "Crea una versión o edita su nombre (una publicada no se edita)", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> guardar(@Valid @RequestBody VersionDTO dto) {
         return new ResponseEntity<>(service.guardar(dto), HttpStatus.OK);
@@ -78,6 +84,7 @@ public class VersionController {
 
     // Asigna tareas a la version. Responde la version
     @PostMapping("/{uuid}/asignar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-04", resumen = "Asigna tareas del proyecto a una versión sin publicar", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> asignar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid,
             @Valid @RequestBody VersionTareasRequestDTO dto) {
@@ -86,6 +93,7 @@ public class VersionController {
 
     // Quita tareas de la version. Responde la version
     @PostMapping("/{uuid}/quitar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-05", resumen = "Quita tareas de una versión sin publicar", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> quitar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid,
             @Valid @RequestBody VersionTareasRequestDTO dto) {
@@ -94,6 +102,7 @@ public class VersionController {
 
     // Publica la version con la fecha elegida. Responde la version publicada
     @PostMapping("/{uuid}/publicar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-06", resumen = "Publica una versión con la fecha elegida; su changelog queda fijo", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> publicar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid,
             @Valid @RequestBody VersionPublicarRequestDTO dto) {
@@ -102,6 +111,7 @@ public class VersionController {
 
     // Changelog de la version en Markdown
     @GetMapping(value = "/{uuid}/changelog", produces = "text/markdown")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-07", resumen = "Changelog de una versión en Markdown: tareas terminadas agrupadas por tipo", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<String> changelog(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return ResponseEntity.ok().contentType(MARKDOWN).body(changelogUseCase.ejecutar(uuid));
@@ -109,6 +119,7 @@ public class VersionController {
 
     // Archiva la version. Responde la version archivada
     @PostMapping("/{uuid}/archivar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-08", resumen = "Archiva una versión", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> archivar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
@@ -116,6 +127,7 @@ public class VersionController {
 
     // Restaura la version archivada. Responde la version restaurada
     @PostMapping("/{uuid}/restaurar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-09", resumen = "Restaura una versión archivada", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<VersionDTO> restaurar(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);
@@ -123,6 +135,7 @@ public class VersionController {
 
     // Tareas de la version, terminadas o no. Responde la lista por orden de tipo y numero
     @GetMapping("/{uuid}/tareas")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-VER-10", resumen = "Tareas de una versión, terminadas o no, con su tipo, tablero y estado", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<VersionTareaResponseDTO>> tareas(@Descripcion("Uuid de la versión") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(tareasUseCase.ejecutar(uuid), HttpStatus.OK);

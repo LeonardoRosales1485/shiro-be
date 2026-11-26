@@ -1,0 +1,16 @@
+# Control de edicion simultanea con @Version (MJ-02 del plan de mejoras): numero de version de cada tarea, que
+# Hibernate sube en cada guardado y compara en el UPDATE.
+databaseChangeLog:
+  - changeSet:
+      id: 2026-11-26-version-de-tarea-1
+      author: shiro
+      comment: "Agrega shr_tarea.version para el bloqueo optimista"
+      changes:
+        - addColumn:
+            tableName: shr_tarea
+            columns:
+              - column: {name: version, type: BIGINT, defaultValueNumeric: 0, constraints: {nullable: false}}
+      rollback:
+        - dropColumn:
+            tableName: shr_tarea
+            columnName: version

@@ -1,5 +1,6 @@
 package com.blue.open.Code.Usuario;
 
+import com.blue.open.Code.Autorizacion.SoloSesion;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioArchivarUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioAsignarGruposUseCase;
 import com.blue.open.Code.Usuario.CasosDeUso.UsuarioCrearCuentaUseCase;
@@ -124,6 +125,7 @@ public class UsuarioController {
 
     // Usuario de la sesion actual. Responde el UsuarioDTO
     @GetMapping("sesion")
+    @SoloSesion("datos del propio usuario")
     @Contrato(casoDeUso = "CU-USR-05", resumen = "Obtiene el usuario de la sesión actual (requiere sesión, sin permiso puntual)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<UsuarioDTO> sesion() {
@@ -133,6 +135,7 @@ public class UsuarioController {
 
     // Grupos del usuario de la sesion y si es administrador. Responde UsuarioSesionGruposResponseDTO
     @GetMapping("sesion/grupos")
+    @SoloSesion("datos del propio usuario")
     @Contrato(casoDeUso = "CU-USR-24", resumen = "Grupos del usuario de la sesión y si es administrador (requiere sesión, sin permiso puntual)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<UsuarioSesionGruposResponseDTO> sesionGrupos() {
@@ -158,6 +161,7 @@ public class UsuarioController {
 
     // Mis tokens de acceso, tambien los revocados, con su ultimo uso. Responde la lista, los mas nuevos primero
     @GetMapping("mis-tokens")
+    @SoloSesion("tokens del propio usuario")
     @Contrato(casoDeUso = "CU-USR-25", resumen = "Mis tokens de acceso, también los revocados, con su creación, su revocación y su último uso",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<UsuarioTokenResponseDTO>> misTokens() {

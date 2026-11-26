@@ -2,6 +2,7 @@ package com.blue.open.Code.Common.Mcp;
 
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Common.Canal.CanalDeLaPeticion;
+import com.blue.open.Code.Common.Errores.RespuestaDeErrorDeFiltro;
 import com.blue.open.Code.Usuario.AuthTokenConSha256Service;
 import com.blue.open.Core.Identity.Entidad.UsuarioBase;
 import com.blue.open.Core.Kernel.Excepciones.CodigoDeError;
@@ -13,14 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Filtro de /mcp (T3.1 y Spec 2): exige Authorization: Bearer con un token de acceso y lo autentica con el protocolo
@@ -34,8 +30,6 @@ import java.util.Map;
 public class FiltroDeMcp extends OncePerRequestFilter {
 
     private final AuthTokenConSha256Service tokens;
-
-    private final ObjectMapper escritor = new ObjectMapper();
 
     // Autentica el token y marca el canal MCP; si no autentica responde 401 con el codigo de error
     @Override
@@ -63,13 +57,6 @@ public class FiltroDeMcp extends OncePerRequestFilter {
     // Escribe la respuesta de error con la misma forma que el resto de la API (codigo, mensaje y status)
     private void rechazar(HttpServletResponse respuesta, CodigoDeError codigo, String mensaje) throws IOException {
         log.warn("Pedido MCP rechazado | codigo={}", codigo.codigo());
-        Map<String, Object> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("codigo", codigo.codigo());
-        cuerpo.put("mensajeParaUsuario", mensaje);
-        cuerpo.put("status", codigo.status().toString());
-        respuesta.setStatus(codigo.status().value());
-        respuesta.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        respuesta.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        respuesta.getWriter().write(escritor.writeValueAsString(cuerpo));
+        RespuestaDeErrorDeFiltro.escribir(respuesta, codigo, mensaje);
     }
 }

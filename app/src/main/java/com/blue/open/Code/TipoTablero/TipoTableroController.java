@@ -1,5 +1,6 @@
 package com.blue.open.Code.TipoTablero;
 
+import com.blue.open.Code.Autorizacion.SoloSesion;
 import com.blue.open.Code.TipoTablero.CasosDeUso.TipoTableroListarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class TipoTableroController {
 
     // Lista los tipos de tablero con sus estados en orden de columna
     @GetMapping("/listar")
+    @SoloSesion("catálogo común a todos los proyectos")
     @Contrato(casoDeUso = "CU-TTB-01", resumen = "Lista los tipos de tablero con sus estados en orden de columna",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<TipoTableroDTO>> listar() {

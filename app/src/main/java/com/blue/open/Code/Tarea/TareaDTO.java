@@ -28,7 +28,10 @@ import java.util.List;
 @NoArgsConstructor
 public class TareaDTO extends EntidadBaseDTO {
 
-    @Descripcion("Fecha de la última modificación. Al editar es obligatoria: se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409")
+    @Descripcion("Versión de la tarea: sube en cada guardado. Al editar se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409")
+    private Long version;
+
+    @Descripcion("Fecha de la última modificación. Al editar se acepta en lugar de version (compatibilidad, MJ-02): se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "America/Argentina/Buenos_Aires")
     private Timestamp fechaDeActualizacion;
 

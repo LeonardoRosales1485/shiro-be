@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
   title: "API de Open Data"
-  version: "1.0.52"
+  version: "1.0.61"
   description: |
     Backend de Open Data. Todas las rutas cuelgan de /api y responden el header API-Version con la versión del backend.
 
@@ -30,7 +30,7 @@ info:
     | `DOMINIO_DE_GOOGLE_NO_PERMITIDO` | 403 | Solo pueden ingresar cuentas de Google de la organización. | Al ingresar con Google, la cuenta no es del dominio de la organización |
     | `ERROR_INTERNO` | 500 | Error interno del servidor | Error inesperado del servidor, que no corresponde a ningún otro código. El `traceId` de la respuesta permite ubicarlo en los logs |
     | `ESTADO_DE_OTRO_TABLERO` | 400 | El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala. | Al mover una tarea se eligió un estado que no es del tablero de la tarea: una tarea no cambia de tablero, se clona |
-    | `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó |
+    | `FECHA_DE_LECTURA_OBLIGATORIA` | 400 | Falta la versión de la tarea que se leyó. Recargá la tarea y volvé a intentar. | Al editar una tarea no se mandó version (ni fechaDeActualizacion, que se acepta por compatibilidad): lo que se leyó de la tarea |
     | `FORMULARIO_INVALIDO` | 400 | Error en el formulario | El body no pasa las validaciones del DTO. `errores` trae un elemento por campo inválido, con su nombre y su mensaje |
     | `GOOGLE_NO_CONFIGURADO` | 503 | El ingreso con Google no está habilitado. Ingresá con tu usuario y contraseña. | El ingreso con Google no está configurado en el servidor (falta el client id o el dominio): se ingresa con usuario y contraseña |
     | `GOOGLE_NO_DISPONIBLE` | 503 | Google no responde. Volvé a intentar en unos minutos. | Al ingresar con Google, no se pudieron obtener las claves públicas de Google: hay que reintentar más tarde |
@@ -125,6 +125,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-ARC-01"
+      x-permiso: "ARCHIVAR@PROYECTO|TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -267,7 +268,7 @@ paths:
                 el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto:
                   summary: "El administrador ve todo lo archivado y filtra por tipo y texto (ADMIN)"
                   value:
-                    cantidadDeElementos: 5
+                    cantidadDeElementos: 32
                     contenido:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
@@ -299,14 +300,14 @@ paths:
                     numero: 1
                     primera: false
                     tamano: 200
-                    totalDeElementos: 205
+                    totalDeElementos: 232
                     totalDePaginas: 2
                     ultima: true
                     vacia: false
                 el-administrador-ve-todo-lo-archivado-y-filtra-por-tipo-y-texto-2:
                   summary: "El administrador ve todo lo archivado y filtra por tipo y texto (2) (ADMIN)"
                   value:
-                    cantidadDeElementos: 2
+                    cantidadDeElementos: 28
                     contenido:
                     - archivadoPorNombre: "Usuario Demo"
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
@@ -321,15 +322,24 @@ paths:
                       fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
                       fechaDeCreacion: null
                       incluidos: 0
-                      nombre: "MCPP-3 Tercera"
-                      proyectoPrefijo: "MCPP"
+                      nombre: "MTZ-84 Archivada de la Matriz MCP"
+                      proyectoPrefijo: "MTZ"
                       status: -1
                       tipo: "TAREA"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+                    - archivadoPorNombre: "Usuario Demo"
+                      fechaDeBorrado: "2026-01-01T12:00:00.000-03:00"
+                      fechaDeCreacion: null
+                      incluidos: 0
+                      nombre: "MTZ-81 Archivada de la Matriz MCP"
+                      proyectoPrefijo: "MTZ"
+                      status: -1
+                      tipo: "TAREA"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     numero: 1
                     primera: false
                     tamano: 200
-                    totalDeElementos: 202
+                    totalDeElementos: 228
                     totalDePaginas: 2
                     ultima: true
                     vacia: false
@@ -397,7 +407,7 @@ paths:
                     ultima: true
                     vacia: false
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -423,6 +433,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-ARC-02"
+      x-permiso: "ARCHIVAR@PROYECTO|TABLERO"
       security:
       - bearer: []
       parameters:
@@ -534,7 +545,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -585,6 +596,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-COM-03"
+      x-permiso: "EDITAR@TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -789,7 +801,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -849,6 +861,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-COM-02"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -983,7 +996,7 @@ paths:
                     ultima: true
                     vacia: true
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -1009,6 +1022,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-COM-01"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -1055,7 +1069,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -1232,6 +1246,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-CON-01"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       responses:
@@ -1267,6 +1282,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-CON-03"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       requestBody:
@@ -1352,6 +1368,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-CON-02"
+      x-permiso: "PUBLICO"
       security: []
       parameters:
       - name: "clave"
@@ -1447,7 +1464,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:39865"
+                  url: "http://127.0.0.1:35525"
               el-prefijo-ya-lo-usa-otro-proyecto:
                 summary: "El prefijo ya lo usa otro proyecto (SYSADMIN)"
                 value:
@@ -1455,7 +1472,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:45503"
+                  url: "http://127.0.0.1:37105"
               solo-sitios-de-atlassian:
                 summary: "Solo sitios de atlassian (SYSADMIN)"
                 value:
@@ -1491,7 +1508,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "otro-token"
-                  url: "http://127.0.0.1:45503"
+                  url: "http://127.0.0.1:37105"
               proyecto-inexistente-en-jira:
                 summary: "Proyecto inexistente en jira (SYSADMIN)"
                 value:
@@ -1499,7 +1516,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:45503"
+                  url: "http://127.0.0.1:37105"
               el-prefijo-tiene-de-dos-a-seis-letras:
                 summary: "El prefijo tiene de dos a seis letras (SYSADMIN)"
                 value:
@@ -1507,7 +1524,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "S1"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:45503"
+                  url: "http://127.0.0.1:37105"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -1515,7 +1532,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "SIM"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:36495"
+                  url: "http://127.0.0.1:42655"
               un-proyecto-ya-importado-no-cambia-de-prefijo-2:
                 summary: "Un proyecto ya importado no cambia de prefijo (2) (SYSADMIN)"
                 value:
@@ -1523,15 +1540,7 @@ paths:
                   correo: "importador@example.com"
                   prefijo: "OTRO"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:36495"
-              importa-un-proyecto-real-sin-fallas:
-                summary: "Importa un proyecto real sin fallas (SYSADMIN)"
-                value:
-                  claveProyecto: "EXP"
-                  correo: "leonardorosales1485@gmail.com"
-                  prefijo: "PRB"
-                  token: "ATATT3xFfGF0DSJBkEFgLLeTIBoDc4Q8ZiA_fXnBf3Y0g2gEnQLgcSiGcQtgMILWPdw1ZJU6ET_EG8URPaApABQ0g9-d7WmuIVhegMjmXSjyTC_22Gk7FbA7L9owHSPD-hIVp7uFgw1JGsCU_k6HL3Udt3uMiilePKo1MiwD8j4VvYNYDliib1M=040BD0DB"
-                  url: "https://blue-opendata.atlassian.net/"
+                  url: "http://127.0.0.1:42655"
       responses:
         "200":
           description: "OK"
@@ -3060,85 +3069,6 @@ paths:
                       usuarioUuid: null
                       uuid: null
                     uuid: null
-                importa-un-proyecto-real-sin-fallas:
-                  summary: "Importa un proyecto real sin fallas (SYSADMIN)"
-                  value:
-                    estados:
-                    - fechaDeCreacion: null
-                      idJira: "11297"
-                      nivel: null
-                      nombre: "Tareas por hacer"
-                      status: 0
-                      terminado: false
-                      uuid: null
-                    - fechaDeCreacion: null
-                      idJira: "11298"
-                      nivel: null
-                      nombre: "En curso"
-                      status: 0
-                      terminado: false
-                      uuid: null
-                    - fechaDeCreacion: null
-                      idJira: "11300"
-                      nivel: null
-                      nombre: "A testear"
-                      status: 0
-                      terminado: false
-                      uuid: null
-                    fechaDeCreacion: null
-                    importacionUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
-                    status: 0
-                    tableros:
-                    - fechaDeCreacion: null
-                      idJira: "1063"
-                      nivel: null
-                      nombre: "EXP board"
-                      status: 0
-                      terminado: null
-                      uuid: null
-                    tipos:
-                    - fechaDeCreacion: null
-                      idJira: "11641"
-                      nivel: 2
-                      nombre: "Tarea"
-                      status: 0
-                      terminado: null
-                      uuid: null
-                    - fechaDeCreacion: null
-                      idJira: "11642"
-                      nivel: 2
-                      nombre: "Error"
-                      status: 0
-                      terminado: null
-                      uuid: null
-                    - fechaDeCreacion: null
-                      idJira: "11643"
-                      nivel: 2
-                      nombre: "Historia"
-                      status: 0
-                      terminado: null
-                      uuid: null
-                    usuarios:
-                    - correo: ""
-                      fechaDeCreacion: null
-                      nombre: "Jira Delivery Agent"
-                      status: 0
-                      usuarioUuid: null
-                      uuid: null
-                    - correo: ""
-                      fechaDeCreacion: null
-                      nombre: "Jira Coding Agent"
-                      status: 0
-                      usuarioUuid: null
-                      uuid: null
-                    - correo: "leonardorosales1485@gmail.com"
-                      fechaDeCreacion: null
-                      nombre: "Leonardo Rosales"
-                      status: 0
-                      usuarioUuid: null
-                      uuid: null
-                    uuid: null
         "400":
           description: "Errores: `FORMULARIO_INVALIDO`, `IMPORTACION_CON_OTRO_PREFIJO`, `JIRA_CREDENCIALES_INVALIDAS`, `JIRA_PROYECTO_NO_ENCONTRADO`, `JIRA_URL_NO_PERMITIDA`, `PREFIJO_DE_PROYECTO_EN_USO`"
           content:
@@ -3417,13 +3347,13 @@ paths:
                 value:
                   correo: "importador@example.com"
                   token: "otro"
-                  url: "http://127.0.0.1:32855"
+                  url: "http://127.0.0.1:37189"
               lista-los-proyectos-visibles:
                 summary: "Lista los proyectos visibles (SYSADMIN)"
                 value:
                   correo: "importador@example.com"
                   token: "token-de-jira-simulado"
-                  url: "http://127.0.0.1:32855"
+                  url: "http://127.0.0.1:37189"
               url-que-no-es-de-jira-cloud:
                 summary: "Url que no es de jira cloud (SYSADMIN)"
                 value:
@@ -3554,7 +3484,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:45503"
+                    urlJira: "http://127.0.0.1:37105"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
@@ -3904,7 +3834,7 @@ paths:
                 al-terminar-el-avance-queda-completo:
                   summary: "Al terminar el avance queda completo (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:26.887-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:22.641-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -3916,29 +3846,29 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:39865"
+                    urlJira: "http://127.0.0.1:35525"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                   summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-20T09:36:24.791-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":2,\"tareasConComentariosLeidos\":2,\"tareasTotales\":2,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-26T14:39:20.709-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":2,\"tareasConComentariosLeidos\":2,\"tareasTotales\":2,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
                     estado: "TERMINADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f8f5-4018-7936-bf7d-8005b42761cb\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f8f5-401d-7565-9783-0979a31d3a8d\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a218f0-bfc5-7cb8-bd69-79cf5e88cb23\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a218f0-bfcb-7b90-948b-329a5bb4b7fb\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"},{\"claveJira\":\"JSIM-7\",\"motivo\":\"Su tipo de Jira (id 10004) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":2,\"tareasPorTipo\":{\"EPICA\":1,\"JIRA_STORY\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:25.155-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:21.099-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -3950,12 +3880,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-20T09:36:25.365-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":4,\"tareasConComentariosLeidos\":4,\"tareasTotales\":4,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":1,\"comentariosTotales\":1,\"inicio\":\"2026-11-26T14:39:21.283-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":4,\"tareasConComentariosLeidos\":4,\"tareasTotales\":4,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -3967,12 +3897,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":1,\"fallas\":[{\"claveJira\":\"JSIM-4\",\"motivo\":\"Su tipo de Jira (id 10003) no está mapeado.\"}],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":4,\"tareasPorTipo\":{\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:25.545-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:21.479-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -3984,12 +3914,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:25.673-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:21.599-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4001,12 +3931,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:25.940-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:21.824-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4018,12 +3948,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:26.368-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:22.146-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4035,12 +3965,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:26.485-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:22.265-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4052,12 +3982,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:26.583-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:22.365-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4069,12 +3999,12 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":2,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":0,\"tareasCreadas\":5,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[\"Usuario importado Nadie Pérez\"],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                 reimportar-no-duplica-2:
                   summary: "Reimportar no duplica (2) (SYSADMIN)"
                   value:
-                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-20T09:36:26.691-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
+                    avance: "{\"comentarios\":2,\"comentariosTotales\":2,\"inicio\":\"2026-11-26T14:39:22.464-03:00\",\"sprints\":2,\"sprintsTotales\":2,\"tareas\":5,\"tareasConComentariosLeidos\":5,\"tareasTotales\":5,\"versiones\":1,\"versionesTotales\":1}"
                     cancelacionPedida: false
                     claveProyectoJira: "JSIM"
                     correo: "importador@example.com"
@@ -4086,24 +4016,7 @@ paths:
                     proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":2,\"tareasActualizadas\":5,\"tareasCreadas\":0,\"tareasPorTipo\":{\"BUG\":1,\"EPICA\":1,\"HISTORIA\":1,\"SUBTAREA\":1,\"TAREA\":1},\"usuariosImportados\":[],\"versiones\":1}"
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
-                importa-un-proyecto-real-sin-fallas:
-                  summary: "Importa un proyecto real sin fallas (SYSADMIN)"
-                  value:
-                    avance: "{\"comentarios\":0,\"comentariosTotales\":0,\"inicio\":\"2026-11-20T09:36:30.323-03:00\",\"sprints\":1,\"sprintsTotales\":1,\"tareas\":87,\"tareasConComentariosLeidos\":87,\"tareasTotales\":87,\"versiones\":0,\"versionesTotales\":0}"
-                    cancelacionPedida: false
-                    claveProyectoJira: "EXP"
-                    correo: "leonardorosales1485@gmail.com"
-                    estado: "TERMINADA"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f8f5-55d1-724e-a75f-b0fe2de74b10\",\"11300\":\"01a1f8f5-55d4-7dff-9718-0105c9c7b71a\",\"11299\":\"01a1f8f5-55d5-786a-a8de-b68a51119f74\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f8f5-55d7-71d0-970f-64cd29b40cfb\",\"11645\":\"01a1f8f5-55da-7aee-be57-31d0021aa337\",\"11644\":\"01a1f8f5-55d9-75d6-810f-4fe3bbabdb77\",\"11864\":\"01a1f8f5-55db-7853-93da-074cd536973d\"},\"duracionDeSprintEnDias\":14}"
-                    nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
-                    prefijo: "PRB"
-                    proyectoUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                    resumen: "{\"advertencias\":[],\"comentarios\":0,\"fallas\":[],\"sprints\":1,\"tareasActualizadas\":0,\"tareasCreadas\":87,\"tareasPorTipo\":{\"HISTORIA\":70,\"JIRA_EPIC\":17},\"usuariosImportados\":[],\"versiones\":0}"
-                    status: 0
-                    urlJira: "https://blue-opendata.atlassian.net"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
           description: "Errores: `IMPORTACION_SIN_MAPEO`, `REGISTRO_NO_ENCONTRADO`"
@@ -4226,10 +4139,10 @@ paths:
                   tipos:
                   - idJira: "10004"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
+                  - idJira: "10002"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
               el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                 summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
                 value:
@@ -4322,31 +4235,10 @@ paths:
                   tipos:
                   - idJira: "10004"
                     tipoTareaUuid: "a3000000-0000-4000-8000-000000000005"
-                  - idJira: "10000"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000001"
-                  - idJira: "10001"
-                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000002"
-              importa-un-proyecto-real-sin-fallas:
-                summary: "Importa un proyecto real sin fallas (SYSADMIN)"
-                value:
-                  duracionDeSprintEnDias: 14
-                  tableros:
-                  - estados:
-                    - crear: true
-                      idJira: "11297"
-                    - crear: true
-                      idJira: "11298"
-                    - crear: true
-                      idJira: "11300"
-                    idJira: "1063"
-                    tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
-                  tipos:
-                  - crear: true
-                    idJira: "11641"
-                  - crear: true
-                    idJira: "11642"
-                  - crear: true
-                    idJira: "11643"
+                  - idJira: "10003"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000004"
+                  - idJira: "10002"
+                    tipoTareaUuid: "a3000000-0000-4000-8000-000000000003"
       responses:
         "200":
           description: "OK"
@@ -4370,7 +4262,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:39865"
+                    urlJira: "http://127.0.0.1:35525"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 el-mapeo-puede-crear-estados-y-tipos-que-faltan:
                   summary: "El mapeo puede crear estados y tipos que faltan (SYSADMIN)"
@@ -4381,13 +4273,13 @@ paths:
                     correo: "importador@example.com"
                     estado: "MAPEADA"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a1f8f5-4018-7936-bf7d-8005b42761cb\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a1f8f5-401d-7565-9783-0979a31d3a8d\"},\"duracionDeSprintEnDias\":10}"
+                    mapeo: "{\"tableros\":{\"11\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"11\":{\"1\":\"a2000000-0000-4000-8000-000000000011\",\"3\":\"01a218f0-bfc5-7cb8-bd69-79cf5e88cb23\"}},\"tipos\":{\"10000\":\"a3000000-0000-4000-8000-000000000001\",\"10001\":\"01a218f0-bfcb-7b90-948b-329a5bb4b7fb\"},\"duracionDeSprintEnDias\":10}"
                     nombreProyectoJira: "Proyecto simulado"
                     prefijo: "SIM"
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 las-tareas-nuevas-siguen-el-contador-del-proyecto:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
@@ -4404,7 +4296,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-tipo-sin-mapear-queda-en-las-fallas:
                   summary: "Un tipo sin mapear queda en las fallas (SYSADMIN)"
@@ -4421,7 +4313,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-proyecto-ya-importado-no-cambia-de-prefijo:
                   summary: "Un proyecto ya importado no cambia de prefijo (SYSADMIN)"
@@ -4438,7 +4330,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 un-sprint-sin-fechas-dura-lo-que-dice-el-mapeo:
                   summary: "Un sprint sin fechas dura lo que dice el mapeo (SYSADMIN)"
@@ -4455,7 +4347,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 mapear-deja-la-importacion-lista:
                   summary: "Mapear deja la importacion lista (SYSADMIN)"
@@ -4472,7 +4364,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 importar-trae-todo-con-claves-de-jira:
                   summary: "Importar trae todo con claves de jira (SYSADMIN)"
@@ -4489,7 +4381,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado:
                   summary: "Una nueva conexion reusa el proyecto importado (SYSADMIN)"
@@ -4506,7 +4398,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 una-nueva-conexion-reusa-el-proyecto-importado-2:
                   summary: "Una nueva conexion reusa el proyecto importado (2) (SYSADMIN)"
@@ -4523,7 +4415,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                 reimportar-no-duplica:
                   summary: "Reimportar no duplica (SYSADMIN)"
@@ -4540,24 +4432,7 @@ paths:
                     proyectoUuid: null
                     resumen: null
                     status: 0
-                    urlJira: "http://127.0.0.1:36495"
-                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
-                importa-un-proyecto-real-sin-fallas:
-                  summary: "Importa un proyecto real sin fallas (SYSADMIN)"
-                  value:
-                    avance: null
-                    cancelacionPedida: false
-                    claveProyectoJira: "EXP"
-                    correo: "leonardorosales1485@gmail.com"
-                    estado: "MAPEADA"
-                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                    mapeo: "{\"tableros\":{\"1063\":\"a1000000-0000-4000-8000-000000000001\"},\"estados\":{\"1063\":{\"11298\":\"a2000000-0000-4000-8000-000000000012\",\"11297\":\"01a1f8f5-55d1-724e-a75f-b0fe2de74b10\",\"11300\":\"01a1f8f5-55d4-7dff-9718-0105c9c7b71a\",\"11299\":\"01a1f8f5-55d5-786a-a8de-b68a51119f74\"}},\"tipos\":{\"11641\":\"a3000000-0000-4000-8000-000000000003\",\"11643\":\"a3000000-0000-4000-8000-000000000002\",\"11642\":\"01a1f8f5-55d7-71d0-970f-64cd29b40cfb\",\"11645\":\"01a1f8f5-55da-7aee-be57-31d0021aa337\",\"11644\":\"01a1f8f5-55d9-75d6-810f-4fe3bbabdb77\",\"11864\":\"01a1f8f5-55db-7853-93da-074cd536973d\"},\"duracionDeSprintEnDias\":14}"
-                    nombreProyectoJira: "Sistema Integral de Expedientes Digitales "
-                    prefijo: "PRB"
-                    proyectoUuid: null
-                    resumen: null
-                    status: 0
-                    urlJira: "https://blue-opendata.atlassian.net"
+                    urlJira: "http://127.0.0.1:42655"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
         "400":
           description: "Errores: `FORMULARIO_INVALIDO`, `MAPEO_DE_JIRA_INVALIDO`"
@@ -5414,6 +5289,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-02"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters: []
@@ -5542,7 +5418,7 @@ paths:
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
-                    cantidadDeElementos: 2
+                    cantidadDeElementos: 3
                     contenido:
                     - cantidadDeTareas: 2
                       descripcion: "Gestor de trabajo de Blue Open Data"
@@ -5596,10 +5472,36 @@ paths:
                         tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
                         uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
+                    - cantidadDeTareas: 1
+                      descripcion: null
+                      fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                      nombre: "Edicion concurrente"
+                      prefijo: "EDCO"
+                      status: 0
+                      tableros:
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "PRINCIPAL"
+                        tipoTableroNombre: "Principal"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000001"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000005"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "QA"
+                        tipoTableroNombre: "QA"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000002"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000006"
+                      - fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                        status: 0
+                        tipoTableroCodigo: "ANALISIS"
+                        tipoTableroNombre: "Análisis"
+                        tipoTableroUuid: "a1000000-0000-4000-8000-000000000003"
+                        uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000007"
+                      uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000008"
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 2
+                    totalDeElementos: 3
                     totalDePaginas: 1
                     ultima: true
                     vacia: false
@@ -5642,7 +5544,7 @@ paths:
                     ultima: true
                     vacia: false
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -5668,6 +5570,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-01"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -5689,7 +5592,7 @@ paths:
                   summary: "Las tareas nuevas siguen el contador del proyecto (SYSADMIN)"
                   value:
                     cantidadDeTareas: 5
-                    descripcion: "Importado de Jira (http://127.0.0.1:36495)"
+                    descripcion: "Importado de Jira (http://127.0.0.1:42655)"
                     fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
                     nombre: "Proyecto simulado"
                     prefijo: "SIM"
@@ -5789,7 +5692,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -5831,6 +5734,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-04"
+      x-permiso: "ARCHIVAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -5876,7 +5780,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -5918,6 +5822,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-BKL-01"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -6170,7 +6075,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -6185,6 +6090,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /proyecto/{uuid}/ordenar-backlog:
     post:
       tags:
@@ -6196,6 +6107,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-BKL-02"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -6293,7 +6205,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -6335,6 +6247,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-05"
+      x-permiso: "ARCHIVAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -6398,7 +6311,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -6440,6 +6353,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-PRY-06"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -6512,7 +6426,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -7172,6 +7086,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-REL-01"
+      x-permiso: "EDITAR@TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -7339,7 +7254,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -7381,6 +7296,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-REL-02"
+      x-permiso: "EDITAR@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -7437,7 +7353,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8153,6 +8069,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-03"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters: []
@@ -8424,7 +8341,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8466,6 +8383,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-02"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters: []
@@ -8510,7 +8428,7 @@ paths:
                       estado: "PLANIFICADO"
                       fechaDeCierre: null
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
-                      fin: "2026-12-04"
+                      fin: "2026-12-10"
                       inicio: "2026-01-01"
                       nombre: "Sprint sin fechas"
                       proyectoPrefijo: "SIM"
@@ -8527,7 +8445,7 @@ paths:
                 paginar:
                   summary: "Paginar (SYSADMIN)"
                   value:
-                    cantidadDeElementos: 3
+                    cantidadDeElementos: 5
                     contenido:
                     - cerradoPorNombre: null
                       estado: "PLANIFICADO"
@@ -8565,12 +8483,12 @@ paths:
                     numero: 0
                     primera: true
                     tamano: 5
-                    totalDeElementos: 3
-                    totalDePaginas: 1
-                    ultima: true
+                    totalDeElementos: 6
+                    totalDePaginas: 2
+                    ultima: false
                     vacia: false
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8596,6 +8514,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-01"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -8686,7 +8605,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8701,6 +8620,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/archivar:
     post:
       tags:
@@ -8712,6 +8637,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-08"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -8744,7 +8670,7 @@ paths:
                     status: -1
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
         "400":
-          description: "Errores: `SPRINT_ACTIVO_NO_SE_ARCHIVA`"
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`, `SPRINT_ACTIVO_NO_SE_ARCHIVA`"
           content:
             application/json:
               schema:
@@ -8760,7 +8686,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8775,6 +8701,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/asignar:
     post:
       tags:
@@ -8786,6 +8718,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-04"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -8905,7 +8838,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -8920,6 +8853,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/cerrar:
     post:
       tags:
@@ -8931,6 +8870,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-07"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -9032,7 +8972,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -9047,6 +8987,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/cierre:
     get:
       tags:
@@ -9058,6 +9004,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-09"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -9152,7 +9099,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -9194,6 +9141,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-06"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -9307,7 +9255,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -9322,6 +9270,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/quitar:
     post:
       tags:
@@ -9333,6 +9287,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-05"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -9377,7 +9332,7 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -9392,6 +9347,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /sprint/{uuid}/restaurar:
     post:
       tags:
@@ -9403,6 +9364,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-SPR-10"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -9460,7 +9422,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -9502,6 +9464,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-03"
+      x-permiso: "EDITAR@TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -9592,6 +9555,30 @@ paths:
                   tipoCodigo: "TAREA"
                   titulo: "Edición vieja"
                   uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+              con-la-version-leida-se-edita-y-la-version-avanza:
+                summary: "Con la version leida se edita y la version avanza (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Con versión"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  version: 0
+              con-la-version-leida-se-edita-y-la-version-avanza-2:
+                summary: "Con la version leida se edita y la version avanza (2) (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Versión vieja"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  version: 0
+              con-la-version-leida-se-edita-y-la-version-avanza-3:
+                summary: "Con la version leida se edita y la version avanza (3) (ADMIN)"
+                value:
+                  tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                  tipoCodigo: "TAREA"
+                  titulo: "Otra edición"
+                  uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                  version: 2
               editar-sin-fecha-leida-rechazado:
                 summary: "Editar sin fecha leida rechazado (ADMIN)"
                 value:
@@ -9794,6 +9781,7 @@ paths:
                     titulo: "Despues de importar"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 una-regla-de-usuario-sobre-un-tablero-habilita-solo-ese-tablero:
                   summary: "Una regla de usuario sobre un tablero habilita solo ese tablero"
@@ -9825,6 +9813,7 @@ paths:
                     titulo: "En QA"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 guardar-alta:
                   summary: "Guardar alta (SYSADMIN)"
@@ -9856,6 +9845,7 @@ paths:
                     titulo: "Configurar el pipeline de integración"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 dos-guardados-con-la-misma-fecha-leida:
                   summary: "Dos guardados con la misma fecha leida (ADMIN)"
@@ -9887,6 +9877,71 @@ paths:
                     titulo: "Primera edición"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 2
+                    versiones: []
+                con-la-version-leida-se-edita-y-la-version-avanza:
+                  summary: "Con la version leida se edita y la version avanza (ADMIN)"
+                  value:
+                    clave: "SHI-3"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    sprintNombre: null
+                    sprintUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Con versión"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                    version: 2
+                    versiones: []
+                con-la-version-leida-se-edita-y-la-version-avanza-3:
+                  summary: "Con la version leida se edita y la version avanza (3) (ADMIN)"
+                  value:
+                    clave: "SHI-3"
+                    descripcion: null
+                    estadoNombre: "Por hacer"
+                    estadoUuid: "a2000000-0000-4000-8000-000000000011"
+                    etiquetas: []
+                    fechaDeActualizacion: "2026-01-01T12:00:00.000-03:00"
+                    fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
+                    hijas: []
+                    informanteNombre: "Sysadmin Pruebas"
+                    informanteUuid: "90000000-0000-4000-8000-000000000012"
+                    padreClave: null
+                    padreUuid: null
+                    prioridad: "MEDIA"
+                    proyectoUuid: "b1000000-0000-4000-8000-000000000001"
+                    puntos: null
+                    responsableNombre: null
+                    responsableUuid: null
+                    sprintNombre: null
+                    sprintUuid: null
+                    status: 0
+                    tableroCodigo: "PRINCIPAL"
+                    tableroUuid: "b2000000-0000-4000-8000-000000000001"
+                    tipoCodigo: "TAREA"
+                    tipoNombre: "Tarea"
+                    titulo: "Otra edición"
+                    uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
+                    vencimiento: null
+                    version: 3
                     versiones: []
                 con-la-fecha-nueva-se-puede-volver-a-editar:
                   summary: "Con la fecha nueva se puede volver a editar (ADMIN)"
@@ -9918,6 +9973,7 @@ paths:
                     titulo: "Primera edición"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 2
                     versiones: []
                 con-la-fecha-nueva-se-puede-volver-a-editar-2:
                   summary: "Con la fecha nueva se puede volver a editar (2) (ADMIN)"
@@ -9949,6 +10005,7 @@ paths:
                     titulo: "Segunda edición"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 3
                     versiones: []
                 cada-tarea-recibe-una-clave-distinta-del-proyecto:
                   summary: "Cada tarea recibe una clave distinta del proyecto (ADMIN)"
@@ -9980,6 +10037,7 @@ paths:
                     titulo: "Primera"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 cada-tarea-recibe-una-clave-distinta-del-proyecto-2:
                   summary: "Cada tarea recibe una clave distinta del proyecto (2) (ADMIN)"
@@ -10011,6 +10069,7 @@ paths:
                     titulo: "Segunda"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 crea-en-modo-rapido-solo-con-tipo-y-titulo:
                   summary: "Crea en modo rapido solo con tipo y titulo (ADMIN)"
@@ -10042,6 +10101,7 @@ paths:
                     titulo: "El token revocado sigue respondiendo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 crea-con-todos-los-datos:
                   summary: "Crea con todos los datos (ADMIN)"
@@ -10081,6 +10141,7 @@ paths:
                     titulo: "Importar sprints desde Jira"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: "2026-12-15"
+                    version: 0
                     versiones: []
                 editar-cambia-los-campos-y-conserva-clave-estado-y-tablero:
                   summary: "Editar cambia los campos y conserva clave estado y tablero (ADMIN)"
@@ -10120,6 +10181,7 @@ paths:
                     titulo: "Borrador"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 editar-cambia-los-campos-y-conserva-clave-estado-y-tablero-2:
                   summary: "Editar cambia los campos y conserva clave estado y tablero (2) (ADMIN)"
@@ -10159,6 +10221,7 @@ paths:
                     titulo: "Definitivo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
@@ -10190,6 +10253,7 @@ paths:
                     titulo: "Borrador"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion-2:
                   summary: "Cada escritura deja su fila con usuario canal y accion (2) (ADMIN)"
@@ -10221,6 +10285,7 @@ paths:
                     titulo: "Definitivo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 una-historia-dentro-de-una-epica-y-una-subtarea-dentro-de-la-historia:
                   summary: "Una historia dentro de una epica y una subtarea dentro de la historia (SYSADMIN)"
@@ -10252,6 +10317,7 @@ paths:
                     titulo: "Importar sprints"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 una-historia-dentro-de-una-epica-y-una-subtarea-dentro-de-la-historia-2:
                   summary: "Una historia dentro de una epica y una subtarea dentro de la historia (2) (SYSADMIN)"
@@ -10283,6 +10349,7 @@ paths:
                     titulo: "Mapear estados"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 0
                     versiones: []
         "400":
           description: "Errores: `FECHA_DE_LECTURA_OBLIGATORIA`, `FORMULARIO_INVALIDO`, `JERARQUIA_DE_TAREA_INVALIDA`, `PADRE_DE_OTRO_PROYECTO`, `RELACION_NO_ENCONTRADA`, `TABLERO_DE_TAREA_NO_SE_CAMBIA`, `TIPO_DE_TAREA_INEXISTENTE`"
@@ -10330,7 +10397,7 @@ paths:
                     codigo: "FECHA_DE_LECTURA_OBLIGATORIA"
                     errores: []
                     fechaHora: "2026-01-01T12:00:00.000-03:00"
-                    mensajeParaUsuario: "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."
+                    mensajeParaUsuario: "Falta la versión de la tarea que se leyó. Recargá la tarea y volvé a intentar."
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
                 el-tablero-no-se-cambia:
@@ -10459,7 +10526,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -10533,6 +10600,15 @@ paths:
                     mensajeParaUsuario: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
                     status: "409 CONFLICT"
                     traceId: "0000000000000000"
+                con-la-version-leida-se-edita-y-la-version-avanza-2:
+                  summary: "Con la version leida se edita y la version avanza (2) (ADMIN)"
+                  value:
+                    codigo: "TAREA_MODIFICADA"
+                    errores: []
+                    fechaHora: "2026-01-01T12:00:00.000-03:00"
+                    mensajeParaUsuario: "La tarea cambió mientras la editabas. Recargá y volvé a intentar."
+                    status: "409 CONFLICT"
+                    traceId: "0000000000000000"
   /tarea/paginar:
     post:
       tags:
@@ -10544,6 +10620,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-02"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters: []
@@ -10774,6 +10851,7 @@ paths:
                       titulo: "Definir el tablero principal de Shiro"
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "SHI-2"
                       descripcion: "Tarea de ejemplo con etiqueta, versión y relación."
@@ -10806,6 +10884,7 @@ paths:
                       titulo: "Importar los proyectos de Jira"
                       uuid: "b3000000-0000-4000-8000-000000000002"
                       vencimiento: null
+                      version: 0
                       versiones:
                       - estado: "SIN_PUBLICAR"
                         fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -10864,6 +10943,7 @@ paths:
                       titulo: "Probar el tablero desde el front"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -10904,6 +10984,7 @@ paths:
                       titulo: "Definir el tablero principal de Shiro"
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -10956,6 +11037,7 @@ paths:
                       titulo: "Definir el tablero principal de Shiro"
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11008,6 +11090,7 @@ paths:
                       titulo: "Definir el tablero principal de Shiro"
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "SHI-3"
                       descripcion: "Hay que traer los tableros con sus columnas."
@@ -11036,6 +11119,7 @@ paths:
                       titulo: "Importación de sprints desde Jira"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11080,6 +11164,7 @@ paths:
                       titulo: "Importar los proyectos de Jira"
                       uuid: "b3000000-0000-4000-8000-000000000002"
                       vencimiento: null
+                      version: 0
                       versiones:
                       - estado: "SIN_PUBLICAR"
                         fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -11114,6 +11199,7 @@ paths:
                       titulo: "Importación de sprints desde Jira"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11166,6 +11252,7 @@ paths:
                       titulo: "Definir el tablero principal de Shiro"
                       uuid: "b3000000-0000-4000-8000-000000000001"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "SHI-2"
                       descripcion: "Tarea de ejemplo con etiqueta, versión y relación."
@@ -11198,6 +11285,7 @@ paths:
                       titulo: "Importar los proyectos de Jira"
                       uuid: "b3000000-0000-4000-8000-000000000002"
                       vencimiento: null
+                      version: 0
                       versiones:
                       - estado: "SIN_PUBLICAR"
                         fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -11229,9 +11317,10 @@ paths:
                       tableroUuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                       tipoCodigo: "TAREA"
                       tipoNombre: "Tarea"
-                      titulo: "Alta concurrente 18"
+                      titulo: "Alta concurrente 49"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11272,6 +11361,7 @@ paths:
                       titulo: "Un bug"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11312,6 +11402,7 @@ paths:
                       titulo: "Un bug"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "TFB-2"
                       descripcion: null
@@ -11340,6 +11431,7 @@ paths:
                       titulo: "Una tarea"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11392,6 +11484,7 @@ paths:
                       titulo: "Un bug"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "TFB-2"
                       descripcion: null
@@ -11420,6 +11513,7 @@ paths:
                       titulo: "Una tarea"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11472,6 +11566,7 @@ paths:
                       titulo: "En la versión"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
+                      version: 0
                       versiones:
                       - estado: "SIN_PUBLICAR"
                         fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -11522,6 +11617,7 @@ paths:
                       titulo: "Con etiqueta"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11574,6 +11670,7 @@ paths:
                       titulo: "Un bug"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     - clave: "TFC-2"
                       descripcion: null
@@ -11602,6 +11699,7 @@ paths:
                       titulo: "Una historia"
                       uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                       vencimiento: null
+                      version: 0
                       versiones: []
                     numero: 0
                     primera: true
@@ -11611,7 +11709,7 @@ paths:
                     ultima: true
                     vacia: false
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -11637,6 +11735,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-01"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -11684,6 +11783,7 @@ paths:
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 obtener-por-uuid:
                   summary: "Obtener por uuid (SYSADMIN)"
@@ -11715,6 +11815,7 @@ paths:
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 el-tablero-no-se-cambia:
                   summary: "El tablero no se cambia (ADMIN)"
@@ -11746,6 +11847,7 @@ paths:
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 archivar-desactiva-los-tokens-y-conserva-el-responsable:
                   summary: "Archivar desactiva los tokens y conserva el responsable (SYSADMIN)"
@@ -11777,6 +11879,7 @@ paths:
                     titulo: "Asignada"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 una-tarea-puede-estar-en-varias-versiones-de-su-proyecto:
                   summary: "Una tarea puede estar en varias versiones de su proyecto (ADMIN)"
@@ -11808,6 +11911,7 @@ paths:
                     titulo: "En dos versiones"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 0
                     versiones:
                     - estado: "SIN_PUBLICAR"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -11851,6 +11955,7 @@ paths:
                     titulo: "En dos versiones"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 0
                     versiones:
                     - estado: "SIN_PUBLICAR"
                       fechaDeCreacion: "2026-01-01T12:00:00.000-03:00"
@@ -11875,7 +11980,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -11917,6 +12022,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-06"
+      x-permiso: "ARCHIVAR@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -11964,6 +12070,7 @@ paths:
                     titulo: "Duplicada"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 archivar-dos-veces-rechazado:
                   summary: "Archivar dos veces rechazado (ADMIN)"
@@ -11995,6 +12102,7 @@ paths:
                     titulo: "Tarea"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 archivar-una-epica-archiva-sus-hijas-en-todos-los-niveles:
                   summary: "Archivar una epica archiva sus hijas en todos los niveles (ADMIN)"
@@ -12026,6 +12134,7 @@ paths:
                     titulo: "Épica"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 una-subtarea-no-se-crea-dentro-de-un-padre-archivado:
                   summary: "Una subtarea no se crea dentro de un padre archivado (ADMIN)"
@@ -12057,6 +12166,7 @@ paths:
                     titulo: "Historia"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
         "400":
           description: "Errores: `REGISTRO_NO_ENCONTRADO`"
@@ -12084,7 +12194,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -12126,6 +12236,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-09"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -12244,6 +12355,7 @@ paths:
                     titulo: "Historia"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 con-lo-minimo:
                   summary: "Con lo minimo (ADMIN)"
@@ -12275,6 +12387,7 @@ paths:
                     titulo: "Importar sprints"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 el-clon-de-una-subtarea-puede-colgar-de-otra-tarea:
                   summary: "El clon de una subtarea puede colgar de otra tarea (ADMIN)"
@@ -12306,6 +12419,7 @@ paths:
                     titulo: "Subtarea"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 el-clon-de-una-subtarea-puede-ser-una-tarea-propia:
                   summary: "El clon de una subtarea puede ser una tarea propia (ADMIN)"
@@ -12337,6 +12451,7 @@ paths:
                     titulo: "Subtarea"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 con-la-seleccion-por-defecto:
                   summary: "Con la seleccion por defecto (ADMIN)"
@@ -12376,6 +12491,7 @@ paths:
                     titulo: "Importar sprints"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
@@ -12407,6 +12523,7 @@ paths:
                     titulo: "El token revocado sigue respondiendo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 0
                     versiones: []
                 con-todo:
                   summary: "Con todo (ADMIN)"
@@ -12453,6 +12570,7 @@ paths:
                     titulo: "Importar sprints"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                     vencimiento: null
+                    version: 0
                     versiones: []
         "400":
           description: "Errores: `CLON_DE_SUBTAREA_SIN_DESTINO`, `FORMULARIO_INVALIDO`, `REGISTRO_NO_ENCONTRADO`, `RELACION_NO_ENCONTRADA`, `TABLERO_DE_OTRO_PROYECTO`, `TIPO_DE_CLON_INVALIDO`"
@@ -12538,7 +12656,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -12580,6 +12698,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-05"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -12955,7 +13074,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -12997,6 +13116,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-04"
+      x-permiso: "EDITAR@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -13081,6 +13201,7 @@ paths:
                     titulo: "Historia"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 archivar-arrastra-todo-y-restaurar-lo-devuelve-5:
                   summary: "Archivar arrastra todo y restaurar lo devuelve (5) (ADMIN)"
@@ -13112,6 +13233,7 @@ paths:
                     titulo: "Subtarea"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000004"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 archivar-arrastra-todo-y-restaurar-lo-devuelve-6:
                   summary: "Archivar arrastra todo y restaurar lo devuelve (6) (ADMIN)"
@@ -13143,6 +13265,7 @@ paths:
                     titulo: "Otra"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 el-clon-muestra-el-estado-del-original-y-viceversa:
                   summary: "El clon muestra el estado del original y viceversa (ADMIN)"
@@ -13174,6 +13297,7 @@ paths:
                     titulo: "El token revocado sigue respondiendo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 mover-tambien-cambia-la-fecha:
                   summary: "Mover tambien cambia la fecha (ADMIN)"
@@ -13205,6 +13329,7 @@ paths:
                     titulo: "Original"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 cada-escritura-deja-su-fila-con-usuario-canal-y-accion:
                   summary: "Cada escritura deja su fila con usuario canal y accion (ADMIN)"
@@ -13236,6 +13361,7 @@ paths:
                     titulo: "Definitivo"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 2
                     versiones: []
                 pasa-de-cualquier-estado-a-cualquier-otro:
                   summary: "Pasa de cualquier estado a cualquier otro (ADMIN)"
@@ -13267,6 +13393,7 @@ paths:
                     titulo: "Ida y vuelta"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 pasa-de-cualquier-estado-a-cualquier-otro-2:
                   summary: "Pasa de cualquier estado a cualquier otro (2) (ADMIN)"
@@ -13298,6 +13425,7 @@ paths:
                     titulo: "Ida y vuelta"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000001"
                     vencimiento: null
+                    version: 2
                     versiones: []
                 mueve-a-otro-estado-del-mismo-tablero:
                   summary: "Mueve a otro estado del mismo tablero (ADMIN)"
@@ -13329,6 +13457,7 @@ paths:
                     titulo: "Definir el tablero principal de Shiro"
                     uuid: "b3000000-0000-4000-8000-000000000001"
                     vencimiento: null
+                    version: 1
                     versiones: []
                 restaurar-devuelve-solo-lo-de-esa-operacion:
                   summary: "Restaurar devuelve solo lo de esa operacion (ADMIN)"
@@ -13360,6 +13489,7 @@ paths:
                     titulo: "Con la historia"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 3
                     versiones: []
         "400":
           description: "Errores: `ESTADO_DE_OTRO_TABLERO`, `FORMULARIO_INVALIDO`, `REGISTRO_NO_ENCONTRADO`, `RELACION_NO_ENCONTRADA`"
@@ -13481,7 +13611,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -13532,6 +13662,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-08"
+      x-permiso: "VER@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -13634,7 +13765,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -13676,6 +13807,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TAR-07"
+      x-permiso: "ARCHIVAR@TABLERO"
       security:
       - bearer: []
       parameters:
@@ -13730,6 +13862,7 @@ paths:
                     titulo: "Historia"
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
                     vencimiento: null
+                    version: 2
                     versiones: []
         "400":
           description: "Errores: `PADRE_ARCHIVADO`, `REGISTRO_NO_ENCONTRADO`"
@@ -13759,7 +13892,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -13801,6 +13934,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TTB-01"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -14189,6 +14323,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TTA-01"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -14347,6 +14482,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TOK-03"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters:
@@ -14462,6 +14598,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-USR-15"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       requestBody:
@@ -14549,7 +14686,7 @@ paths:
                 crea-la-cuenta-con-contrasena-generada-y-sus-grupos:
                   summary: "Crea la cuenta con contrasena generada y sus grupos (ADMIN)"
                   value:
-                    contrasena: "JLQM-SHV6-yAQg-Rd7P"
+                    contrasena: "QntL-iVpb-TMS7-NTfs"
                     email: "ana@proveedor.com"
                     fechaDeCreacion: null
                     nombre: "Ana Externa"
@@ -14626,6 +14763,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TOK-01"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -15060,6 +15198,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-USR-20"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       requestBody:
@@ -15072,27 +15211,27 @@ paths:
               un-token-invalido-rechazado:
                 summary: "Un token invalido rechazado"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxODE3NzF9.fZbEn5BeIxKwN0NLownn8Yac5ydhqGbfW1G6jMvn8mjJslzW_pMdaEtjhapUBfeHBqSVDwkAwwb-LlHA3o4fKOvF8SLVBA1gIgLBkgP7dOw3g9rcYXTHj6Fvo0wPlqBjMxkve7hvqbE8ZZcEgTusGiXcw32jx03eL8bMM_tfFmY2e5hXRUeIY2pHbjzSUklGRTuCQ85rUYhev5Z3Qwk_x-IIdfCfgCQ6fMqX-9-K82BamSzZPH0UdxuaTrcqz7-di7K8_hrtfXsbmYBR14-5iGifNl081fyTXkhqnJcbfDyi_n60xiktG3CaWkaZe5OH_SvzQL17z3TvtbK0Qo2JCA"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTU3MTgzMzZ9.y2YTu6TYLaMqQyMXFNTIiYkUrrjNFxASHe8eVyip_JuFP682xx-3mzYrj19bJSaS1_HQOu7fZKsdYhN0F2MiMjRCNZNqLgpvRSPHvWbqL-bg4Ee4VqQTI_zsWgELDNJovclXVQZ7ocQDsYCwpXmobPDufCju2pePu9sGVZemB5Uj3rU_mdf2VogHQ2m2pehdsDojZRWaPbA2IjxMimaxVHJDxQxIMJp6423sEEY8olD5vEz-KmCIQ_sAatbI8VC2snQUDLz-EiBLrAaLWzkdyMqEziPE3QRwaywsQJg5ARUA-aIsBItneJqD6nfYt_CZ4VdEhHVakeKuBbfQpmkLxg"
               el-mismo-correo-entra-como-el-mismo-usuario:
                 summary: "El mismo correo entra como el mismo usuario"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTgxNzcxfQ.MHz8QSMwG21TP23Krrw_nmZqXfeWX2CDdzsGK2dYb0PZerqgyGj1eTCm_k9WH702GDq5lZuuOZFZQvtatAsxAIn873B9D6bVCLaJ8QuljIyHW-9PfkeyJRfM-2yXaOHTClPU1LNtXzSBWhZUd-5hC8uR-MRkixiD9AsHQYEjVliaLNMTQ3PnIZUq-vXpADmeJuthhc7t3wMZzM5hXmxyU1FKPJXMJGZTpA7EpeOFRu3slCMKQJHtneB_xEWKrcA3Sw89wrOPxmakR573oHBzCyIqOLmnVSQDFoOcRkXgil38PfwjO4FGS7ue1mdBfHZOJBkXxEcOfooHF2Vb0qPLGg"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLXJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6InJlcGV0aWRhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1NzE4MzM2fQ.hXO0s49Y7Vcbh7mIBgAvaRRyzx3KuFWX4UV2oLn9pNmSIYKBvWxbnJzMFviOh3mifRln4J707BK5OmuSbbFe89nveFjNJJwCFC9q-EcuslNVpuLmX1V-MDEs3Z0QIWZwDeiJBCfKClccb-AU2DY6LV9GmStoWD9qJ5-LfvcMOn-SEOgwoNZvhBu4YQVxo5PYwiKL1PltenUwHZc6fKlHed4Eb8fao_jKZda5I015xN0qTmeNSawa0MHKlqHp0W6TwykmX2xEqjzhv3asCIWh5oyIuV_aoTun9zmrs1R1j_E10p_7xdND8037lXISAJNJIxPefSMm9sA6VSvxUqwMIA"
               un-usuario-nuevo-entra-sin-roles:
                 summary: "Un usuario nuevo entra sin roles"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1MTgxNzcxfQ.Mt82Y71T_ltx5Fpe1fN0tYsyTDNnsCtW2PkPbE1gXSQJdGi0FGTc3ng0lcZAp8kjESKoGVxPLt1b-GIijNLw_8U7ll12JOQsNzBN-aCv2wQMRpRaaVYYJIMlauNI3I_2dgramWfg1ZMzWFTNCpnOGIcndUQUNOCokw9ELeKpN3fiXh7sKnBzYe-jVGl1PkKLDOaXwdP5CwZ37rHgyStZGA-3hyxMrxfLqaIXMp9e5vBKbKCzDfPNi-4BS6asLyDcONtz0NApsuuK8MylrCo0Fqh4KrVRQCUkbIoNGSQu5HdFdGM1EVd3UIBcHT7Xm-tHfqmXqkA6U_MDu-Eha4Oy5Q"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLW51ZXZhQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImhkIjoiZXhhbXBsZS5jb20iLCJlbWFpbCI6Im51ZXZhQGV4YW1wbGUuY29tIiwiZXhwIjoxNzk1NzE4MzM2fQ.E5I1FX_rNF0WFJooIfRxQ-ZdDkB_l61B37k3djwF4C_GZ1281zUFs_dYLPAJb5kjS-Ty0TrwCHa28trowiz-7fbT_llRmjPRvTBAtxHDakz5NtvVQU2QtbxORCGXlXhP9jV9t0IKG619YN3yN0JXWFBFdvWI9qy-7HGiUORnsnsZvRsuXZy71xHh50CHXW0jyCYsx_LzchNIkFCdB0-A29P16f_TNOMLyL_F0aVxoLWB1x3wpC8YDadTkjNBHeceTGdzaWE1S8VFOUV68N0YfXZSGJCno_omDikIxjz_0Lll6_8IYcXBXJwf8xeEqBnjy6elJlbsC0xdiFoKtypXPA"
               un-usuario-archivado-no-entra:
                 summary: "Un usuario archivado no entra"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxODE3NzF9.hOc54wCjLw8RR0kOkj2HYYOEEsus35GIy8l2yhgvx8T93HlqNQCpz9mCPjAZ9xZg1A7dUuIY-UV-Q9gdAKLKb9n9B0ITHn2fnN_mj09Cl96VoE5X8GhH4M7imyOjMeiZWvHx24pJkXERd4hAZchAuelT5mmqcOvooLsJijp6B8o2CoICqLM02JFK_sienRmTG9h-X1Ds4ZoVORHGbkVpqAK482AXnae8SAmheEMs5qlvIlRs-6E7DlijoU5AkzFFyZD_afZPFUI3J9AY-Hm1ffa9jZncYJEA3qwICf1xPmmACALNNF3NwM_9D1yyw8KPXPPf7pdzTibk0Bc4ZCBe2A"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFyY2hpdmFkYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhcmNoaXZhZGFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTU3MTgzMzd9.ma4jxu135UQTEw3CQgOyduujlIluoXdUGTCXhZEIBVjDO6FyqxlkNVsPEPHBPk4FH5zD2ri7sz-W8lvkxj-wd3-MoIyLIQn42JsPFMCewG-rlp2RV27p6D7eQbJoyLI_PL7buOZvrv6-CkBArCuNV_62409oV27cvm4unlrx9Y-4jBankfAy5bZ3MMXW2mh_nciZX_S6K4TduWs2J8EmNs_hC3KYnlEKtwDBpnZ8MBJ8-vJATwriBIvmDz5nWoqSp9sYbCqjQTRbUvetyy-LwvGuZmZuFmxHOr6ASsVWGgGbS41XZW1PGrLekHrOuc_Hu0PIjVL1QBANAhPTOSlYUA"
               una-cuenta-de-otro-dominio-rechazada:
                 summary: "Una cuenta de otro dominio rechazada"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTUxODE3NzF9.REVz2BPci0M8xi46HhvqNcHUSVXNPkdI6ecW6QGqDMFqHWHXpMirRza5SELwr0FNv24N5Ob3ZoTevFqQcyq1BWl3LKat1rmvZ0BpcE5yLm2lmuDrLbTHS8WUY_3yd6xpHx130iJ64fk-XW5lySj8MvWMJAmf0r5kgZth6VqmMoUMMOBI9LQWuPCJLOhFFRAWUXtABzP9cdF5sMhSFezh8mlEd0cMaK7tKF-t2nw0ccmvKChGEQq4BIHBNKTGoDqaccEIUaoN-ydOwhYTm6w-gjk3htIm4mhTIL7f_3WCOKWrl3aOmHb3gqNV9Aa_BwaoOVGAi-KlSIo_OU-52T_aiw"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFsZ3VpZW5AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJQZXJzb25hIGRlIFBydWViYSIsImVtYWlsIjoiYWxndWllbkBnbWFpbC5jb20iLCJleHAiOjE3OTU3MTgzMzd9.kBBlIuyF6ENONSkrOC3hIR40lmsB1TpUfHidsCexvbkTHRWVeIz_aSih-Z4bxI1PhornE2NvmtsvBRg7nS3L5m5MnaSmP6Gy3Swg4KaUgPu2TJPiEvdv7RK4Ny5PbO8XIl8nXhbBpg4GJIb1KI7sMkvxaAvKFVOWIa1RcgD5yVX_r6ztkxlKH6rY3hckGMiG3AxGFNTap9zILQUxBAic1foAzdlpCdadxFSkk112TFFSG0uuFctZo6uRMAqYUbEoYmcFSQqfgdobU5lU9CGwCaIa4AZXOpHXGApc3Edmk3LwUA6KEqpz2cjIOrXtYbCp7PJLgJ204vKzUxcwgIsVPg"
               google-no-responde:
                 summary: "Google no responde"
                 value:
-                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTUxODE3NzF9.Du5l0FEyZU9FltsTmJ74o69UhD2__jZ8RO7sqfY5tegYUHfG4fm5FV5Bb9U94DobZjaaEpfGQo-7n_13XKKoMIG_ONnwDycJ4pEaX1zQEoJFisy6aENBf2XpYMikgiMU4HXrhlBf3V1PyKJgDyQCCmo2tUpZ0JaZ_-EuzY7g8YteHvW2-KcUKEB5hjD4ckHiiFp6q-aJn0iY-n7q9PbGNbxmT63n3Cr3yZcg4nNrb-Ux6rCXeDz6zxvOCg_4CS8iCQKXCK5pznzffIZLsAhx40eb6cwJTwcDpnJKQNjVUbCdwPqvF3krb_Heb3GJNVB9nQtwxYQnmYCMTR4pFcUpUw"
+                  idToken: "eyJraWQiOiJjbGF2ZS1kZS1wcnVlYmEiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzaGlyby1wcnVlYmFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiZ29vZ2xlLWFuYUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiUGVyc29uYSBkZSBQcnVlYmEiLCJoZCI6ImV4YW1wbGUuY29tIiwiZW1haWwiOiJhbmFAZXhhbXBsZS5jb20iLCJleHAiOjE3OTU3MTgzMzd9.bWzVKZtY4saxTeBLGF5-f_Vg7tA7MWr8BJubAVk5NjijLU_lPg21iMhfIZukGn4_2acwCl4Sc2TSBnkLVtI9z8t4H6J0BYt1YVV3Xf-OtOfjR40fIsEQpzn-2l1eM3Err9vrJOaLBOOiAF4loiV-Qx5yybSYztmXCxQdWF7yUcnV4Gf2bil-FJfTz4wym65nE6aXFhj8idiu9-qo0Lx7TBczZvgBovfB_kvknRhjONXvWVmryqgMyBbPDids6lxdcK4EUfOLk8aL6MdNcfXjcLlZslGsDHHCtxw0ZWQCdzc9Kc-IruYQq-Z4XUi5TnVqwe9oZY8Negzt6p3An9mpww"
               sin-token-rechazado:
                 summary: "Sin token rechazado"
                 value: {}
@@ -15214,6 +15353,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-USR-10"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       requestBody:
@@ -15300,6 +15440,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-USR-25"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -15568,6 +15709,7 @@ paths:
 
         **Pública:** no requiere autenticación.
       x-caso-de-uso: "CU-USR-11"
+      x-permiso: "PUBLICO"
       security: []
       parameters: []
       requestBody:
@@ -15661,6 +15803,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-USR-05"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -15728,7 +15871,7 @@ paths:
                     telefono: "1122334455"
                     uuid: "90000000-0000-4000-8000-000000000002"
         "401":
-          description: "Errores: `ACCESS_TOKEN_INVALIDO`, `NO_AUTENTICADO`"
+          description: "Errores: `ACCESS_TOKEN_INVALIDO`, `CREDENCIALES_INVALIDAS`, `NO_AUTENTICADO`"
           content:
             application/json:
               schema:
@@ -15781,6 +15924,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-USR-24"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -15852,6 +15996,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-TOK-02"
+      x-permiso: "AUTENTICADO"
       security:
       - bearer: []
       parameters: []
@@ -16513,6 +16658,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-03"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters: []
@@ -16688,7 +16834,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -16703,6 +16849,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/paginar:
     post:
       tags:
@@ -16714,6 +16866,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-02"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters: []
@@ -16791,7 +16944,7 @@ paths:
                     ultima: true
                     vacia: false
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -16817,6 +16970,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-01"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -16877,7 +17031,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -16892,6 +17046,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/archivar:
     post:
       tags:
@@ -16903,6 +17063,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-08"
+      x-permiso: "ARCHIVAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -16933,8 +17094,14 @@ paths:
                     publicadaPorNombre: null
                     status: -1
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -16949,6 +17116,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/asignar:
     post:
       tags:
@@ -16960,6 +17133,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-04"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17100,7 +17274,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17142,6 +17316,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-07"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17157,7 +17332,7 @@ paths:
           content:
             text/markdown: {}
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17172,6 +17347,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/publicar:
     post:
       tags:
@@ -17183,6 +17364,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-06"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17270,7 +17452,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17285,6 +17467,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/quitar:
     post:
       tags:
@@ -17296,6 +17484,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-05"
+      x-permiso: "EDITAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17365,7 +17554,7 @@ paths:
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000003"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17380,6 +17569,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/restaurar:
     post:
       tags:
@@ -17391,6 +17586,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-09"
+      x-permiso: "ARCHIVAR@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17421,8 +17617,14 @@ paths:
                     publicadaPorNombre: null
                     status: 0
                     uuid: "aaaaaaaa-aaaa-4aaa-8aaa-000000000002"
+        "400":
+          description: "Errores: `REGISTRO_NO_ENCONTRADO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17437,6 +17639,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
   /version/{uuid}/tareas:
     get:
       tags:
@@ -17448,6 +17656,7 @@ paths:
 
         **Requiere sesión:** sin rol ni permiso puntual.
       x-caso-de-uso: "CU-VER-10"
+      x-permiso: "VER@PROYECTO"
       security:
       - bearer: []
       parameters:
@@ -17520,7 +17729,7 @@ paths:
                     status: "400 BAD_REQUEST"
                     traceId: "0000000000000000"
         "401":
-          description: "Errores: `NO_AUTENTICADO`"
+          description: "Errores: `NO_AUTENTICADO`, `TOKEN_INVALIDO`"
           content:
             application/json:
               schema:
@@ -17535,6 +17744,12 @@ paths:
                     mensajeParaUsuario: "Usuario no identificado"
                     status: "401 UNAUTHORIZED"
                     traceId: "0000000000000000"
+        "403":
+          description: "Errores: `SIN_PERMISO`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
 components:
   schemas:
     AccessTokenDTO:
@@ -19769,7 +19984,7 @@ components:
           - "string"
           - "null"
           format: "date-time"
-          description: "Fecha de la última modificación. Al editar es obligatoria: se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409"
+          description: "Fecha de la última modificación. Al editar se acepta en lugar de version (compatibilidad, MJ-02): se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409"
           pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}-03:00$"
         fechaDeCreacion:
           type:
@@ -19878,6 +20093,11 @@ components:
           - "null"
           format: "date"
           description: "Fecha de vencimiento, sin hora (aaaa-mm-dd). Vacía si no vence"
+        version:
+          type:
+          - "integer"
+          - "null"
+          description: "Versión de la tarea: sube en cada guardado. Al editar se manda la que se leyó, y si la tarea cambió desde entonces la respuesta es 409"
         versiones:
           description: "Versiones a las que está asignada la tarea. Solo lectura: se asigna desde la versión"
           type:
@@ -20804,8 +21024,8 @@ x-catalogo-de-errores:
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "FECHA_DE_LECTURA_OBLIGATORIA"
   status: 400
-  mensajePorDefecto: "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."
-  cuando: "Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó"
+  mensajePorDefecto: "Falta la versión de la tarea que se leyó. Recargá la tarea y volvé a intentar."
+  cuando: "Al editar una tarea no se mandó version (ni fechaDeActualizacion, que se acepta por compatibilidad): lo que se leyó de la tarea"
   origen: "CodigoDeErrorDelProyecto"
 - codigo: "FORMULARIO_INVALIDO"
   status: 400

@@ -28,8 +28,8 @@ public enum CodigoDeErrorDelProyecto implements CodigoDeError {
     ESTADO_DE_OTRO_TABLERO(HttpStatus.BAD_REQUEST, "El estado no es del tablero de la tarea. Para llevarla a otro tablero, clonala."),
     @Descripcion("Al editar una tarea, otra persona o agente la modificó después de que el cliente la leyó: hay que recargarla y volver a intentar")
     TAREA_MODIFICADA(HttpStatus.CONFLICT, "La tarea cambió mientras la editabas. Recargá y volvé a intentar."),
-    @Descripcion("Al editar una tarea no se mandó fechaDeActualizacion, la fecha de la última modificación que se leyó")
-    FECHA_DE_LECTURA_OBLIGATORIA(HttpStatus.BAD_REQUEST, "Falta la fecha de actualización que se leyó. Recargá la tarea y volvé a intentar."),
+    @Descripcion("Al editar una tarea no se mandó version (ni fechaDeActualizacion, que se acepta por compatibilidad): lo que se leyó de la tarea")
+    FECHA_DE_LECTURA_OBLIGATORIA(HttpStatus.BAD_REQUEST, "Falta la versión de la tarea que se leyó. Recargá la tarea y volvé a intentar."),
     @Descripcion("Al restaurar una tarea, su padre sigue archivado: hay que restaurar primero el padre (su clave va en datos.padreClave)")
     PADRE_ARCHIVADO(HttpStatus.BAD_REQUEST, "Restaurá primero la tarea padre."),
     @Descripcion("Al relacionar tareas se eligió la misma tarea como origen y destino")
