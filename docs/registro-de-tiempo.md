@@ -65,5 +65,6 @@ Las filas 1 a 22 vienen de la sesión de análisis y diseño (Cowork). Los turno
 | 57 | 2026-11-20 | 08:33 | 08:44 | 11 min | Build | T6.6: versión para teléfono y estados de carga, vacío y error | Front: pruebas en rojo antes (cb951e4, b2edc14 y la del proyecto vacío), 109 en verde, cobertura de líneas 91,4%, lint, tipos, build, 0 duplicados, capturas en teléfono, versión 0.0.10. Backend: solo documentos, versión 1.0.50 |
 | 58 | 2026-11-20 | 08:57 | 09:01 | 4 min | Build | Resolución 57: detalle, edición y backlog en el teléfono como el prototipo | Front: pruebas en rojo antes (2864b43), 111 en verde, lint, tipos, 0 duplicados, capturas en teléfono, versión 0.0.11. Backend: solo documentos, versión 1.0.51 |
 | 59 | 2026-11-20 | 09:20 | 09:37 | 17 min | Build | /auditar del diff contra develop y corrección de sus hallazgos | Auditoría: 12 bloqueantes y 2 advertencias, todos corregidos (TST-03 y ERR-07 con pruebas en rojo antes, a7df24f; ENT-09, ENT-07, CTR-10, CON-03, IDI-05, GIT-02). Verify 556 pruebas, cobertura 94,5%, versión 1.0.52 |
+| 60 | 2026-11-26 | 13:28 | 14:39 | 71 min | Build | Ola 1 del plan de mejoras: MJ-15, MJ-02, MJ-05, MJ-06, MJ-04, MJ-03, MJ-07 y MJ-01 (parte del repo) | Pruebas en rojo antes en MJ-04 (79b3bc5), MJ-03 (dd2a251) y MJ-07 (74235b7). verify 587 pruebas en verde (35 omitidas), cobertura y CPD OK, docs/api y catálogo regenerados, versión 1.0.61; front 122 pruebas, versión 0.0.15. ImportacionJiraRealTest falla por la configuración del Jira real |
 
-**Total acumulado medido:** 907 min
+**Total acumulado medido:** 978 min
