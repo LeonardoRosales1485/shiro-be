@@ -84,6 +84,9 @@ databaseChangeLog:
   - include:
       file: changes/2026-11-26-version-de-tarea.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changes/2026-11-26-invariantes-de-tarea.yaml
+      relativeToChangelogFile: true
   # Tiene que quedar ultimo: crea el usuario de la aplicacion y le aplica los permisos sobre todas las tablas
   - include:
       file: changes/2026-11-18-usuario-de-la-app.yaml

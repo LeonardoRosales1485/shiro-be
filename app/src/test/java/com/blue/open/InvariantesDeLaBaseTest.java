@@ -27,8 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * SQL directo y espera el error de la base:
  * - la tarea es del proyecto de su tablero (FK compuesta fk_shr_tarea_tablero_proyecto);
  * - el estado es del tipo de tablero de su tablero (trigger tg_shr_tarea_estado_del_tablero);
- * - la jerarquia: el padre es otra tarea del mismo proyecto y de un nivel menor, una Subtarea tiene padre, y cambiar
- *   el tipo no deja hijas vigentes de nivel menor o igual (trigger tg_shr_tarea_jerarquia).
+ * - la jerarquia: el padre es otra tarea del mismo proyecto y de un nivel menor, y cambiar el tipo no deja hijas
+ *   vigentes de nivel menor o igual (trigger tg_shr_tarea_jerarquia);
+ * - una Subtarea tiene padre (trigger diferido tg_shr_tarea_subtarea_con_padre, que la prueba pasa a inmediato).
  * Corre dentro de la transaccion del test: todo se revierte al terminar.
  * Dependencias externas: ninguna (PostgreSQL embebido de core-test).
  */
@@ -96,6 +97,8 @@ class InvariantesDeLaBaseTest extends TestConBaseDeDatos {
     @Test
     void unaSubtareaTienePadre() {
         long subtarea = tipo("SUBTAREA");
+        // Esta regla se verifica al confirmar (el importador asigna el padre en una segunda pasada): se pasa a inmediata
+        jdbc.execute("SET CONSTRAINTS tg_shr_tarea_subtarea_con_padre IMMEDIATE");
 
         esperarRechazo(CHECK, "Subtarea", "UPDATE shr_tarea SET id_tipo_tarea = ?, id_padre = NULL WHERE id = ?", subtarea, shi1);
     }
