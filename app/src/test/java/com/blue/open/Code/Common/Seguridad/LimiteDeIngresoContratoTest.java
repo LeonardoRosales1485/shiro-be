@@ -89,17 +89,20 @@ class LimiteDeIngresoContratoTest extends PruebaDeContrato {
         return nombreDeUsuario;
     }
 
+    // POST /usuario/iniciar-sesion desde la IP recibida
     private Peticion ingresar(String ip, String nombreDeUsuario, String contrasena) {
         return sinAutenticacion().encabezado("X-Real-IP", ip).post("/usuario/iniciar-sesion")
                 .json(Map.of("nombreDeUsuario", nombreDeUsuario, "contrasena", contrasena));
     }
 
+    // Peticion desde la IP recibida con Authorization: Basic
     private Peticion basic(String ip, String nombreDeUsuario, String contrasena) {
         String credenciales = Base64.getEncoder().encodeToString((nombreDeUsuario + ":" + contrasena)
                 .getBytes(StandardCharsets.UTF_8));
         return sinAutenticacion().encabezado("X-Real-IP", ip).encabezado("Authorization", "Basic " + credenciales);
     }
 
+    // Ping a /mcp desde la IP recibida con el token como bearer
     private Peticion mcp(String ip, String token) {
         return sinAutenticacion().encabezado("X-Real-IP", ip).encabezado("Authorization", "Bearer " + token)
                 .encabezado("Accept", "application/json, text/event-stream").post("/mcp")

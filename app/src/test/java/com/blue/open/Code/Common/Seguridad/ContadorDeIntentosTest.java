@@ -69,6 +69,7 @@ class ContadorDeIntentosTest {
         assertFalse(contador.bloqueado(null));
     }
 
+    // Registra la cantidad de fallos recibida para la clave
     private void fallar(String clave, int veces) {
         for (int i = 0; i < veces; i++) {
             contador.registrarFallo(clave);
@@ -80,20 +81,24 @@ class ContadorDeIntentosTest {
 
         private Instant ahora = Instant.parse("2026-11-26T12:00:00Z");
 
+        // Adelanta el reloj
         void avanzar(Duration duracion) {
             ahora = ahora.plus(duracion);
         }
 
+        // Zona del reloj
         @Override
         public ZoneId getZone() {
             return ZoneId.of("America/Argentina/Buenos_Aires");
         }
 
+        // El reloj manual no cambia de zona
         @Override
         public Clock withZone(ZoneId zona) {
             return this;
         }
 
+        // Instante actual del reloj manual
         @Override
         public Instant instant() {
             return ahora;

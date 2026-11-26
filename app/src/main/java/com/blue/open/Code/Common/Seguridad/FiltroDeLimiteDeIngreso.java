@@ -1,5 +1,6 @@
 package com.blue.open.Code.Common.Seguridad;
 
+import com.blue.open.Code.Common.Errores.RespuestaDeErrorDeFiltro;
 import com.blue.open.Core.Identity.Excepciones.CodigoDeErrorIdentity;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -18,8 +18,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Filtro del limite de intentos de ingreso (MJ-04). Mira los pedidos que prueban credenciales: POST
@@ -133,17 +131,10 @@ public class FiltroDeLimiteDeIngreso extends OncePerRequestFilter {
         }
     }
 
-    // Escribe el 429 con la misma forma que el resto de la API (codigo, mensaje y status)
-    private void rechazar(HttpServletResponse respuesta) throws IOException {
-        // El codigo es el del Core (core-identity), que ya publica DEMASIADOS_INTENTOS con 429
+    // Escribe el 429 con la misma forma que el resto de la API. El codigo es el del Core (core-identity), que ya publica
+    // DEMASIADOS_INTENTOS con 429
+    private static void rechazar(HttpServletResponse respuesta) throws IOException {
         CodigoDeErrorIdentity codigo = CodigoDeErrorIdentity.DEMASIADOS_INTENTOS;
-        Map<String, Object> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("codigo", codigo.codigo());
-        cuerpo.put("mensajeParaUsuario", codigo.mensajePorDefecto());
-        cuerpo.put("status", codigo.status().toString());
-        respuesta.setStatus(codigo.status().value());
-        respuesta.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        respuesta.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        respuesta.getWriter().write(lector.writeValueAsString(cuerpo));
+        RespuestaDeErrorDeFiltro.escribir(respuesta, codigo, codigo.mensajePorDefecto());
     }
 }

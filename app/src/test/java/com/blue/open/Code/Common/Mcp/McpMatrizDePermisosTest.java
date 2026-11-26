@@ -263,11 +263,13 @@ class McpMatrizDePermisosTest extends TestConBaseDeDatos {
         tokens = creados;
     }
 
+    // Crea un usuario con la contrasena del escenario como super admin y responde su uuid
     private String usuario(String nombre) throws Exception {
         return pedir("POST", "/api/usuario/guardar", ClienteMcpDePrueba.TOKEN_SYSADMIN, EscenarioDeUsuario.alta(nombre))
                 .get("uuid").asString();
     }
 
+    // Crea una regla de usuario PERMITIR con el nivel sobre el proyecto
     private void regla(String usuarioUuid, String proyectoUuid, NivelDePermiso nivel) throws Exception {
         pedir("POST", "/api/regla-permiso/guardar", ClienteMcpDePrueba.TOKEN_DEMO, Map.of("tipoSujeto", "USUARIO",
                 "usuarioUuid", usuarioUuid, "tipoRecurso", "PROYECTO", "proyectoUuid", proyectoUuid, "nivel", nivel.name(),
@@ -301,21 +303,25 @@ class McpMatrizDePermisosTest extends TestConBaseDeDatos {
         return LECTOR.readTree(respuesta.body());
     }
 
+    // Crea una tarea en MTZ por MCP y responde su clave
     private static String crearTarea(McpSyncClient admin, String titulo) {
         return exigirExito(admin, "crear_tarea", Map.of("proyecto", PREFIJO, "tipo", "tarea", "titulo", titulo))
                 .get("datos").get("clave").asString();
     }
 
+    // Llama la herramienta, exige que no sea un error y responde su JSON
     private static JsonNode exigirExito(McpSyncClient cliente, String herramienta, Map<String, Object> argumentos) {
         McpSchema.CallToolResult resultado = ClienteMcpDePrueba.llamar(cliente, herramienta, argumentos);
         assertTrue(!Boolean.TRUE.equals(resultado.isError()), () -> herramienta + ": " + resultado);
         return LECTOR.readTree(ClienteMcpDePrueba.texto(resultado));
     }
 
+    // Registra una fila de la matriz; el id puede llevar la accion despues de ":" (gestionar_sprint:crear)
     private static void fila(String id, String nivel, boolean busqueda, Function<Datos, Map<String, Object>> argumentos) {
         FILAS.put(id, new Fila(id.contains(":") ? id.substring(0, id.indexOf(':')) : id, nivel, busqueda, argumentos));
     }
 
+    // Texto recortado a 200 caracteres, para los mensajes de falla
     private static String recortar(String texto) {
         return texto.length() > 200 ? texto.substring(0, 200) : texto;
     }

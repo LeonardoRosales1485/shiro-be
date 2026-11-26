@@ -293,6 +293,7 @@ class MatrizDePermisosContratoTest extends PruebaDeContrato {
         return anotados;
     }
 
+    // Registra la llamada de una operacion de la matriz
     private static void operacion(String id, Function<Datos, Function<Peticion, Peticion>> llamada) {
         LLAMADAS.put(id, llamada);
     }
@@ -318,35 +319,42 @@ class MatrizDePermisosContratoTest extends PruebaDeContrato {
         return authJwtService.jwtFirmado(uuid);
     }
 
+    // Crea una regla de usuario PERMITIR con el nivel sobre el proyecto Shiro
     private void regla(String usuarioUuid, NivelDePermiso nivel) {
         preparar(como(ADMIN).post("/regla-permiso/guardar").json(Map.of("tipoSujeto", "USUARIO", "usuarioUuid", usuarioUuid,
                 "tipoRecurso", "PROYECTO", "proyectoUuid", PROYECTO_SHIRO, "nivel", nivel.name(), "efecto", "PERMITIR")));
     }
 
+    // Crea una tarea en el tablero principal de Shiro como Administrador y responde su uuid
     private String tarea(String titulo) {
         return preparar(como(ADMIN).post("/tarea/guardar").json(Map.of("tableroUuid", TABLERO_PRINCIPAL,
                 "tipoCodigo", "TAREA", "titulo", titulo))).get("uuid").asString();
     }
 
+    // Crea un sprint planificado de Shiro como Administrador y responde su uuid
     private String sprint(String nombre) {
         return preparar(como(ADMIN).post("/sprint/guardar").json(Map.of("proyectoUuid", PROYECTO_SHIRO, "nombre", nombre,
                 "inicio", "2027-02-01", "fin", "2027-02-12"))).get("uuid").asString();
     }
 
+    // Crea una version sin publicar de Shiro como Administrador y responde su uuid
     private String version(String nombre) {
         return preparar(como(ADMIN).post("/version/guardar").json(Map.of("proyectoUuid", PROYECTO_SHIRO,
                 "nombre", nombre))).get("uuid").asString();
     }
 
+    // Ejecuta un paso de preparacion, exige 200 y responde el JSON
     private static JsonNode preparar(Peticion peticion) {
         return peticion.preparacion().ejecutar().esperar(200).json();
     }
 
+    // Codigo de error de la respuesta, o null si no es un error
     private static String codigo(Respuesta respuesta) {
         JsonNode codigo = respuesta.status() >= 400 ? respuesta.json().get("codigo") : null;
         return codigo == null ? null : codigo.asString();
     }
 
+    // Cuerpo de la respuesta recortado a 200 caracteres, para los mensajes de falla
     private static String cuerpo(Respuesta respuesta) {
         String texto = respuesta.texto();
         return texto.length() > 200 ? texto.substring(0, 200) : texto;

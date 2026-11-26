@@ -41,26 +41,31 @@ class PeticionConCuerpoLeido extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() {
         ByteArrayInputStream entrada = new ByteArrayInputStream(contenido);
         return new ServletInputStream() {
+            // Si ya se leyo todo el cuerpo
             @Override
             public boolean isFinished() {
                 return entrada.available() == 0;
             }
 
+            // El cuerpo esta en memoria: siempre se puede leer
             @Override
             public boolean isReady() {
                 return true;
             }
 
+            // Sin lectura asincronica
             @Override
             public void setReadListener(ReadListener oyente) {
                 throw new UnsupportedOperationException("El cuerpo ya esta leido: no hay lectura asincronica");
             }
 
+            // Lee un byte del cuerpo
             @Override
             public int read() {
                 return entrada.read();
             }
 
+            // Lee varios bytes del cuerpo
             @Override
             public int read(byte[] destino, int desde, int largo) {
                 return entrada.read(destino, desde, largo);
