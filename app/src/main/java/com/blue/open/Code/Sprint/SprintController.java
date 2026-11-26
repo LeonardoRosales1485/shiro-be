@@ -1,5 +1,8 @@
 package com.blue.open.Code.Sprint;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintArchivarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintAsignarUseCase;
 import com.blue.open.Code.Sprint.CasosDeUso.SprintCerrarUseCase;
@@ -50,6 +53,7 @@ public class SprintController {
 
     // Obtiene un sprint. Responde el SprintDTO
     @GetMapping("/uuid/{uuid}")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-01", resumen = "Obtiene un sprint", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> obtenerPorUuid(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
@@ -57,6 +61,7 @@ public class SprintController {
 
     // Lista sprints con filtros y orden. Responde la pagina de SprintDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO, detalle = "lista solo los sprints de proyectos visibles")
     @Contrato(casoDeUso = "CU-SPR-02", resumen = "Lista sprints con filtros y orden", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<SprintDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
@@ -64,6 +69,7 @@ public class SprintController {
 
     // Crea un sprint planificado o edita su nombre y fechas. Responde el sprint guardado
     @PostMapping("/guardar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-03", resumen = "Crea un sprint planificado o edita su nombre y fechas", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> guardar(@Valid @RequestBody SprintDTO dto) {
         return new ResponseEntity<>(service.guardar(dto), HttpStatus.OK);
@@ -71,6 +77,7 @@ public class SprintController {
 
     // Asigna tareas del backlog al sprint. Responde el sprint
     @PostMapping("/{uuid}/asignar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-04", resumen = "Asigna tareas al sprint", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> asignar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid,
             @Valid @RequestBody SprintTareasRequestDTO dto) {
@@ -79,6 +86,7 @@ public class SprintController {
 
     // Quita tareas del sprint (vuelven al backlog). Responde el sprint
     @PostMapping("/{uuid}/quitar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-05", resumen = "Quita tareas del sprint; vuelven al backlog", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> quitar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid,
             @Valid @RequestBody SprintTareasRequestDTO dto) {
@@ -87,6 +95,7 @@ public class SprintController {
 
     // Inicia el sprint (uno solo activo por proyecto). Responde el sprint activo
     @PostMapping("/{uuid}/iniciar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-06", resumen = "Inicia un sprint planificado; solo puede haber uno activo por proyecto",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> iniciar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
@@ -95,6 +104,7 @@ public class SprintController {
 
     // Cierra el sprint activo y manda lo pendiente al backlog o a otro sprint. Responde el sprint cerrado
     @PostMapping("/{uuid}/cerrar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-07", resumen = "Cierra el sprint activo; lo pendiente va al backlog o a otro sprint planificado",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> cerrar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid,
@@ -104,6 +114,7 @@ public class SprintController {
 
     // Archiva un sprint que no esta activo. Responde el sprint archivado
     @PostMapping("/{uuid}/archivar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-08", resumen = "Archiva un sprint planificado o cerrado (uno activo se cierra primero)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> archivar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
@@ -112,6 +123,7 @@ public class SprintController {
 
     // Cierre del sprint: quien lo cerro, cuando y que paso con cada tarea. Responde el cierre
     @GetMapping("/{uuid}/cierre")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-09", resumen = "Cierre de un sprint: quién lo cerró, cuándo y el estado y destino de cada tarea al cerrar (exige VER)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintCierreResponseDTO> cierre(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
@@ -120,6 +132,7 @@ public class SprintController {
 
     // Restaura un sprint archivado. Responde el sprint restaurado
     @PostMapping("/{uuid}/restaurar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-SPR-10", resumen = "Restaura un sprint archivado con el estado que tenía (exige EDITAR)", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<SprintDTO> restaurar(@Descripcion("Uuid del sprint") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(restaurarUseCase.ejecutar(uuid), HttpStatus.OK);

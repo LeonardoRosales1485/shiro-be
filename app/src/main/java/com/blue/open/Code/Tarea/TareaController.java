@@ -1,5 +1,8 @@
 package com.blue.open.Code.Tarea;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.Common.Canal.CanalDeCambio;
 import com.blue.open.Code.Historial.HistorialDTO;
 import com.blue.open.Code.Tarea.CasosDeUso.TareaArchivarUseCase;
@@ -53,6 +56,7 @@ public class TareaController {
 
     // Obtiene una tarea. Responde el TareaDTO
     @GetMapping("/uuid/{uuid}")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-01", resumen = "Obtiene una tarea", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> obtenerPorUuid(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
@@ -60,6 +64,7 @@ public class TareaController {
 
     // Lista las tareas con filtros y orden. Responde la pagina de TareaDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO, detalle = "lista solo las tareas de tableros visibles")
     @Contrato(casoDeUso = "CU-TAR-02", resumen = "Lista las tareas con filtros y orden", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<TareaDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
@@ -67,6 +72,7 @@ public class TareaController {
 
     // Crea una tarea (sin uuid; alcanza con tablero, tipo y titulo) o la edita. Responde la tarea guardada
     @PostMapping("/guardar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-03",
             resumen = "Crea una tarea con tipo y título en el primer estado de su tablero, o edita sus datos",
             permiso = Contrato.AUTENTICADO)
@@ -76,6 +82,7 @@ public class TareaController {
 
     // Mueve una tarea a otro estado de su tablero. Responde la tarea movida
     @PostMapping("/{uuid}/mover")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-04", resumen = "Mueve una tarea a otro estado de su tablero", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> mover(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid,
             @Valid @RequestBody TareaMoverRequestDTO dto) {
@@ -84,6 +91,7 @@ public class TareaController {
 
     // Historial de cambios de una tarea, el mas nuevo primero. Responde la lista de HistorialDTO
     @GetMapping("/{uuid}/historial")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-05", resumen = "Historial de cambios de una tarea, opcionalmente de un solo canal",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<HistorialDTO>> historial(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid,
@@ -94,6 +102,7 @@ public class TareaController {
 
     // Archiva una tarea y sus hijas en todos los niveles. Responde la tarea archivada
     @PostMapping("/{uuid}/archivar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-06", resumen = "Archiva una tarea y, en cascada, sus hijas en todos los niveles",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> archivar(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
@@ -102,6 +111,7 @@ public class TareaController {
 
     // Restaura una tarea archivada con lo que se archivo en su misma operacion. Responde la tarea restaurada
     @PostMapping("/{uuid}/restaurar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-07", resumen = "Restaura una tarea archivada con lo que se archivó en su misma operación",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> restaurar(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
@@ -110,6 +120,7 @@ public class TareaController {
 
     // Relaciones de una tarea vistas desde ella. Responde la lista de TareaRelacionesResponseDTO
     @GetMapping("/{uuid}/relaciones")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO)
     @Contrato(casoDeUso = "CU-TAR-08", resumen = "Relaciones de una tarea vistas desde ella, con el estado de la otra tarea",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<TareaRelacionesResponseDTO>> relaciones(@Descripcion("Uuid de la tarea") @PathVariable("uuid") String uuid) {
@@ -118,6 +129,7 @@ public class TareaController {
 
     // Clona una tarea a un tablero del mismo proyecto, copiando los datos elegidos. Responde el clon
     @PostMapping("/{uuid}/clonar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO, detalle = "el tablero original, y EDITAR en el de destino")
     @Contrato(casoDeUso = "CU-TAR-09", resumen = "Clona una tarea a un tablero del mismo proyecto eligiendo qué datos se copian",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<TareaDTO> clonar(@Descripcion("Uuid de la tarea original") @PathVariable("uuid") String uuid,

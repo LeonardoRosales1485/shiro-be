@@ -1,5 +1,8 @@
 package com.blue.open.Code.Comentario;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import com.blue.open.Core.Kernel.Contrato.Descripcion;
 import com.blue.open.Core.Kernel.DTO.Pagina;
@@ -30,6 +33,7 @@ public class ComentarioController {
 
     // Obtiene un comentario. Responde el ComentarioDTO
     @GetMapping("/uuid/{uuid}")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO, detalle = "el tablero de la tarea")
     @Contrato(casoDeUso = "CU-COM-01", resumen = "Obtiene un comentario", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ComentarioDTO> obtenerPorUuid(@Descripcion("Uuid del comentario") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
@@ -37,6 +41,7 @@ public class ComentarioController {
 
     // Lista comentarios con filtros y orden (normalmente los de una tarea). Responde la pagina de ComentarioDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.TABLERO, detalle = "lista solo los comentarios de tareas visibles")
     @Contrato(casoDeUso = "CU-COM-02", resumen = "Lista comentarios con filtros y orden, por ejemplo los de una tarea",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<ComentarioDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
@@ -45,6 +50,7 @@ public class ComentarioController {
 
     // Comenta una tarea (sin uuid) o edita el cuerpo de un comentario propio. Responde el comentario guardado
     @PostMapping("/guardar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.TABLERO, detalle = "el tablero de la tarea; editar, solo el autor")
     @Contrato(casoDeUso = "CU-COM-03", resumen = "Comenta una tarea, o edita el cuerpo de un comentario propio",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ComentarioDTO> guardar(@Valid @RequestBody ComentarioDTO dto) {

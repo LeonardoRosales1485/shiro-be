@@ -41,6 +41,12 @@ class CatalogoDePermisosTest {
                   summary: "Lista las configuraciones"
                   x-caso-de-uso: "CU-CON-01"
                   parameters: []
+              /usuario/ingresar-con-google:
+                post:
+                  operationId: "UsuarioController.ingresarConGoogle"
+                  summary: "Ingresa con Google"
+                  x-caso-de-uso: "CU-USR-20"
+                  security: []
               /usuario/sesion:
                 get:
                   operationId: "UsuarioController.sesion"
@@ -61,6 +67,7 @@ class CatalogoDePermisosTest {
         assertTrue(yaml.contains("x-caso-de-uso: \"CU-TAR-01\"\n      x-permiso: \"VER@TABLERO\"\n"), yaml);
         assertTrue(yaml.contains("x-caso-de-uso: \"CU-CON-01\"\n      x-permiso: \"PUBLICO\"\n"), yaml);
         assertTrue(yaml.contains("x-caso-de-uso: \"CU-USR-05\"\n      x-permiso: \"AUTENTICADO\"\n"), yaml);
+        assertTrue(yaml.contains("x-caso-de-uso: \"CU-USR-20\"\n      x-permiso: \"PUBLICO\"\n"), yaml);
         assertEquals(1, yaml.split("x-permiso: \"SYSADMIN, ADMIN\"", -1).length - 1);
         assertEquals(yaml, CatalogoDePermisos.completarYaml(yaml, DECLARADOS), "Correrlo dos veces no cambia nada");
     }
@@ -81,7 +88,7 @@ class CatalogoDePermisosTest {
 
         String completo = CatalogoDePermisos.completarHtml(html, Map.of("TareaController.obtenerPorUuid", "VER@TABLERO"));
 
-        assertTrue(completo.contains("\"x-caso-de-uso\" : \"CU-TAR-01\",\n          \"x-permiso\" : \"VER@TABLERO\",\n"), completo);
+        assertTrue(completo.contains("\"x-caso-de-uso\" : \"CU-TAR-01\",\n        \"x-permiso\" : \"VER@TABLERO\",\n"), completo);
         assertEquals(completo, CatalogoDePermisos.completarHtml(completo, Map.of("TareaController.obtenerPorUuid", "VER@TABLERO")));
     }
 

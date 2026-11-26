@@ -1,5 +1,8 @@
 package com.blue.open.Code.OperacionDeArchivo;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.OperacionDeArchivo.CasosDeUso.OperacionDeArchivoBuscarUseCase;
 import com.blue.open.Code.OperacionDeArchivo.CasosDeUso.OperacionDeArchivoVistaPreviaUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
@@ -31,6 +34,7 @@ public class ArchivoController {
 
     // Busca lo archivado que el usuario puede archivar y restaurar. Responde una pagina de OperacionDeArchivoBuscarResponseDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO_O_TABLERO, detalle = "lista solo lo archivado sobre lo que tiene ARCHIVAR; los usuarios, solo administradores")
     @Contrato(casoDeUso = "CU-ARC-01", resumen = "Busca lo archivado de cualquier tipo sobre lo que el usuario tiene permiso de archivo",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<OperacionDeArchivoBuscarResponseDTO>> paginar(@Valid @RequestBody OperacionDeArchivoBuscarRequestDTO dto) {
@@ -39,6 +43,7 @@ public class ArchivoController {
 
     // Vista previa de un archivado: que es, donde estaba y que pasa al restaurarlo. Responde la vista previa
     @GetMapping("/{tipo}/{uuid}/vista-previa")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO_O_TABLERO, detalle = "el tablero de una tarea, el proyecto en los demás; un usuario, solo administradores")
     @Contrato(casoDeUso = "CU-ARC-02", resumen = "Vista previa de un archivado: qué es, dónde estaba, qué se restaura con él y qué queda archivado",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ArchivoVistaPreviaResponseDTO> vistaPrevia(

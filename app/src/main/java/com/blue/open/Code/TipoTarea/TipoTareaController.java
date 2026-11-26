@@ -1,5 +1,6 @@
 package com.blue.open.Code.TipoTarea;
 
+import com.blue.open.Code.Autorizacion.SoloSesion;
 import com.blue.open.Code.TipoTarea.CasosDeUso.TipoTareaListarUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class TipoTareaController {
 
     // Lista los tipos de tarea con su nivel en la jerarquia
     @GetMapping("/listar")
+    @SoloSesion("catálogo común a todos los proyectos")
     @Contrato(casoDeUso = "CU-TTA-01", resumen = "Lista los tipos de tarea con su nivel en la jerarquía",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<TipoTareaDTO>> listar() {

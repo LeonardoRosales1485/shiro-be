@@ -1,5 +1,8 @@
 package com.blue.open.Code.Proyecto;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoArchivarUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoBacklogUseCase;
 import com.blue.open.Code.Proyecto.CasosDeUso.ProyectoOrdenarBacklogUseCase;
@@ -47,6 +50,7 @@ public class ProyectoController {
 
     // Obtiene un proyecto con sus tableros. Responde el ProyectoDTO
     @GetMapping("/uuid/{uuid}")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO, detalle = "o alguno de sus tableros")
     @Contrato(casoDeUso = "CU-PRY-01", resumen = "Obtiene un proyecto con sus tableros", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> obtenerPorUuid(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(service.obtenerPorUuid(uuid), HttpStatus.OK);
@@ -54,6 +58,7 @@ public class ProyectoController {
 
     // Lista los proyectos con filtros y orden. Responde la pagina de ProyectoDTO
     @PostMapping("/paginar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO, detalle = "lista solo los proyectos visibles")
     @Contrato(casoDeUso = "CU-PRY-02", resumen = "Lista los proyectos con filtros y orden", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<Pagina<ProyectoDTO>> paginar(@RequestBody PedidoDePaginado pedido) throws Exception {
         return new ResponseEntity<>(service.paginar(pedido), HttpStatus.OK);
@@ -69,6 +74,7 @@ public class ProyectoController {
 
     // Archiva un proyecto con todo lo que contiene. Responde el proyecto archivado
     @PostMapping("/{uuid}/archivar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-PRY-04", resumen = "Archiva un proyecto con sus tableros, tareas, comentarios y relaciones (exige ARCHIVAR en el proyecto)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> archivar(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
@@ -77,6 +83,7 @@ public class ProyectoController {
 
     // Restaura un proyecto archivado con lo que se archivo en su misma operacion. Responde el proyecto restaurado
     @PostMapping("/{uuid}/restaurar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.ARCHIVAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-PRY-05", resumen = "Restaura un proyecto archivado con lo que se archivó junto con él (exige ARCHIVAR en el proyecto)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<ProyectoDTO> restaurar(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
@@ -85,6 +92,7 @@ public class ProyectoController {
 
     // Backlog del proyecto en su orden unico. Responde la lista de tareas
     @GetMapping("/{uuid}/backlog")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-BKL-01", resumen = "Backlog de un proyecto: tareas sin sprint de todos los tableros y tipos, en su orden único",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<ProyectoBacklogResponseDTO>> backlog(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {
@@ -93,6 +101,7 @@ public class ProyectoController {
 
     // Ordena el backlog del proyecto. Responde el backlog ordenado
     @PostMapping("/{uuid}/ordenar-backlog")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-BKL-02", resumen = "Ordena el backlog de un proyecto (un único orden para todos)", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<ProyectoBacklogResponseDTO>> ordenarBacklog(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid,
             @Valid @RequestBody ProyectoOrdenarBacklogRequestDTO dto) {
@@ -101,6 +110,7 @@ public class ProyectoController {
 
     // Usuarios con acceso al proyecto, para elegir el responsable de una tarea. Responde la lista por nombre de usuario
     @GetMapping("/{uuid}/usuarios")
+    @PermisoDeRecurso(nivel = NivelDePermiso.VER, recurso = RecursoDePermiso.PROYECTO)
     @Contrato(casoDeUso = "CU-PRY-06", resumen = "Usuarios con acceso a un proyecto, para elegir el responsable de una tarea (exige VER en el proyecto)",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<List<ProyectoUsuarioResponseDTO>> usuarios(@Descripcion("Uuid del proyecto") @PathVariable("uuid") String uuid) {

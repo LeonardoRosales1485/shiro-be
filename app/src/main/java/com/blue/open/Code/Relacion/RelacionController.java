@@ -1,5 +1,8 @@
 package com.blue.open.Code.Relacion;
 
+import com.blue.open.Code.ReglaPermiso.NivelDePermiso;
+import com.blue.open.Code.Autorizacion.RecursoDePermiso;
+import com.blue.open.Code.Autorizacion.PermisoDeRecurso;
 import com.blue.open.Code.Relacion.CasosDeUso.RelacionArchivarUseCase;
 import com.blue.open.Code.Relacion.CasosDeUso.RelacionCrearUseCase;
 import com.blue.open.Core.Kernel.Contrato.Contrato;
@@ -30,6 +33,7 @@ public class RelacionController {
 
     // Relaciona dos tareas. Responde la relacion creada
     @PostMapping("/crear")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.TABLERO, detalle = "el tablero de origen, y VER en el de destino")
     @Contrato(casoDeUso = "CU-REL-01", resumen = "Relaciona dos tareas: bloquea, se relaciona con o duplica",
             permiso = Contrato.AUTENTICADO)
     public ResponseEntity<RelacionDTO> crear(@Valid @RequestBody RelacionCrearRequestDTO dto) {
@@ -38,6 +42,7 @@ public class RelacionController {
 
     // Archiva una relacion. Responde la relacion archivada
     @PostMapping("/{uuid}/archivar")
+    @PermisoDeRecurso(nivel = NivelDePermiso.EDITAR, recurso = RecursoDePermiso.TABLERO, detalle = "el tablero de origen")
     @Contrato(casoDeUso = "CU-REL-02", resumen = "Archiva una relación entre tareas", permiso = Contrato.AUTENTICADO)
     public ResponseEntity<RelacionDTO> archivar(@Descripcion("Uuid de la relación") @PathVariable("uuid") String uuid) {
         return new ResponseEntity<>(archivarUseCase.ejecutar(uuid), HttpStatus.OK);
